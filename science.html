@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OUR SCIENCE — BLUE ZONE Longevity Formulations</title>
+  <meta name="description" content="Discover the clinical research, bio-identical extraction, and formulation science behind BLUE ZONE dietary supplements.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'deep-navy': '#031827',
+            'dark-navy': '#062B49',
+            'ocean-blue': '#0A4F78',
+            'accent-blue': '#2A8FC2',
+            'natural-green': '#67B34A',
+            'leaf-green': '#B8D98A',
+            'off-white': '#F6F5EF',
+            'warm-sand': '#E8DCC4',
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="font-cairo bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-[#F6F5EF]/90 dark:bg-[#031827]/90 backdrop-blur-md border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/30 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- LEFT: LOGO -->
+      <a href="index.html" class="flex items-center group shrink-0">
+        <img src="assets/images/bluezone-logo.png" alt="BLUE ZONE" onerror="BLUEZONE_APP.handleImageFallback(this)" class="h-11 sm:h-13 w-auto object-contain transition-transform group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-3 dark:py-1.5 dark:rounded-xl dark:shadow-md" />
+      </a>
+
+      <!-- CENTER: 6 CLEAN NAV LINKS (OUR SCIENCE Active) -->
+      <nav class="hidden md:flex items-center gap-6 lg:gap-8 whitespace-nowrap">
+        <a href="index.html" data-nav="home" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">HOME</a>
+        <a href="index.html#who-we-are" data-nav="story" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">OUR STORY</a>
+        <a href="science.html" data-nav="science" class="nav-link text-xs uppercase tracking-[0.15em] font-extrabold text-[#67B34A] border-b-2 border-[#67B34A] py-1 transition-colors">OUR SCIENCE</a>
+        <a href="products.html" data-nav="products" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">PRODUCTS</a>
+        <a href="blog.html" data-nav="blog" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">BLOG</a>
+        <a href="contact.html" data-nav="contact" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">CONTACT</a>
+      </nav>
+
+      <!-- RIGHT: CART & THEME TOGGLE ONLY -->
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+        <button onclick="BLUEZONE_CART.open()" aria-label="Cart" class="relative p-2.5 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span class="cart-badge-count absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
+        </button>
+
+        <button onclick="BLUEZONE_THEME.toggle()" aria-label="Toggle Theme" class="p-2.5 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+          <svg class="w-5 h-5 hidden dark:block text-[#E8DCC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-5 h-5 block dark:hidden text-[#031827]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <button id="mobile-menu-btn" onclick="BLUEZONE_APP.toggleMobileMenu()" aria-label="Toggle menu" class="md:hidden p-2.5 rounded-lg text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-nav-drawer" class="hidden md:hidden bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/20 px-6 py-6 space-y-4 shadow-2xl">
+      <div class="flex flex-col gap-2">
+        <a href="index.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>HOME</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="index.html#who-we-are" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>OUR STORY</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="science.html" class="text-xs font-extrabold uppercase tracking-widest text-[#67B34A] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>OUR SCIENCE</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="products.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>PRODUCTS</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="blog.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>BLOG</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="contact.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>CONTACT</span><span class="text-[#67B34A] font-bold">→</span></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SCIENCE CONTENT -->
+  <main class="py-12 sm:py-16 bg-[#F6F5EF] dark:bg-[#031827] min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
+      
+      <!-- 1. SCIENCE HERO (Spacious & Compact for First Viewport) -->
+      <div class="text-center max-w-2xl mx-auto space-y-3 pt-4">
+        <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">
+          OUR SCIENCE
+        </span>
+        <h1 class="text-4xl sm:text-6xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight leading-tight">
+          THE SCIENCE OF <span class="font-bold text-[#67B34A]">LONGEVITY</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed">
+          Inspired by the wisdom of longevity. Refined through modern formulation.
+        </p>
+      </div>
+
+      <!-- 2. CONNECTED INTERACTIVE TIMELINE (CARDLESS SYSTEM) -->
+      <section class="space-y-10">
+        
+        <!-- Desktop Horizontal Timeline (No Cards, Single Thin Line) -->
+        <div class="hidden md:block relative py-6 max-w-4xl mx-auto px-6">
+          <!-- Thin Base Line -->
+          <div class="absolute top-1/2 left-12 right-12 h-[1.5px] bg-[#0A4F78]/25 dark:bg-[#0A4F78]/50 -translate-y-1/2 z-0"></div>
+          <!-- Animated Progress Line -->
+          <div id="bz-timeline-progress" class="absolute top-1/2 left-12 h-[2px] bg-[#67B34A] -translate-y-1/2 z-0 transition-all duration-500" style="width: 0%;"></div>
+
+          <!-- 4 Pure Timeline Nodes -->
+          <div class="relative z-10 flex items-center justify-between" id="bz-science-desktop-timeline">
+            
+            <!-- Node 01: SOURCE -->
+            <button onclick="BLUEZONE_SCIENCE.select(0)" onmouseenter="BLUEZONE_SCIENCE.select(0)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="0">
+              <div class="node-circle w-11 h-11 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-black shadow-[0_0_15px_rgba(103,179,74,0.4)] border-2 border-[#67B34A] transition-all">
+                01
+              </div>
+              <span class="node-title text-xs font-extrabold uppercase tracking-widest text-[#67B34A]">SOURCE</span>
+            </button>
+
+            <!-- Node 02: FORMULATION -->
+            <button onclick="BLUEZONE_SCIENCE.select(1)" onmouseenter="BLUEZONE_SCIENCE.select(1)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="1">
+              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
+                02
+              </div>
+              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">FORMULATION</span>
+            </button>
+
+            <!-- Node 03: VALIDATION -->
+            <button onclick="BLUEZONE_SCIENCE.select(2)" onmouseenter="BLUEZONE_SCIENCE.select(2)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="2">
+              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
+                03
+              </div>
+              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">VALIDATION</span>
+            </button>
+
+            <!-- Node 04: WELLNESS -->
+            <button onclick="BLUEZONE_SCIENCE.select(3)" onmouseenter="BLUEZONE_SCIENCE.select(3)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="3">
+              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
+                04
+              </div>
+              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">WELLNESS</span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Mobile Vertical Timeline Selector -->
+        <div class="md:hidden space-y-2 border-l-2 border-[#0A4F78]/20 pl-4 py-2" id="bz-science-mobile-timeline">
+          <button onclick="BLUEZONE_SCIENCE.select(0)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-bold text-[#67B34A]" data-index="0">
+            <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center text-[10px]">01</span>
+            <span>SOURCE — FROM NATURE</span>
+          </button>
+          <button onclick="BLUEZONE_SCIENCE.select(1)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="1">
+            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">02</span>
+            <span>FORMULATION — PRECISION</span>
+          </button>
+          <button onclick="BLUEZONE_SCIENCE.select(2)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="2">
+            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">03</span>
+            <span>VALIDATION — QUALITY FOCUS</span>
+          </button>
+          <button onclick="BLUEZONE_SCIENCE.select(3)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="3">
+            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">04</span>
+            <span>WELLNESS — DAILY LIFE</span>
+          </button>
+        </div>
+
+        <!-- Two-Column Editorial Display Panel -->
+        <div class="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 shadow-xl transition-all duration-500 min-h-[380px]" id="bz-science-panel">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Left Column: Editorial Visual & Subtle Node Overlay -->
+            <div class="lg:col-span-6 relative">
+              <div class="w-full h-72 sm:h-96 rounded-2xl overflow-hidden relative shadow-md border border-[#0A4F78]/20 bg-[#031827] group">
+                
+                <!-- Main Image -->
+                <img
+                  id="bz-science-active-img"
+                  src="assets/images/hero_longevity.jpg"
+                  alt="Nature Sourcing"
+                  onerror="BLUEZONE_APP.handleImageFallback(this)"
+                  class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                />
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-[#031827]/90 via-[#031827]/30 to-transparent"></div>
+                
+                <!-- Subtle Science Node Visual Overlay (INGREDIENT -> FUNCTION -> BODY -> WELLNESS) -->
+                <div class="absolute inset-x-4 bottom-4 p-4 rounded-xl bg-[#031827]/85 border border-[#2A8FC2]/30 backdrop-blur-md text-white space-y-2">
+                  <span class="block text-[9px] font-mono font-bold tracking-widest text-[#2A8FC2] uppercase">
+                    BIOLOGICAL SYSTEM FLOW:
+                  </span>
+                  <div class="flex items-center justify-between text-[10px] font-mono font-bold text-white/90">
+                    <span id="bz-flow-step-1" class="text-[#67B34A]">INGREDIENT</span>
+                    <span class="text-[#2A8FC2]">→</span>
+                    <span id="bz-flow-step-2" class="text-white/40">FUNCTION</span>
+                    <span class="text-[#2A8FC2]">→</span>
+                    <span id="bz-flow-step-3" class="text-white/40">BODY</span>
+                    <span class="text-[#2A8FC2]">→</span>
+                    <span id="bz-flow-step-4" class="text-white/40">WELLNESS</span>
+                  </div>
+                </div>
+
+                <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#031827]/80 text-[#67B34A] text-[10px] font-mono font-bold border border-[#67B34A]/40 backdrop-blur-sm">
+                  STAGE <span id="bz-science-stage-code">01/04</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Stage Details -->
+            <div class="lg:col-span-6 space-y-6">
+              
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <span id="bz-science-active-num" class="text-4xl font-light font-mono text-[#67B34A]">01</span>
+                  <span class="text-xs font-bold text-[#67B34A]">—</span>
+                  <span id="bz-science-active-stage" class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">SOURCE</span>
+                </div>
+
+                <h3 id="bz-science-active-title" class="text-2xl sm:text-4xl font-bold text-[#031827] dark:text-[#F6F5EF] tracking-tight">
+                  FROM NATURE
+                </h3>
+              </div>
+
+              <p id="bz-science-active-desc" class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed">
+                Selected botanical and nutritional ingredients inspired by the natural foundations of longevity.
+              </p>
+
+              <!-- Feature Highlights -->
+              <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 space-y-2">
+                <span class="block text-[10px] font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">KEY HIGHLIGHTS</span>
+                <div id="bz-science-active-chips" class="flex flex-wrap gap-2">
+                  <span class="px-3 py-1.5 rounded-lg bg-[#67B34A]/15 text-[#67B34A] text-xs font-bold">Standardized Botanical Extraction</span>
+                  <span class="px-3 py-1.5 rounded-lg bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF] text-xs font-bold">Peak Potency Sourcing</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 3. FORMULATED WITH PURPOSE -->
+      <section class="space-y-8 pt-4">
+        <div class="text-center max-w-2xl mx-auto space-y-3">
+          <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">
+            OUR PHILOSOPHY
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight">
+            FORMULATED WITH <span class="font-bold text-[#67B34A]">PURPOSE</span>.
+          </h2>
+          <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium">
+            A clear focus on ingredient selection, formulation balance, and practical daily wellness.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Point 01 -->
+          <div class="space-y-3 p-2">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-[#67B34A]/15 text-[#67B34A] flex items-center justify-center font-mono font-bold text-xs">01</span>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">INGREDIENT SELECTION</h3>
+            </div>
+            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
+              Identifying key dietary botanicals and polyphenols observed across long-lived communities worldwide.
+            </p>
+          </div>
+
+          <!-- Point 02 -->
+          <div class="space-y-3 p-2">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-[#0A4F78]/15 dark:bg-[#0A4F78]/40 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center justify-center font-mono font-bold text-xs">02</span>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">FORMULATION THINKING</h3>
+            </div>
+            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
+              Thoughtfully selected ingredients brought together into focused wellness formulations.
+            </p>
+          </div>
+
+          <!-- Point 03 -->
+          <div class="space-y-3 p-2">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] flex items-center justify-center font-mono font-bold text-xs">03</span>
+              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">EVERYDAY WELLNESS</h3>
+            </div>
+            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
+              Creating clean, practical dietary support designed to fit effortlessly into your daily morning routine.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 4. SCIENCE IN PRACTICE / BLUE MIND TRANSITION -->
+      <section class="bg-[#031827] text-white rounded-3xl p-8 sm:p-12 border border-[#0A4F78]/40 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-center sm:text-left">
+          <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#67B34A]">SCIENCE IN PRACTICE</span>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">SEE THE SCIENCE IN BLUE MIND</h2>
+          <p class="text-xs sm:text-sm text-[#F6F5EF]/75 font-medium max-w-xl">
+            Discover how the BLUE ZONE formulation philosophy comes to life in our flagship cognitive complex.
+          </p>
+        </div>
+        <a href="product.html?id=blue-mind" class="px-7 py-3.5 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md shrink-0 whitespace-nowrap hover:translate-x-1">
+          EXPLORE BLUE MIND →
+        </a>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Inline Controller Script for Cardless Timeline Science Journey -->
+  <script>
+    (function() {
+      const SCIENCE_DATA = [
+        {
+          num: "01",
+          code: "01/04",
+          stage: "SOURCE",
+          title: "FROM NATURE",
+          desc: "Selected botanical and nutritional ingredients inspired by the natural foundations of longevity.",
+          img: "assets/images/hero_longevity.jpg",
+          chips: ["Standardized Botanical Extraction", "Peak Potency Sourcing"],
+          flowStep: 1
+        },
+        {
+          num: "02",
+          code: "02/04",
+          stage: "FORMULATION",
+          title: "PRECISION IN EVERY FORMULA.",
+          desc: "Thoughtfully selected ingredients brought together into focused wellness formulations.",
+          img: "assets/images/products/blue-mind.jpg",
+          chips: ["Bio-Identical Nutrient Ratios", "Cellular Absorption Focus"],
+          flowStep: 2
+        },
+        {
+          num: "03",
+          code: "03/04",
+          stage: "VALIDATION",
+          title: "QUALITY YOU CAN TRUST.",
+          desc: "A clear focus on ingredient quality, consistency, and responsible formulation.",
+          img: "assets/images/blog_1.jpg",
+          chips: ["Third-Party Quality Verified", "Zero Synthetic Additives"],
+          flowStep: 3
+        },
+        {
+          num: "04",
+          code: "04/04",
+          stage: "WELLNESS",
+          title: "DESIGNED FOR DAILY LIFE.",
+          desc: "Bringing longevity-inspired principles into modern everyday wellness.",
+          img: "assets/images/blog_2.jpg",
+          chips: ["Cognitive Resilience", "Daily Vitality Support"],
+          flowStep: 4
+        }
+      ];
+
+      function selectScience(idx) {
+        if (idx < 0 || idx >= SCIENCE_DATA.length) return;
+        const s = SCIENCE_DATA[idx];
+
+        // 1. Update Progress Line on Desktop Timeline
+        const progressLine = document.getElementById('bz-timeline-progress');
+        if (progressLine) {
+          const percents = [0, 33.3, 66.6, 100];
+          progressLine.style.width = percents[idx] + '%';
+        }
+
+        // 2. Update Desktop Timeline Node Styles (No Cards!)
+        const desktopNodes = document.querySelectorAll('#bz-science-desktop-timeline .bz-timeline-node');
+        desktopNodes.forEach((node, i) => {
+          const circle = node.querySelector('.node-circle');
+          const title = node.querySelector('.node-title');
+          if (i === idx) {
+            if (circle) circle.className = 'node-circle w-11 h-11 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-black shadow-[0_0_15px_rgba(103,179,74,0.4)] scale-110 border-2 border-[#67B34A] transition-all';
+            if (title) title.className = 'node-title text-xs font-extrabold uppercase tracking-widest text-[#67B34A]';
+          } else {
+            if (circle) circle.className = 'node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]';
+            if (title) title.className = 'node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors';
+          }
+        });
+
+        // 3. Update Mobile Nodes
+        const mobileNodes = document.querySelectorAll('#bz-science-mobile-timeline .bz-mobile-node');
+        mobileNodes.forEach((btn, i) => {
+          if (i === idx) {
+            btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-bold text-[#67B34A]';
+          } else {
+            btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60';
+          }
+        });
+
+        // 4. Update Biological Flow Steps Overlay
+        for (let step = 1; step <= 4; step++) {
+          const flowEl = document.getElementById(`bz-flow-step-${step}`);
+          if (flowEl) {
+            if (step <= s.flowStep) {
+              flowEl.className = 'text-[#67B34A] font-bold';
+            } else {
+              flowEl.className = 'text-white/40 font-normal';
+            }
+          }
+        }
+
+        // 5. Update Display Panel Content with Smooth Opacity Easing
+        const panel = document.getElementById('bz-science-panel');
+        if (panel) {
+          panel.style.opacity = '0.3';
+          setTimeout(() => {
+            const imgEl = document.getElementById('bz-science-active-img');
+            const codeEl = document.getElementById('bz-science-stage-code');
+            const numEl = document.getElementById('bz-science-active-num');
+            const stageEl = document.getElementById('bz-science-active-stage');
+            const titleEl = document.getElementById('bz-science-active-title');
+            const descEl = document.getElementById('bz-science-active-desc');
+            const chipsEl = document.getElementById('bz-science-active-chips');
+
+            if (imgEl) {
+              imgEl.src = s.img;
+              imgEl.alt = s.title;
+            }
+            if (codeEl) codeEl.textContent = s.code;
+            if (numEl) numEl.textContent = s.num;
+            if (stageEl) stageEl.textContent = s.stage;
+            if (titleEl) titleEl.textContent = s.title;
+            if (descEl) descEl.textContent = s.desc;
+            if (chipsEl) {
+              chipsEl.innerHTML = s.chips.map((chip, cIdx) => 
+                `<span class="px-3 py-1.5 rounded-lg ${cIdx === 0 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF]'} text-xs font-bold">${chip}</span>`
+              ).join('');
+            }
+
+            panel.style.opacity = '1';
+          }, 200);
+        }
+      }
+
+      window.BLUEZONE_SCIENCE = { select: selectScience };
+    })();
+  </script>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/20">
+        <div class="lg:col-span-4 space-y-6">
+          <a href="index.html" class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#0A4F78] flex items-center justify-center text-white shadow-md">
+              <svg class="w-6 h-6 stroke-[1.75]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-2xl font-black tracking-[0.2em] text-white">BLUE ZONE</span>
+              <span class="text-[10px] uppercase tracking-[0.3em] text-[#2A8FC2] font-semibold -mt-1">LONGEVITY SCIENCE</span>
+            </div>
+          </a>
+          <p class="text-xs text-[#E8DCC4]/80 leading-relaxed font-medium max-w-sm">
+            BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and biological resilience of the world’s longest-lived communities.
+          </p>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h4>
+          <ul class="space-y-2.5 text-xs font-semibold">
+            <li><a href="index.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Home</a></li>
+            <li><a href="science.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Our Science</a></li>
+            <li><a href="products.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Products Overview</a></li>
+            <li><a href="team.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Meet the Team</a></li>
+            <li><a href="shop.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Shop Catalog</a></li>
+            <li><a href="blog.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Longevity Journal</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h4>
+          <ul class="space-y-2.5 text-xs font-semibold">
+            <li><a href="contact.html#faq" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Frequently Asked Questions</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Cold-Chain Shipping</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Privacy Policy</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="lg:col-span-4 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h4>
+          <p class="text-xs text-[#E8DCC4]/70 leading-relaxed font-medium">
+            Subscribe to receive longevity research whitepapers, clinical updates, and priority product access.
+          </p>
+          <form onsubmit="event.preventDefault(); if(window.BLUEZONE_APP && window.BLUEZONE_APP.showToast){ window.BLUEZONE_APP.showToast('Thank you for subscribing to BLUE ZONE!', 'success'); } this.reset();" class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <input type="email" placeholder="Enter your email address..." required class="w-full bg-[#062B49] border border-[#0A4F78] rounded-xl sm:rounded-r-none py-3 px-4 text-xs text-white placeholder-[#E8DCC4]/50 focus:outline-none focus:border-[#2A8FC2]" />
+            <button type="submit" class="bg-[#0A4F78] hover:bg-[#2A8FC2] text-white px-6 py-3 rounded-xl sm:rounded-l-none text-xs font-extrabold uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap">
+              SUBSCRIBE
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4]/50 space-y-4 sm:space-y-0">
+        <p>© 2026 BLUE ZONE Longevity Inc. All rights reserved.</p>
+        <p class="max-w-md text-center sm:text-right">
+          *These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat, cure, or prevent any disease.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS & DRAWERS -->
+  <div id="quick-view-modal" class="hidden fixed inset-0 z-[9990] items-center justify-center p-4 bg-black/60 backdrop-blur-sm"><div id="quick-view-content" class="w-full max-w-3xl"></div></div>
+  <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm"><div class="absolute inset-0" onclick="BLUEZONE_CART.close()"></div><div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20"><div class="p-6 border-b flex justify-between items-center"><h2 class="text-lg font-black uppercase">YOUR CART</h2><button onclick="BLUEZONE_CART.close()">✕</button></div><div class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] space-y-2"><div id="free-shipping-text" class="text-xs font-bold">Add $75.00 more for FREE SHIPPING</div><div class="w-full h-1.5 bg-[#031827]/10 rounded-full overflow-hidden"><div id="free-shipping-bar" class="h-full bg-[#0A4F78]" style="width: 0%;"></div></div></div><div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div><div class="p-6 bg-white dark:bg-[#062B49] border-t space-y-4"><div class="flex justify-between font-black"><span>SUBTOTAL</span><span id="cart-subtotal" class="text-[#0A4F78]">$0.00</span></div><button onclick="BLUEZONE_APP.openCheckout()" class="w-full py-4 bg-[#0A4F78] text-white text-xs font-bold uppercase rounded-xl btn-sheen">PROCEED TO CHECKOUT</button></div></div></div>
+  <div id="wishlist-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm"><div class="absolute inset-0" onclick="BLUEZONE_WISHLIST.close()"></div><div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20"><div class="p-6 border-b flex justify-between items-center"><h2 class="text-lg font-black uppercase">MY WISHLIST</h2><button onclick="BLUEZONE_WISHLIST.close()">✕</button></div><div id="wishlist-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div></div></div>
+  <div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-6 flex-col items-center"><div class="max-w-4xl w-full flex justify-between items-center mb-8"><span class="text-xs font-bold text-[#2A8FC2]">LIVE SEARCH</span><button onclick="BLUEZONE_SEARCH.close()" class="text-white text-xl">✕</button></div><input type="text" id="search-input" placeholder="Search formulations..." class="w-full max-w-2xl bg-[#062B49] border text-white rounded-2xl py-4 px-6 mb-8 text-lg" /><div id="search-results-container" class="max-w-4xl w-full flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4"></div></div>
+  <div id="checkout-modal" class="hidden fixed inset-0 z-[9999] items-center justify-center p-4 bg-black/70 backdrop-blur-md"><div class="relative w-full max-w-xl bg-[#F6F5EF] dark:bg-[#062B49] rounded-3xl p-6 sm:p-8 space-y-6"><div class="flex justify-between items-center border-b pb-4"><h3 class="text-lg font-black uppercase">CHECKOUT SIMULATION</h3><button onclick="BLUEZONE_APP.closeCheckout()">✕</button></div><div id="checkout-form-step"><form onsubmit="BLUEZONE_APP.submitCheckout(event)" class="space-y-4"><div><label class="block text-xs font-bold mb-1">FULL NAME *</label><input type="text" name="name" required placeholder="Elena Vance" class="w-full p-3 rounded-lg border text-xs" /></div><div><label class="block text-xs font-bold mb-1">EMAIL ADDRESS *</label><input type="email" name="email" required placeholder="elena@bluezone.com" class="w-full p-3 rounded-lg border text-xs" /></div><div><label class="block text-xs font-bold mb-1">SHIPPING ADDRESS *</label><input type="text" name="address" required placeholder="124 Longevity Way" class="w-full p-3 rounded-lg border text-xs" /></div><div class="p-4 bg-white dark:bg-[#031827] rounded-xl flex justify-between font-bold text-xs"><span>TOTAL DUE:</span><span id="checkout-total">$0.00</span></div><button type="submit" id="checkout-submit-btn" class="w-full py-4 bg-[#0A4F78] text-white text-xs font-bold uppercase rounded-xl btn-sheen">PLACE ORDER</button></form></div><div id="checkout-confirmed-step" class="hidden text-center space-y-4 py-8"><h3 class="text-2xl font-black text-[#67B34A]">ORDER CONFIRMED!</h3><p class="text-xs">Order ID: <strong id="checkout-order-id">BZ-123456</strong></p><p class="text-xs">Confirmation sent to <strong id="checkout-order-email"></strong>.</p><button onclick="BLUEZONE_APP.closeCheckout()" class="px-6 py-2.5 bg-[#0A4F78] text-white text-xs font-bold rounded-lg">DONE</button></div></div></div>
+
+  <!-- JAVASCRIPT MODULES -->
+  <script src="js/products.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/wishlist.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

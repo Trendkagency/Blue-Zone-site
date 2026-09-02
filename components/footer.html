@@ -1,0 +1,80 @@
+<!-- BLUE ZONE Footer Component -->
+<footer class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/20">
+      
+      <!-- Brand Summary -->
+      <div class="lg:col-span-4 space-y-6">
+        <a href="index.html" class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#0A4F78] flex items-center justify-center text-white shadow-md">
+            <svg class="w-6 h-6 stroke-[1.75]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-2xl font-black tracking-[0.2em] text-white">BLUE ZONE</span>
+            <span class="text-[10px] uppercase tracking-[0.3em] text-[#2A8FC2] font-semibold -mt-1">LONGEVITY SCIENCE</span>
+          </div>
+        </a>
+
+        <p class="text-xs text-[#E8DCC4]/80 leading-relaxed font-medium max-w-sm">
+          BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and biological resilience of the world’s longest-lived communities.
+        </p>
+
+        <button onclick="if(window.BLUEZONE_MAP){window.BLUEZONE_MAP.replay();}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#0A4F78] text-xs uppercase font-bold tracking-widest text-[#2A8FC2] hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          REPLAY WORLD MAP INTRO
+        </button>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="lg:col-span-2 space-y-4">
+        <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h4>
+        <ul class="space-y-2.5 text-xs font-semibold">
+          <li><a href="index.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Home</a></li>
+          <li><a href="science.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Our Science</a></li>
+          <li><a href="products.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Products Overview</a></li>
+          <li><a href="team.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Meet the Team</a></li>
+          <li><a href="shop.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Shop Catalog</a></li>
+          <li><a href="blog.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Longevity Journal</a></li>
+          <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <!-- Support & Legal -->
+      <div class="lg:col-span-2 space-y-4">
+        <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h4>
+        <ul class="space-y-2.5 text-xs font-semibold">
+          <li><a href="contact.html#faq" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Frequently Asked Questions</a></li>
+          <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Cold-Chain Shipping</a></li>
+          <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Privacy Policy</a></li>
+          <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter Box -->
+      <div class="lg:col-span-4 space-y-4">
+        <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h4>
+        <p class="text-xs text-[#E8DCC4]/70 leading-relaxed font-medium">
+          Subscribe to receive longevity research whitepapers, clinical updates, and priority product access.
+        </p>
+
+        <form onsubmit="event.preventDefault(); if(window.BLUEZONE_APP && window.BLUEZONE_APP.showToast){ window.BLUEZONE_APP.showToast('Thank you for subscribing to BLUE ZONE!', 'success'); } this.reset();" class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <input type="email" placeholder="Enter your email address..." required class="w-full bg-[#062B49] border border-[#0A4F78] rounded-xl sm:rounded-r-none py-3 px-4 text-xs text-white placeholder-[#E8DCC4]/50 focus:outline-none focus:border-[#2A8FC2]" />
+          <button type="submit" class="bg-[#0A4F78] hover:bg-[#2A8FC2] text-white px-6 py-3 rounded-xl sm:rounded-l-none text-xs font-extrabold uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap">
+            SUBSCRIBE
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Bottom Legal Disclaimer -->
+    <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4]/50 space-y-4 sm:space-y-0">
+      <p>© 2026 BLUE ZONE Longevity Inc. All rights reserved.</p>
+      <p class="max-w-md text-center sm:text-right">
+        *These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat, cure, or prevent any disease.
+      </p>
+    </div>
+
+  </div>
+</footer>

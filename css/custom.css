@@ -1,0 +1,237 @@
+/* BLUE ZONE Premium Custom CSS & Micro-Animations System */
+
+body {
+  font-family: 'Cairo', sans-serif;
+  overflow-x: hidden;
+  opacity: 0;
+  animation: pageFadeIn 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Marker Pulsing Animation (BLUE ONLY #0A4F78 & #2A8FC2) */
+@keyframes bluePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(42, 143, 194, 0.7), 0 0 10px rgba(10, 79, 120, 0.8);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(42, 143, 194, 0), 0 0 22px rgba(10, 79, 120, 0.9);
+    transform: scale(1.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(42, 143, 194, 0), 0 0 10px rgba(10, 79, 120, 0.8);
+    transform: scale(1);
+  }
+}
+
+.blue-marker-pulse {
+  animation: bluePulse 2.5s infinite ease-in-out;
+}
+
+/* Float Animation */
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: floatSlow 5s ease-in-out infinite;
+}
+
+/* Badge Pop Keyframe */
+@keyframes badgePop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-badge-pop {
+  animation: badgePop 350ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Scroll Reveal Classes */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card Hover Elevation & Scale */
+.card-hover-lift {
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1), border-color 350ms ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 32px -12px rgba(10, 79, 120, 0.15);
+}
+
+.dark .card-hover-lift:hover {
+  box-shadow: 0 16px 32px -12px rgba(42, 143, 194, 0.2);
+}
+
+/* Premium Button Sheen Transition */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sheen::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(60deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 750ms ease;
+}
+
+.btn-sheen:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
+
+/* Image Zoom Effect */
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom-container img {
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.img-zoom-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Sticky Header Scroll Shadow */
+header.header-scrolled {
+  box-shadow: 0 10px 30px -10px rgba(3, 24, 39, 0.12);
+  background-color: rgba(246, 245, 239, 0.95);
+}
+
+.dark header.header-scrolled {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  background-color: rgba(3, 24, 39, 0.95);
+}
+
+/* Toast Notifications Container */
+#bz-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  flex-col-reverse;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.bz-toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  background-color: #0A4F78;
+  box-shadow: 0 12px 28px -6px rgba(3, 24, 39, 0.35);
+  border: 1px solid rgba(42, 143, 194, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: toastSlideIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.bz-toast.toast-success {
+  background-color: #062B49;
+  border-color: #67B34A;
+}
+
+.bz-toast.toast-out {
+  animation: toastSlideOut 300ms ease forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F6F5EF;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #031827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0A4F78;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A8FC2;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  body, .reveal-on-scroll, .card-hover-lift, .img-zoom-container img, .bz-toast {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

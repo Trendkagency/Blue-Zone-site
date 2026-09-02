@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRODUCTS — BLUE ZONE Formulation Collections</title>
+  <meta name="description" content="Discover BLUE ZONE dietary formulations for cognitive health, cellular energy, immunity, joint mobility, gut microbiome, and circadian rest.">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'deep-navy': '#031827',
+            'dark-navy': '#062B49',
+            'ocean-blue': '#0A4F78',
+            'accent-blue': '#2A8FC2',
+            'natural-green': '#67B34A',
+            'leaf-green': '#B8D98A',
+            'off-white': '#F6F5EF',
+            'warm-sand': '#E8DCC4',
+          },
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/custom.css">
+</head>
+<body class="font-cairo bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-[#F6F5EF]/90 dark:bg-[#031827]/90 backdrop-blur-md border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/30 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- LEFT: LOGO -->
+      <a href="index.html" class="flex items-center group shrink-0">
+        <img src="assets/images/bluezone-logo.png" alt="BLUE ZONE" onerror="BLUEZONE_APP.handleImageFallback(this)" class="h-11 sm:h-13 w-auto object-contain transition-transform group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-3 dark:py-1.5 dark:rounded-xl dark:shadow-md" />
+      </a>
+
+      <!-- CENTER: 6 CLEAN NAV LINKS (PRODUCTS Active) -->
+      <nav class="hidden md:flex items-center gap-6 lg:gap-8 whitespace-nowrap">
+        <a href="index.html" data-nav="home" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">HOME</a>
+        <a href="index.html#who-we-are" data-nav="story" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">OUR STORY</a>
+        <a href="science.html" data-nav="science" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">OUR SCIENCE</a>
+        <a href="products.html" data-nav="products" class="nav-link text-xs uppercase tracking-[0.15em] font-extrabold text-[#67B34A] border-b-2 border-[#67B34A] py-1 transition-colors">PRODUCTS</a>
+        <a href="blog.html" data-nav="blog" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">BLOG</a>
+        <a href="contact.html" data-nav="contact" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#67B34A] dark:hover:text-[#67B34A] transition-colors py-1">CONTACT</a>
+      </nav>
+
+      <!-- RIGHT: CART & THEME TOGGLE ONLY -->
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+        <button onclick="BLUEZONE_CART.open()" aria-label="Cart" class="relative p-2.5 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span class="cart-badge-count absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
+        </button>
+
+        <button onclick="BLUEZONE_THEME.toggle()" aria-label="Toggle Theme" class="p-2.5 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+          <svg class="w-5 h-5 hidden dark:block text-[#E8DCC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-5 h-5 block dark:hidden text-[#031827]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <button id="mobile-menu-btn" onclick="BLUEZONE_APP.toggleMobileMenu()" aria-label="Toggle menu" class="md:hidden p-2.5 rounded-lg text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-nav-drawer" class="hidden md:hidden bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/20 px-6 py-6 space-y-4 shadow-2xl">
+      <div class="flex flex-col gap-2">
+        <a href="index.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>HOME</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="index.html#who-we-are" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>OUR STORY</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="science.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>OUR SCIENCE</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="products.html" class="text-xs font-extrabold uppercase tracking-widest text-[#67B34A] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>PRODUCTS</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="blog.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>BLOG</span><span class="text-[#67B34A] font-bold">→</span></a>
+        <a href="contact.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-3 border-b border-[#0A4F78]/10 flex justify-between items-center px-2 hover:bg-[#0A4F78]/10 rounded-lg"><span>CONTACT</span><span class="text-[#67B34A] font-bold">→</span></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN PRODUCTS OVERVIEW -->
+  <main class="py-16 bg-[#F6F5EF] dark:bg-[#031827] min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <span class="text-xs font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">THE BLUE ZONE DOSSIER</span>
+        <h1 class="text-4xl sm:text-6xl font-black text-[#031827] dark:text-[#F6F5EF]">FORMULATION COLLECTION</h1>
+        <p class="text-base text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed">
+          Every BLUE ZONE supplement is clinically ratioed using bio-identical extracts to support neurological clarity, cellular stamina, and lifelong physical resilience.
+        </p>
+      </div>
+
+      <!-- Products Grid (2 columns on mobile, 3 on desktop) -->
+      <div id="products-overview-grid" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8"></div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/20">
+        <div class="lg:col-span-4 space-y-6">
+          <a href="index.html" class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#0A4F78] flex items-center justify-center text-white shadow-md">
+              <svg class="w-6 h-6 stroke-[1.75]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-2xl font-black tracking-[0.2em] text-white">BLUE ZONE</span>
+              <span class="text-[10px] uppercase tracking-[0.3em] text-[#2A8FC2] font-semibold -mt-1">LONGEVITY SCIENCE</span>
+            </div>
+          </a>
+          <p class="text-xs text-[#E8DCC4]/80 leading-relaxed font-medium max-w-sm">
+            BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and biological resilience of the world’s longest-lived communities.
+          </p>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h4>
+          <ul class="space-y-2.5 text-xs font-semibold">
+            <li><a href="index.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Home</a></li>
+            <li><a href="science.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Our Science</a></li>
+            <li><a href="products.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Products Overview</a></li>
+            <li><a href="team.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Meet the Team</a></li>
+            <li><a href="shop.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Shop Catalog</a></li>
+            <li><a href="blog.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Longevity Journal</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="lg:col-span-2 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h4>
+          <ul class="space-y-2.5 text-xs font-semibold">
+            <li><a href="contact.html#faq" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Frequently Asked Questions</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Cold-Chain Shipping</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Privacy Policy</a></li>
+            <li><a href="contact.html" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Terms of Service</a></li>
+          </ul>
+        </div>
+
+        <div class="lg:col-span-4 space-y-4">
+          <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h4>
+          <p class="text-xs text-[#E8DCC4]/70 leading-relaxed font-medium">
+            Subscribe to receive longevity research whitepapers, clinical updates, and priority product access.
+          </p>
+          <form onsubmit="event.preventDefault(); if(window.BLUEZONE_APP && window.BLUEZONE_APP.showToast){ window.BLUEZONE_APP.showToast('Thank you for subscribing to BLUE ZONE!', 'success'); } this.reset();" class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+            <input type="email" placeholder="Enter your email address..." required class="w-full bg-[#062B49] border border-[#0A4F78] rounded-xl sm:rounded-r-none py-3 px-4 text-xs text-white placeholder-[#E8DCC4]/50 focus:outline-none focus:border-[#2A8FC2]" />
+            <button type="submit" class="bg-[#0A4F78] hover:bg-[#2A8FC2] text-white px-6 py-3 rounded-xl sm:rounded-l-none text-xs font-extrabold uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap">
+              SUBSCRIBE
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4]/50 space-y-4 sm:space-y-0">
+        <p>© 2026 BLUE ZONE Longevity Inc. All rights reserved.</p>
+        <p class="max-w-md text-center sm:text-right">
+          *These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat, cure, or prevent any disease.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODALS & DRAWERS -->
+  <div id="quick-view-modal" class="hidden fixed inset-0 z-[9990] items-center justify-center p-4 bg-black/60 backdrop-blur-sm"><div id="quick-view-content" class="w-full max-w-3xl"></div></div>
+  <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm"><div class="absolute inset-0" onclick="BLUEZONE_CART.close()"></div><div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20"><div class="p-6 border-b flex justify-between items-center"><h2 class="text-lg font-black uppercase">YOUR CART</h2><button onclick="BLUEZONE_CART.close()">✕</button></div><div class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] space-y-2"><div id="free-shipping-text" class="text-xs font-bold">Add $75.00 more for FREE SHIPPING</div><div class="w-full h-1.5 bg-[#031827]/10 rounded-full overflow-hidden"><div id="free-shipping-bar" class="h-full bg-[#0A4F78]" style="width: 0%;"></div></div></div><div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div><div class="p-6 bg-white dark:bg-[#062B49] border-t space-y-4"><div class="flex justify-between font-black"><span>SUBTOTAL</span><span id="cart-subtotal" class="text-[#0A4F78]">$0.00</span></div><button onclick="BLUEZONE_APP.openCheckout()" class="w-full py-4 bg-[#0A4F78] text-white text-xs font-bold uppercase rounded-xl btn-sheen">PROCEED TO CHECKOUT</button></div></div></div>
+  <div id="wishlist-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm"><div class="absolute inset-0" onclick="BLUEZONE_WISHLIST.close()"></div><div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20"><div class="p-6 border-b flex justify-between items-center"><h2 class="text-lg font-black uppercase">MY WISHLIST</h2><button onclick="BLUEZONE_WISHLIST.close()">✕</button></div><div id="wishlist-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div></div></div>
+  <div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-6 flex-col items-center"><div class="max-w-4xl w-full flex justify-between items-center mb-8"><span class="text-xs font-bold text-[#2A8FC2]">LIVE SEARCH</span><button onclick="BLUEZONE_SEARCH.close()" class="text-white text-xl">✕</button></div><input type="text" id="search-input" placeholder="Search formulations..." class="w-full max-w-2xl bg-[#062B49] border text-white rounded-2xl py-4 px-6 mb-8 text-lg" /><div id="search-results-container" class="max-w-4xl w-full flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4"></div></div>
+  <div id="checkout-modal" class="hidden fixed inset-0 z-[9999] items-center justify-center p-4 bg-black/70 backdrop-blur-md"><div class="relative w-full max-w-xl bg-[#F6F5EF] dark:bg-[#062B49] rounded-3xl p-6 sm:p-8 space-y-6"><div class="flex justify-between items-center border-b pb-4"><h3 class="text-lg font-black uppercase">CHECKOUT SIMULATION</h3><button onclick="BLUEZONE_APP.closeCheckout()">✕</button></div><div id="checkout-form-step"><form onsubmit="BLUEZONE_APP.submitCheckout(event)" class="space-y-4"><div><label class="block text-xs font-bold mb-1">FULL NAME *</label><input type="text" name="name" required placeholder="Elena Vance" class="w-full p-3 rounded-lg border text-xs" /></div><div><label class="block text-xs font-bold mb-1">EMAIL ADDRESS *</label><input type="email" name="email" required placeholder="elena@bluezone.com" class="w-full p-3 rounded-lg border text-xs" /></div><div><label class="block text-xs font-bold mb-1">SHIPPING ADDRESS *</label><input type="text" name="address" required placeholder="124 Longevity Way" class="w-full p-3 rounded-lg border text-xs" /></div><div class="p-4 bg-white dark:bg-[#031827] rounded-xl flex justify-between font-bold text-xs"><span>TOTAL DUE:</span><span id="checkout-total">$0.00</span></div><button type="submit" id="checkout-submit-btn" class="w-full py-4 bg-[#0A4F78] text-white text-xs font-bold uppercase rounded-xl btn-sheen">PLACE ORDER</button></form></div><div id="checkout-confirmed-step" class="hidden text-center space-y-4 py-8"><h3 class="text-2xl font-black text-[#67B34A]">ORDER CONFIRMED!</h3><p class="text-xs">Order ID: <strong id="checkout-order-id">BZ-123456</strong></p><p class="text-xs">Confirmation sent to <strong id="checkout-order-email"></strong>.</p><button onclick="BLUEZONE_APP.closeCheckout()" class="px-6 py-2.5 bg-[#0A4F78] text-white text-xs font-bold rounded-lg">DONE</button></div></div></div>
+
+  <!-- JAVASCRIPT MODULES -->
+  <script src="js/products.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/wishlist.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('products-overview-grid');
+      if (container && window.BLUEZONE_PRODUCTS) {
+        container.innerHTML = window.BLUEZONE_PRODUCTS.map(p => `
+          <div onclick="window.location.href='product.html?id=${p.id}'" class="group relative bg-white dark:bg-[#062B49] rounded-2xl border border-[#0A4F78]/15 shadow-sm hover:shadow-xl transition-all p-6 flex flex-col justify-between card-hover-lift img-zoom-container cursor-pointer">
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">${p.category}</span>
+                <span class="text-xs font-bold text-[#67B34A]">★ ${p.rating} (${p.reviewsCount})</span>
+              </div>
+              <div class="aspect-square p-4 bg-[#F6F5EF] dark:bg-[#031827] rounded-xl flex items-center justify-center overflow-hidden">
+                <img src="${p.image}" alt="${p.name}" onerror="BLUEZONE_APP.handleImageFallback(this)" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              <h3 class="text-2xl font-black text-[#031827] dark:text-[#F6F5EF] group-hover:text-[#67B34A] transition-colors">${p.name}</h3>
+              <p class="text-xs uppercase font-extrabold tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">${p.tagline}</p>
+              <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-medium">${p.description}</p>
+            </div>
+
+            <div class="pt-6 space-y-4 border-t border-[#0A4F78]/10 mt-4">
+              <div class="flex justify-between items-center">
+                <span class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">$${p.price.toFixed(2)}</span>
+                <button onclick="event.stopPropagation(); BLUEZONE_WISHLIST.toggle('${p.id}')" aria-label="Toggle wishlist" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] transition-colors cursor-pointer">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </button>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button onclick="event.stopPropagation(); BLUEZONE_CART.add('${p.id}', 1)" class="flex-1 py-3 bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-extrabold uppercase tracking-widest rounded-lg transition-colors btn-sheen cursor-pointer">ADD TO CART</button>
+                <a href="product.html?id=${p.id}" onclick="event.stopPropagation();" class="py-3 px-4 border border-[#0A4F78] text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78] hover:text-white text-xs font-extrabold uppercase tracking-widest text-center rounded-lg transition-colors">VIEW DETAILS</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    });
+  </script>
+</body>
+</html>

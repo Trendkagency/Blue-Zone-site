@@ -1,0 +1,41 @@
+<!-- BLUE ZONE Cart Drawer Component -->
+<div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm">
+  <div class="absolute inset-0" onclick="BLUEZONE_CART.close()"></div>
+
+  <div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20">
+    
+    <!-- Header -->
+    <div class="p-6 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <h2 class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">YOUR CART</h2>
+      </div>
+      <button onclick="BLUEZONE_CART.close()" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
+    </div>
+
+    <!-- Free Shipping Bar -->
+    <div class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] border-b border-[#0A4F78]/10 space-y-2">
+      <div id="free-shipping-text" class="flex items-center gap-2 text-xs font-bold text-[#031827] dark:text-[#F6F5EF]">
+        Add $75.00 more for FREE EXPRESS SHIPPING
+      </div>
+      <div class="w-full h-1.5 bg-[#031827]/10 dark:bg-black/30 rounded-full overflow-hidden">
+        <div id="free-shipping-bar" class="h-full bg-gradient-to-r from-[#0A4F78] to-[#67B34A] transition-all duration-500" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Item List Container -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+
+    <!-- Footer Checkout Summary -->
+    <div class="p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-4">
+      <div class="flex justify-between text-base font-black text-[#031827] dark:text-white">
+        <span>SUBTOTAL</span>
+        <span id="cart-subtotal" class="text-[#0A4F78] dark:text-[#2A8FC2]">$0.00</span>
+      </div>
+      <button onclick="BLUEZONE_APP.openCheckout()" class="w-full py-4 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all">
+        PROCEED TO CHECKOUT
+      </button>
+    </div>
+
+  </div>
+</div>
