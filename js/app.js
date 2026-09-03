@@ -331,7 +331,58 @@
     });
   }
 
+  
+  // Live Screen Reader Announcer
+  function announceToSR(message, priority) {
+    if (!message) return;
+    let announcer = document.getElementById('bz-sr-announcer');
+    if (!announcer) {
+      announcer = document.createElement('div');
+      announcer.id = 'bz-sr-announcer';
+      announcer.className = 'sr-only';
+      announcer.setAttribute('aria-live', priority || 'polite');
+      announcer.setAttribute('aria-atomic', 'true');
+      document.body.appendChild(announcer);
+    }
+    announcer.textContent = '';
+    setTimeout(() => {
+      announcer.textContent = message;
+    }, 50);
+  }
+
+  // Focus Trapping for Accessible Dialogs & Drawers
+  function trapFocus(modalEl) {
+    if (!modalEl) return () => {};
+    const focusable = modalEl.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return () => {};
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    function handleTab(e) {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    modalEl.addEventListener('keydown', handleTab);
+    return () => modalEl.removeEventListener('keydown', handleTab);
+  }
+
   window.BLUEZONE_APP = {
+    announce: announceToSR,
+    trapFocus: trapFocus,
     openQuickView: openQuickView,
     closeQuickView: closeQuickView,
     openCheckout: openCheckout,

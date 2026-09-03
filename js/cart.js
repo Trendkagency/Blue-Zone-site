@@ -61,6 +61,7 @@
 
     if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
       window.BLUEZONE_APP.showToast(`${product.name} added to cart!`, 'success');
+      window.BLUEZONE_APP.announce(`${product.name} added to cart. Total items: ${cart.reduce((s, i) => s + i.quantity, 0)}.`);
     }
   }
 
@@ -72,6 +73,7 @@
 
     if (item && window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
       window.BLUEZONE_APP.showToast(`${item.name} removed from cart.`, 'info');
+      window.BLUEZONE_APP.announce(`${item.name} removed from cart.`);
     }
   }
 
@@ -101,6 +103,7 @@
     if (drawer) {
       drawer.classList.remove('hidden');
       drawer.classList.add('flex', 'bz-modal-open');
+      if (window.BLUEZONE_APP && window.BLUEZONE_APP.trapFocus) { window._bzCartTrap = window.BLUEZONE_APP.trapFocus(drawer); }
       if (window.BLUEZONE_APP && window.BLUEZONE_APP.lockBodyScroll) {
         window.BLUEZONE_APP.lockBodyScroll(true);
       }
@@ -112,6 +115,7 @@
     if (drawer) {
       drawer.classList.add('hidden');
       drawer.classList.remove('flex', 'bz-modal-open');
+      if (window._bzCartTrap) { window._bzCartTrap(); window._bzCartTrap = null; }
       if (window.BLUEZONE_APP && window.BLUEZONE_APP.lockBodyScroll) {
         window.BLUEZONE_APP.lockBodyScroll(false);
       }
@@ -149,34 +153,39 @@
     if (cart.length === 0) {
       container.innerHTML = `
         <div class="text-center py-16 space-y-4">
-          <svg class="w-12 h-12 text-[#0A4F78]/40 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-          <p class="text-base font-bold text-[#031827] dark:text-[#F6F5EF]">Your cart is currently empty.</p>
-          <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60 max-w-xs mx-auto">Discover our science-backed formulations and start your longevity journey.</p>
-          <a href="shop.html" onclick="BLUEZONE_CART.close()" class="inline-block mt-2 px-6 py-2.5 rounded-lg bg-[#0A4F78] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#062B49] transition-colors">
-            SHOP NOW
-          </a>
+          <div class="w-16 h-16 rounded-full bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 flex items-center justify-center mx-auto text-2xl text-[#0A4F78] dark:text-[#2A8FC2]">
+            🛒
+          </div>
+          <p class="text-base font-black text-[#031827] dark:text-[#F6F5EF]">Your cart is currently empty</p>
+          <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60 max-w-xs mx-auto">Explore our clinical formulations designed for cellular longevity and daily vitality.</p>
+          <button onclick="BLUEZONE_CART.close()" class="inline-block mt-3 px-6 py-2.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer btn-sheen">
+            EXPLORE FORMULATIONS
+          </button>
         </div>
       `;
       return;
     }
 
-    container.innerHTML = cart.map(item => `
-      <div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm">
-        <div class="w-16 h-16 rounded-lg bg-[#F6F5EF] dark:bg-[#031827] p-2 flex-shrink-0 flex items-center justify-center">
-          <img src="${item.image}" alt="${item.name}" onerror="BLUEZONE_APP.handleImageFallback(this)" class="w-full h-full object-contain" />
+        container.innerHTML = cart.map(item => `
+      <div data-testid="cart-item" data-product-id="${item.id}" class="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm hover:border-[#0A4F78]/30 transition-all">
+        <div class="w-16 h-16 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] p-2 flex-shrink-0 flex items-center justify-center overflow-hidden border border-[#0A4F78]/10 dark:border-[#0A4F78]/25">
+          <img src="${item.image}" alt="${item.name}" onerror="BLUEZONE_APP.handleImageFallback(this)" class="w-full h-full object-contain hover:scale-105 transition-transform" />
         </div>
         <div class="flex-1 min-w-0 space-y-1">
-          <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] truncate">${item.name}</h4>
-          <p class="text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2]">$${(item.price || 0).toFixed(2)}</p>
-          <div class="flex items-center gap-2 pt-1">
-            <div class="flex items-center border border-[#0A4F78]/30 rounded bg-[#F6F5EF] dark:bg-[#031827]">
-              <button onclick="BLUEZONE_CART.updateQty('${item.id}', -1)" aria-label="Decrease quantity" class="px-2.5 py-0.5 text-xs font-bold cursor-pointer hover:bg-[#0A4F78]/10">-</button>
-              <span class="px-2 text-xs font-bold">${item.quantity}</span>
-              <button onclick="BLUEZONE_CART.updateQty('${item.id}', 1)" aria-label="Increase quantity" class="px-2.5 py-0.5 text-xs font-bold cursor-pointer hover:bg-[#0A4F78]/10">+</button>
-            </div>
-            <button onclick="BLUEZONE_CART.remove('${item.id}')" aria-label="Remove item" class="p-1 text-red-500 hover:text-red-700 ml-auto cursor-pointer">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] leading-tight truncate">${item.name}</h4>
+            <button onclick="BLUEZONE_CART.remove('${item.id}')" aria-label="Remove item" class="p-1 text-[#031827]/40 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 cursor-pointer transition-colors rounded-lg shrink-0" title="Remove from cart">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
+          </div>
+          <p class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2]">${(item.price || 0).toFixed(2)}</p>
+          <div class="flex items-center gap-2 pt-1">
+            <div class="flex items-center border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 rounded-lg bg-[#F6F5EF] dark:bg-[#031827] overflow-hidden text-[#031827] dark:text-white shadow-xs">
+              <button onclick="BLUEZONE_CART.updateQty('${item.id}', -1)" aria-label="Decrease quantity" class="px-2.5 py-1 text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">-</button>
+              <span class="px-2.5 text-xs font-bold text-[#031827] dark:text-white min-w-[20px] text-center">${item.quantity}</span>
+              <button onclick="BLUEZONE_CART.updateQty('${item.id}', 1)" aria-label="Increase quantity" class="px-2.5 py-1 text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">+</button>
+            </div>
+            <span class="text-[11px] text-[#031827]/50 dark:text-[#F6F5EF]/50 font-bold ml-auto">${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
           </div>
         </div>
       </div>
