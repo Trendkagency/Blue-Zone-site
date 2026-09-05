@@ -1,0 +1,13 @@
+<!-- BLUE ZONE Search Overlay Component -->
+<div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-4 sm:p-8 flex-col items-center">
+  <div class="max-w-4xl w-full flex justify-between items-center mb-8">
+    <span class="text-xs uppercase tracking-[0.3em] font-bold text-[#2A8FC2]">LIVE PRODUCT SEARCH</span>
+    <button onclick="BLUEZONE_SEARCH.close()" class="p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer text-xl">✕</button>
+  </div>
+
+  <div class="max-w-2xl w-full relative mb-12">
+    <input type="text" id="search-input" placeholder="Search by formulation, ingredient, or category..." class="w-full bg-[#062B49] border-2 border-[#0A4F78] focus:border-[#2A8FC2] text-white placeholder-[#E8DCC4]/50 rounded-2xl py-4 px-6 text-base sm:text-lg focus:outline-none shadow-2xl transition-all" />
+  </div>
+
+  <div id="search-results-container" class="max-w-4xl w-full flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2"></div>
+</div>

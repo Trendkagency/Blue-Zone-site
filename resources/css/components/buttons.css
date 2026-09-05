@@ -1,0 +1,120 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.btn:disabled, .btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary Button - Deep Ocean to Accent */
+.btn-primary {
+  background: linear-gradient(135deg, var(--bz-ocean-blue) 0%, var(--bz-dark-navy) 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(10, 79, 120, 0.25);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--bz-accent-blue) 0%, var(--bz-ocean-blue) 100%);
+  box-shadow: 0 6px 18px rgba(42, 143, 194, 0.35);
+  color: #FFFFFF;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-border);
+}
+
+/* Outline Button */
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-border-focus);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: #FFFFFF;
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: var(--color-danger);
+  color: #FFFFFF;
+}
+
+.btn-danger:hover {
+  background-color: #DC2626;
+}
+
+/* Success Button */
+.btn-success {
+  background-color: var(--color-success);
+  color: #FFFFFF;
+}
+
+.btn-success:hover {
+  background-color: #55993C;
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+/* Sizes */
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-sm);
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1.0625rem;
+  border-radius: var(--radius-lg);
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

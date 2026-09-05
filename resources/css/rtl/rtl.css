@@ -1,0 +1,30 @@
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+[dir="rtl"] .icon-flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* Form controls in RTL */
+[dir="rtl"] .form-select {
+  background-position: left 0.75rem center;
+}
+
+[dir="rtl"] .table th,
+[dir="rtl"] .table td {
+  text-align: right;
+}
+
+/* Breadcrumbs arrow flip */
+[dir="rtl"] .breadcrumb-separator {
+  transform: rotate(180deg);
+}
