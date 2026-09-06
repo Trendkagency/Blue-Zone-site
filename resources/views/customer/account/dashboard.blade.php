@@ -1,5 +1,10 @@
 <x-layouts.customer :title="__('shop.account.dashboard') . ' — ' . __('app.brand_name')">
     <div class="container" style="padding-top: 3rem; margin-bottom: 5rem;">
+<<<<<<< HEAD
+        <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 2rem;">
+            {{ __('shop.account.welcome', ['name' => $customer['name']]) }}
+        </h1>
+=======
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
             <div>
                 <span class="badge badge-accent text-xs font-bold" style="margin-bottom: 0.5rem;">
@@ -29,11 +34,34 @@
                 <i class="fa-solid fa-circle-check mr-1.5 ml-1.5 text-success"></i> {{ session('success') }}
             </div>
         @endif
+>>>>>>> origin/main
 
         <div class="account-layout">
             <!-- Account Navigation Sidebar -->
             <aside class="account-sidebar-nav">
                 <a href="{{ route('customer.account.dashboard') }}" class="account-nav-link active">
+<<<<<<< HEAD
+                    📊 {{ __('shop.account.dashboard') }}
+                </a>
+                <a href="{{ route('customer.account.orders') }}" class="account-nav-link">
+                    📦 {{ __('shop.account.orders') }}
+                </a>
+                <a href="{{ route('customer.account.invoices') }}" class="account-nav-link">
+                    🧾 {{ __('shop.account.invoices') }}
+                </a>
+                <a href="{{ route('customer.account.addresses') }}" class="account-nav-link">
+                    📍 {{ __('shop.account.addresses') }}
+                </a>
+                <a href="{{ route('customer.account.profile') }}" class="account-nav-link">
+                    👤 {{ __('shop.account.profile') }}
+                </a>
+                <a href="{{ route('customer.account.settings') }}" class="account-nav-link">
+                    ⚙️ {{ __('shop.account.settings') }}
+                </a>
+                <a href="{{ route('customer.home') }}" class="account-nav-link" style="color: var(--color-danger); border-top: 1px solid var(--color-border); margin-top: 0.5rem; padding-top: 0.75rem;">
+                    🚪 {{ __('app.nav.logout') }}
+                </a>
+=======
                     <i class="fa-solid fa-chart-pie mr-1.5 ml-1.5"></i> {{ __('shop.account.dashboard') }}
                 </a>
                 <a href="{{ route('customer.account.orders') }}" class="account-nav-link">
@@ -61,6 +89,7 @@
                         <i class="fa-solid fa-right-from-bracket mr-1.5 ml-1.5"></i> {{ __('app.nav.logout') }}
                     </button>
                 </form>
+>>>>>>> origin/main
             </aside>
 
             <!-- Main Content Area -->
@@ -68,6 +97,23 @@
                 <!-- Stat Cards -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
                     <div class="card stat-card stat-accent">
+<<<<<<< HEAD
+                        <div class="stat-label">Member Tier</div>
+                        <div class="stat-value" style="font-size: 1.4rem;">{{ $stats['tier'] }}</div>
+                        <div class="stat-footer">Top 5% Health Cohort</div>
+                    </div>
+
+                    <div class="card stat-card stat-success">
+                        <div class="stat-label">Longevity Points</div>
+                        <div class="stat-value">{{ $stats['loyalty_points'] }} pts</div>
+                        <div class="stat-footer">Redeemable for future refills</div>
+                    </div>
+
+                    <div class="card stat-card">
+                        <div class="stat-label">Active Orders</div>
+                        <div class="stat-value">{{ $stats['total_orders'] }}</div>
+                        <div class="stat-footer">All fulfilled with cold-chain</div>
+=======
                         <div class="stat-label">{{ app()->getLocale() === 'ar' ? 'فئة العضوية الحيوية' : 'Member Tier' }}</div>
                         <div class="stat-value" style="font-size: 1.2rem;">{{ $stats['tier'] }}</div>
                         <div class="stat-footer">{{ app()->getLocale() === 'ar' ? 'أفضل 5% في استمرارية البروتوكول' : 'Top 5% Longevity Cohort' }}</div>
@@ -89,17 +135,24 @@
                         <div class="stat-label">{{ app()->getLocale() === 'ar' ? 'العناوين المسجلة' : 'Saved Destinations' }}</div>
                         <div class="stat-value">{{ $stats['saved_addresses_count'] }}</div>
                         <div class="stat-footer"><a href="{{ route('customer.account.addresses') }}" class="text-primary font-bold">{{ app()->getLocale() === 'ar' ? 'إدارة العناوين →' : 'Manage addresses →' }}</a></div>
+>>>>>>> origin/main
                     </div>
                 </div>
 
                 <!-- Recent Orders -->
                 <div class="card">
+<<<<<<< HEAD
+                    <div class="card-header">
+                        <h3 class="card-title">{{ __('shop.account.recent_orders') }}</h3>
+                        <a href="{{ route('customer.account.orders') }}" class="text-sm font-bold" style="color: var(--color-primary);">
+=======
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border);">
                         <h3 class="card-title" style="font-size: 1.15rem; font-weight: 800; margin: 0;">
                             <i class="fa-solid fa-clock-rotate-left mr-1 ml-1 text-primary"></i>
                             {{ __('shop.account.recent_orders') }}
                         </h3>
                         <a href="{{ route('customer.account.orders') }}" class="text-xs font-bold" style="color: var(--color-primary);">
+>>>>>>> origin/main
                             {{ __('app.actions.view_all') }} →
                         </a>
                     </div>
@@ -116,6 +169,22 @@
                                 </tr>
                             </thead>
                             <tbody>
+<<<<<<< HEAD
+                                @foreach($recentOrders as $order)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('customer.account.orders.show', $order['order_number']) }}" class="font-bold text-primary">
+                                                {{ $order['order_number'] }}
+                                            </a>
+                                        </td>
+                                        <td>{{ $order['date'] }}</td>
+                                        <td>
+                                            <x-status-badge :status="$order['status']" />
+                                        </td>
+                                        <td class="font-bold">${{ number_format($order['total'], 2) }}</td>
+                                        <td>
+                                            <a href="{{ route('customer.account.orders.show', $order['order_number']) }}" class="btn btn-secondary btn-sm">
+=======
                                 @forelse($recentOrders as $order)
                                     @php
                                         $oNum = is_array($order) ? $order['order_number'] : $order->order_number;
@@ -136,10 +205,14 @@
                                         <td class="font-bold">${{ number_format((float)$oTotal, 2) }}</td>
                                         <td>
                                             <a href="{{ route('customer.account.orders.show', $oNum) }}" class="btn btn-secondary btn-xs">
+>>>>>>> origin/main
                                                 {{ __('app.actions.view') }}
                                             </a>
                                         </td>
                                     </tr>
+<<<<<<< HEAD
+                                @endforeach
+=======
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center py-6 text-muted">
@@ -148,6 +221,7 @@
                                         </td>
                                     </tr>
                                 @endforelse
+>>>>>>> origin/main
                             </tbody>
                         </table>
                     </div>

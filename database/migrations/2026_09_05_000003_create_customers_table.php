@@ -12,6 +12,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+<<<<<<< HEAD
+            $table->string('phone')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->nullable();
+            $table->integer('total_orders')->default(0);
+            $table->decimal('total_spent', 12, 2)->default(0);
+            $table->string('status')->default('active'); // active, inactive, vip
+            $table->timestamp('registered_at')->nullable();
+=======
             $table->string('password')->nullable();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
@@ -24,6 +33,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('registered_at')->nullable();
             $table->rememberToken();
+>>>>>>> origin/main
             $table->timestamps();
         });
     }

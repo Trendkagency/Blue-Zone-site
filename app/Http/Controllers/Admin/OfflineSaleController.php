@@ -3,6 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+use App\View\ViewModels\OrderViewModel;
+use App\View\ViewModels\ProductViewModel;
+use Illuminate\View\View;
+
+class OfflineSaleController extends Controller
+{
+    public function index(): View
+    {
+        $sales = OrderViewModel::offlineSales();
+
+        return view('admin.offline-sales.index', [
+            'sales' => $sales,
+            'currentPage' => 1,
+            'totalPages' => 1,
+=======
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -52,11 +68,29 @@ class OfflineSaleController extends Controller
             'sales' => $sales,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+>>>>>>> origin/main
         ]);
     }
 
     public function create(): View
     {
+<<<<<<< HEAD
+        $products = ProductViewModel::all();
+
+        return view('admin.offline-sales.create', [
+            'products' => $products,
+        ]);
+    }
+
+    public function show(string $id): View
+    {
+        $sales = OrderViewModel::offlineSales();
+        $sale = null;
+        foreach ($sales as $s) {
+            if ($s['id'] == $id || $s['sale_number'] === $id) {
+                $sale = $s;
+                break;
+=======
         $products = Product::where('is_active', true)->orderBy('name_en')->get();
         $customers = Customer::orderBy('name')->get();
 
@@ -186,11 +220,16 @@ class OfflineSaleController extends Controller
                     $sale = $s;
                     break;
                 }
+>>>>>>> origin/main
             }
         }
 
         return view('admin.offline-sales.show', [
+<<<<<<< HEAD
+            'sale' => $sale ?? $sales[0],
+=======
             'sale' => $sale ?? ($sales[0] ?? []),
+>>>>>>> origin/main
         ]);
     }
 }

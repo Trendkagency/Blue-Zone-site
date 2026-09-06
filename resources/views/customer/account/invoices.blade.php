@@ -8,6 +8,25 @@
             <!-- Navigation -->
             <aside class="account-sidebar-nav">
                 <a href="{{ route('customer.account.dashboard') }}" class="account-nav-link">
+<<<<<<< HEAD
+                    📊 {{ __('shop.account.dashboard') }}
+                </a>
+                <a href="{{ route('customer.account.orders') }}" class="account-nav-link">
+                    📦 {{ __('shop.account.orders') }}
+                </a>
+                <a href="{{ route('customer.account.invoices') }}" class="account-nav-link active">
+                    🧾 {{ __('shop.account.invoices') }}
+                </a>
+                <a href="{{ route('customer.account.addresses') }}" class="account-nav-link">
+                    📍 {{ __('shop.account.addresses') }}
+                </a>
+                <a href="{{ route('customer.account.profile') }}" class="account-nav-link">
+                    👤 {{ __('shop.account.profile') }}
+                </a>
+                <a href="{{ route('customer.account.settings') }}" class="account-nav-link">
+                    ⚙️ {{ __('shop.account.settings') }}
+                </a>
+=======
                     <i class="fa-solid fa-chart-pie mr-1.5 ml-1.5"></i> {{ __('shop.account.dashboard') }}
                 </a>
                 <a href="{{ route('customer.account.orders') }}" class="account-nav-link">
@@ -35,22 +54,66 @@
                         <i class="fa-solid fa-right-from-bracket mr-1.5 ml-1.5"></i> {{ __('app.nav.logout') }}
                     </button>
                 </form>
+>>>>>>> origin/main
             </aside>
 
             <!-- Invoices List Card -->
             <div class="card">
+<<<<<<< HEAD
+                <div class="card-header">
+                    <h3 class="card-title">Tax Invoices & Official Receipts</h3>
+=======
                 <div class="card-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
                     <h3 class="card-title" style="font-size: 1.15rem; font-weight: 800; margin: 0;">
                         <i class="fa-solid fa-receipt text-primary mr-1 ml-1"></i>
                         {{ app()->getLocale() === 'ar' ? 'الفواتير الضريبية الرسمية المعتمدة' : 'Tax Invoices & Official Receipts' }}
                     </h3>
                     <span class="text-xs text-muted font-bold">15% VAT Compliant</span>
+>>>>>>> origin/main
                 </div>
 
                 <div class="table-responsive" style="border: none; border-radius: 0;">
                     <table class="table">
                         <thead>
                             <tr>
+<<<<<<< HEAD
+                                <th>Invoice #</th>
+                                <th>Order Ref</th>
+                                <th>Issue Date</th>
+                                <th>Tax Rate</th>
+                                <th>Total Due</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($orders as $order)
+                                <tr>
+                                    <td class="font-bold font-mono">{{ $order['invoice_number'] }}</td>
+                                    <td>
+                                        <a href="{{ route('customer.account.orders.show', $order['order_number']) }}" class="text-primary font-bold">
+                                            {{ $order['order_number'] }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $order['date'] }}</td>
+                                    <td>15% VAT</td>
+                                    <td class="font-bold">${{ number_format($order['total'], 2) }}</td>
+                                    <td>
+                                        <span class="badge badge-success">{{ $order['payment_status'] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()" title="Print Receipt">
+                                                🖨️ {{ __('app.actions.print') }}
+                                            </button>
+                                            <button type="button" class="btn btn-ghost btn-sm" title="Download PDF">
+                                                ⬇️ {{ __('app.actions.download') }}
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+=======
                                 <th>{{ __('admin.invoices.invoice_number') }}</th>
                                 <th>{{ __('admin.orders.order_number') }}</th>
                                 <th>{{ __('admin.orders.date') }}</th>
@@ -95,13 +158,18 @@
                                     </td>
                                 </tr>
                             @endforelse
+>>>>>>> origin/main
                         </tbody>
                     </table>
                 </div>
 
+<<<<<<< HEAD
+                <x-pagination :currentPage="1" :totalPages="1" :totalItems="count($orders)" />
+=======
                 @if(is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class))
                     <x-pagination :currentPage="$orders->currentPage()" :totalPages="$orders->lastPage()" :totalItems="$orders->total()" />
                 @endif
+>>>>>>> origin/main
             </div>
         </div>
     </div>

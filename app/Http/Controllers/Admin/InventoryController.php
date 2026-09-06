@@ -3,6 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+use App\View\ViewModels\InventoryViewModel;
+use App\View\ViewModels\ProductViewModel;
+use Illuminate\View\View;
+
+class InventoryController extends Controller
+{
+    public function index(): View
+    {
+        $stockItems = InventoryViewModel::stockItems();
+        $locations = InventoryViewModel::locations();
+=======
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Location;
@@ -67,10 +79,15 @@ class InventoryController extends Controller
         ];
 
         $allProducts = Product::orderBy('name_en')->get();
+>>>>>>> origin/main
 
         return view('admin.inventory.index', [
             'stockItems' => $stockItems,
             'locations' => $locations,
+<<<<<<< HEAD
+            'currentPage' => 1,
+            'totalPages' => 1,
+=======
             'selectedLocation' => $selectedLocation,
             'selectedStatus' => $selectedStatus,
             'search' => $search,
@@ -78,11 +95,27 @@ class InventoryController extends Controller
             'allProducts' => $allProducts,
             'currentPage' => $stockItems->currentPage(),
             'totalPages' => $stockItems->lastPage(),
+>>>>>>> origin/main
         ]);
     }
 
     public function show(int $id): View
     {
+<<<<<<< HEAD
+        $stockItems = InventoryViewModel::stockItems();
+        $item = null;
+        foreach ($stockItems as $si) {
+            if ($si['id'] === $id) {
+                $item = $si;
+                break;
+            }
+        }
+
+        $movements = InventoryViewModel::movements();
+
+        return view('admin.inventory.show', [
+            'item' => $item ?? $stockItems[0],
+=======
         // Try finding inventory item first
         $item = InventoryItem::with('product')->find($id);
         $product = null;
@@ -114,12 +147,18 @@ class InventoryController extends Controller
             'item' => $item ?? $locationBreakdowns->first(),
             'product' => $product,
             'locationBreakdowns' => $locationBreakdowns,
+>>>>>>> origin/main
             'movements' => $movements,
         ]);
     }
 
     public function transfers(): View
     {
+<<<<<<< HEAD
+        $products = ProductViewModel::all();
+        $locations = InventoryViewModel::locations();
+        $recentTransfers = array_filter(InventoryViewModel::movements(), fn ($m) => $m['movement_type'] === 'Stock Transfer');
+=======
         $products = Product::orderBy('name_en')->get();
         $locations = Location::where('is_active', true)->get();
 
@@ -137,10 +176,27 @@ class InventoryController extends Controller
                 'available' => $it->available_stock,
             ];
         }
+>>>>>>> origin/main
 
         return view('admin.inventory.transfers', [
             'products' => $products,
             'locations' => $locations,
+<<<<<<< HEAD
+            'transfers' => $recentTransfers,
+        ]);
+    }
+
+    public function history(): View
+    {
+        $movements = InventoryViewModel::movements();
+        $locations = InventoryViewModel::locations();
+
+        return view('admin.inventory.history', [
+            'movements' => $movements,
+            'locations' => $locations,
+            'currentPage' => 1,
+            'totalPages' => 1,
+=======
             'transfers' => $transfers,
             'inventoryMap' => $inventoryMap,
         ]);
@@ -277,6 +333,7 @@ class InventoryController extends Controller
             'search' => $request->query('search', ''),
             'currentPage' => $movements->currentPage(),
             'totalPages' => $movements->lastPage(),
+>>>>>>> origin/main
         ]);
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Providers\Filament;
 
+<<<<<<< HEAD
+=======
 use Filament\Enums\ThemeMode;
+>>>>>>> origin/main
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +13,10 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+<<<<<<< HEAD
+use Filament\Support\Colors\Color;
+=======
+>>>>>>> origin/main
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -26,14 +33,21 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+<<<<<<< HEAD
+            ->path('admin')
+=======
             ->path('admin/filament')
             ->login()
+>>>>>>> origin/main
             ->brandName('BLUE ZONE — BZ-OS')
             ->brandLogo(asset('assets/logo/logo-main.png'))
             ->brandLogoHeight('2.5rem')
             ->favicon(asset('favicon.ico'))
+<<<<<<< HEAD
+=======
             ->darkMode(true)
             ->defaultThemeMode(ThemeMode::Light)
+>>>>>>> origin/main
             ->colors([
                 'primary' => [
                     50 => '#f0f7fb',
@@ -49,6 +63,9 @@ class AdminPanelProvider extends PanelProvider
                     950 => '#02101c',
                 ],
             ])
+<<<<<<< HEAD
+            ->font('Cairo')
+=======
             ->font(
                 function () {
                     $font = (string) \App\Models\Setting::get('font_family', 'Mont Blanc');
@@ -63,6 +80,7 @@ class AdminPanelProvider extends PanelProvider
                 'panels::head.end',
                 fn () => view('filament.hooks.custom-font-styles')
             )
+>>>>>>> origin/main
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

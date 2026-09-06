@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+<<<<<<< HEAD
+
+class Product extends Model
+{
+=======
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -15,6 +20,7 @@ class Product extends Model implements HasMedia
     use SoftDeletes;
     use InteractsWithMedia;
 
+>>>>>>> origin/main
     protected $fillable = [
         'slug', 'sku', 'barcode', 'name_en', 'name_ar',
         'tagline_en', 'tagline_ar', 'category_id', 'subcategory_en', 'subcategory_ar',
@@ -70,6 +76,8 @@ class Product extends Model implements HasMedia
     }
 
     /**
+<<<<<<< HEAD
+=======
      * Localized name accessor.
      */
     public function getNameAttribute(): string
@@ -216,11 +224,16 @@ class Product extends Model implements HasMedia
     }
 
     /**
+>>>>>>> origin/main
      * Get stock status for display.
      */
     public function getStockStatusAttribute(): string
     {
         $total = $this->stock_online + $this->stock_offline;
+<<<<<<< HEAD
+        if ($total <= 0) return 'out_of_stock';
+        if ($total <= $this->low_stock_threshold) return 'low_stock';
+=======
         if ($total <= 0) {
             return 'out_of_stock';
         }
@@ -228,6 +241,7 @@ class Product extends Model implements HasMedia
             return 'low_stock';
         }
 
+>>>>>>> origin/main
         return 'in_stock';
     }
 }

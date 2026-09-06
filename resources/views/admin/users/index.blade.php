@@ -1,4 +1,15 @@
 <x-layouts.admin 
+<<<<<<< HEAD
+    :pageTitle="__('admin.menu.users')" 
+    pageSubtitle="Manage administrative users, store specialists, inventory leads, and assigned roles."
+    :breadcrumbs="['Users' => route('admin.users.index')]"
+>
+    <x-slot name="actions">
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">+ New Staff User</a>
+    </x-slot>
+
+    <div class="card">
+=======
     :pageTitle="__('admin.users.title')" 
     :pageSubtitle="__('admin.users.subtitle')"
     :breadcrumbs="[__('admin.menu.users') => route('admin.users.index')]"
@@ -46,10 +57,47 @@
     </div>
 
     <div class="card shadow-sm border border-gray-100 dark:border-gray-800">
+>>>>>>> origin/main
         <div class="table-responsive" style="border: none; border-radius: 0;">
             <table class="table">
                 <thead>
                     <tr>
+<<<<<<< HEAD
+                        <th>User</th>
+                        <th>Mobile</th>
+                        <th>Assigned Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $u)
+                        <tr>
+                            <td>
+                                <div class="font-bold text-sm text-primary">{{ $u['name'] }}</div>
+                                <div class="text-xs text-muted">{{ $u['email'] }}</div>
+                            </td>
+                            <td class="text-xs">{{ $u['mobile'] }}</td>
+                            <td>
+                                <span class="badge badge-accent text-xs">{{ $u['role'] }}</span>
+                            </td>
+                            <td><x-status-badge :status="$u['status']" /></td>
+                            <td class="text-xs text-muted">{{ $u['last_login_at'] }}</td>
+                            <td class="text-xs text-muted">{{ $u['created_at'] }}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="{{ route('admin.users.edit', $u['id']) }}" class="action-btn" title="Edit">✏️</a>
+                                    <button type="button" class="action-btn action-danger" title="Suspend">🔒</button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+=======
                         <th>{{ __('admin.users.name') }}</th>
                         <th>{{ __('admin.users.role') }}</th>
                         <th>{{ __('admin.users.status') }}</th>
@@ -143,5 +191,6 @@
         </div>
 
         <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($users)" />
+>>>>>>> origin/main
     </div>
 </x-layouts.admin>

@@ -4,6 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
+<<<<<<< HEAD
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
+=======
 use BackedEnum;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -15,14 +23,21 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use UnitEnum;
+>>>>>>> origin/main
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
+<<<<<<< HEAD
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
+
+    protected static ?string $navigationGroup = 'Catalog & Formulations';
+=======
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static string|UnitEnum|null $navigationGroup = 'Catalog & Formulations';
+>>>>>>> origin/main
 
     protected static ?int $navigationSort = 1;
 
@@ -30,6 +45,20 @@ class ProductResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name_en';
 
+<<<<<<< HEAD
+    public static function form(Form $form): Form
+    {
+        return $form->schema([
+            Forms\Components\Tabs::make('Product Form')
+                ->tabs([
+                    // Tab 1: Core & Categorization
+                    Forms\Components\Tabs\Tab::make('Core & Categorization')
+                        ->icon('heroicon-o-identification')
+                        ->schema([
+                            Forms\Components\Section::make('Core Identifiers & Classification')
+                                ->schema([
+                                    Forms\Components\Grid::make(2)->schema([
+=======
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
@@ -42,6 +71,7 @@ class ProductResource extends Resource
                             Section::make('Core Identifiers & Classification')
                                 ->schema([
                                     Grid::make(2)->schema([
+>>>>>>> origin/main
                                         Forms\Components\TextInput::make('sku')
                                             ->label('SKU (Stock Keeping Unit)')
                                             ->placeholder('e.g. BZ-MND-001')
@@ -53,7 +83,11 @@ class ProductResource extends Resource
                                             ->placeholder('e.g. 628100091001')
                                             ->maxLength(50),
                                     ]),
+<<<<<<< HEAD
+                                    Forms\Components\Grid::make(3)->schema([
+=======
                                     Grid::make(3)->schema([
+>>>>>>> origin/main
                                         Forms\Components\Select::make('category_id')
                                             ->label('Primary Health System')
                                             ->relationship('category', 'name_en')
@@ -68,7 +102,11 @@ class ProductResource extends Resource
                                             ->default('Blue Zone Bioceuticals')
                                             ->required(),
                                     ]),
+<<<<<<< HEAD
+                                    Forms\Components\Grid::make(3)->schema([
+=======
                                     Grid::make(3)->schema([
+>>>>>>> origin/main
                                         Forms\Components\TextInput::make('target_gender')
                                             ->label('Target Demographic')
                                             ->default('Unisex'),
@@ -85,7 +123,11 @@ class ProductResource extends Resource
                                         ->unique(ignoreRecord: true)
                                         ->maxLength(255)
                                         ->dehydrateStateUsing(fn ($state) => Str::slug($state)),
+<<<<<<< HEAD
+                                    Forms\Components\Grid::make(3)->schema([
+=======
                                     Grid::make(3)->schema([
+>>>>>>> origin/main
                                         Forms\Components\Toggle::make('is_featured')
                                             ->label('Featured Product'),
                                         Forms\Components\Toggle::make('is_best_seller')
@@ -106,10 +148,17 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 2: Multi-Lingual Content
+<<<<<<< HEAD
+                    Forms\Components\Tabs\Tab::make('Multi-Lingual Content (EN/AR)')
+                        ->icon('heroicon-o-language')
+                        ->schema([
+                            Forms\Components\Section::make('English (LTR)')
+=======
                     Tabs\Tab::make('Multi-Lingual Content (EN/AR)')
                         ->icon('heroicon-o-language')
                         ->schema([
                             Section::make('English (LTR)')
+>>>>>>> origin/main
                                 ->schema([
                                     Forms\Components\TextInput::make('name_en')
                                         ->label('Product Name (EN)')
@@ -130,7 +179,11 @@ class ProductResource extends Resource
                                         ->label('Administration & Dosage Instructions (EN)')
                                         ->rows(2),
                                 ]),
+<<<<<<< HEAD
+                            Forms\Components\Section::make('العربية (RTL)')
+=======
                             Section::make('العربية (RTL)')
+>>>>>>> origin/main
                                 ->schema([
                                     Forms\Components\TextInput::make('name_ar')
                                         ->label('اسم المنتج بالعربية')
@@ -158,17 +211,29 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 3: Variants & Pricing
+<<<<<<< HEAD
+                    Forms\Components\Tabs\Tab::make('Variants & Pricing')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->schema([
+                            Forms\Components\Section::make('Base Pricing & Multi-Variant Options')
+                                ->schema([
+                                    Forms\Components\Grid::make(3)->schema([
+=======
                     Tabs\Tab::make('Variants & Pricing')
                         ->icon('heroicon-o-currency-dollar')
                         ->schema([
                             Section::make('Base Pricing & Multi-Variant Options')
                                 ->schema([
                                     Grid::make(3)->schema([
+>>>>>>> origin/main
                                         Forms\Components\TextInput::make('price')
                                             ->label('Base Retail Price ($)')
                                             ->numeric()
                                             ->prefix('$')
+<<<<<<< HEAD
+=======
                                             ->helperText(fn () => 'Dynamic VAT (' . \App\Services\TaxService::getTaxRate() . '%) applied at checkout.')
+>>>>>>> origin/main
                                             ->required()
                                             ->step(0.01),
                                         Forms\Components\TextInput::make('sale_price')
@@ -182,7 +247,11 @@ class ProductResource extends Resource
                                             ->prefix('$')
                                             ->step(0.01),
                                     ]),
+<<<<<<< HEAD
+                                    Forms\Components\Grid::make(2)->schema([
+=======
                                     Grid::make(2)->schema([
+>>>>>>> origin/main
                                         Forms\Components\TextInput::make('rating')
                                             ->label('Average Rating')
                                             ->numeric()
@@ -198,10 +267,17 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 4: Media & Assets
+<<<<<<< HEAD
+                    Forms\Components\Tabs\Tab::make('Media & Assets')
+                        ->icon('heroicon-o-photo')
+                        ->schema([
+                            Forms\Components\Section::make('Formulation Imagery & Laboratory Proofs')
+=======
                     Tabs\Tab::make('Media & Assets')
                         ->icon('heroicon-o-photo')
                         ->schema([
                             Section::make('Formulation Imagery & Laboratory Proofs')
+>>>>>>> origin/main
                                 ->schema([
                                     Forms\Components\FileUpload::make('image')
                                         ->label('Primary Image')
@@ -220,10 +296,17 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 5: Professional Section
+<<<<<<< HEAD
+                    Forms\Components\Tabs\Tab::make('🩺 Professional Section')
+                        ->icon('heroicon-o-beaker')
+                        ->schema([
+                            Forms\Components\Section::make('Healthcare Professional Data')
+=======
                     Tabs\Tab::make('🩺 Professional Section')
                         ->icon('heroicon-o-beaker')
                         ->schema([
                             Section::make('Healthcare Professional Data')
+>>>>>>> origin/main
                                 ->description('Technical pharmacological data entered here will strictly render inside the verified Clinical Professional tab.')
                                 ->schema([
                                     Forms\Components\Textarea::make('science_en')
@@ -249,12 +332,21 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 6: Inventory Thresholds
+<<<<<<< HEAD
+                    Forms\Components\Tabs\Tab::make('Inventory Thresholds')
+                        ->icon('heroicon-o-archive-box')
+                        ->schema([
+                            Forms\Components\Section::make('Inventory Thresholds & Location Allocation')
+                                ->schema([
+                                    Forms\Components\Grid::make(3)->schema([
+=======
                     Tabs\Tab::make('Inventory Thresholds')
                         ->icon('heroicon-o-archive-box')
                         ->schema([
                             Section::make('Inventory Thresholds & Location Allocation')
                                 ->schema([
                                     Grid::make(3)->schema([
+>>>>>>> origin/main
                                         Forms\Components\TextInput::make('stock_online')
                                             ->label('Initial Online Stock')
                                             ->numeric()
@@ -318,14 +410,24 @@ class ProductResource extends Resource
                     ->label('Online Stock')
                     ->badge()
                     ->suffix(' units')
+<<<<<<< HEAD
+                    ->color(fn (Product $record): string =>
+                        $record->stock_online <= $record->low_stock_threshold ? 'warning' : 'success'
+=======
                     ->color(fn (Product $record): string => $record->stock_online <= $record->low_stock_threshold ? 'warning' : 'success'
+>>>>>>> origin/main
                     )
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_offline')
                     ->label('Offline Stock')
                     ->badge()
                     ->suffix(' units')
+<<<<<<< HEAD
+                    ->color(fn (Product $record): string =>
+                        $record->stock_offline <= $record->low_stock_threshold ? 'danger' : 'gray'
+=======
                     ->color(fn (Product $record): string => $record->stock_offline <= $record->low_stock_threshold ? 'danger' : 'gray'
+>>>>>>> origin/main
                     )
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')

@@ -23,7 +23,11 @@
                 <a href="{{ route('locale.switch', 'ar') }}" style="font-weight: 700; color: var(--color-primary);">العربية (AR)</a>
             @endif
             <span>•</span>
+<<<<<<< HEAD
+            <button type="button" onclick="toggleTheme()" style="color: inherit;">🌓 {{ __('app.theme') }}</button>
+=======
             <button type="button" onclick="toggleTheme()" style="color: inherit;"><i class="fa-solid fa-circle-half-stroke mr-1 ml-1"></i> {{ __('app.theme') }}</button>
+>>>>>>> origin/main
             <span>•</span>
             <a href="{{ route('customer.home') }}" style="color: inherit;">{{ __('app.nav.home') }}</a>
         </div>

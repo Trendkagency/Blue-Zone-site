@@ -42,10 +42,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+<<<<<<< HEAD
+=======
         'customer' => [
             'driver' => 'session',
             'provider' => 'customers',
         ],
+>>>>>>> origin/main
     ],
 
     /*
@@ -70,10 +73,18 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
         ],
+<<<<<<< HEAD
+
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
+=======
         'customers' => [
             'driver' => 'eloquent',
             'model' => \App\Models\Customer::class,
         ],
+>>>>>>> origin/main
     ],
 
     /*
@@ -102,12 +113,15 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+<<<<<<< HEAD
+=======
         'customers' => [
             'provider' => 'customers',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],
+>>>>>>> origin/main
     ],
 
     /*

@@ -1,11 +1,20 @@
 <x-layouts.admin 
     :pageTitle="__('admin.menu.offline_sales')" 
+<<<<<<< HEAD
+    pageSubtitle="Physical store counter sales, walk-in transactions, and register drawer audit."
+    :breadcrumbs="['Sales' => route('admin.offline-sales.index'), 'POS Sales' => route('admin.offline-sales.index')]"
+>
+    <x-slot name="actions">
+        <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-primary">
+            🛒 Open POS Cashier Terminal
+=======
     :pageSubtitle="app()->getLocale() == 'ar' ? 'مبيعات معرض البوتيك المباشر، معاملات العملاء المباشرين، وتدقيق سجل الصندوق.' : 'Physical store counter sales, walk-in transactions, and register drawer audit.'"
     :breadcrumbs="[__('admin.menu.sales') => route('admin.offline-sales.index'), __('admin.menu.offline_sales') => route('admin.offline-sales.index')]"
 >
     <x-slot name="actions">
         <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-cash-register mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'فتح نقطة البيع (كاشير المعرض)' : 'Open POS Cashier Terminal' }}
+>>>>>>> origin/main
         </a>
     </x-slot>
 
@@ -15,6 +24,17 @@
             <table class="table">
                 <thead>
                     <tr>
+<<<<<<< HEAD
+                        <th>Sale ID</th>
+                        <th>Invoice #</th>
+                        <th>Boutique Location</th>
+                        <th>Cashier Specialist</th>
+                        <th>Guest / Customer</th>
+                        <th>Tender Type</th>
+                        <th>Gross Amount</th>
+                        <th>Timestamp</th>
+                        <th>Action</th>
+=======
                         <th>{{ app()->getLocale() == 'ar' ? 'رقم المعاملة' : 'Sale ID' }}</th>
                         <th>{{ __('admin.invoices.invoice_number') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'موقع المعرض' : 'Boutique Location' }}</th>
@@ -24,10 +44,31 @@
                         <th>{{ __('admin.orders.amount') }}</th>
                         <th>{{ __('admin.orders.date') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'الإجراء' : 'Action' }}</th>
+>>>>>>> origin/main
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($sales as $sale)
+<<<<<<< HEAD
+                        <tr>
+                            <td class="font-bold text-primary font-mono">
+                                <a href="{{ route('admin.offline-sales.show', $sale['id']) }}">
+                                    {{ $sale['sale_number'] }}
+                                </a>
+                            </td>
+                            <td class="font-mono text-xs">{{ $sale['invoice_number'] }}</td>
+                            <td>{{ $sale['store_location'] }}</td>
+                            <td>👤 {{ $sale['cashier'] }}</td>
+                            <td class="font-bold text-sm">{{ $sale['customer_name'] }}</td>
+                            <td>
+                                <span class="badge badge-accent text-xs">{{ $sale['payment_method'] }}</span>
+                            </td>
+                            <td class="font-bold">${{ number_format($sale['total'], 2) }}</td>
+                            <td class="text-xs text-muted">{{ $sale['date'] }} {{ $sale['time'] }}</td>
+                            <td>
+                                <a href="{{ route('admin.offline-sales.show', $sale['id']) }}" class="btn btn-secondary btn-sm">
+                                    🖨️ Receipt
+=======
                         @php
                             $sId = $sale['id'] ?? 1;
                             $sNum = $sale['sale_number'] ?? 'POS-001';
@@ -58,6 +99,7 @@
                             <td>
                                 <a href="{{ route('admin.offline-sales.show', $sId) }}" class="btn btn-secondary btn-sm">
                                     <i class="fa-solid fa-receipt mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'الإيصال' : 'Receipt' }}
+>>>>>>> origin/main
                                 </a>
                             </td>
                         </tr>

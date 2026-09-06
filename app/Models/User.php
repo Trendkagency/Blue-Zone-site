@@ -10,6 +10,17 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+<<<<<<< HEAD
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+#[Fillable(['name', 'email', 'password', 'role_id', 'status', 'avatar'])]
+#[Hidden(['password', 'remember_token'])]
+class User extends Authenticatable implements FilamentUser
+{
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+=======
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +34,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes, InteractsWithMedia;
+>>>>>>> origin/main
 
     /**
      * Determine if the user can access Filament admin panel.
@@ -41,6 +53,8 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     }
 
     /**
+<<<<<<< HEAD
+=======
      * Check if user has specific role(s).
      */
     public function hasRole(string|array $roles): bool
@@ -207,6 +221,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia
     }
 
     /**
+>>>>>>> origin/main
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -216,7 +231,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+<<<<<<< HEAD
+=======
             'preferences' => 'array',
+>>>>>>> origin/main
         ];
     }
 }

@@ -3,16 +3,39 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+use App\View\ViewModels\OrderViewModel;
+=======
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\View\ViewModels\OrderViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+>>>>>>> origin/main
 use Illuminate\View\View;
 
 class OrderController extends Controller
 {
+<<<<<<< HEAD
+    public function index(): View
+    {
+        $orders = OrderViewModel::all();
+
+        return view('admin.orders.index', [
+            'orders' => $orders,
+            'currentPage' => 1,
+            'totalPages' => 1,
+        ]);
+    }
+
+    public function show(string $id): View
+    {
+        $order = OrderViewModel::find($id);
+
+        if (!$order) {
+            abort(404);
+=======
     /**
      * Display live orders list with filtering.
      */
@@ -83,12 +106,15 @@ class OrderController extends Controller
             } else {
                 abort(404);
             }
+>>>>>>> origin/main
         }
 
         return view('admin.orders.show', [
             'order' => $order,
         ]);
     }
+<<<<<<< HEAD
+=======
 
     /**
      * Update order status with inventory rollback if cancelled.
@@ -172,4 +198,5 @@ class OrderController extends Controller
                 ? "تم حذف الطلب [{$orderNumber}] وسجلاته نهائياً!"
                 : "Order [{$orderNumber}] permanently erased!");
     }
+>>>>>>> origin/main
 }

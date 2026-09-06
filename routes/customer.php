@@ -30,6 +30,23 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.ch
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('customer.checkout.store');
 Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('customer.checkout.confirmation');
 
+<<<<<<< HEAD
+// Customer Authentication
+Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.auth.login');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('customer.auth.register');
+Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('customer.auth.forgot-password');
+Route::get('/reset-password', [AuthController::class, 'showResetPassword'])->name('customer.auth.reset-password');
+
+// Customer Account Area
+Route::prefix('account')->name('customer.account.')->group(function () {
+    Route::get('/', [AccountController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+    Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
+    Route::get('/orders/{order}', [AccountController::class, 'showOrder'])->name('orders.show');
+    Route::get('/invoices', [AccountController::class, 'invoices'])->name('invoices');
+    Route::get('/addresses', [AccountController::class, 'addresses'])->name('addresses');
+    Route::get('/settings', [AccountController::class, 'settings'])->name('settings');
+=======
 // Customer Authentication (Guest Only)
 Route::middleware('guest:customer')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.auth.login');
@@ -69,6 +86,7 @@ Route::prefix('account')->name('customer.account.')->middleware('auth.customer')
 
     Route::get('/wishlist', [AccountController::class, 'wishlist'])->name('wishlist');
     Route::post('/wishlist/toggle', [AccountController::class, 'toggleWishlist'])->name('wishlist.toggle');
+>>>>>>> origin/main
 });
 
 Route::get('/products', [ShopController::class, 'index'])->name('customer.products');

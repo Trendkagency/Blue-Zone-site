@@ -5,10 +5,17 @@
 >
     <x-slot name="actions">
         <a href="{{ route('admin.products.edit', $product['id']) }}" class="btn btn-primary">
+<<<<<<< HEAD
+            ✏️ {{ __('app.actions.edit') }}
+        </a>
+        <a href="{{ route('customer.product.show', $product['slug']) }}" class="btn btn-outline" target="_blank">
+            Customer View ↗
+=======
             <i class="fa-solid fa-pen-to-square mr-1.5 ml-1.5"></i> {{ __('app.actions.edit') }}
         </a>
         <a href="{{ route('customer.product.show', $product['slug']) }}" class="btn btn-outline" target="_blank">
             Customer View <i class="fa-solid fa-arrow-up-right-from-square mr-1 ml-1"></i>
+>>>>>>> origin/main
         </a>
     </x-slot>
 

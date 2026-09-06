@@ -3,15 +3,29 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+use App\View\ViewModels\CategoryViewModel;
+=======
 use App\Models\Category;
 use App\View\ViewModels\CategoryViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+>>>>>>> origin/main
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
+<<<<<<< HEAD
+    public function index(): View
+    {
+        $categories = CategoryViewModel::all();
+
+        return view('admin.categories.index', [
+            'categories' => $categories,
+            'currentPage' => 1,
+            'totalPages' => 1,
+=======
     public function index(Request $request): View
     {
         $status = $request->query('status');
@@ -72,6 +86,7 @@ class CategoryController extends Controller
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
+>>>>>>> origin/main
         ]);
     }
 
@@ -80,6 +95,16 @@ class CategoryController extends Controller
         return view('admin.categories.create');
     }
 
+<<<<<<< HEAD
+    public function edit(int $id): View
+    {
+        $categories = CategoryViewModel::all();
+        $category = null;
+        foreach ($categories as $c) {
+            if ($c['id'] === $id) {
+                $category = $c;
+                break;
+=======
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -141,10 +166,16 @@ class CategoryController extends Controller
                     $category = $c;
                     break;
                 }
+>>>>>>> origin/main
             }
         }
 
         return view('admin.categories.edit', [
+<<<<<<< HEAD
+            'category' => $category ?? $categories[0],
+        ]);
+    }
+=======
             'category' => $category ?? ($categories[0] ?? []),
         ]);
     }
@@ -229,4 +260,5 @@ class CategoryController extends Controller
                 ? "تم حذف التصنيف [{$name}] نهائياً!" 
                 : "Category [{$name}] permanently deleted!");
     }
+>>>>>>> origin/main
 }

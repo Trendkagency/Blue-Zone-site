@@ -8,8 +8,15 @@
     <title>{{ $title ?? __('app.brand_name') . ' — ' . __('app.brand_tagline') }}</title>
     <meta name="description" content="{{ $description ?? __('shop.catalog_subtitle') }}">
 
+<<<<<<< HEAD
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+=======
     <!-- Dynamic Typography Engine -->
     @include('partials.fonts')
+>>>>>>> origin/main
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
@@ -17,6 +24,17 @@
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+<<<<<<< HEAD
+    <!-- Script to prevent flash of wrong theme -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('bz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+=======
     <!-- Script to prevent flash of wrong theme (Default: Light) -->
     <script>
         (function() {
@@ -28,6 +46,7 @@
                     document.documentElement.classList.remove('dark');
                 }
             } catch(e) {}
+>>>>>>> origin/main
         })();
     </script>
 </head>

@@ -3,19 +3,27 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+use App\View\ViewModels\SettingViewModel;
+=======
 use App\Models\Setting;
 use App\View\ViewModels\SettingViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+>>>>>>> origin/main
 use Illuminate\View\View;
 
 class SettingController extends Controller
 {
     public function index(): View
     {
+<<<<<<< HEAD
+        $settings = SettingViewModel::all();
+=======
         $defaults = SettingViewModel::all();
         $saved = Setting::getAll();
         $settings = array_merge($defaults, $saved);
+>>>>>>> origin/main
 
         $defaultOrder = $defaults['landing_sections_order'] ?? array_keys(SettingViewModel::landingSections());
         $configuredOrder = $settings['landing_sections_order'] ?? $defaultOrder;
@@ -42,6 +50,8 @@ class SettingController extends Controller
             'landingSectionsMeta' => SettingViewModel::landingSections(),
         ]);
     }
+<<<<<<< HEAD
+=======
 
     public function update(Request $request): RedirectResponse
     {
@@ -412,4 +422,5 @@ class SettingController extends Controller
                 ? 'تم حفظ وتحديث إعدادات النظام ومحتوى وترتيب وتفعيل أقسام الصفحة الرئيسية بنجاح!'
                 : 'Platform settings, landing page sections order, and visibility toggles updated successfully!');
     }
+>>>>>>> origin/main
 }

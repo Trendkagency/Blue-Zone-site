@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+<<<<<<< HEAD
+=======
 use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Order;
 use App\Models\Product;
+>>>>>>> origin/main
 use App\View\ViewModels\InventoryViewModel;
 use App\View\ViewModels\OrderViewModel;
 use App\View\ViewModels\ProductViewModel;
@@ -17,6 +20,17 @@ use Illuminate\View\View;
 class DashboardController extends Controller
 {
     /**
+<<<<<<< HEAD
+     * Render the comprehensive Admin Dashboard overview.
+     */
+    public function index(): View
+    {
+        $kpi = ReportViewModel::kpi();
+        $salesData = ReportViewModel::salesData();
+        $recentOrders = OrderViewModel::all();
+        $recentMovements = array_slice(InventoryViewModel::movements(), 0, 5);
+        $products = ProductViewModel::all();
+=======
      * Render the comprehensive Admin Dashboard overview with live metrics.
      */
     public function index(): View
@@ -60,6 +74,7 @@ class DashboardController extends Controller
         if ($products->isEmpty()) {
             $products = collect(ProductViewModel::all());
         }
+>>>>>>> origin/main
 
         return view('admin.dashboard.index', [
             'kpi' => $kpi,
