@@ -152,36 +152,11 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Register Spatie media collections for User.
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('avatar')
-            ->singleFile();
-    }
-
-    /**
-     * Register Spatie media conversions for User.
-     */
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this->addMediaConversion('thumb')
-            ->width(100)
-            ->height(100)
-            ->nonQueued();
-
-        $this->addMediaConversion('avatar')
-            ->width(300)
-            ->height(300)
-            ->nonQueued();
-    }
-
-    /**
      * Get avatar URL (Spatie media or legacy avatar column).
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->hasMedia('avatar')) {
+        if (method_exists($this, 'hasMedia') && $this->hasMedia('avatar')) {
             $media = $this->getFirstMedia('avatar');
             if ($media) {
                 return asset('storage/' . $media->id . '/' . $media->file_name);

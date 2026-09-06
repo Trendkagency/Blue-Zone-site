@@ -14,7 +14,11 @@ class ProductController extends Controller
      */
     public function show(string $slug): View
     {
-        $product = Product::with('category')->where('slug', $slug)->first();
+        try {
+            $product = Product::with('category')->where('slug', $slug)->first();
+        } catch (\Throwable) {
+            $product = null;
+        }
 
         if (!$product) {
             $fallback = ProductViewModel::find($slug);
@@ -27,10 +31,14 @@ class ProductController extends Controller
 
         $productId = is_array($product) ? ($product['id'] ?? 0) : $product->id;
 
-        $relatedProducts = Product::where('id', '!=', $productId)
-            ->where('is_active', true)
-            ->take(3)
-            ->get();
+        try {
+            $relatedProducts = Product::where('id', '!=', $productId)
+                ->where('is_active', true)
+                ->take(3)
+                ->get();
+        } catch (\Throwable) {
+            $relatedProducts = collect();
+        }
 
         if ($relatedProducts->isEmpty()) {
             $allProducts = ProductViewModel::all();
