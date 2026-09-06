@@ -535,6 +535,17 @@ class ProductViewModel
      */
     public static function find(string|int $identifier): ?array
     {
+        $aliases = [
+            'blue-energy' => 'blue-cell',
+            'blue-immunity' => 'blue-defense',
+            'blue-restore' => 'blue-sleep',
+            'blue-calm' => 'blue-mind',
+        ];
+
+        if (is_string($identifier) && isset($aliases[$identifier])) {
+            $identifier = $aliases[$identifier];
+        }
+
         $products = self::all();
         foreach ($products as $p) {
             if ($p['slug'] === (string)$identifier || $p['id'] === (int)$identifier) {
