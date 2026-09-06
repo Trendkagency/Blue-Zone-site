@@ -37,9 +37,9 @@ class CategoryController extends Controller
 
         $trashedCount = Category::onlyTrashed()->count();
         $activeCount = Category::count();
-        $dbCategories = $query->paginate(15)->withQueryString();
+        $totalDbCount = Category::withTrashed()->count();
 
-        if ($dbCategories->isNotEmpty()) {
+        if ($totalDbCount > 0) {
             $categories = $dbCategories->map(function ($cat) {
                 return [
                     'id' => $cat->id,
@@ -218,6 +218,10 @@ class CategoryController extends Controller
     {
         $category = Category::withTrashed()->findOrFail($id);
         $name = app()->getLocale() === 'ar' ? $category->name_ar : $category->name_en;
+
+        // Unlink associated products
+        \App\Models\Product::where('category_id', $category->id)->update(['category_id' => null]);
+
         $category->forceDelete();
 
         return redirect()->route('admin.categories.index', ['status' => 'trashed'])

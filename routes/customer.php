@@ -7,6 +7,7 @@ use App\Http\Controllers\Customer\CheckoutController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\PageController;
 use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\Customer\ScienceController;
 use App\Http\Controllers\Customer\ShopController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,8 +15,20 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('customer.home');
 Route::get('/shop', [ShopController::class, 'index'])->name('customer.shop');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('customer.product.show');
+// Cart & Protocol Management
 Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');
+Route::get('/cart/items', [CartController::class, 'items'])->name('customer.cart.items');
+Route::post('/cart/add', [CartController::class, 'add'])->name('customer.cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('customer.cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('customer.cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('customer.cart.coupon');
+Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('customer.cart.coupon.remove');
+
+// Checkout & Order Placement
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('customer.checkout.store');
+Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('customer.checkout.confirmation');
 
 // Customer Authentication (Guest Only)
 Route::middleware('guest:customer')->group(function () {
@@ -62,6 +75,8 @@ Route::get('/products', [ShopController::class, 'index'])->name('customer.produc
 Route::get('/blog', [PageController::class, 'blog'])->name('customer.pages.blog');
 Route::get('/about', [PageController::class, 'about'])->name('customer.pages.about');
 Route::get('/science', [PageController::class, 'science'])->name('customer.pages.science');
+Route::get('/our-science/{slug}', [ScienceController::class, 'show'])->name('customer.science.product');
+Route::get('/science/{slug}', [ScienceController::class, 'show']);
 Route::get('/team', [PageController::class, 'team'])->name('customer.pages.team');
 Route::get('/contact', [PageController::class, 'contact'])->name('customer.pages.contact');
 Route::get('/faqs', [PageController::class, 'faqs'])->name('customer.pages.faqs');

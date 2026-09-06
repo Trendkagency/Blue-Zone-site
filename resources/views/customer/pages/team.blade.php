@@ -100,11 +100,11 @@
       </div>
 
       <!-- ETHICS & STANDARDS -->
-      <div class="bg-[#031827] rounded-3xl p-8 sm:p-12 text-white border border-[#0A4F78]/30 space-y-6">
+      <div class="bg-white dark:bg-[#031827] rounded-3xl p-8 sm:p-12 text-[#031827] dark:text-white border border-[#0A4F78]/20 dark:border-[#0A4F78]/30 shadow-xl space-y-6 transition-colors">
         <div class="max-w-3xl space-y-4">
-          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#67B34A]">OUR ETHICAL MANDATE</span>
-          <h2 class="text-2xl sm:text-4xl font-black tracking-tight">EVIDENCE OVER HYPE. BIO-INTEGRITY OVER TRENDS.</h2>
-          <p class="text-xs sm:text-sm text-[#E8DCC4] leading-relaxed font-medium">
+          <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#589c3e] dark:text-[#67B34A]">OUR ETHICAL MANDATE</span>
+          <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-[#031827] dark:text-white">EVIDENCE OVER HYPE. BIO-INTEGRITY OVER TRENDS.</h2>
+          <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#E8DCC4] leading-relaxed font-medium">
             Every BLUE ZONE ingredient must pass three gates before formulation: (1) Documented epidemiological prevalence in at least one validated Blue Zone region, (2) Peer-reviewed human clinical trials validating biological mechanism, and (3) 100% bio-identical purity with zero synthetic fillers.
           </p>
         </div>

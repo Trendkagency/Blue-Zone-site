@@ -37,7 +37,7 @@ html.bz-loader-active, body.bz-loader-active {
   z-index: 99999999 !important;
   background: radial-gradient(70% 60% at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) !important;
   color: var(--text) !important;
-  font-family: "Segoe UI", Arial, sans-serif !important;
+  font-family: var(--font-family-base), "Segoe UI", Arial, sans-serif !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;

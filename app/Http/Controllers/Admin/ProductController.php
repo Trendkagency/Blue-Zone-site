@@ -59,7 +59,9 @@ class ProductController extends Controller
         $activeCount = Product::count();
         $dbProducts = $query->paginate(15)->withQueryString();
 
-        if ($dbProducts->isNotEmpty()) {
+        $totalDbCount = Product::withTrashed()->count();
+
+        if ($totalDbCount > 0) {
             $products = $dbProducts->map(function ($p) {
                 return [
                     'id' => $p->id,
@@ -131,6 +133,7 @@ class ProductController extends Controller
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
+        $this->formatScienceInputs($data);
         $product = Product::create($data);
 
         // Attach Spatie Media if uploaded
@@ -280,6 +283,11 @@ class ProductController extends Controller
                 'usage_ar' => $dbProduct->usage_ar,
                 'clinical_mechanism' => $dbProduct->clinical_mechanism,
                 'formula_details' => $dbProduct->formula_details,
+                'science_en' => $dbProduct->science_en,
+                'science_ar' => $dbProduct->science_ar,
+                'benefits_en' => is_array($dbProduct->benefits_en) ? implode("\n", $dbProduct->benefits_en) : ($dbProduct->benefits_en ?? ''),
+                'benefits_ar' => is_array($dbProduct->benefits_ar) ? implode("\n", $dbProduct->benefits_ar) : ($dbProduct->benefits_ar ?? ''),
+                'ingredients' => is_array($dbProduct->ingredients) ? $dbProduct->ingredients : [],
                 'contraindications' => $dbProduct->contraindications,
                 'warnings' => $dbProduct->warnings,
                 'is_featured' => (bool) $dbProduct->is_featured,
@@ -289,6 +297,17 @@ class ProductController extends Controller
             ];
         } else {
             $product = ProductViewModel::find($id);
+            if ($product) {
+                $product['science_en'] = $product['science_en'] ?? ($product['description_en'] ?? '');
+                $product['science_ar'] = $product['science_ar'] ?? ($product['description_ar'] ?? '');
+                $product['benefits_en'] = isset($product['benefits_en']) && is_array($product['benefits_en']) ? implode("\n", $product['benefits_en']) : ($product['benefits_en'] ?? '');
+                $product['benefits_ar'] = isset($product['benefits_ar']) && is_array($product['benefits_ar']) ? implode("\n", $product['benefits_ar']) : ($product['benefits_ar'] ?? '');
+                $product['ingredients'] = $product['ingredients'] ?? [];
+                $product['clinical_mechanism'] = $product['clinical_mechanism'] ?? ($product['professional_info']['clinical_mechanism'] ?? '');
+                $product['formula_details'] = $product['formula_details'] ?? ($product['professional_info']['formula_details'] ?? '');
+                $product['contraindications'] = $product['contraindications'] ?? ($product['professional_info']['contraindications'] ?? '');
+                $product['warnings'] = $product['warnings'] ?? ($product['professional_info']['warnings'] ?? '');
+            }
         }
 
         if (!$product) {
@@ -324,6 +343,7 @@ class ProductController extends Controller
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
+        $this->formatScienceInputs($data);
 
         $product->update($data);
 
@@ -397,5 +417,39 @@ class ProductController extends Controller
             ->with('success', app()->getLocale() === 'ar' 
                 ? "تم الحذف النهائي للتركيبة [{$name}] وجميع سجلاتها المرتبطة نهائياً!" 
                 : "Formulation [{$name}] and all associated records permanently erased!");
+    }
+
+    /**
+     * Parse and sanitize Our Science & Clinical fields before saving.
+     */
+    protected function formatScienceInputs(array &$data): void
+    {
+        if (isset($data['benefits_en'])) {
+            if (is_string($data['benefits_en'])) {
+                $lines = preg_split('/\r\n|\r|\n/', trim($data['benefits_en']));
+                $data['benefits_en'] = array_values(array_filter(array_map('trim', $lines), fn ($line) => $line !== ''));
+            } elseif (is_array($data['benefits_en'])) {
+                $data['benefits_en'] = array_values(array_filter($data['benefits_en']));
+            }
+        }
+
+        if (isset($data['benefits_ar'])) {
+            if (is_string($data['benefits_ar'])) {
+                $lines = preg_split('/\r\n|\r|\n/', trim($data['benefits_ar']));
+                $data['benefits_ar'] = array_values(array_filter(array_map('trim', $lines), fn ($line) => $line !== ''));
+            } elseif (is_array($data['benefits_ar'])) {
+                $data['benefits_ar'] = array_values(array_filter($data['benefits_ar']));
+            }
+        }
+
+        if (isset($data['ingredients']) && is_array($data['ingredients'])) {
+            $data['ingredients'] = array_values(array_filter($data['ingredients'], function ($row) {
+                if (! is_array($row)) {
+                    return false;
+                }
+
+                return ! empty($row['name_en']) || ! empty($row['name_ar']) || ! empty($row['dose']);
+            }));
+        }
     }
 }

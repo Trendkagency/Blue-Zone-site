@@ -44,31 +44,32 @@
         <nav class="site-nav">
             <!-- Brand Logo -->
             <a href="{{ route('customer.home') }}" class="nav-brand">
-                <img src="{{ asset('assets/logo/logo-main.png') }}" alt="{{ __('app.brand_name') }}" class="nav-brand-logo" onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
+                <img src="{{ asset('assets/logo/logo-light.webp') }}" alt="{{ __('app.brand_name') }}" class="nav-brand-logo dark:hidden" style="height: 32px;" onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-light.png') }}';">
+                <img src="{{ asset('assets/logo/logo-dark.webp') }}" alt="{{ __('app.brand_name') }}" class="nav-brand-logo hidden dark:block" style="height: 32px;" onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-dark.png') }}';">
                 <span>{{ __('app.brand_name') }}</span>
             </a>
 
             <!-- Desktop Menu -->
             <div class="nav-menu">
-                <a href="{{ route('customer.home') }}" class="nav-link {{ request()->routeIs('customer.home') ? 'active' : '' }}">
+                <a href="{{ route('customer.home') }}" class="nav-link {{ (request()->routeIs('customer.home') || request()->is('/')) ? 'active' : '' }}">
                     {{ __('app.nav.home') }}
                 </a>
-                <a href="{{ route('customer.shop') }}" class="nav-link {{ request()->routeIs('customer.shop*') || request()->routeIs('customer.product*') ? 'active' : '' }}">
+                <a href="{{ route('customer.shop') }}" class="nav-link {{ (request()->routeIs('customer.shop*') || request()->routeIs('customer.product*') || request()->is('shop*') || request()->is('products*')) ? 'active' : '' }}">
                     {{ __('app.nav.shop') }}
                 </a>
-                <a href="{{ route('customer.pages.science') }}" class="nav-link {{ request()->routeIs('customer.pages.science') ? 'active' : '' }}">
+                <a href="{{ route('customer.pages.science') }}" class="nav-link {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : '' }}">
                     {{ __('app.nav.science') }}
                 </a>
-                <a href="{{ route('customer.pages.about') }}" class="nav-link {{ request()->routeIs('customer.pages.about') ? 'active' : '' }}">
+                <a href="{{ route('customer.pages.about') }}" class="nav-link {{ (request()->routeIs('customer.pages.about*') || request()->is('about*')) ? 'active' : '' }}">
                     {{ __('app.nav.about') }}
                 </a>
-                <a href="{{ route('customer.pages.team') }}" class="nav-link {{ request()->routeIs('customer.pages.team') ? 'active' : '' }}">
+                <a href="{{ route('customer.pages.team') }}" class="nav-link {{ (request()->routeIs('customer.pages.team*') || request()->is('team*')) ? 'active' : '' }}">
                     {{ __('app.nav.team') }}
                 </a>
-                <a href="{{ route('customer.pages.contact') }}" class="nav-link {{ request()->routeIs('customer.pages.contact') ? 'active' : '' }}">
+                <a href="{{ route('customer.pages.contact') }}" class="nav-link {{ (request()->routeIs('customer.pages.contact*') || request()->is('contact*')) ? 'active' : '' }}">
                     {{ __('app.nav.contact') }}
                 </a>
-                <a href="{{ route('customer.pages.faqs') }}" class="nav-link {{ request()->routeIs('customer.pages.faqs') ? 'active' : '' }}">
+                <a href="{{ route('customer.pages.faqs') }}" class="nav-link {{ (request()->routeIs('customer.pages.faqs*') || request()->is('faqs*')) ? 'active' : '' }}">
                     {{ __('app.nav.faqs') }}
                 </a>
             </div>
@@ -105,7 +106,7 @@
             <div class="footer-grid">
                 <div>
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-                        <img src="{{ asset('assets/logo/logo-main.png') }}" alt="{{ __('app.brand_name') }}" style="height: 36px;" onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
+                        <img src="{{ asset('assets/logo/logo-dark.webp') }}" alt="{{ __('app.brand_name') }}" style="height: 32px;" onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-dark.png') }}';">
                         <span style="font-size: 1.25rem; font-weight: 800; color: #FFFFFF;">{{ __('app.brand_name') }}</span>
                     </div>
                     <p style="color: #94A3B8; font-size: 0.9375rem; line-height: 1.7; margin-bottom: 1.5rem;">

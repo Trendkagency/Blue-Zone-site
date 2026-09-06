@@ -14,7 +14,7 @@
         <aside class="admin-sidebar" id="adminSidebar">
             <div class="sidebar-header">
                 <a href="{{ route('admin.dashboard') }}" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
-                    <img src="{{ asset('assets/logo/logo-main.png') }}" alt="{{ __('app.brand_name') }}" style="height: 32px;" onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
+                    <img src="{{ asset('assets/logo/logo-dark.webp') }}" alt="{{ __('app.brand_name') }}" style="height: 28px;" onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-dark.png') }}';">
                     <span class="sidebar-brand-title">BZ-OS</span>
                 </a>
                 <button type="button" class="btn btn-ghost btn-sm lg:hidden cursor-pointer" onclick="toggleAdminSidebar()" aria-label="Close sidebar" style="color: #94A3B8; padding: 0.25rem 0.5rem;">
@@ -29,80 +29,112 @@
                     <span>{{ __('admin.menu.dashboard') }}</span>
                 </a>
 
+                @php
+                    $u = auth()->user();
+                @endphp
+
                 <!-- Catalog -->
-                <div class="menu-category">{{ __('admin.menu.catalog') }}</div>
-                <a href="{{ route('admin.products.index') }}" class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-boxes-stacked sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.products') }}</span>
-                </a>
-                <a href="{{ route('admin.categories.index') }}" class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-layer-group sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.categories') }}</span>
-                </a>
+                @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products')))
+                    <div class="menu-category">{{ __('admin.menu.catalog') }}</div>
+                    <a href="{{ route('admin.products.index') }}" class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-boxes-stacked sidebar-link-icon"></i>
+                        <span>{{ __('admin.menu.products') }}</span>
+                    </a>
+                    <a href="{{ route('admin.categories.index') }}" class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-layer-group sidebar-link-icon"></i>
+                        <span>{{ __('admin.menu.categories') }}</span>
+                    </a>
+                @endif
 
                 <!-- Inventory -->
-                <div class="menu-category">{{ __('admin.menu.inventory') }}</div>
-                <a href="{{ route('admin.inventory.index') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.index') || request()->routeIs('admin.inventory.show') ? 'active' : '' }}">
-                    <i class="fa-solid fa-warehouse sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.stock_levels') }}</span>
-                </a>
-                <a href="{{ route('admin.inventory.transfers') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
-                    <i class="fa-solid fa-arrow-right-arrow-left sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.stock_transfers') }}</span>
-                </a>
-                <a href="{{ route('admin.inventory.history') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
-                    <i class="fa-solid fa-clock-rotate-left sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.stock_history') }}</span>
-                </a>
+                @if($u && ($u->hasPermission('inventory.view') || $u->hasPermission('inventory')))
+                    <div class="menu-category">{{ __('admin.menu.inventory') }}</div>
+                    <a href="{{ route('admin.inventory.index') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.index') || request()->routeIs('admin.inventory.show') ? 'active' : '' }}">
+                        <i class="fa-solid fa-warehouse sidebar-link-icon"></i>
+                        <span>{{ __('admin.menu.stock_levels') }}</span>
+                    </a>
+                    <a href="{{ route('admin.inventory.transfers') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
+                        <i class="fa-solid fa-arrow-right-arrow-left sidebar-link-icon"></i>
+                        <span>{{ __('admin.menu.stock_transfers') }}</span>
+                    </a>
+                    <a href="{{ route('admin.inventory.history') }}" class="sidebar-link {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
+                        <i class="fa-solid fa-clock-rotate-left sidebar-link-icon"></i>
+                        <span>{{ __('admin.menu.stock_history') }}</span>
+                    </a>
+                @endif
 
                 <!-- Sales -->
-                <div class="menu-category">{{ __('admin.menu.sales') }}</div>
-                <a href="{{ route('admin.orders.index') }}" class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-bag-shopping sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.online_orders') }}</span>
-                </a>
-                <a href="{{ route('admin.offline-sales.index') }}" class="sidebar-link {{ request()->routeIs('admin.offline-sales.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-cash-register sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.offline_sales') }}</span>
-                </a>
-                <a href="{{ route('admin.invoices.index') }}" class="sidebar-link {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-file-invoice-dollar sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.invoices') }}</span>
-                </a>
+                @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('offline_sales.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('offline_sales') || $u->hasPermission('invoices')))
+                    <div class="menu-category">{{ __('admin.menu.sales') }}</div>
+                    @if($u->hasPermission('orders.view') || $u->hasPermission('orders'))
+                        <a href="{{ route('admin.orders.index') }}" class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-bag-shopping sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.online_orders') }}</span>
+                        </a>
+                    @endif
+                    @if($u->hasPermission('offline_sales.view') || $u->hasPermission('offline_sales'))
+                        <a href="{{ route('admin.offline-sales.index') }}" class="sidebar-link {{ request()->routeIs('admin.offline-sales.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-cash-register sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.offline_sales') }}</span>
+                        </a>
+                    @endif
+                    @if($u->hasPermission('invoices.view') || $u->hasPermission('invoices'))
+                        <a href="{{ route('admin.invoices.index') }}" class="sidebar-link {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-file-invoice-dollar sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.invoices') }}</span>
+                        </a>
+                    @endif
+                @endif
 
                 <!-- Customers & Analytics -->
-                <div class="menu-category">{{ __('admin.menu.customers') }} & {{ __('admin.menu.reports') }}</div>
-                <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-users-gear sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.customers') }}</span>
-                </a>
-                <a href="{{ route('admin.reports.index') }}" class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-chart-pie sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.reports') }}</span>
-                </a>
+                @if($u && ($u->hasPermission('customers.view') || $u->hasPermission('reports.view') || $u->hasPermission('customers') || $u->hasPermission('reports')))
+                    <div class="menu-category">{{ __('admin.menu.customers') }} & {{ __('admin.menu.reports') }}</div>
+                    @if($u->hasPermission('customers.view') || $u->hasPermission('customers'))
+                        <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-users-gear sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.customers') }}</span>
+                        </a>
+                    @endif
+                    @if($u->hasPermission('reports.view') || $u->hasPermission('reports'))
+                        <a href="{{ route('admin.reports.index') }}" class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chart-pie sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.reports') }}</span>
+                        </a>
+                    @endif
+                @endif
 
                 <!-- Content & Access -->
-                <div class="menu-category">{{ __('admin.menu.content') }} & {{ __('admin.menu.access_control') }}</div>
-                <a href="{{ route('admin.content.index') }}" class="sidebar-link {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-newspaper sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.content') }}</span>
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-user-shield sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.users') }}</span>
-                </a>
-                <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-id-badge sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.roles') }}</span>
-                </a>
-                <a href="{{ route('admin.profile.index') }}" class="sidebar-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-user-gear sidebar-link-icon"></i>
-                    <span>{{ __('admin.profile.title') }}</span>
-                </a>
-                <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-sliders sidebar-link-icon"></i>
-                    <span>{{ __('admin.menu.settings') }}</span>
-                </a>
+                @if($u && ($u->hasPermission('content.view') || $u->hasPermission('users.view') || $u->hasPermission('roles.view') || $u->hasPermission('settings.view') || $u->hasPermission('content') || $u->hasPermission('users') || $u->hasPermission('roles') || $u->hasPermission('settings')))
+                    <div class="menu-category">{{ __('admin.menu.content') }} & {{ __('admin.menu.access_control') }}</div>
+                    @if($u->hasPermission('content.view') || $u->hasPermission('content'))
+                        <a href="{{ route('admin.content.index') }}" class="sidebar-link {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-newspaper sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.content') }}</span>
+                        </a>
+                    @endif
+                    @if($u->hasPermission('users.view') || $u->hasPermission('users'))
+                        <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-shield sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.users') }}</span>
+                        </a>
+                    @endif
+                    @if($u->hasPermission('roles.view') || $u->hasPermission('roles'))
+                        <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-id-badge sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.roles') }}</span>
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.profile.index') }}" class="sidebar-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user-gear sidebar-link-icon"></i>
+                        <span>{{ __('admin.profile.title') }}</span>
+                    </a>
+                    @if($u->hasPermission('settings.view') || $u->hasPermission('settings'))
+                        <a href="{{ route('admin.settings.index') }}" class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sliders sidebar-link-icon"></i>
+                            <span>{{ __('admin.menu.settings') }}</span>
+                        </a>
+                    @endif
+                @endif
             </nav>
         </aside>
 
@@ -291,34 +323,34 @@
     </div>
 
     <!-- Global Destructive & Force Delete Confirmation Modal -->
-    <div id="globalDeleteModal" class="modal-backdrop" style="display: none; align-items: center; justify-content: center;">
-        <div class="modal-dialog" style="max-width: 480px; width: 90%; background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); border: 1px solid var(--color-border); overflow: hidden;">
+    <div id="globalDeleteModal" class="modal-backdrop" onclick="if(event.target === this) closeModal('globalDeleteModal')">
+        <div class="modal-dialog">
             <form id="globalDeleteForm" method="POST" action="">
                 @csrf
                 <input type="hidden" name="_method" value="DELETE">
 
-                <div class="modal-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between;">
+                <div class="modal-header">
                     <h4 class="modal-title font-bold text-base" style="display: flex; align-items: center; gap: 0.625rem; margin: 0; color: #DC2626;">
                         <i id="globalDeleteIcon" class="fa-solid fa-triangle-exclamation"></i>
                         <span id="globalDeleteTitle">{{ __('app.actions.delete') }}</span>
                     </h4>
-                    <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('globalDeleteModal')" aria-label="Close" style="padding: 0.35rem 0.6rem;">
-                        <i class="fa-solid fa-xmark"></i>
+                    <button type="button" class="btn btn-ghost btn-sm cursor-pointer" onclick="closeModal('globalDeleteModal')" aria-label="Close" style="padding: 0.35rem 0.6rem;">
+                        <i class="fa-solid fa-xmark text-base"></i>
                     </button>
                 </div>
 
-                <div class="modal-body" style="padding: 1.5rem;">
+                <div class="modal-body">
                     <p id="globalDeleteMessage" style="color: var(--color-text-secondary); margin: 0; font-size: 0.9375rem; line-height: 1.6;">
                         {{ __('admin.confirm_action') }}
                     </p>
                 </div>
 
-                <div class="modal-footer" style="padding: 1rem 1.5rem; background: var(--color-bg-subtle); border-top: 1px solid var(--color-border); display: flex; justify-content: flex-end; gap: 0.75rem;">
-                    <button type="button" class="btn btn-secondary text-sm" onclick="closeModal('globalDeleteModal')">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary text-sm cursor-pointer" onclick="closeModal('globalDeleteModal')">
                         {{ __('app.actions.cancel') }}
                     </button>
-                    <button type="submit" id="globalDeleteBtn" class="btn btn-danger text-sm font-bold">
-                        <i class="fa-solid fa-trash-can mr-1 ml-1"></i>
+                    <button type="submit" id="globalDeleteBtn" class="btn btn-danger text-sm font-bold cursor-pointer">
+                        <i class="fa-solid fa-trash-can mr-1.5 ml-1.5"></i>
                         <span id="globalDeleteBtnText">{{ __('app.actions.delete') }}</span>
                     </button>
                 </div>
@@ -335,16 +367,16 @@
         function openModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
-                modal.style.display = 'flex';
-                modal.classList.add('active');
+                modal.classList.add('is-active', 'active');
+                document.body.style.overflow = 'hidden';
             }
         }
 
         function closeModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
-                modal.style.display = 'none';
-                modal.classList.remove('active');
+                modal.classList.remove('is-active', 'active');
+                document.body.style.overflow = '';
             }
         }
 
@@ -366,8 +398,8 @@
                     message.textContent = isAr
                         ? `تحذير بالغ الأهمية: هل أنت متأكد من رغبتك في حذف [${itemName || 'العنصر'}] نهائياً من قاعدة البيانات؟ سيتم إزالة جميع السجلات المرتبطة به ولن تتمكن من استعادته لاحقاً!`
                         : `Extreme Warning: Are you sure you want to permanently erase [${itemName || 'this record'}] from the database? This action is irreversible!`;
-                    btnText.textContent = isAr ? 'حذف نهائي نهائياً' : 'Permanently Delete';
-                    btn.className = 'btn btn-danger text-sm font-bold';
+                    btnText.textContent = isAr ? 'حذف نهائي فوري' : 'Permanently Delete';
+                    btn.className = 'btn btn-danger text-sm font-bold cursor-pointer';
                     icon.className = 'fa-solid fa-radiation';
                 } else {
                     title.textContent = isAr ? 'تأكيد النقل لسلة المحذوفات' : 'Confirm Move to Trash';
@@ -375,7 +407,7 @@
                         ? `هل أنت متأكد من نقل [${itemName || 'العنصر'}] إلى سلة المحذوفات؟ يمكنك مراجعته أو استعادته لاحقاً.`
                         : `Are you sure you want to move [${itemName || 'this item'}] to trash? You can restore it anytime later.`;
                     btnText.textContent = isAr ? 'نقل للمحذوفات' : 'Move to Trash';
-                    btn.className = 'btn btn-danger text-sm font-bold';
+                    btn.className = 'btn btn-danger text-sm font-bold cursor-pointer';
                     icon.className = 'fa-solid fa-trash-can';
                 }
 

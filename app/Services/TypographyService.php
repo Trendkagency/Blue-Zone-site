@@ -18,7 +18,7 @@ class TypographyService
                 'name' => 'Mont Blanc',
                 'label' => 'Mont Blanc & Tajawal (مون بلان مع تجوال)',
                 'category' => 'Bilingual Luxury Sans',
-                'weights' => [300, 400, 500, 600, 700, 800, 900],
+                'weights' => [400, 500, 600, 700, 800],
                 'preview_ar' => 'بلوزون — هندسة الصحة الخلوية وطول العمر',
                 'preview_en' => 'MONT BLANC & TAJAWAL BILINGUAL',
                 'description' => 'Ultra-clean geometric luxury typography (Mont Blanc / Montserrat) paired seamlessly with Tajawal for modern Arabic interfaces.',
@@ -27,7 +27,7 @@ class TypographyService
                 'name' => 'Cairo',
                 'label' => 'Cairo (القاهرة)',
                 'category' => 'Arabic Modern Sans',
-                'weights' => [300, 400, 500, 600, 700, 800, 900],
+                'weights' => [400, 500, 600, 700, 800],
                 'preview_ar' => 'بلوزون — هندسة الصحة وطول العمر',
                 'preview_en' => 'BLUE ZONE — Cellular Health & Longevity',
                 'description' => 'A versatile, balanced contemporary typeface with broad geometric Arabic & Latin letterforms.',
@@ -36,7 +36,7 @@ class TypographyService
                 'name' => 'Tajawal',
                 'label' => 'Tajawal (تجوال)',
                 'category' => 'Arabic Modern Sans',
-                'weights' => [300, 400, 500, 700, 800, 900],
+                'weights' => [400, 500, 700, 800],
                 'preview_ar' => 'تجربة تسوق سلسة وسريعة للعملاء',
                 'preview_en' => 'Seamless digital commerce experience',
                 'description' => 'Crisp, contemporary sans-serif with smooth low-contrast curves, highly legible on screens.',
@@ -257,8 +257,8 @@ class TypographyService
 
         foreach ($unique as $family) {
             if ($family === 'Mont Blanc') {
-                $queryParts[] = 'montserrat:300,400,500,600,700,800,900';
-                $queryParts[] = 'tajawal:300,400,500,700,800,900';
+                $queryParts[] = 'montserrat:400,500,600,700,800';
+                $queryParts[] = 'tajawal:400,500,700,800';
                 continue;
             }
 
@@ -298,8 +298,8 @@ class TypographyService
 
         foreach ($unique as $family) {
             if ($family === 'Mont Blanc') {
-                $queryParts[] = 'family=Montserrat:wght@300;400;500;600;700;800;900';
-                $queryParts[] = 'family=Tajawal:wght@300;400;500;700;800;900';
+                $queryParts[] = 'family=Montserrat:wght@400;500;600;700;800';
+                $queryParts[] = 'family=Tajawal:wght@400;500;700;800';
                 continue;
             }
 

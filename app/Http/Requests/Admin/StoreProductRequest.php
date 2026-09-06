@@ -42,8 +42,8 @@ class StoreProductRequest extends FormRequest
             'tagline_ar' => ['nullable', 'string', 'max:255'],
             'short_description_en' => ['nullable', 'string', 'max:500'],
             'short_description_ar' => ['nullable', 'string', 'max:500'],
-            'description_en' => ['required', 'string'],
-            'description_ar' => ['required', 'string'],
+            'description_en' => ['nullable', 'string'],
+            'description_ar' => ['nullable', 'string'],
             'usage_en' => ['nullable', 'string'],
             'usage_ar' => ['nullable', 'string'],
 
@@ -61,12 +61,19 @@ class StoreProductRequest extends FormRequest
             'documents' => ['nullable', 'array'],
             'documents.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:20480'],
 
-            // Step 5: Clinical Section
+            // Step 5: Clinical Section & Our Science
+            'science_en' => ['nullable', 'string'],
+            'science_ar' => ['nullable', 'string'],
             'clinical_mechanism' => ['nullable', 'string'],
             'formula_details' => ['nullable', 'string'],
+            'benefits_en' => ['nullable'],
+            'benefits_ar' => ['nullable'],
             'contraindications' => ['nullable', 'string'],
             'warnings' => ['nullable', 'string'],
             'ingredients' => ['nullable', 'array'],
+            'ingredients.*.name_en' => ['nullable', 'string', 'max:255'],
+            'ingredients.*.name_ar' => ['nullable', 'string', 'max:255'],
+            'ingredients.*.dose' => ['nullable', 'string', 'max:100'],
 
             // Step 6: Inventory & Controls
             'stock_online' => ['required', 'integer', 'min:0'],

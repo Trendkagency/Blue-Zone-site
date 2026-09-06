@@ -6,8 +6,8 @@
 @endphp
 
 <!-- Blue Zone Global Dynamic Typography Engine (Fast Bunny Edge CDN + Google Fallback) -->
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="{{ $primaryFontUrl }}" rel="stylesheet" id="bz-global-typography-font" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.href='{{ $fallbackFontUrl }}';}">
 

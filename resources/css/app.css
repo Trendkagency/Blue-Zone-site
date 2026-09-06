@@ -1,7 +1,23 @@
 /* BLUE ZONE Master Stylesheet */
 
-/* Google Fonts: Cairo */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-deep-navy: #031827;
+  --color-dark-navy: #062B49;
+  --color-ocean-blue: #0A4F78;
+  --color-accent-blue: #2A8FC2;
+  --color-natural-green: #67B34A;
+  --color-leaf-green: #B8D98A;
+  --color-off-white: #F6F5EF;
+  --color-warm-sand: #E8DCC4;
+
+  --font-cairo: var(--font-family-base), 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif;
+  --font-primary: var(--font-family-base), 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif;
+  --font-headings: var(--font-family-headings), 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif;
+}
 
 /* Base Styles & Design Tokens */
 @import './base/tokens.css';

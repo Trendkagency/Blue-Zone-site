@@ -12,6 +12,7 @@ use App\View\ViewModels\OrderViewModel;
 use App\View\ViewModels\ProductViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use InvalidArgumentException;
 
@@ -28,7 +29,7 @@ class OfflineSaleController extends Controller
                     'sale_number' => $order->order_number,
                     'invoice_number' => $order->invoice_number,
                     'store_location' => 'Riyadh Flagship Boutique',
-                    'cashier' => $order->notes ? StrAfter($order->notes, 'Cashier: ') : 'Senior Longevity Specialist',
+                    'cashier' => ($order->notes && Str::contains($order->notes, 'Cashier: ')) ? Str::after($order->notes, 'Cashier: ') : 'Senior Longevity Specialist',
                     'customer_name' => $order->customer_name,
                     'payment_method' => $order->payment_method,
                     'subtotal' => (float) $order->subtotal,
@@ -159,7 +160,7 @@ class OfflineSaleController extends Controller
                 'sale_number' => $dbOrder->order_number,
                 'invoice_number' => $dbOrder->invoice_number,
                 'store_location' => 'Riyadh Flagship Boutique',
-                'cashier' => 'Senior Longevity Specialist',
+                'cashier' => ($dbOrder->notes && Str::contains($dbOrder->notes, 'Cashier: ')) ? Str::after($dbOrder->notes, 'Cashier: ') : 'Senior Longevity Specialist',
                 'customer_name' => $dbOrder->customer_name,
                 'payment_method' => $dbOrder->payment_method,
                 'total' => (float) $dbOrder->total,

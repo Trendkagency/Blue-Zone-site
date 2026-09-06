@@ -19,12 +19,15 @@ class OrderController extends Controller
     public function index(Request $request): View
     {
         $status = $request->query('status');
+        $isTrashed = $status === 'trashed';
         $channel = $request->query('channel');
         $search = $request->query('search');
 
         $query = Order::with(['items', 'customer'])->latest();
 
-        if ($status && $status !== 'all') {
+        if ($isTrashed) {
+            $query->onlyTrashed();
+        } elseif ($status && $status !== 'all') {
             $query->where('status', $status);
         }
 
@@ -41,9 +44,13 @@ class OrderController extends Controller
             });
         }
 
+        $trashedCount = Order::onlyTrashed()->count();
+        $activeCount = Order::count();
+        $totalInDb = Order::withTrashed()->count();
+
         $orders = $query->paginate(15)->withQueryString();
 
-        if ($orders->isEmpty() && !$search && !$status && !$channel) {
+        if ($totalInDb === 0) {
             $orders = collect(OrderViewModel::all());
         }
 
@@ -52,6 +59,9 @@ class OrderController extends Controller
             'selectedStatus' => $status,
             'selectedChannel' => $channel,
             'search' => $search,
+            'trashedCount' => $trashedCount,
+            'activeCount' => $activeCount,
+            'isTrashed' => $isTrashed,
             'currentPage' => is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class) ? $orders->currentPage() : 1,
             'totalPages' => is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class) ? $orders->lastPage() : 1,
         ]);

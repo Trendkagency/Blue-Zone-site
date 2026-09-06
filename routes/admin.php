@@ -38,120 +38,126 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
         Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
 
-        // Products Management (Full CRUD, Soft Delete, Restore, Force Delete)
-        Route::middleware('permission:manage_products')->group(function () {
-            Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-            Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-            Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-            Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
-            Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
-            Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
-            Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
-            Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
-            Route::delete('/products/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
+        // Products & Categories Management
+        Route::prefix('products')->name('products.')->group(function () {
+            Route::get('/', [ProductController::class, 'index'])->middleware('permission:products.view')->name('index');
+            Route::get('/create', [ProductController::class, 'create'])->middleware('permission:products.create')->name('create');
+            Route::post('/', [ProductController::class, 'store'])->middleware('permission:products.create')->name('store');
+            Route::get('/{id}', [ProductController::class, 'show'])->middleware('permission:products.view')->name('show');
+            Route::get('/{id}/edit', [ProductController::class, 'edit'])->middleware('permission:products.edit')->name('edit');
+            Route::put('/{id}', [ProductController::class, 'update'])->middleware('permission:products.edit')->name('update');
+            Route::delete('/{id}', [ProductController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
+            Route::post('/{id}/restore', [ProductController::class, 'restore'])->middleware('permission:products.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [ProductController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');
+        });
 
-            // Category Management (Full CRUD, Soft Delete, Restore, Force Delete)
-            Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-            Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
-            Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
-            Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
-            Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
-            Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-            Route::post('/categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
-            Route::delete('/categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.force-delete');
+        Route::prefix('categories')->name('categories.')->group(function () {
+            Route::get('/', [CategoryController::class, 'index'])->middleware('permission:products.view')->name('index');
+            Route::get('/create', [CategoryController::class, 'create'])->middleware('permission:products.create')->name('create');
+            Route::post('/', [CategoryController::class, 'store'])->middleware('permission:products.create')->name('store');
+            Route::get('/{id}/edit', [CategoryController::class, 'edit'])->middleware('permission:products.edit')->name('edit');
+            Route::put('/{id}', [CategoryController::class, 'update'])->middleware('permission:products.edit')->name('update');
+            Route::delete('/{id}', [CategoryController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
+            Route::post('/{id}/restore', [CategoryController::class, 'restore'])->middleware('permission:products.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [CategoryController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');
         });
 
         // Inventory & Stock Management
-        Route::middleware('permission:manage_inventory')->group(function () {
-            Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-            Route::post('/inventory/adjustments', [InventoryController::class, 'storeAdjustment'])->name('inventory.adjustments.store');
-            Route::get('/inventory/transfers', [InventoryController::class, 'transfers'])->name('inventory.transfers');
-            Route::post('/inventory/transfers', [InventoryController::class, 'storeTransfer'])->name('inventory.transfers.store');
-            Route::get('/inventory/history', [InventoryController::class, 'history'])->name('inventory.history');
-            Route::get('/inventory/{id}', [InventoryController::class, 'show'])->name('inventory.show');
+        Route::prefix('inventory')->name('inventory.')->group(function () {
+            Route::get('/', [InventoryController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+            Route::post('/adjustments', [InventoryController::class, 'storeAdjustment'])->middleware('permission:inventory.create')->name('adjustments.store');
+            Route::get('/transfers', [InventoryController::class, 'transfers'])->middleware('permission:inventory.view')->name('transfers');
+            Route::post('/transfers', [InventoryController::class, 'storeTransfer'])->middleware('permission:inventory.create')->name('transfers.store');
+            Route::get('/history', [InventoryController::class, 'history'])->middleware('permission:inventory.view')->name('history');
+            Route::get('/{id}', [InventoryController::class, 'show'])->middleware('permission:inventory.view')->name('show');
         });
 
-        // Order Management (Online & Filterable, Soft Delete, Restore, Force Delete)
-        Route::middleware('permission:manage_orders')->group(function () {
-            Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-            Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-            Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
-            Route::delete('/orders/{id}', [OrderController::class, 'destroy'])->name('orders.destroy');
-            Route::post('/orders/{id}/restore', [OrderController::class, 'restore'])->name('orders.restore');
-            Route::delete('/orders/{id}/force-delete', [OrderController::class, 'forceDelete'])->name('orders.force-delete');
-
-            Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-            Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
-            Route::get('/invoices/{id}/print', [InvoiceController::class, 'print'])->name('invoices.print');
+        // Order Management & Invoices
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/', [OrderController::class, 'index'])->middleware('permission:orders.view')->name('index');
+            Route::get('/{id}', [OrderController::class, 'show'])->middleware('permission:orders.view')->name('show');
+            Route::patch('/{id}/status', [OrderController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
+            Route::delete('/{id}', [OrderController::class, 'destroy'])->middleware('permission:orders.delete')->name('destroy');
+            Route::post('/{id}/restore', [OrderController::class, 'restore'])->middleware('permission:orders.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [OrderController::class, 'forceDelete'])->middleware('permission:orders.delete')->name('force-delete');
         });
 
-        // Offline Sales Management (POS Style)
-        Route::middleware('permission:manage_offline_sales')->group(function () {
-            Route::get('/offline-sales', [OfflineSaleController::class, 'index'])->name('offline-sales.index');
-            Route::get('/offline-sales/create', [OfflineSaleController::class, 'create'])->name('offline-sales.create');
-            Route::post('/offline-sales', [OfflineSaleController::class, 'store'])->name('offline-sales.store');
-            Route::get('/offline-sales/{id}', [OfflineSaleController::class, 'show'])->name('offline-sales.show');
+        Route::prefix('invoices')->name('invoices.')->group(function () {
+            Route::get('/', [InvoiceController::class, 'index'])->middleware('permission:invoices.view')->name('index');
+            Route::get('/{id}', [InvoiceController::class, 'show'])->middleware('permission:invoices.view')->name('show');
+            Route::get('/{id}/print', [InvoiceController::class, 'print'])->middleware('permission:invoices.view')->name('print');
         });
 
-        // Customers CRM (Full CRUD, Soft Delete, Restore, Force Delete)
-        Route::middleware('permission:manage_customers')->group(function () {
-            Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-            Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
-            Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-            Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('customers.show');
-            Route::get('/customers/{id}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-            Route::put('/customers/{id}', [CustomerController::class, 'update'])->name('customers.update');
-            Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->name('customers.destroy');
-            Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
-            Route::delete('/customers/{id}/force-delete', [CustomerController::class, 'forceDelete'])->name('customers.force-delete');
+        // Offline POS Sales Management
+        Route::prefix('offline-sales')->name('offline-sales.')->group(function () {
+            Route::get('/', [OfflineSaleController::class, 'index'])->middleware('permission:offline_sales.view')->name('index');
+            Route::get('/create', [OfflineSaleController::class, 'create'])->middleware('permission:offline_sales.create')->name('create');
+            Route::post('/', [OfflineSaleController::class, 'store'])->middleware('permission:offline_sales.create')->name('store');
+            Route::get('/{id}', [OfflineSaleController::class, 'show'])->middleware('permission:offline_sales.view')->name('show');
         });
 
-        // Reports
-        Route::middleware('permission:view_reports')->group(function () {
-            Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        // Customers CRM
+        Route::prefix('customers')->name('customers.')->group(function () {
+            Route::get('/', [CustomerController::class, 'index'])->middleware('permission:customers.view')->name('index');
+            Route::get('/create', [CustomerController::class, 'create'])->middleware('permission:customers.create')->name('create');
+            Route::post('/', [CustomerController::class, 'store'])->middleware('permission:customers.create')->name('store');
+            Route::get('/{id}', [CustomerController::class, 'show'])->middleware('permission:customers.view')->name('show');
+            Route::get('/{id}/edit', [CustomerController::class, 'edit'])->middleware('permission:customers.edit')->name('edit');
+            Route::put('/{id}', [CustomerController::class, 'update'])->middleware('permission:customers.edit')->name('update');
+            Route::delete('/{id}', [CustomerController::class, 'destroy'])->middleware('permission:customers.delete')->name('destroy');
+            Route::post('/{id}/restore', [CustomerController::class, 'restore'])->middleware('permission:customers.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [CustomerController::class, 'forceDelete'])->middleware('permission:customers.delete')->name('force-delete');
         });
 
-        // Content Management (CMS) & FAQs CRUD
-        Route::middleware('permission:manage_cms')->group(function () {
-            Route::get('/content', [ContentController::class, 'index'])->name('content.index');
-            Route::get('/content/banners', [ContentController::class, 'banners'])->name('content.banners');
-            Route::post('/content/banners', [ContentController::class, 'updateBanners'])->name('content.banners.update');
-            Route::get('/content/story', [ContentController::class, 'story'])->name('content.story');
-            Route::post('/content/story', [ContentController::class, 'updateStory'])->name('content.story.update');
-            Route::get('/content/wellness', [ContentController::class, 'wellness'])->name('content.wellness');
-            Route::post('/content/wellness', [ContentController::class, 'updateWellness'])->name('content.wellness.update');
-            Route::get('/content/faqs', [ContentController::class, 'faqs'])->name('content.faqs');
-            Route::post('/content/faqs', [ContentController::class, 'storeFaq'])->name('content.faqs.store');
-            Route::put('/content/faqs/{id}', [ContentController::class, 'updateFaq'])->name('content.faqs.update');
-            Route::delete('/content/faqs/{id}', [ContentController::class, 'destroyFaq'])->name('content.faqs.destroy');
+        // Reports & Print Dossier
+        Route::prefix('reports')->name('reports.')->group(function () {
+            Route::get('/', [ReportController::class, 'index'])->middleware('permission:reports.view')->name('index');
+            Route::get('/export', [ReportController::class, 'export'])->middleware('permission:reports.view')->name('export');
+            Route::get('/print', [ReportController::class, 'print'])->middleware('permission:reports.view')->name('print');
         });
 
-        // Users & Access Control (Full CRUD, Soft Delete, Restore, Force Delete)
-        Route::middleware('permission:manage_users')->group(function () {
-            Route::get('/users', [UserController::class, 'index'])->name('users.index');
-            Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
-            Route::post('/users', [UserController::class, 'store'])->name('users.store');
-            Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
-            Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
-            Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-            Route::post('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
-            Route::delete('/users/{id}/force-delete', [UserController::class, 'forceDelete'])->name('users.force-delete');
+        // Content Management (CMS)
+        Route::prefix('content')->name('content.')->group(function () {
+            Route::get('/', [ContentController::class, 'index'])->middleware('permission:content.view')->name('index');
+            Route::get('/banners', [ContentController::class, 'banners'])->middleware('permission:content.view')->name('banners');
+            Route::post('/banners', [ContentController::class, 'updateBanners'])->middleware('permission:content.edit')->name('banners.update');
+            Route::get('/story', [ContentController::class, 'story'])->middleware('permission:content.view')->name('story');
+            Route::post('/story', [ContentController::class, 'updateStory'])->middleware('permission:content.edit')->name('story.update');
+            Route::get('/wellness', [ContentController::class, 'wellness'])->middleware('permission:content.view')->name('wellness');
+            Route::post('/wellness', [ContentController::class, 'updateWellness'])->middleware('permission:content.edit')->name('wellness.update');
+            Route::get('/faqs', [ContentController::class, 'faqs'])->middleware('permission:content.view')->name('faqs');
+            Route::post('/faqs', [ContentController::class, 'storeFaq'])->middleware('permission:content.create')->name('faqs.store');
+            Route::put('/faqs/{id}', [ContentController::class, 'updateFaq'])->middleware('permission:content.edit')->name('faqs.update');
+            Route::delete('/faqs/{id}', [ContentController::class, 'destroyFaq'])->middleware('permission:content.delete')->name('faqs.destroy');
+        });
 
-            // Roles & Permissions Matrix (Full CRUD, Soft Delete, Restore, Force Delete)
-            Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-            Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
-            Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
-            Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
-            Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
-            Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
-            Route::post('/roles/{id}/restore', [RoleController::class, 'restore'])->name('roles.restore');
-            Route::delete('/roles/{id}/force-delete', [RoleController::class, 'forceDelete'])->name('roles.force-delete');
+        // Users & Roles Management
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->middleware('permission:users.view')->name('index');
+            Route::get('/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('create');
+            Route::post('/', [UserController::class, 'store'])->middleware('permission:users.create')->name('store');
+            Route::get('/{id}/edit', [UserController::class, 'edit'])->middleware('permission:users.edit')->name('edit');
+            Route::put('/{id}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');
+            Route::post('/{id}/restore', [UserController::class, 'restore'])->middleware('permission:users.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [UserController::class, 'forceDelete'])->middleware('permission:users.delete')->name('force-delete');
+        });
+
+        Route::prefix('roles')->name('roles.')->group(function () {
+            Route::get('/', [RoleController::class, 'index'])->middleware('permission:roles.view')->name('index');
+            Route::get('/create', [RoleController::class, 'create'])->middleware('permission:roles.create')->name('create');
+            Route::post('/', [RoleController::class, 'store'])->middleware('permission:roles.create')->name('store');
+            Route::get('/{id}/edit', [RoleController::class, 'edit'])->middleware('permission:roles.edit')->name('edit');
+            Route::put('/{id}', [RoleController::class, 'update'])->middleware('permission:roles.edit')->name('update');
+            Route::delete('/{id}', [RoleController::class, 'destroy'])->middleware('permission:roles.delete')->name('destroy');
+            Route::post('/{id}/restore', [RoleController::class, 'restore'])->middleware('permission:roles.delete')->name('restore');
+            Route::delete('/{id}/force-delete', [RoleController::class, 'forceDelete'])->middleware('permission:roles.delete')->name('force-delete');
         });
 
         // Settings
-        Route::middleware('permission:manage_settings')->group(function () {
-            Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
-            Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [SettingController::class, 'index'])->middleware('permission:settings.view')->name('index');
+            Route::post('/', [SettingController::class, 'update'])->middleware('permission:settings.edit')->name('update');
         });
     });
 });

@@ -1,11 +1,23 @@
 // BLUE ZONE Authentic World Map Animation Controller
 
 (function () {
-  const FADE_DURATION = 600;
+  const FADE_DURATION = 350;
 
-  function initMapIntro() {
+  function initMapIntro(force = false) {
     const loaderEl = document.getElementById('blue-zone-loader');
     if (!loaderEl) return;
+
+    if (!force) {
+      try {
+        if (sessionStorage.getItem('bz_intro_seen')) {
+          loaderEl.style.display = 'none';
+          if (loaderEl.parentNode) loaderEl.parentNode.removeChild(loaderEl);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    try { sessionStorage.setItem('bz_intro_seen', '1'); } catch (e) {}
 
     // Lock document scroll
     document.documentElement.classList.add('bz-loader-active');
@@ -20,7 +32,7 @@
     loaderEl.style.pointerEvents = 'auto';
 
     const isCompact = loaderEl.classList.contains('compact-loader');
-    const totalDuration = isCompact ? 2000 : 3800;
+    const totalDuration = isCompact ? 300 : 600;
 
     // Active Zone Cycling
     const zoneSpans = loaderEl.querySelectorAll('.zones span:not(.sep)');
@@ -31,9 +43,12 @@
         if (zoneSpans[activeIdx]) zoneSpans[activeIdx].classList.add('active');
         activeIdx = (activeIdx + 1) % zoneSpans.length;
       }
-    }, isCompact ? 350 : 700);
+    }, isCompact ? 100 : 150);
 
+    let finished = false;
     function finishIntro() {
+      if (finished) return;
+      finished = true;
       clearInterval(cycleInterval);
       loaderEl.style.pointerEvents = 'none';
       loaderEl.classList.add('is-loaded');
@@ -61,16 +76,21 @@
       };
     }
 
-    // Auto finish after timer
-    setTimeout(() => {
-      finishIntro();
-    }, totalDuration);
+    // Auto finish when window load or fallback timer
+    if (document.readyState === 'complete') {
+      setTimeout(finishIntro, isCompact ? 150 : 300);
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(finishIntro, isCompact ? 150 : 300);
+      }, { once: true });
+      setTimeout(finishIntro, totalDuration);
+    }
   }
 
   window.BLUEZONE_MAP = {
     init: initMapIntro,
     replay: function () {
-      initMapIntro();
+      initMapIntro(true);
     }
   };
 

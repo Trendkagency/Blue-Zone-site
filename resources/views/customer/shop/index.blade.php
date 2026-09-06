@@ -80,17 +80,26 @@
                 </div>
               </div>
 
-              <div class="pt-6 border-t border-[#0A4F78]/10 mt-6 flex items-center justify-between gap-4">
-                <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                  ${{ number_format($pPrice, 2) }}
-                </div>
-                <div class="flex gap-2">
-                  <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer">
-                    ♥
-                  </button>
-                  <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
-                    ADD TO CART
-                  </button>
+              <div class="pt-4 border-t border-[#0A4F78]/10 mt-5 space-y-3">
+                <a href="{{ route('customer.science.product', $pSlug) }}" 
+                   class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
+                  <i class="fa-solid fa-flask-vial group-hover/btn:rotate-12 transition-transform"></i>
+                  <span>{{ app()->getLocale() === 'ar' ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details' }}</span>
+                  <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
+                </a>
+
+                <div class="flex items-center justify-between gap-4 pt-1">
+                  <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                    ${{ number_format($pPrice, 2) }}
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'المفضلة' : 'Wishlist' }}">
+                      ♥
+                    </button>
+                    <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
+                      {{ app()->getLocale() === 'ar' ? 'أضف للسلة' : 'ADD TO CART' }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -104,6 +113,7 @@
     <script>
       let currentCategory = 'ALL';
       let currentSort = 'FEATURED';
+      const isArabic = '{{ app()->getLocale() }}' === 'ar';
 
       function renderShopGrid() {
         if (!window.BLUEZONE_PRODUCTS || !window.BLUEZONE_PRODUCTS.length) return;
@@ -124,14 +134,16 @@
           list.sort((a, b) => b.rating - a.rating);
         }
 
-        grid.innerHTML = list.map(p => `
+        grid.innerHTML = list.map(p => {
+          const productSlug = p.slug || p.id;
+          return `
           <div class="bg-white dark:bg-[#062B49] rounded-3xl p-6 border border-[#0A4F78]/15 shadow-xl flex flex-col justify-between card-hover-lift">
             <div class="space-y-4">
               <div class="aspect-square rounded-2xl overflow-hidden bg-[#031827]/5 dark:bg-[#031827]/40 flex items-center justify-center relative p-6">
                 <span class="absolute top-3 left-3 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
                   ${p.category}
                 </span>
-                <a href="/products/${p.id}" class="w-full h-full flex items-center justify-center">
+                <a href="/products/${productSlug}" class="w-full h-full flex items-center justify-center">
                   <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
                 </a>
               </div>
@@ -141,7 +153,7 @@
                   <span class="text-[#031827]/50 dark:text-[#F6F5EF]/50 font-mono">60 CAPS</span>
                 </div>
                 <h3 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                  <a href="/products/${p.id}" class="hover:text-[#67B34A] transition-colors">
+                  <a href="/products/${productSlug}" class="hover:text-[#67B34A] transition-colors">
                     ${p.name}
                   </a>
                 </h3>
@@ -151,21 +163,31 @@
               </div>
             </div>
 
-            <div class="pt-6 border-t border-[#0A4F78]/10 mt-6 flex items-center justify-between gap-4">
-              <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                $${p.price.toFixed(2)}
-              </div>
-              <div class="flex gap-2">
-                <button onclick="BLUEZONE_WISHLIST.toggle('${p.id}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer">
-                  ♥
-                </button>
-                <button onclick="BLUEZONE_CART.add('${p.id}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
-                  ADD TO CART
-                </button>
+            <div class="pt-4 border-t border-[#0A4F78]/10 mt-5 space-y-3">
+              <a href="/our-science/${productSlug}" 
+                 class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
+                <i class="fa-solid fa-flask-vial group-hover/btn:rotate-12 transition-transform"></i>
+                <span>${isArabic ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details'}</span>
+                <i class="fa-solid ${isArabic ? 'fa-arrow-left' : 'fa-arrow-right'} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
+              </a>
+
+              <div class="flex items-center justify-between gap-4 pt-1">
+                <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                  $${p.price.toFixed(2)}
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="BLUEZONE_WISHLIST.toggle('${productSlug}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="${isArabic ? 'المفضلة' : 'Wishlist'}">
+                    ♥
+                  </button>
+                  <button onclick="BLUEZONE_CART.add('${productSlug}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
+                    ${isArabic ? 'أضف للسلة' : 'ADD TO CART'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
 
       function filterShopCategory(cat) {

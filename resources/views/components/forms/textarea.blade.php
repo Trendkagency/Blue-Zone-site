@@ -26,7 +26,7 @@
         placeholder="{{ $placeholder }}"
         {{ $required ? 'required' : '' }}
         {{ $attributes->merge(['class' => 'form-textarea ' . ($error ? 'is-invalid' : '')]) }}
-    >{{ $value }}</textarea>
+    >{{ old($name, $value ?? ($slot->isNotEmpty() ? $slot : '')) }}</textarea>
 
     @if($hint)
         <span class="form-hint">{{ $hint }}</span>

@@ -57,7 +57,8 @@ class ProductCreateAndTaxLogicTest extends TestCase
     public function test_product_store_validation_fails_when_mandatory_step_fields_are_missing(): void
     {
         $response = $this->actingAs($this->admin, 'web')->post(route('admin.products.store'), []);
-        $response->assertSessionHasErrors(['sku', 'category_id', 'brand', 'name_en', 'name_ar', 'description_en', 'description_ar', 'price', 'cost_price', 'stock_online', 'stock_offline', 'low_stock_threshold', 'status']);
+        $response->assertSessionHasErrors(['sku', 'category_id', 'brand', 'name_en', 'name_ar', 'price', 'cost_price', 'stock_online', 'stock_offline', 'low_stock_threshold', 'status']);
+        $response->assertSessionDoesntHaveErrors(['description_en', 'description_ar']);
     }
 
     public function test_product_store_successfully_creates_record_and_inventory_allocation(): void
@@ -116,6 +117,35 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'product_id' => $product->id,
             'location_id' => 'offline',
             'available_stock' => 60,
+        ]);
+    }
+
+    public function test_product_store_succeeds_without_description_fields(): void
+    {
+        $payload = [
+            'sku' => 'BZ-NODESC-123',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone Bioceuticals',
+            'name_en' => 'BLUE PURE (No Description)',
+            'name_ar' => 'بلو بيور (بدون وصف)',
+            'price' => 45.00,
+            'cost_price' => 15.00,
+            'stock_online' => 50,
+            'stock_offline' => 25,
+            'low_stock_threshold' => 10,
+            'status' => 'active',
+            // description_en and description_ar omitted intentionally
+        ];
+
+        $response = $this->actingAs($this->admin, 'web')->post(route('admin.products.store'), $payload);
+        $response->assertSessionDoesntHaveErrors();
+        $response->assertRedirect(route('admin.products.index'));
+
+        $this->assertDatabaseHas('products', [
+            'sku' => 'BZ-NODESC-123',
+            'name_en' => 'BLUE PURE (No Description)',
+            'description_en' => null,
+            'description_ar' => null,
         ]);
     }
 

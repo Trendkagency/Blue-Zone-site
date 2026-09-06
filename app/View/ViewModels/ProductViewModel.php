@@ -541,6 +541,6 @@ class ProductViewModel
                 return $p;
             }
         }
-        return $products[0] ?? null;
+        return null;
     }
 }

@@ -52,8 +52,9 @@
 }
 
 .nav-brand-logo {
-  height: 42px;
+  height: 34px;
   width: auto;
+  object-fit: contain;
 }
 
 .nav-menu {

@@ -1,39 +1,46 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(3, 24, 39, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 999;
+  background-color: rgba(3, 24, 39, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.25rem;
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition-normal), visibility var(--transition-normal);
+  pointer-events: none;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.modal-backdrop.is-active {
+.modal-backdrop.is-active,
+.modal-backdrop.active {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .modal-dialog {
-  background-color: var(--color-bg-surface);
+  background-color: var(--color-surface, #FFFFFF);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
   width: 100%;
-  max-width: 540px;
+  max-width: 520px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   transform: scale(0.95);
-  transition: transform var(--transition-normal);
+  transition: transform 0.2s ease;
   overflow: hidden;
+  position: relative;
+  z-index: 10001;
 }
 
-.modal-backdrop.is-active .modal-dialog {
+.modal-backdrop.is-active .modal-dialog,
+.modal-backdrop.active .modal-dialog {
   transform: scale(1);
 }
 

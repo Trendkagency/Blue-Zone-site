@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\SetLocaleMiddleware::class,
+            \App\Http\Middleware\SecurityAndPerformanceHeaders::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/*',
         ]);
 
         $middleware->redirectGuestsTo(function (Request $request) {

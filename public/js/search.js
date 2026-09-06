@@ -1,4 +1,4 @@
-// BLUE ZONE Real-Time Live Search System (Vanilla JS)
+// BLUE ZONE Precision Bio-Compound & Ingredient Live Search System (Vanilla JS)
 
 (function () {
 
@@ -49,74 +49,102 @@
   function searchProducts(query) {
     const products = window.BLUEZONE_PRODUCTS || [];
     const q = (query || '').toLowerCase().trim();
-    if (!q) return products;
+    if (!q) {
+      return products.map(p => ({ product: p, matchedIngredient: null }));
+    }
 
-    return products.filter(p => {
-      const matchName = p.name.toLowerCase().includes(q);
+    const matches = [];
+
+    products.forEach(p => {
+      const matchName = (p.name || '').toLowerCase().includes(q);
       const matchTag = (p.tagline || '').toLowerCase().includes(q);
       const matchDesc = (p.description || '').toLowerCase().includes(q);
       const matchCat = (p.category || '').toLowerCase().includes(q);
-      
-      // Also match individual ingredient names
-      let matchIng = false;
+      const matchScience = (p.science || '').toLowerCase().includes(q);
+
+      // Search through individual ingredients and bio-compounds
+      let matchedIng = null;
       if (p.ingredients) {
-        const allIng = [
-          ...(p.ingredients.cognitive || []),
-          ...(p.ingredients.minerals || []),
-          ...(p.ingredients.vitamins || [])
-        ];
-        matchIng = allIng.some(ing => ing.name.toLowerCase().includes(q));
+        let allIng = [];
+        if (Array.isArray(p.ingredients)) {
+          allIng = p.ingredients;
+        } else if (typeof p.ingredients === 'object') {
+          Object.values(p.ingredients).forEach(val => {
+            if (Array.isArray(val)) {
+              allIng.push(...val);
+            }
+          });
+        }
+        
+        const found = allIng.find(ing => {
+          const name = (typeof ing === 'string' ? ing : (ing.name || ing.name_en || ing.name_ar || '')).toLowerCase();
+          return name.includes(q);
+        });
+        if (found) {
+          matchedIng = typeof found === 'string' ? { name: found, dose: '' } : found;
+        }
       }
 
-      return matchName || matchTag || matchDesc || matchCat || matchIng;
+      if (matchedIng || matchName || matchTag || matchDesc || matchCat || matchScience) {
+        matches.push({
+          product: p,
+          matchedIngredient: matchedIng
+        });
+      }
     });
+
+    return matches;
   }
 
   function renderSearchResults(query) {
     const resultsContainer = document.getElementById('search-results-container');
-    const countEl = document.getElementById('search-results-count');
     if (!resultsContainer) return;
 
     const results = searchProducts(query);
-
-    if (countEl) {
-      if (window.BLUEZONE_APP && window.BLUEZONE_APP.announce) { window.BLUEZONE_APP.announce(`${results.length} formulations available.`); }
-    countEl.textContent = query.trim() 
-        ? `${results.length} result${results.length === 1 ? '' : 's'} for "${query}"`
-        : `Showing all ${results.length} formulations`;
-    }
+    const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
 
     if (results.length === 0) {
       resultsContainer.innerHTML = `
-        <div class="p-8 text-center space-y-3">
-          <div class="text-3xl">🔍</div>
-          <p class="font-extrabold text-sm text-[#031827] dark:text-[#F6F5EF]">No formulations found matching "${query}"</p>
-          <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60">Try searching for "mind", "energy", "immunity", "ginkgo", or "co-q10".</p>
+        <div class="col-span-full p-10 text-center space-y-3 bg-[#062B49]/50 rounded-2xl border border-[#0A4F78]/20">
+          <div class="text-4xl">🧬</div>
+          <p class="font-extrabold text-base text-[#031827] dark:text-[#F6F5EF]">
+            ${isAr ? `لم يتم العثور على تركيبات تحتوي على "${query}"` : `No formulations found containing "${query}"`}
+          </p>
+          <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60 max-w-sm mx-auto">
+            ${isAr 
+              ? 'جرّب البحث عن: Bacopa, Co-Q10, Curcumin, PQQ, L-Theanine, Zinc, Ginkgo.'
+              : 'Try searching by active ingredient: Bacopa, Co-Q10, Curcumin, PQQ, L-Theanine, Zinc, Ginkgo.'}
+          </p>
         </div>
       `;
       return;
     }
 
-    resultsContainer.innerHTML = results.map(product => `
-      <div data-testid="search-result-item" data-product-id="${product.id}" class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 hover:border-[#0A4F78]/40 hover:shadow-md transition-all">
-        <a href="product.html?id=${product.id}" onclick="BLUEZONE_SEARCH.close()" class="flex items-center gap-4 min-w-0 flex-1">
-          <div class="w-14 h-14 p-1 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] flex items-center justify-center shrink-0">
-            <img src="${product.image}" alt="${product.name}" onerror="BLUEZONE_APP.handleImageFallback(this)" class="w-full h-full object-contain" />
+    resultsContainer.innerHTML = results.map(({ product, matchedIngredient }) => `
+      <div data-testid="search-result-item" data-product-id="${product.id}" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 hover:border-[#2A8FC2] hover:shadow-lg transition-all">
+        <a href="/products/${product.slug || product.id}" onclick="BLUEZONE_SEARCH.close()" class="flex items-center gap-3.5 min-w-0 flex-1">
+          <div class="w-16 h-16 p-1.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] flex items-center justify-center shrink-0 border border-[#0A4F78]/10">
+            <img src="${product.image || '/assets/logo/logo-main.png'}" alt="${product.name}" onerror="this.onerror=null; this.src='/assets/logo/logo-main.png';" class="w-full h-full object-contain" />
           </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 text-[#0A4F78] dark:text-[#2A8FC2]">${product.category}</span>
-              <span class="text-[10px] text-[#67B34A] font-bold">★ ${product.rating}</span>
+          <div class="min-w-0 space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 text-[#0A4F78] dark:text-[#2A8FC2]">${product.category}</span>
+              <span class="text-[10px] text-[#67B34A] font-bold">★ ${product.rating || 4.9}</span>
+              ${matchedIngredient ? `
+                <span class="inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded bg-[#67B34A]/15 text-[#67B34A] border border-[#67B34A]/30">
+                  🧬 Active: ${matchedIngredient.name} (${matchedIngredient.dose})
+                </span>
+              ` : ''}
             </div>
-            <h4 class="font-black text-sm text-[#031827] dark:text-[#F6F5EF] truncate mt-0.5 hover:text-[#0A4F78] transition-colors">${product.name}</h4>
-            <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60 truncate font-medium">${product.shortDesc || product.tagline}</p>
+            <h4 class="font-black text-sm text-[#031827] dark:text-[#F6F5EF] truncate hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">${product.name}</h4>
+            <p class="text-xs text-[#031827]/60 dark:text-[#F6F5EF]/60 line-clamp-1 font-medium">${product.shortDesc || product.tagline}</p>
           </div>
         </a>
 
-        <div class="flex items-center gap-3 shrink-0">
-          <span class="font-black text-sm text-[#0A4F78] dark:text-[#2A8FC2]">$${product.price.toFixed(2)}</span>
-          <button onclick="BLUEZONE_CART.add('${product.id}', 1); BLUEZONE_SEARCH.close();" class="px-3.5 py-2 rounded-lg bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-sm">
-            Add
+        <div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#0A4F78]/10">
+          <span class="font-black text-base text-[#0A4F78] dark:text-[#2A8FC2]">$${(product.price || 0).toFixed(2)}</span>
+          <button onclick="BLUEZONE_CART.add('${product.slug || product.id}', 1); BLUEZONE_SEARCH.close();" class="px-4 py-2 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-sm btn-sheen">
+            + ADD
           </button>
         </div>
       </div>
@@ -148,7 +176,7 @@
       });
     }
 
-    // Global keyboard shortcut
+    // Global keyboard shortcut (Ctrl+K or /)
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeSearch();

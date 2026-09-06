@@ -131,58 +131,75 @@
         </div>
     </div>
 
+    <!-- Accessible Skip to Content Link -->
+    <a href="#main-content" class="skip-to-content sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[99999] focus:px-4 focus:py-2 focus:bg-[#0A4F78] focus:text-white focus:rounded-lg focus:font-bold">
+        Skip to main content
+    </a>
+
     <!-- Centralized Header -->
-    <header class="sticky top-0 z-50 bg-[#F6F5EF]/90 dark:bg-[#031827]/90 backdrop-blur-md border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/30 transition-all duration-300">
+    <header role="banner" class="sticky top-0 z-50 bg-[#F6F5EF]/90 dark:bg-[#031827]/90 backdrop-blur-md border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/30 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
-            <!-- Brand Logo -->
-            <a href="{{ route('customer.home') }}" class="flex items-center group">
+            <!-- Brand Logo (Decreased Size with Dedicated Light & Dark Mode Versions) -->
+            <a href="{{ route('customer.home') }}" class="flex items-center group py-1" aria-label="{{ __('app.brand_name') }} Home">
+                <!-- Light Mode Logo -->
                 <img
-                    src="{{ asset('assets/logo/logo-main.png') }}"
+                    src="{{ asset('assets/logo/logo-light.webp') }}"
                     alt="{{ __('app.brand_name') }}"
-                    onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';"
-                    class="h-11 sm:h-13 w-auto object-contain transition-transform duration-300 group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-3 dark:py-1.5 dark:rounded-xl dark:shadow-md"
+                    onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-light.png') }}';"
+                    width="140"
+                    height="60"
+                    class="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 dark:hidden"
+                />
+                <!-- Dark Mode Logo -->
+                <img
+                    src="{{ asset('assets/logo/logo-dark.webp') }}"
+                    alt="{{ __('app.brand_name') }}"
+                    onerror="this.onerror=null; this.src='{{ asset('assets/logo/logo-dark.png') }}';"
+                    width="140"
+                    height="60"
+                    class="h-8 sm:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105 hidden dark:block"
                 />
             </a>
 
             <!-- Desktop Navigation Links -->
-            <nav class="hidden lg:flex items-center gap-7">
-                <a href="{{ route('customer.home') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.home') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">HOME</a>
-                <a href="{{ route('customer.pages.science') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.pages.science') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">OUR SCIENCE</a>
-                <a href="{{ route('customer.products') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.products*') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">PRODUCTS</a>
-                <a href="{{ route('customer.pages.team') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.pages.team') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">MEET THE TEAM</a>
-                <a href="{{ route('customer.pages.blog') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.pages.blog') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">BLOG</a>
-                <a href="{{ route('customer.shop') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.shop') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">SHOP</a>
-                <a href="{{ route('customer.pages.contact') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold {{ request()->routeIs('customer.pages.contact') ? 'text-[#0A4F78] dark:text-[#2A8FC2]' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">CONTACT</a>
+            <nav class="hidden lg:flex items-center gap-7" aria-label="Main Navigation">
+                <a href="{{ route('customer.home') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.home') || request()->is('/')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">HOME</a>
+                <a href="{{ route('customer.pages.science') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">OUR SCIENCE</a>
+                <a href="{{ route('customer.products') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.products*') || request()->routeIs('customer.product.*') || request()->is('products*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">PRODUCTS</a>
+                <a href="{{ route('customer.pages.team') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.pages.team*') || request()->is('team*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">MEET THE TEAM</a>
+                <a href="{{ route('customer.pages.blog') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.pages.blog*') || request()->is('blog*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">BLOG</a>
+                <a href="{{ route('customer.shop') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.shop*') || request()->is('shop*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">SHOP</a>
+                <a href="{{ route('customer.pages.contact') }}" class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ (request()->routeIs('customer.pages.contact*') || request()->is('contact*')) ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">CONTACT</a>
             </nav>
 
             <!-- Header Actions -->
             <div class="flex items-center gap-3 sm:gap-4">
                 <!-- Search Trigger -->
-                <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.open();}" aria-label="Search" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+                <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.open();}" aria-label="Open live product search" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </button>
 
                 <!-- Wishlist Trigger -->
-                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.open();}" aria-label="Wishlist" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.open();}" aria-label="Open wishlist" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     <span class="wishlist-badge-count absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0A4F78] text-white text-[10px] font-bold hidden items-center justify-center">0</span>
                 </button>
 
                 <!-- Cart Trigger -->
-                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.open();}else{window.location.href='{{ route('customer.cart') }}';}" aria-label="Cart" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.open();}else{window.location.href='{{ route('customer.cart') }}';}" aria-label="Open shopping cart" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     <span class="cart-badge-count absolute top-1 right-1 w-4 h-4 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
                 </button>
 
                 <!-- Theme Toggle -->
-                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle aria-label="Switch to Dark Mode" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" title="Switch to Dark Mode">
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle aria-label="Switch between light and dark mode" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" title="Switch Theme">
                     <svg class="w-5 h-5 hidden dark:block text-[#E8DCC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden text-[#031827]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
 
                 <!-- Customer Account Link -->
-                <a href="{{ route('customer.account.dashboard') }}" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" title="{{ __('app.nav.account') }}">
+                <a href="{{ route('customer.account.dashboard') }}" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" aria-label="{{ __('app.nav.account') }}" title="{{ __('app.nav.account') }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </a>
 
@@ -192,7 +209,7 @@
                 </a>
 
                 <!-- Mobile Hamburger Button -->
-                <button onclick="const el=document.getElementById('mobile-nav-drawer'); el.classList.toggle('hidden');" aria-label="Toggle menu" class="lg:hidden p-2 rounded-md text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10">
+                <button onclick="const el=document.getElementById('mobile-nav-drawer'); el.classList.toggle('hidden');" aria-label="Toggle mobile menu" class="lg:hidden p-2 rounded-md text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
             </div>
@@ -201,25 +218,25 @@
         <!-- Mobile Navigation Drawer -->
         <div id="mobile-nav-drawer" class="hidden lg:hidden bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/20 px-6 py-6 space-y-4">
             <div class="flex flex-col gap-3">
-                <a href="{{ route('customer.home') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.home') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.home') || request()->is('/')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>HOME</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.pages.science') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.pages.science') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>OUR SCIENCE</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.products') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.products') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.products*') || request()->routeIs('customer.product.*') || request()->is('products*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>PRODUCTS</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.pages.team') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.pages.team') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.team*') || request()->is('team*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>MEET THE TEAM</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.pages.blog') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.pages.blog') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.blog*') || request()->is('blog*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>BLOG</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.shop') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.shop') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.shop*') || request()->is('shop*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>SHOP</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
-                <a href="{{ route('customer.pages.contact') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+                <a href="{{ route('customer.pages.contact') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.contact*') || request()->is('contact*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>CONTACT</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
                 <!-- Mobile Theme Toggle -->
@@ -244,7 +261,7 @@
     </main>
 
     <!-- BLUE ZONE Footer Component -->
-    <footer class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30 transition-colors duration-300">
+    <footer role="contentinfo" class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/20">
                 <!-- Brand Summary -->
@@ -259,11 +276,11 @@
                         </div>
                     </a>
 
-                    <p class="text-xs text-[#E8DCC4]/80 leading-relaxed font-medium max-w-sm">
+                    <p class="text-xs text-[#E8DCC4] leading-relaxed font-medium max-w-sm">
                         BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and biological resilience of the world’s longest-lived communities.
                     </p>
 
-                    <button onclick="if(window.BLUEZONE_MAP){window.BLUEZONE_MAP.replay();}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#0A4F78] text-xs uppercase font-bold tracking-widest text-[#2A8FC2] hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+                    <button onclick="if(window.BLUEZONE_MAP){window.BLUEZONE_MAP.replay();}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#0A4F78] text-xs uppercase font-bold tracking-widest text-[#2A8FC2] hover:bg-[#0A4F78]/30 transition-colors cursor-pointer min-h-[44px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         REPLAY WORLD MAP INTRO
                     </button>
@@ -271,38 +288,39 @@
 
                 <!-- Quick Links -->
                 <div class="lg:col-span-2 space-y-4">
-                    <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h4>
-                    <ul class="space-y-2.5 text-xs font-semibold">
-                        <li><a href="{{ route('customer.home') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Home</a></li>
-                        <li><a href="{{ route('customer.pages.science') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Our Science</a></li>
-                        <li><a href="{{ route('customer.products') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Products Overview</a></li>
-                        <li><a href="{{ route('customer.pages.team') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Meet the Team</a></li>
-                        <li><a href="{{ route('customer.shop') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Shop Catalog</a></li>
-                        <li><a href="{{ route('customer.pages.blog') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Longevity Journal</a></li>
-                        <li><a href="{{ route('customer.pages.contact') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Contact Us</a></li>
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h3>
+                    <ul class="space-y-1 text-xs font-semibold">
+                        <li><a href="{{ route('customer.home') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Home</a></li>
+                        <li><a href="{{ route('customer.pages.science') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Our Science</a></li>
+                        <li><a href="{{ route('customer.products') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Products Overview</a></li>
+                        <li><a href="{{ route('customer.pages.team') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Meet the Team</a></li>
+                        <li><a href="{{ route('customer.shop') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Shop Catalog</a></li>
+                        <li><a href="{{ route('customer.pages.blog') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Longevity Journal</a></li>
+                        <li><a href="{{ route('customer.pages.contact') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Contact Us</a></li>
                     </ul>
                 </div>
 
                 <!-- Support & Legal -->
                 <div class="lg:col-span-2 space-y-4">
-                    <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h4>
-                    <ul class="space-y-2.5 text-xs font-semibold">
-                        <li><a href="{{ route('customer.pages.faqs') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Frequently Asked Questions</a></li>
-                        <li><a href="{{ route('customer.pages.privacy') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Privacy Policy</a></li>
-                        <li><a href="{{ route('customer.pages.terms') }}" class="text-[#F6F5EF]/80 hover:text-[#2A8FC2] transition-colors">Terms of Service</a></li>
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h3>
+                    <ul class="space-y-1 text-xs font-semibold">
+                        <li><a href="{{ route('customer.pages.faqs') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Frequently Asked Questions</a></li>
+                        <li><a href="{{ route('customer.pages.privacy') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Privacy Policy</a></li>
+                        <li><a href="{{ route('customer.pages.terms') }}" class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Terms of Service</a></li>
                     </ul>
                 </div>
 
                 <!-- Newsletter Box -->
                 <div class="lg:col-span-4 space-y-4">
-                    <h4 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h4>
-                    <p class="text-xs text-[#E8DCC4]/70 leading-relaxed font-medium">
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h3>
+                    <p class="text-xs text-[#E8DCC4] leading-relaxed font-medium">
                         Subscribe to receive longevity research whitepapers, clinical updates, and priority product access.
                     </p>
 
                     <form onsubmit="event.preventDefault(); if(window.BLUEZONE_APP && window.BLUEZONE_APP.showToast){ window.BLUEZONE_APP.showToast('Thank you for subscribing to BLUE ZONE!', 'success'); } this.reset();" class="flex flex-col sm:flex-row gap-2 sm:gap-0">
-                        <input type="email" placeholder="Enter your email address..." required class="w-full bg-[#062B49] border border-[#0A4F78] rounded-xl sm:rounded-r-none py-3 px-4 text-xs text-white placeholder-[#E8DCC4]/50 focus:outline-none focus:border-[#2A8FC2]" />
-                        <button type="submit" class="bg-[#0A4F78] hover:bg-[#2A8FC2] text-white px-6 py-3 rounded-xl sm:rounded-l-none text-xs font-extrabold uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap">
+                        <label for="newsletter-email" class="sr-only">Email Address</label>
+                        <input type="email" id="newsletter-email" name="email" aria-label="Email address for longevity updates" autocomplete="email" placeholder="Enter your email address..." required class="w-full bg-[#062B49] border border-[#0A4F78] rounded-xl sm:rounded-r-none py-3 px-4 text-xs text-white placeholder-[#E8DCC4] focus:outline-none focus:border-[#2A8FC2]" />
+                        <button type="submit" class="bg-[#0A4F78] hover:bg-[#2A8FC2] text-white px-6 py-3 rounded-xl sm:rounded-l-none text-xs font-extrabold uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap min-h-[44px]">
                             SUBSCRIBE
                         </button>
                     </form>
@@ -310,9 +328,9 @@
             </div>
 
             <!-- Bottom Legal Disclaimer -->
-            <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4]/50 space-y-4 sm:space-y-0">
+            <div class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4] space-y-4 sm:space-y-0">
                 <p>© 2026 BLUE ZONE Longevity Inc. All rights reserved.</p>
-                <p class="max-w-md text-center sm:text-right">
+                <p class="max-w-md text-center sm:text-right text-[#E8DCC4]">
                     *These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat, cure, or prevent any disease.
                 </p>
             </div>
@@ -320,7 +338,7 @@
     </footer>
 
     <!-- Cart Drawer -->
-    <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm">
+    <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Shopping Cart">
         <div class="absolute inset-0" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}"></div>
         <div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20">
             <div class="p-6 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex items-center justify-between">
@@ -328,7 +346,7 @@
                     <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     <h2 class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">YOUR CART</h2>
                 </div>
-                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
+                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" aria-label="Close cart drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
             </div>
 
             <div class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] border-b border-[#0A4F78]/10 space-y-2">
@@ -342,20 +360,25 @@
 
             <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
 
-            <div class="p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-4">
+            <div class="p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-3">
                 <div class="flex justify-between text-base font-black text-[#031827] dark:text-white">
                     <span>SUBTOTAL</span>
                     <span id="cart-subtotal" class="text-[#0A4F78] dark:text-[#2A8FC2]">$0.00</span>
                 </div>
-                <a href="{{ route('customer.checkout') }}" class="w-full py-4 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all">
-                    PROCEED TO CHECKOUT
-                </a>
+                <div class="flex gap-2">
+                    <a href="{{ route('customer.cart') }}" class="flex-1 py-3.5 rounded-xl border border-[#0A4F78]/30 hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-xs uppercase font-black tracking-wider flex items-center justify-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-cart-shopping"></i> VIEW CART
+                    </a>
+                    <a href="{{ route('customer.checkout') }}" class="flex-1 py-3.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all btn-sheen">
+                        CHECKOUT →
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Wishlist Drawer -->
-    <div id="wishlist-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm">
+    <div id="wishlist-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="My Wishlist">
         <div class="absolute inset-0" onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.close();}"></div>
         <div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20">
             <div class="p-6 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex items-center justify-between">
@@ -363,24 +386,117 @@
                     <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     <h2 class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">MY WISHLIST</h2>
                 </div>
-                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.close();}" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
+                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.close();}" aria-label="Close wishlist drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
             </div>
             <div id="wishlist-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
         </div>
     </div>
 
     <!-- Search Overlay -->
-    <div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-4 sm:p-8 flex-col items-center">
+    <div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-4 sm:p-8 flex-col items-center" role="dialog" aria-modal="true" aria-label="Search Catalog">
         <div class="max-w-4xl w-full flex justify-between items-center mb-8">
             <span class="text-xs uppercase tracking-[0.3em] font-bold text-[#2A8FC2]">LIVE PRODUCT SEARCH</span>
-            <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.close();}" class="p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer text-xl">✕</button>
+            <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.close();}" aria-label="Close search overlay" class="p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer text-xl">✕</button>
         </div>
-        <div class="max-w-2xl w-full relative mb-12">
-            <input type="text" id="search-input" placeholder="Search by formulation, ingredient, or category..." class="w-full bg-[#062B49] border-2 border-[#0A4F78] focus:border-[#2A8FC2] text-white placeholder-[#E8DCC4]/50 rounded-2xl py-4 px-6 text-base sm:text-lg focus:outline-none shadow-2xl transition-all" />
+        <div class="max-w-2xl w-full relative mb-6">
+            <label for="search-input" class="sr-only">Search</label>
+            <input type="text" id="search-input" name="q" aria-label="Search by ingredient name, bio-compound, formulation, or category" autocomplete="off" placeholder="{{ app()->getLocale() === 'ar' ? 'ابحث باسم المكون (مثل: Bacopa, Co-Q10, Curcumin, PQQ)...' : 'Search by ingredient name (e.g. Bacopa, Co-Q10, Curcumin, PQQ, Ginkgo)...' }}" class="w-full bg-[#062B49] border-2 border-[#0A4F78] focus:border-[#2A8FC2] text-white placeholder-[#E8DCC4]/70 rounded-2xl py-4 px-6 text-base sm:text-lg focus:outline-none shadow-2xl transition-all" />
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-[#2A8FC2]/70">ESC to close</span>
         </div>
+
+        <!-- Quick Ingredient Filter Chips -->
+        <div class="max-w-2xl w-full mb-8 space-y-2 text-center sm:text-left">
+            <div class="text-[10px] font-black uppercase tracking-[0.2em] text-[#67B34A]">
+                {{ app()->getLocale() === 'ar' ? '🔬 تصفية فورية حسب المركب الحيوي / المكون الفعال:' : '🔬 QUICK SEARCH BY ACTIVE INGREDIENT / BIO-COMPOUND:' }}
+            </div>
+            <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                <button type="button" onclick="document.getElementById('search-input').value='Bacopa'; BLUEZONE_SEARCH.render('Bacopa');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🧬 Bacopa Monnieri
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='Co-Q10'; BLUEZONE_SEARCH.render('Co-Q10');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    ⚡ Co-Q10 Ubiquinol
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='PQQ'; BLUEZONE_SEARCH.render('PQQ');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🔋 PQQ Mitochondria
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='Curcumin'; BLUEZONE_SEARCH.render('Curcumin');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🌿 Curcumin Meriva
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='Theanine'; BLUEZONE_SEARCH.render('Theanine');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🌙 L-Theanine
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='Phosphatidylserine'; BLUEZONE_SEARCH.render('Phosphatidylserine');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🧠 Phosphatidylserine
+                </button>
+                <button type="button" onclick="document.getElementById('search-input').value='Zinc'; BLUEZONE_SEARCH.render('Zinc');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
+                    🛡️ Zinc Glycinate
+                </button>
+            </div>
+        </div>
+
         <div id="search-results-container" class="max-w-4xl w-full flex-1 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4 pr-2"></div>
     </div>
 
+    <!-- Floating WhatsApp Support Widget -->
+    @if(\App\Models\Setting::get('enable_whatsapp', true))
+        @php
+            $rawPhone = \App\Models\Setting::get('whatsapp_number', '+966501234567');
+            $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
+            $defaultMsg = urlencode(\App\Models\Setting::get('whatsapp_default_message', 'Hello BLUE ZONE, I would like clinical guidance on longevity formulations.'));
+            $whatsappUrl = "https://wa.me/{$cleanPhone}?text={$defaultMsg}";
+            
+            $posSetting = \App\Models\Setting::get('whatsapp_position', 'auto');
+            $isRtl = app()->getLocale() === 'ar';
+            $side = match($posSetting) {
+                'bottom_left' => 'left',
+                'bottom_right' => 'right',
+                default => $isRtl ? 'left' : 'right'
+            };
+            $flexDir = ($side === 'right') ? 'flex-row-reverse' : 'flex-row';
+            $posClass = ($side === 'right') ? 'right-5 sm:right-7' : 'left-5 sm:left-7';
+            $posStyle = ($side === 'right') ? 'right: 1.5rem; left: auto;' : 'left: 1.5rem; right: auto;';
+            $arrowClass = ($side === 'right') ? '-right-1.5 border-l-[#031827]/95 border-y-transparent border-r-transparent border-l-4 border-y-4' : '-left-1.5 border-r-[#031827]/95 border-y-transparent border-l-transparent border-r-4 border-y-4';
+            $tooltipAnim = ($side === 'right') ? 'translate-x-2 group-hover:translate-x-0' : '-translate-x-2 group-hover:translate-x-0';
+        @endphp
+        <aside aria-label="{{ $isRtl ? 'خدمة عملاء واتساب' : 'WhatsApp Customer Service' }}" 
+               class="fixed bottom-5 sm:bottom-7 z-[9990] flex items-center {{ $flexDir }} {{ $posClass }} gap-3 group"
+               style="{{ $posStyle }} bottom: 1.5rem;">
+            <!-- Interactive WhatsApp Action Button -->
+            <a href="{{ $whatsappUrl }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               aria-label="{{ $isRtl ? 'تواصل معنا عبر واتساب للمشورة الإكلينيكية' : 'Chat with Longevity Specialist on WhatsApp' }}"
+               class="relative flex items-center justify-center w-14 h-14 sm:w-[58px] sm:h-[58px] rounded-full text-white shadow-[0_10px_25px_-3px_rgba(37,211,102,0.45),0_4px_10px_-2px_rgba(37,211,102,0.25)] hover:shadow-[0_16px_35px_-2px_rgba(37,211,102,0.55),0_6px_15px_-2px_rgba(37,211,102,0.35)] hover:scale-108 active:scale-95 transition-all duration-300 ease-out focus:outline-none focus:ring-4 focus:ring-[#25D366]/40 cursor-pointer border border-white/25"
+               style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);">
+                <!-- Crisp Official Vector Logo -->
+                <svg class="w-8 h-8 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] transition-transform duration-300 group-hover:rotate-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+
+                <!-- Subtle Clean Status Indicator -->
+                <span class="absolute top-1 {{ $side === 'right' ? 'right-1' : 'left-1' }} flex h-3.5 w-3.5 items-center justify-center pointer-events-none">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 ring-2 ring-[#031827]/80"></span>
+                </span>
+            </a>
+
+            <!-- Luxury Glassmorphic Callout Tooltip -->
+            <div class="hidden sm:flex relative items-center pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 {{ $tooltipAnim }} transition-all duration-300 ease-out z-10">
+                <div class="relative px-4 py-2.5 rounded-2xl bg-[#031827]/95 dark:bg-[#062B49]/95 text-white shadow-2xl backdrop-blur-md border border-[#25D366]/35 flex flex-col gap-0.5 max-w-[240px]">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">
+                            {{ $isRtl ? 'استشاري متاح الآن' : 'Longevity Specialist' }}
+                        </span>
+                    </div>
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#F6F5EF] hover:text-[#25D366] transition-colors leading-tight">
+                        {{ $isRtl ? 'تواصل فوراً للمشورة السريرية' : 'Chat for Clinical Guidance' }}
+                    </a>
+                </div>
+            </div>
+        </aside>
+    @endif
+
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none" aria-live="polite"></div>
 </x-layouts.app>

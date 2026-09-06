@@ -8,6 +8,11 @@
     <title>{{ $title ?? __('app.brand_name') . ' — ' . __('app.brand_tagline') }}</title>
     <meta name="description" content="{{ $description ?? __('shop.catalog_subtitle') }}">
 
+    @if(request()->routeIs('customer.home') || request()->is('/'))
+    <!-- Preload Hero LCP Image (Mobile and Desktop Responsive) on Homepage Only -->
+    <link rel="preload" as="image" href="{{ asset('assets/images/hero/hero-01.webp') }}" imagesrcset="{{ asset('assets/images/hero/hero-01-mobile.webp') }} 768w, {{ asset('assets/images/hero/hero-01.webp') }} 1920w" imagesizes="100vw" type="image/webp" fetchpriority="high">
+    @endif
+
     <!-- Immediate Theme Initialization to Prevent Flash of Wrong Theme (Default: Light) -->
     <script>
         (function() {
@@ -62,7 +67,7 @@
         }
     </script>
 
-    <!-- FontAwesome 6 Local Asset (Zero CDN Network Dependency) -->
+    <!-- FontAwesome 6 Local Asset -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
 
     <!-- Custom CSS & Map Loader CSS from lazy_html -->
@@ -78,17 +83,17 @@
 <body class="bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white {{ $bodyClass ?? '' }}">
     {{ $slot }}
 
-    <!-- Scripts from lazy_html & Toast Engine -->
-    <script src="{{ asset('js/toast.js') }}"></script>
-    <script src="{{ asset('js/theme.js') }}"></script>
-    <script src="{{ asset('js/cart.js') }}"></script>
-    <script src="{{ asset('js/wishlist.js') }}"></script>
-    <script src="{{ asset('js/search.js') }}"></script>
-    <script src="{{ asset('js/hero-slider.js') }}"></script>
-    <script src="{{ asset('js/map.js') }}"></script>
-    <script src="{{ asset('js/product-slider.js') }}"></script>
-    <script src="{{ asset('js/products.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    <!-- Scripts from lazy_html & Toast Engine (Deferred) -->
+    <script defer src="{{ asset('js/toast.js') }}"></script>
+    <script defer src="{{ asset('js/theme.js') }}"></script>
+    <script defer src="{{ asset('js/cart.js') }}"></script>
+    <script defer src="{{ asset('js/wishlist.js') }}"></script>
+    <script defer src="{{ asset('js/search.js') }}"></script>
+    <script defer src="{{ asset('js/hero-slider.js') }}"></script>
+    <script defer src="{{ asset('js/map.js') }}"></script>
+    <script defer src="{{ asset('js/product-slider.js') }}"></script>
+    <script defer src="{{ asset('js/products.js') }}"></script>
+    <script defer src="{{ asset('js/app.js') }}"></script>
 
     <x-toast />
 

@@ -100,6 +100,49 @@ class Product extends Model implements HasMedia
     }
 
     /**
+     * Localized tagline accessor.
+     */
+    public function getTaglineAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->tagline_ar) ? $this->tagline_ar : ($this->tagline_en ?? '');
+    }
+
+    /**
+     * Localized science description accessor.
+     */
+    public function getScienceAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->science_ar) ? $this->science_ar : ($this->science_en ?? '');
+    }
+
+    /**
+     * Localized benefits array accessor.
+     *
+     * @return array<int, string>
+     */
+    public function getBenefitsAttribute(): array
+    {
+        $locale = app()->getLocale();
+        $benefits = $locale === 'ar' && ! empty($this->benefits_ar) ? $this->benefits_ar : ($this->benefits_en ?? []);
+
+        return is_array($benefits) ? $benefits : [];
+    }
+
+    /**
+     * Localized usage instruction accessor.
+     */
+    public function getUsageAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->usage_ar) ? $this->usage_ar : ($this->usage_en ?? '');
+    }
+
+    /**
      * Register Spatie media collections.
      */
     public function registerMediaCollections(): void

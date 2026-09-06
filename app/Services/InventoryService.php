@@ -95,8 +95,15 @@ class InventoryService
             $item->location_name_ar = $loc?->name_ar ?? ucfirst($locationId);
             $item->variant_en = 'Standard Pack';
             $item->variant_ar = 'العبوة القياسية';
-            $item->current_stock = 0;
-            $item->available_stock = 0;
+            $initialStock = 0;
+            if ($locationId === 'online') {
+                $initialStock = (int) ($product->stock_online ?? 0);
+            } elseif ($locationId === 'offline') {
+                $initialStock = (int) ($product->stock_offline ?? 0);
+            }
+
+            $item->current_stock = $initialStock;
+            $item->available_stock = $initialStock;
             $item->reserved_stock = 0;
             $item->low_stock_threshold = $product->low_stock_threshold ?? 15;
             $item->unit_cost = $product->cost_price;

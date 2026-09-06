@@ -37,9 +37,10 @@ class UserController extends Controller
 
         $trashedCount = User::onlyTrashed()->count();
         $activeCount = User::count();
+        $totalDbCount = User::withTrashed()->count();
         $dbUsers = $query->paginate(15)->withQueryString();
 
-        if ($dbUsers->isNotEmpty()) {
+        if ($totalDbCount > 0) {
             $users = $dbUsers->map(function ($u) {
                 return [
                     'id' => $u->id,

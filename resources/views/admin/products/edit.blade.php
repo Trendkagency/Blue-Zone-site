@@ -229,7 +229,6 @@
                             name="description_ar" 
                             :label="__('admin.products.fields.description_ar')" 
                             rows="4" 
-                            required
                         >{{ old('description_ar', $product['description_ar'] ?? $product['short_description_ar'] ?? '') }}</x-forms.textarea>
                     </div>
 
@@ -269,7 +268,6 @@
                             name="description_en" 
                             :label="__('admin.products.fields.description_en')" 
                             rows="4" 
-                            required
                         >{{ old('description_en', $product['description_en'] ?? $product['short_description_en'] ?? '') }}</x-forms.textarea>
                     </div>
 
@@ -436,47 +434,155 @@
             </div>
         </div>
 
-        <!-- STEP 5: Clinical Section & Active Compounds -->
+        <!-- STEP 5: Our Science & Clinical Dossier -->
         <div class="wizard-step-pane" id="step-pane-5" style="display: none;">
             <div class="card" style="padding: 2.25rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
                     <div>
-                        <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0;">
-                            {{ __('admin.products.sections.clinical_research') }}
+                        <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔬</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'قسم أبحاث العلوم وطول العمر (Our Science & Clinical Data)' : 'Our Science & Clinical Research Dossier' }}</span>
                         </h3>
                         <p class="text-xs text-muted" style="margin: 0;">
-                            {{ app()->getLocale() === 'ar' ? 'الخطوة 5 من 6: الآليات الحيوية، موانع الاستخدام، ونقاء التركيبة' : 'Step 5 of 6: Pharmacological mechanisms, purity assays, and clinical contraindications' }}
+                            {{ app()->getLocale() === 'ar' 
+                               ? 'تحكم كامل ثنائي اللغة بمعلومات قسم أبحاث العلوم المعروضة في الصفحة الرئيسية وصفحة تفاصيل علوم المنتج' 
+                               : 'Comprehensive bilingual control over the Our Science section on the homepage and the product science details page.' }}
                         </p>
                     </div>
                     <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 5 / 6' : 'Step 5 / 6' }}</span>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <x-forms.textarea 
-                        name="clinical_mechanism" 
-                        :label="__('admin.products.fields.clinical_mechanism')" 
-                        rows="4" 
-                    >{{ old('clinical_mechanism', $product['clinical_mechanism']) }}</x-forms.textarea>
+                <!-- 1. Scientific Dossier / Research Foundation (Bilingual) -->
+                <div style="margin-bottom: 1.75rem;">
+                    <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--color-text-emphasis); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-dna" style="color: #67B34A;"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'أبحاث طول العمر والأساس العلمي (Scientific Longevity Foundation)' : 'Scientific Longevity Foundation & Research Dossier' }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <x-forms.textarea 
+                            name="science_en" 
+                            :label="__('admin.products.fields.science_en')" 
+                            rows="4" 
+                            :value="old('science_en', $product['science_en'] ?? '')"
+                            placeholder="e.g. Extensive pharmacological breakdown of the cellular pathway, human clinical trials, and mitochondrial bioenergetics..." 
+                            hint="Feeds directly into the Our Science section on the homepage and /our-science/{slug} page."
+                        />
 
-                    <x-forms.textarea 
-                        name="formula_details" 
-                        :label="__('admin.products.fields.formula_details')" 
-                        rows="4" 
-                    >{{ old('formula_details', $product['formula_details']) }}</x-forms.textarea>
+                        <x-forms.textarea 
+                            name="science_ar" 
+                            :label="__('admin.products.fields.science_ar')" 
+                            rows="4" 
+                            :value="old('science_ar', $product['science_ar'] ?? '')"
+                            placeholder="مثال: تفصيل سريري للمسارات الحيوية، التجارب البشرية المنشورة، وميكانيكية عمل المركبات على المستوى الخلوي..." 
+                            hint="يتم عرضه مباشرة في قسم Our Science بالصفحة الرئيسية وصفحة تفاصيل علوم المنتج."
+                        />
+                    </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
-                    <x-forms.textarea 
-                        name="contraindications" 
-                        :label="__('admin.products.fields.contraindications')" 
-                        rows="3" 
-                    >{{ old('contraindications', $product['contraindications']) }}</x-forms.textarea>
+                <!-- 2. Cellular Mechanism & Molecular Purity -->
+                <div style="margin-bottom: 1.75rem; border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                    <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--color-text-emphasis); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-atom" style="color: #2A8FC2;"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الآلية الحيوية والنقاء الجزيئي (Bioactive Mechanisms & Purity)' : 'Pharmacological Mechanisms & Bioactive Purity Assays' }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <x-forms.textarea 
+                            name="clinical_mechanism" 
+                            :label="__('admin.products.fields.clinical_mechanism')" 
+                            rows="3" 
+                            :value="old('clinical_mechanism', $product['clinical_mechanism'] ?? '')"
+                            placeholder="e.g. Upregulates acetylcholine synthesis and stimulates brain-derived neurotrophic factor (BDNF)..." 
+                        />
 
-                    <x-forms.textarea 
-                        name="warnings" 
-                        :label="__('admin.products.fields.warnings')" 
-                        rows="3" 
-                    >{{ old('warnings', $product['warnings']) }}</x-forms.textarea>
+                        <x-forms.textarea 
+                            name="formula_details" 
+                            :label="__('admin.products.fields.formula_details')" 
+                            rows="3" 
+                            :value="old('formula_details', $product['formula_details'] ?? '')"
+                            placeholder="e.g. 99.4% HPLC verified bioactive purity, solvent-free supercritical CO2 extraction..." 
+                        />
+                    </div>
+                </div>
+
+                <!-- 3. Clinical Benefits & Measured Biomarkers (Bilingual list) -->
+                <div style="margin-bottom: 1.75rem; border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                    <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--color-text-emphasis); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-chart-line" style="color: #10B981;"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الفوائد الإكلينيكية والمؤشرات الحيوية (Clinical Benefits & Biomarkers)' : 'Clinical Benefits & Measured Biomarkers' }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <x-forms.textarea 
+                            name="benefits_en" 
+                            :label="__('admin.products.fields.benefits_en')" 
+                            rows="4" 
+                            :value="old('benefits_en', $product['benefits_en'] ?? '')"
+                            placeholder="Enter each benefit or trial metric on a new line:&#10;+38% NAD+ elevation in 14 days&#10;Sustained mental stamina for 8+ hours&#10;Supports neurogenesis and BDNF signaling" 
+                            hint="Enter one clinical benefit per line. Will be displayed as verified biomarker pills."
+                        />
+
+                        <x-forms.textarea 
+                            name="benefits_ar" 
+                            :label="__('admin.products.fields.benefits_ar')" 
+                            rows="4" 
+                            :value="old('benefits_ar', $product['benefits_ar'] ?? '')"
+                            placeholder="أدخل كل فائدة سريرية في سطر مستقل:&#10;+38% ارتفاع في مستويات NAD+ خلال 14 يوماً&#10;طاقة ذهنية متواصلة لأكثر من 8 ساعات دون هبوط&#10;يدعم تجدد الخلايا العصبية وإشارات BDNF" 
+                            hint="أدخل كل فائدة في سطر مستقل لتظهر في بطاقات الأبحاث السريرية."
+                        />
+                    </div>
+                </div>
+
+                <!-- 4. Standardized Active Compounds (Dynamic Repeater) -->
+                <div style="margin-bottom: 1.75rem; border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-text-emphasis); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-flask-vial" style="color: #8B5CF6;"></i>
+                            <span>{{ __('admin.products.fields.ingredients') }}</span>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" id="btnAddIngredient" onclick="addIngredientRow('', '', '')" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; padding: 0.35rem 0.75rem;">
+                            <i class="fa-solid fa-plus"></i> {{ __('admin.products.fields.add_ingredient') }}
+                        </button>
+                    </div>
+
+                    <div style="overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg-subtle);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;" id="ingredientsTable">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--color-border); background: rgba(0,0,0,0.02); text-align: start;">
+                                    <th style="padding: 0.75rem 1rem; font-weight: 700; width: 35%;">{{ __('admin.products.fields.ingredient_name_en') }}</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 700; width: 35%;">{{ __('admin.products.fields.ingredient_name_ar') }}</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 700; width: 20%;">{{ __('admin.products.fields.ingredient_dose') }}</th>
+                                    <th style="padding: 0.75rem 1rem; text-align: center; width: 10%;">{{ app()->getLocale() === 'ar' ? 'إجراء' : 'Action' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ingredientsContainer">
+                                <!-- Dynamic rows inserted here by script -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. Contraindications & Warnings -->
+                <div style="border-top: 1px dashed var(--color-border); padding-top: 1.5rem;">
+                    <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--color-text-emphasis); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-shield-halved" style="color: #F59E0B;"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'إرشادات السلامة وموانع الاستخدام' : 'Clinical Safety Guidelines & Storage' }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <x-forms.textarea 
+                            name="contraindications" 
+                            :label="__('admin.products.fields.contraindications')" 
+                            rows="3" 
+                            :value="old('contraindications', $product['contraindications'] ?? '')"
+                            placeholder="e.g. Not recommended for pregnant or lactating individuals without physician consult..." 
+                        />
+
+                        <x-forms.textarea 
+                            name="warnings" 
+                            :label="__('admin.products.fields.warnings')" 
+                            rows="3" 
+                            :value="old('warnings', $product['warnings'] ?? '')"
+                            placeholder="e.g. Store in a cool dry place away from direct sunlight. Keep out of reach of children." 
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -815,8 +921,58 @@
             if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Boutique)';
         }
 
+        // Dynamic Active Compounds Repeater
+        let ingredientCount = 0;
+        function addIngredientRow(nameEn = '', nameAr = '', dose = '') {
+            const tbody = document.getElementById('ingredientsContainer');
+            if (!tbody) return;
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid var(--color-border)';
+            tr.id = `ingredient-row-${ingredientCount}`;
+            tr.innerHTML = `
+                <td style="padding: 0.5rem 0.75rem;">
+                    <input type="text" name="ingredients[${ingredientCount}][name_en]" value="${escapeHtml(nameEn)}" class="form-input" placeholder="e.g. Beta-NMN (99.8%)" style="font-size: 0.85rem; padding: 0.4rem 0.6rem; width: 100%;">
+                </td>
+                <td style="padding: 0.5rem 0.75rem;">
+                    <input type="text" name="ingredients[${ingredientCount}][name_ar]" value="${escapeHtml(nameAr)}" class="form-input" placeholder="مثال: بيتا-NMN فائق النقاء" style="font-size: 0.85rem; padding: 0.4rem 0.6rem; width: 100%;">
+                </td>
+                <td style="padding: 0.5rem 0.75rem;">
+                    <input type="text" name="ingredients[${ingredientCount}][dose]" value="${escapeHtml(dose)}" class="form-input" placeholder="e.g. 500 mg" style="font-size: 0.85rem; padding: 0.4rem 0.6rem; width: 100%;">
+                </td>
+                <td style="padding: 0.5rem 0.75rem; text-align: center;">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeIngredientRow(${ingredientCount})" style="padding: 0.35rem 0.6rem; font-size: 0.75rem;" title="{{ __('admin.products.fields.remove_ingredient') }}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            ingredientCount++;
+        }
+
+        function removeIngredientRow(id) {
+            const row = document.getElementById(`ingredient-row-${id}`);
+            if (row) row.remove();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             recalculateTaxAndMargin();
+
+            const initialIngredients = @json(old('ingredients', $product['ingredients'] ?? []));
+            if (Array.isArray(initialIngredients) && initialIngredients.length > 0) {
+                initialIngredients.forEach(item => {
+                    if (item) {
+                        addIngredientRow(item.name_en || '', item.name_ar || '', item.dose || '');
+                    }
+                });
+            } else {
+                addIngredientRow('', '', '');
+                addIngredientRow('', '', '');
+            }
         });
     </script>
 </x-layouts.admin>

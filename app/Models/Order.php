@@ -15,6 +15,7 @@ class Order extends Model
         'order_number', 'invoice_number', 'channel',
         'customer_name', 'customer_email', 'customer_phone', 'customer_id',
         'date', 'status', 'payment_method', 'payment_status',
+        'payment_gateway', 'payment_transaction_id', 'payment_payload',
         'subtotal', 'discount', 'coupon_code', 'shipping', 'tax', 'total',
         'shipping_address', 'notes',
     ];
@@ -29,6 +30,7 @@ class Order extends Model
             'tax' => 'decimal:2',
             'total' => 'decimal:2',
             'shipping_address' => 'array',
+            'payment_payload' => 'array',
         ];
     }
 

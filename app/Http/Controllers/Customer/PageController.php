@@ -16,7 +16,14 @@ class PageController extends Controller
 
     public function science(): View
     {
-        return view('customer.pages.science');
+        $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->get();
+        if ($products->isEmpty()) {
+            $products = collect(\App\View\ViewModels\ProductViewModel::all());
+        }
+
+        return view('customer.pages.science', [
+            'products' => $products,
+        ]);
     }
 
     public function team(): View

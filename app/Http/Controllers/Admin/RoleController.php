@@ -32,9 +32,10 @@ class RoleController extends Controller
 
         $trashedCount = Role::onlyTrashed()->count();
         $activeCount = Role::count();
+        $totalDbCount = Role::withTrashed()->count();
         $dbRoles = $query->paginate(15)->withQueryString();
 
-        if ($dbRoles->isNotEmpty()) {
+        if ($totalDbCount > 0) {
             $roles = $dbRoles->map(function ($r) {
                 return [
                     'id' => $r->id,
@@ -187,6 +188,10 @@ class RoleController extends Controller
         }
 
         $name = $role->name;
+
+        // Unlink users attached to this role
+        User::where('role_id', $role->id)->update(['role_id' => null]);
+
         $role->forceDelete();
 
         return redirect()->route('admin.roles.index', ['status' => 'trashed'])

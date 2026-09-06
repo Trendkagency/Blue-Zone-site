@@ -38,9 +38,10 @@ class CustomerController extends Controller
 
         $trashedCount = Customer::onlyTrashed()->count();
         $activeCount = Customer::count();
+        $totalDbCount = Customer::withTrashed()->count();
         $dbCustomers = $query->paginate(15)->withQueryString();
 
-        if ($dbCustomers->isNotEmpty()) {
+        if ($totalDbCount > 0) {
             $customers = $dbCustomers->map(function ($c) {
                 $totalSpent = $c->orders->sum('total');
                 return [
@@ -277,6 +278,10 @@ class CustomerController extends Controller
     {
         $customer = Customer::withTrashed()->findOrFail($id);
         $name = $customer->name;
+
+        // Preserve orders by unlinking foreign key
+        Order::where('customer_id', $customer->id)->update(['customer_id' => null]);
+
         $customer->forceDelete();
 
         return redirect()->route('admin.customers.index', ['status' => 'trashed'])

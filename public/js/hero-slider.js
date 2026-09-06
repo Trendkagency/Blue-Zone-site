@@ -62,10 +62,11 @@
     });
 
     dots.forEach((dot, idx) => {
+      const indicator = dot.querySelector('.hero-dot-indicator') || dot;
       if (idx === currentIndex) {
-        dot.className = 'hero-dot w-8 h-2 rounded-full bg-[#2A8FC2] transition-all duration-300 cursor-pointer';
+        indicator.className = 'hero-dot-indicator w-8 h-2 rounded-full bg-[#2A8FC2] transition-all duration-300 block pointer-events-none';
       } else {
-        dot.className = 'hero-dot w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/80 transition-all duration-300 cursor-pointer';
+        indicator.className = 'hero-dot-indicator w-2.5 h-2.5 rounded-full bg-white/40 hover:bg-white/80 transition-all duration-300 block pointer-events-none';
       }
     });
   }
