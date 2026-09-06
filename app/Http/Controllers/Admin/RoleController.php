@@ -3,28 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\View\ViewModels\RoleViewModel;
-=======
 use App\Models\Role;
 use App\View\ViewModels\RoleViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
->>>>>>> origin/main
 use Illuminate\View\View;
 
 class RoleController extends Controller
 {
-<<<<<<< HEAD
-    public function index(): View
-    {
-        $roles = RoleViewModel::all();
-
-        return view('admin.roles.index', [
-            'roles' => $roles,
-            'currentPage' => 1,
-            'totalPages' => 1,
-=======
     public function index(Request $request): View
     {
         $status = $request->query('status');
@@ -77,7 +63,6 @@ class RoleController extends Controller
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
->>>>>>> origin/main
         ]);
     }
 
@@ -87,25 +72,6 @@ class RoleController extends Controller
         return view('admin.roles.create', ['modules' => $modules]);
     }
 
-<<<<<<< HEAD
-    public function edit(int $id): View
-    {
-        $roles = RoleViewModel::all();
-        $modules = RoleViewModel::modules();
-        $role = null;
-        foreach ($roles as $r) {
-            if ($r['id'] === $id) {
-                $role = $r;
-                break;
-            }
-        }
-
-        return view('admin.roles.edit', [
-            'role' => $role ?? $roles[0],
-            'modules' => $modules,
-        ]);
-    }
-=======
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -233,5 +199,4 @@ class RoleController extends Controller
                 ? "تم الحذف النهائي للدور [{$name}] نهائياً!" 
                 : "Role [{$name}] permanently deleted!");
     }
->>>>>>> origin/main
 }

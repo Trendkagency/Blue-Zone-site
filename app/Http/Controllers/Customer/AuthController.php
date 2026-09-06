@@ -3,31 +3,6 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-=======
-use App\Models\Customer;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
->>>>>>> origin/main
-use Illuminate\View\View;
-
-class AuthController extends Controller
-{
-<<<<<<< HEAD
-    public function showLogin(): View
-    {
-        return view('customer.auth.login');
-    }
-
-    public function showRegister(): View
-    {
-        return view('customer.auth.register');
-    }
-
-=======
     /**
      * Show customer login form.
      */
@@ -152,17 +127,11 @@ class AuthController extends Controller
     /**
      * Show forgot password form.
      */
->>>>>>> origin/main
     public function showForgotPassword(): View
     {
         return view('customer.auth.forgot-password');
     }
 
-<<<<<<< HEAD
-    public function showResetPassword(): View
-    {
-        return view('customer.auth.reset-password');
-=======
     /**
      * Handle forgot password request.
      */
@@ -204,6 +173,5 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['email' => __('app.user_not_found', ['default' => 'Unable to locate an account with this email address.'])]);
->>>>>>> origin/main
     }
 }

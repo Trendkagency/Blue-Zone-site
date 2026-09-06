@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\View\ViewModels\RoleViewModel;
-use App\View\ViewModels\UserViewModel;
-=======
 use App\Models\Role;
 use App\Models\User;
 use App\View\ViewModels\RoleViewModel;
@@ -14,17 +10,10 @@ use App\View\ViewModels\UserViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
->>>>>>> origin/main
 use Illuminate\View\View;
 
 class UserController extends Controller
 {
-<<<<<<< HEAD
-    public function index(): View
-    {
-        $users = UserViewModel::all();
-        $roles = RoleViewModel::all();
-=======
     public function index(Request $request): View
     {
         $status = $request->query('status');
@@ -75,50 +64,21 @@ class UserController extends Controller
 
         $dbRoles = Role::all();
         $roles = $dbRoles->isNotEmpty() ? $dbRoles->toArray() : RoleViewModel::all();
->>>>>>> origin/main
 
         return view('admin.users.index', [
             'users' => $users,
             'roles' => $roles,
-<<<<<<< HEAD
-            'currentPage' => 1,
-            'totalPages' => 1,
-=======
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
->>>>>>> origin/main
         ]);
     }
 
     public function create(): View
     {
-<<<<<<< HEAD
-        $roles = RoleViewModel::all();
-        return view('admin.users.create', ['roles' => $roles]);
-    }
-
-    public function edit(int $id): View
-    {
-        $users = UserViewModel::all();
-        $roles = RoleViewModel::all();
-        $user = null;
-        foreach ($users as $u) {
-            if ($u['id'] === $id) {
-                $user = $u;
-                break;
-            }
-        }
-
-        return view('admin.users.edit', [
-            'user' => $user ?? $users[0],
-            'roles' => $roles,
-        ]);
-    }
-=======
         $dbRoles = Role::all();
         $roles = $dbRoles->isNotEmpty() ? $dbRoles->toArray() : RoleViewModel::all();
 
@@ -265,5 +225,4 @@ class UserController extends Controller
                 ? "تم الحذف النهائي للمستخدم [{$name}] نهائياً!" 
                 : "User [{$name}] permanently deleted!");
     }
->>>>>>> origin/main
 }

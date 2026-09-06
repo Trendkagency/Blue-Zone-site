@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\View\ViewModels\CustomerViewModel;
-use App\View\ViewModels\OrderViewModel;
-=======
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -15,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
->>>>>>> origin/main
 use Illuminate\View\View;
 
 class AccountController extends Controller
@@ -25,19 +20,6 @@ class AccountController extends Controller
      */
     public function dashboard(): View
     {
-<<<<<<< HEAD
-        $customer = CustomerViewModel::find(1);
-        $orders = OrderViewModel::all();
-
-        return view('customer.account.dashboard', [
-            'customer' => $customer,
-            'recentOrders' => array_slice($orders, 0, 3),
-            'stats' => [
-                'total_orders' => count($orders),
-                'active_protocol' => 'Cellular Longevity & Nootropic',
-                'loyalty_points' => 840,
-                'tier' => 'Platinum Biohacker',
-=======
         /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
         if (!$customer) {
@@ -59,48 +41,10 @@ class AccountController extends Controller
                 'tier' => $customer->tier,
                 'saved_addresses_count' => count($customer->getAddressesList()),
                 'wishlist_count' => count($customer->wishlist ?? []),
->>>>>>> origin/main
             ],
         ]);
     }
 
-<<<<<<< HEAD
-    public function profile(): View
-    {
-        $customer = CustomerViewModel::find(1);
-        return view('customer.account.profile', ['customer' => $customer]);
-    }
-
-    public function orders(): View
-    {
-        $orders = OrderViewModel::all();
-        return view('customer.account.orders', ['orders' => $orders]);
-    }
-
-    public function showOrder(string $orderNumber): View
-    {
-        $order = OrderViewModel::find($orderNumber);
-        return view('customer.account.orders-show', ['order' => $order]);
-    }
-
-    public function invoices(): View
-    {
-        $orders = OrderViewModel::all();
-        return view('customer.account.invoices', ['orders' => $orders]);
-    }
-
-    public function addresses(): View
-    {
-        $customer = CustomerViewModel::find(1);
-        return view('customer.account.addresses', ['addresses' => $customer['addresses'] ?? []]);
-    }
-
-    public function settings(): View
-    {
-        $customer = CustomerViewModel::find(1);
-        return view('customer.account.settings', ['customer' => $customer]);
-    }
-=======
     /**
      * View personal profile.
      */
@@ -549,5 +493,4 @@ class AccountController extends Controller
 
         return back()->with('success', $msg);
     }
->>>>>>> origin/main
 }

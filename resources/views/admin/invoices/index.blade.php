@@ -42,11 +42,7 @@
                             <td>
                                 <div class="table-actions">
                                     <a href="{{ route('admin.invoices.show', $order['order_number']) }}" class="action-btn" title="View & Print">
-<<<<<<< HEAD
-                                        🖨️
-=======
                                         <i class="fa-solid fa-print"></i>
->>>>>>> origin/main
                                     </a>
                                 </div>
                             </td>

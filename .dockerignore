@@ -12,8 +12,4 @@ storage/framework/views/*
 *.md
 docker-compose*.yml
 .idea
-<<<<<<< HEAD
 .vscode
-=======
-.vscode
->>>>>>> origin/main

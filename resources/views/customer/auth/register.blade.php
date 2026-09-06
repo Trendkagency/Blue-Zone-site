@@ -1,52 +1,4 @@
 <x-layouts.auth :title="__('app.nav.register')">
-<<<<<<< HEAD
-    <div class="card" style="padding: 2.5rem;">
-        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; text-align: center;">
-            {{ __('app.nav.register') }}
-        </h2>
-        <p class="text-sm text-muted text-center" style="margin-bottom: 2rem;">
-            Initiate your clinical account to track biomarker goals and stack subscriptions.
-        </p>
-
-        <form action="{{ route('customer.account.dashboard') }}" method="GET">
-            <x-forms.input 
-                name="name" 
-                :label="__('shop.checkout.full_name')" 
-                placeholder="Dr. Zaid Al-Harbi" 
-                required 
-            />
-
-            <x-forms.input 
-                name="email" 
-                type="email" 
-                :label="__('shop.checkout.email')" 
-                placeholder="name@example.com" 
-                required 
-            />
-
-            <x-forms.input 
-                name="password" 
-                type="password" 
-                label="Create Password" 
-                placeholder="••••••••" 
-                required 
-                hint="Minimum 8 characters with at least one uppercase letter and symbol."
-            />
-
-            <x-forms.input 
-                name="password_confirmation" 
-                type="password" 
-                label="Confirm Password" 
-                placeholder="••••••••" 
-                required 
-            />
-
-            <div style="margin-bottom: 1.5rem;">
-                <label class="form-check">
-                    <input type="checkbox" class="form-check-input" checked required>
-                    <span class="text-xs">
-                        I agree to the <a href="{{ route('customer.pages.terms') }}" class="font-bold" style="color: var(--color-primary);">Terms of Protocol Service</a> and <a href="{{ route('customer.pages.privacy') }}" class="font-bold" style="color: var(--color-primary);">Privacy Policy</a>.
-=======
     <div class="card p-6 sm:p-10 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-2xl transition-all">
         <div class="text-center space-y-2 mb-8">
             <span class="text-[10px] font-black uppercase tracking-[0.25em] text-[#67B34A]">
@@ -208,29 +160,18 @@
                     <input type="checkbox" required checked class="mt-0.5 rounded border-[#0A4F78]/30 text-[#0A4F78] focus:ring-[#2A8FC2]">
                     <span class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70">
                         {{ app()->getLocale() === 'ar' ? 'أوافق على' : 'I agree to the' }} <a href="{{ route('customer.pages.terms') }}" class="font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">{{ app()->getLocale() === 'ar' ? 'شروط الخدمة' : 'Terms of Service' }}</a> {{ app()->getLocale() === 'ar' ? 'و' : 'and' }} <a href="{{ route('customer.pages.privacy') }}" class="font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">{{ app()->getLocale() === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}</a>.
->>>>>>> origin/main
                     </span>
                 </label>
             </div>
 
-<<<<<<< HEAD
-            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-=======
             <button type="submit" class="w-full py-4 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer mt-2">
->>>>>>> origin/main
                 {{ __('app.nav.register') }} →
             </button>
         </form>
 
-<<<<<<< HEAD
-        <div style="margin-top: 1.75rem; text-align: center; font-size: 0.875rem; color: var(--color-text-muted);">
-            Already registered? 
-            <a href="{{ route('customer.auth.login') }}" class="font-bold" style="color: var(--color-primary);">
-=======
         <div class="mt-8 pt-6 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 text-center text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70">
             {{ app()->getLocale() === 'ar' ? 'لديك حساب بالفعل؟' : 'Already registered?' }}
             <a href="{{ route('customer.auth.login') }}" class="font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline ml-1">
->>>>>>> origin/main
                 {{ __('app.nav.login') }}
             </a>
         </div>

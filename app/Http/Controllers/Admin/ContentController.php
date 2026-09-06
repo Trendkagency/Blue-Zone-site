@@ -3,30 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\View\ViewModels\ContentViewModel;
-=======
 use App\Models\Setting;
 use App\View\ViewModels\ContentViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
->>>>>>> origin/main
 use Illuminate\View\View;
 
 class ContentController extends Controller
 {
     public function index(): View
     {
-<<<<<<< HEAD
-        $content = ContentViewModel::all();
-=======
         $default = ContentViewModel::all();
         $content = [
             'hero' => Setting::get('cms_hero', $default['hero']),
             'zones' => Setting::get('cms_zones', $default['zones']),
             'faqs' => Setting::get('cms_faqs', $default['faqs']),
         ];
->>>>>>> origin/main
 
         return view('admin.content.index', [
             'content' => $content,
@@ -35,10 +27,6 @@ class ContentController extends Controller
 
     public function banners(): View
     {
-<<<<<<< HEAD
-        $content = ContentViewModel::all();
-        return view('admin.content.banners', ['hero' => $content['hero']]);
-=======
         $default = ContentViewModel::all();
         $hero = Setting::get('cms_hero', $default['hero']);
 
@@ -62,15 +50,10 @@ class ContentController extends Controller
             ->with('success', app()->getLocale() === 'ar'
                 ? "تم تحديث محتوى ولافتات الواجهة الرئيسية بنجاح!"
                 : "Hero banner content updated successfully!");
->>>>>>> origin/main
     }
 
     public function story(): View
     {
-<<<<<<< HEAD
-        $content = ContentViewModel::all();
-        return view('admin.content.story', ['zones' => $content['zones']]);
-=======
         $default = ContentViewModel::all();
         $zones = Setting::get('cms_zones', $default['zones']);
 
@@ -95,7 +78,6 @@ class ContentController extends Controller
             ->with('success', app()->getLocale() === 'ar'
                 ? "تم تحديث معلومات الأقاليم الزرقاء وسرد القصة بنجاح!"
                 : "Blue Zones story and geographic data updated successfully!");
->>>>>>> origin/main
     }
 
     public function wellness(): View
@@ -103,12 +85,6 @@ class ContentController extends Controller
         return view('admin.content.wellness');
     }
 
-<<<<<<< HEAD
-    public function faqs(): View
-    {
-        $content = ContentViewModel::all();
-        return view('admin.content.faqs', ['faqs' => $content['faqs']]);
-=======
     public function updateWellness(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -192,6 +168,5 @@ class ContentController extends Controller
             ->with('success', app()->getLocale() === 'ar'
                 ? "تم حذف السؤال الشائع بنجاح!"
                 : "FAQ item deleted successfully!");
->>>>>>> origin/main
     }
 }

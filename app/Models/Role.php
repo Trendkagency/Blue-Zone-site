@@ -4,17 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-<<<<<<< HEAD
-
-class Role extends Model
-{
-=======
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
     use SoftDeletes;
->>>>>>> origin/main
     protected $fillable = [
         'name', 'description', 'permissions', 'users_count',
     ];

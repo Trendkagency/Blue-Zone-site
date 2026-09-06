@@ -37,10 +37,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-mind.jpg',
                 'images' => [
                     '/assets/products/blue-mind.jpg',
-<<<<<<< HEAD
-                    '/image.jpg',
-=======
->>>>>>> origin/main
                     '/assets/products/blue-cell.jpg',
                 ],
                 'stock_online' => 124,
@@ -134,10 +130,7 @@ class ProductViewModel
                 'image' => '/assets/products/blue-cell.jpg',
                 'images' => [
                     '/assets/products/blue-cell.jpg',
-<<<<<<< HEAD
                     '/image.jpg',
-=======
->>>>>>> origin/main
                 ],
                 'stock_online' => 96,
                 'stock_offline' => 42,
@@ -229,10 +222,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-defense.jpg',
                 'images' => [
                     '/assets/products/blue-defense.jpg',
-<<<<<<< HEAD
-                    '/image.jpg',
-=======
->>>>>>> origin/main
                 ],
                 'stock_online' => 140,
                 'stock_offline' => 55,
@@ -315,10 +304,7 @@ class ProductViewModel
                 'image' => '/assets/products/blue-metabolic.jpg',
                 'images' => [
                     '/assets/products/blue-metabolic.jpg',
-<<<<<<< HEAD
                     '/image.jpg',
-=======
->>>>>>> origin/main
                 ],
                 'stock_online' => 80,
                 'stock_offline' => 25,
@@ -401,10 +387,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-sleep.jpg',
                 'images' => [
                     '/assets/products/blue-sleep.jpg',
-<<<<<<< HEAD
-                    '/image.jpg',
-=======
->>>>>>> origin/main
                 ],
                 'stock_online' => 110,
                 'stock_offline' => 45,
@@ -487,10 +469,7 @@ class ProductViewModel
                 'image' => '/assets/products/blue-vitality.jpg',
                 'images' => [
                     '/assets/products/blue-vitality.jpg',
-<<<<<<< HEAD
                     '/image.jpg',
-=======
->>>>>>> origin/main
                 ],
                 'stock_online' => 65,
                 'stock_offline' => 20,

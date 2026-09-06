@@ -3,11 +3,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-    // 1. Theme Manager (Light / Dark mode)
-    const initTheme = () => {
-        const savedTheme = localStorage.getItem('bz_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-=======
     // 1. Theme Manager (Light / Dark mode - Default Light)
     const THEME_KEY = 'bluezone_theme';
     const LEGACY_KEY = 'bz_theme';
@@ -17,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const savedTheme = localStorage.getItem(THEME_KEY) || localStorage.getItem(LEGACY_KEY);
->>>>>>> origin/main
         if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
@@ -26,10 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.toggleTheme = () => {
-<<<<<<< HEAD
-        const isDark = document.documentElement.classList.toggle('dark');
-        localStorage.setItem('bz_theme', isDark ? 'dark' : 'light');
-=======
         if (window.BLUEZONE_THEME) {
             return window.BLUEZONE_THEME.toggle();
         }
@@ -40,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(LEGACY_KEY, theme);
         } catch(e) {}
         return theme;
->>>>>>> origin/main
     };
 
     initTheme();

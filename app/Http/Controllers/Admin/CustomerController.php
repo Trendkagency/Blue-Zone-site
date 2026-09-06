@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-use App\View\ViewModels\CustomerViewModel;
-use App\View\ViewModels\OrderViewModel;
-=======
 use App\Models\Customer;
 use App\Models\Order;
 use App\View\ViewModels\CustomerViewModel;
@@ -14,21 +10,10 @@ use App\View\ViewModels\OrderViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
->>>>>>> origin/main
 use Illuminate\View\View;
 
 class CustomerController extends Controller
 {
-<<<<<<< HEAD
-    public function index(): View
-    {
-        $customers = CustomerViewModel::all();
-
-        return view('admin.customers.index', [
-            'customers' => $customers,
-            'currentPage' => 1,
-            'totalPages' => 1,
-=======
     public function index(Request $request): View
     {
         $status = $request->query('status');
@@ -90,7 +75,6 @@ class CustomerController extends Controller
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
->>>>>>> origin/main
         ]);
     }
 
@@ -99,12 +83,6 @@ class CustomerController extends Controller
         return view('admin.customers.create');
     }
 
-<<<<<<< HEAD
-    public function show(int $id): View
-    {
-        $customer = CustomerViewModel::find($id);
-        $orders = OrderViewModel::all();
-=======
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -194,15 +172,12 @@ class CustomerController extends Controller
             }
             $orders = OrderViewModel::all();
         }
->>>>>>> origin/main
 
         return view('admin.customers.show', [
             'customer' => $customer,
             'orders' => $orders,
         ]);
     }
-<<<<<<< HEAD
-=======
 
     public function edit(int $id): View
     {
@@ -314,5 +289,4 @@ class CustomerController extends Controller
                 ? "تم الحذف النهائي لحساب العميل [{$name}] نهائياً!" 
                 : "Customer [{$name}] permanently deleted!");
     }
->>>>>>> origin/main
 }

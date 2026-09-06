@@ -1,10 +1,6 @@
 h1, h2, h3, h4, h5, h6 {
-<<<<<<< HEAD
-  font-weight: 700;
-=======
   font-family: var(--font-family-headings, var(--font-family-base, inherit));
   font-weight: var(--font-weight-headings, 700);
->>>>>>> origin/main
   line-height: 1.25;
   color: var(--color-text-primary);
   margin-bottom: 0.5rem;

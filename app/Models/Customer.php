@@ -2,16 +2,6 @@
 
 namespace App\Models;
 
-<<<<<<< HEAD
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-class Customer extends Model
-{
-    protected $fillable = [
-        'name', 'email', 'phone', 'city', 'country',
-        'total_orders', 'total_spent', 'status', 'registered_at',
-=======
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,16 +35,11 @@ class Customer extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
->>>>>>> origin/main
     ];
 
     protected function casts(): array
     {
         return [
-<<<<<<< HEAD
-            'total_spent' => 'decimal:2',
-            'registered_at' => 'datetime',
-=======
             'password' => 'hashed',
             'email_verified_at' => 'datetime',
             'registered_at' => 'datetime',
@@ -64,7 +49,6 @@ class Customer extends Authenticatable
             'saved_addresses' => 'array',
             'wishlist' => 'array',
             'notification_preferences' => 'array',
->>>>>>> origin/main
         ];
     }
 
@@ -72,8 +56,6 @@ class Customer extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
-<<<<<<< HEAD
-=======
 
     /**
      * Compute tier based on loyalty points & total spent.
@@ -135,5 +117,4 @@ class Customer extends Authenticatable
         }
         return $list[0] ?? [];
     }
->>>>>>> origin/main
 }

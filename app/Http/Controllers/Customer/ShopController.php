@@ -3,32 +3,6 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-<<<<<<< HEAD
-=======
-use App\Models\Category;
-use App\Models\Product;
->>>>>>> origin/main
-use App\View\ViewModels\CategoryViewModel;
-use App\View\ViewModels\ProductViewModel;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-
-class ShopController extends Controller
-{
-    /**
-     * Render the catalog shop with filters and pagination.
-     */
-    public function index(Request $request): View
-    {
-<<<<<<< HEAD
-        $products = ProductViewModel::all();
-        $categories = CategoryViewModel::all();
-
-        // Optional query filtering preparation
-        $selectedCategory = $request->query('category');
-        $search = $request->query('search');
-        $sort = $request->query('sort', 'featured');
-=======
         $categorySlug = $request->query('category');
         $search = $request->query('search');
         $sort = $request->query('sort', 'featured');
@@ -84,25 +58,16 @@ class ShopController extends Controller
         if ($categories->isEmpty()) {
             $categories = collect(CategoryViewModel::all());
         }
->>>>>>> origin/main
 
         return view('customer.shop.index', [
             'products' => $products,
             'categories' => $categories,
-<<<<<<< HEAD
-            'selectedCategory' => $selectedCategory,
-=======
             'selectedCategory' => $categorySlug,
->>>>>>> origin/main
             'search' => $search,
             'sort' => $sort,
             'currentPage' => 1,
             'totalPages' => 1,
-<<<<<<< HEAD
-            'totalItems' => count($products),
-=======
             'totalItems' => $products->count(),
->>>>>>> origin/main
         ]);
     }
 }

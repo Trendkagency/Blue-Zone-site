@@ -28,36 +28,6 @@ return [
         'roles' => 'Roles & Permissions',
         'settings' => 'System Settings',
     ],
-<<<<<<< HEAD
-=======
-    'dashboard' => [
-        'subtitle' => 'Real-time multi-channel overview for online fulfillment and offline flagship boutique.',
-        'recent_orders' => 'Recent Commerce Orders',
-        'stock_movements_audit' => 'Live Stock Movements Audit',
-        'quick_actions' => 'Quick Operational Actions',
-        'open_pos' => 'Open POS Terminal (Offline Sale)',
-        'stock_transfer' => 'Inter-Location Stock Transfer',
-        'new_formulation' => 'New Product Formulation',
-        'financial_reports' => 'Financial & Inventory Reports',
-        'vs_last_month' => 'vs last month',
-        'pct_of_gross' => 'of gross sales',
-        'replenishment_required' => 'Requires replenishment transfer',
-        'audit_log_btn' => 'Audit Log →',
-    ],
->>>>>>> origin/main
-    'kpi' => [
-        'total_revenue' => 'Total Gross Sales',
-        'online_channel' => 'Online Store Revenue',
-        'offline_channel' => 'Boutique POS Revenue',
-        'orders_count' => 'Total Orders Executed',
-        'pending_dispatch' => 'Pending Dispatch Orders',
-        'customers_registered' => 'Total Registered Customers',
-        'products_active' => 'Active Formulations',
-        'low_stock_alerts' => 'Low Stock Warnings',
-        'depleted_skus' => 'Depleted Stock SKUs',
-    ],
-<<<<<<< HEAD
-=======
     'products' => [
         'title' => 'Formulations & Products',
         'subtitle' => 'Manage clinical formulations, batch metadata, pricing, and variant availability.',
@@ -139,7 +109,6 @@ return [
             'usage_ar' => 'مثال: تناول كبسولتين يومياً مع وجبة الإفطار.',
         ],
     ],
->>>>>>> origin/main
     'pos' => [
         'title' => 'Point of Sale (POS) Terminal',
         'scan_sku' => 'Scan Barcode or Search SKU...',
@@ -178,31 +147,6 @@ return [
         'logged_user' => 'Authorized Staff',
     ],
     'orders' => [
-<<<<<<< HEAD
-=======
-        'title' => 'Orders & Fulfillment',
-        'subtitle' => 'Track and manage client orders, packing logistics, and courier shipments.',
->>>>>>> origin/main
-        'order_number' => 'Order #',
-        'channel' => 'Channel',
-        'customer' => 'Customer',
-        'status' => 'Order Status',
-        'payment' => 'Payment',
-        'amount' => 'Gross Amount',
-        'date' => 'Order Date',
-        'timeline' => 'Fulfillment Audit Timeline',
-<<<<<<< HEAD
-    ],
-    'roles' => [
-        'role_name' => 'Role Designation',
-        'description' => 'Scope of Responsibility',
-        'permission_matrix' => 'Granular Permission Matrix',
-        'module' => 'System Module',
-        'view' => 'Read / View',
-        'create' => 'Create / Add',
-        'edit' => 'Modify / Edit',
-        'delete' => 'Destructive / Delete',
-=======
         'update_status' => 'Update Order Status',
         'current_status' => 'Current Status',
         'sync_button' => 'Update & Sync Live',
@@ -488,6 +432,5 @@ return [
         'save_changes' => 'Save Changes',
         'update_password' => 'Update Password',
         'save_preferences' => 'Save Preferences',
->>>>>>> origin/main
     ],
 ];

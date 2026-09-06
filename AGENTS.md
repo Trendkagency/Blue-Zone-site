@@ -36,13 +36,10 @@ After installation, ask the user to restart their terminal. If the agent needs t
 
 ## Agent Setup
 
-<<<<<<< HEAD
-=======
 This Is Project With design patter  => 
 Single tone 
 Observing 
 
->>>>>>> origin/main
 Install Laravel Boost from the application root before making application changes:
 
 ```sh

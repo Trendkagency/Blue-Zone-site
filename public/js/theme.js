@@ -1,17 +1,4 @@
 // BLUE ZONE Theme Manager (Light & Dark Mode with Persistent Storage)
-<<<<<<< HEAD
-
-(function () {
-  const THEME_KEY = 'bluezone_theme';
-
-  function getSavedTheme() {
-    try {
-      const saved = localStorage.getItem(THEME_KEY);
-      if (saved === 'dark' || saved === 'light') {
-        return saved;
-      }
-      return 'light'; // Default mood is light
-=======
 // Default theme: Light Mode (User selectable Dark Mode)
 
 (function () {
@@ -25,17 +12,11 @@
         return 'dark';
       }
       return 'light'; // Default is always light mode
->>>>>>> origin/main
     } catch (e) {
       return 'light';
     }
   }
 
-<<<<<<< HEAD
-  function applyTheme(theme) {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-=======
   function updateUI(theme) {
     const isDark = theme === 'dark';
     
@@ -57,29 +38,10 @@
     const isDark = theme === 'dark';
 
     if (isDark) {
->>>>>>> origin/main
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-<<<<<<< HEAD
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch (e) {}
-
-    // Dispatch event for any listeners
-    window.dispatchEvent(new CustomEvent('themechanged', { detail: { theme } }));
-  }
-
-  // Initial application on DOM ready
-  const currentTheme = getSavedTheme();
-  applyTheme(currentTheme);
-
-  window.BLUEZONE_THEME = {
-    get: getSavedTheme,
-    set: function(theme) {
-      applyTheme(theme);
-=======
 
     try {
       localStorage.setItem(THEME_KEY, theme);
@@ -109,7 +71,6 @@
     get: getSavedTheme,
     set: function (theme) {
       applyTheme(theme === 'dark' ? 'dark' : 'light');
->>>>>>> origin/main
     },
     toggle: function () {
       const active = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
@@ -120,11 +81,7 @@
   };
 
   // Global helper fallback
-<<<<<<< HEAD
-  window.toggleTheme = function() {
-=======
   window.toggleTheme = function () {
->>>>>>> origin/main
     return window.BLUEZONE_THEME.toggle();
   };
 })();
