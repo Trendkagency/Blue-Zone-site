@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Customer;
 use App\Models\User;
 
 return [
@@ -42,9 +43,44 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
+
+        'customers' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Providers
+    |--------------------------------------------------------------------------
+    |
+    | All authentication guards have a user provider, which defines how the
+    | users are actually retrieved out of your database or other storage
+    | system used by the application. Typically, Eloquent is utilized.
+    |
+    | If you have multiple user tables or models you may configure multiple
+    | providers to represent the model / table. These providers may then
+    | be assigned to any extra authentication guards you have defined.
+    |
+    | Supported: "database", "eloquent"
+    |
+    */
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', User::class),
+        ],
+
         'customers' => [
             'driver' => 'eloquent',
-            'model' => \App\Models\Customer::class,
+            'model' => Customer::class,
         ],
     ],
 
@@ -74,6 +110,7 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
         'customers' => [
             'provider' => 'customers',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
