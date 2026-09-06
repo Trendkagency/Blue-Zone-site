@@ -9,6 +9,9 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    /**
+     * Render product details with separated customer and professional information.
+     */
     public function show(string $slug): View
     {
         $product = Product::with('category')->where('slug', $slug)->first();

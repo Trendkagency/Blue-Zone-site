@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,6 +32,23 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('assets/logo/logo-main.png'))
             ->brandLogoHeight('2.5rem')
             ->favicon(asset('favicon.ico'))
+            ->darkMode(true)
+            ->defaultThemeMode(ThemeMode::Light)
+            ->colors([
+                'primary' => [
+                    50 => '#f0f7fb',
+                    100 => '#dfedf6',
+                    200 => '#c4def0',
+                    300 => '#9bc6e6',
+                    400 => '#4fb0e6',
+                    500 => '#2a8fc2',
+                    600 => '#0a4f78',
+                    700 => '#083f61',
+                    800 => '#062b49',
+                    900 => '#031827',
+                    950 => '#02101c',
+                ],
+            ])
             ->font(
                 function () {
                     $font = (string) \App\Models\Setting::get('font_family', 'Mont Blanc');

@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Product extends Model
+class Product extends Model implements HasMedia
 {
     use SoftDeletes;
+    use InteractsWithMedia;
 
     protected $fillable = [
         'slug', 'sku', 'barcode', 'name_en', 'name_ar',
@@ -86,24 +90,141 @@ class Product extends Model
     }
 
     /**
-     * Compute total available stock across all channels.
+     * Localized full description accessor.
      */
-    public function getTotalStockAttribute(): int
+    public function getDescriptionAttribute(): string
     {
-        return (int) ($this->stock_online + $this->stock_offline);
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->description_ar) ? $this->description_ar : ($this->description_en ?? '');
     }
 
     /**
-     * Compute stock badge status.
+     * Localized tagline accessor.
+     */
+    public function getTaglineAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->tagline_ar) ? $this->tagline_ar : ($this->tagline_en ?? '');
+    }
+
+    /**
+     * Localized science description accessor.
+     */
+    public function getScienceAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->science_ar) ? $this->science_ar : ($this->science_en ?? '');
+    }
+
+    /**
+     * Localized benefits array accessor.
+     *
+     * @return array<int, string>
+     */
+    public function getBenefitsAttribute(): array
+    {
+        $locale = app()->getLocale();
+        $benefits = $locale === 'ar' && ! empty($this->benefits_ar) ? $this->benefits_ar : ($this->benefits_en ?? []);
+
+        return is_array($benefits) ? $benefits : [];
+    }
+
+    /**
+     * Localized usage instruction accessor.
+     */
+    public function getUsageAttribute(): string
+    {
+        $locale = app()->getLocale();
+
+        return $locale === 'ar' && ! empty($this->usage_ar) ? $this->usage_ar : ($this->usage_en ?? '');
+    }
+
+    /**
+     * Register Spatie media collections.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('primary_image')
+            ->singleFile()
+            ->useFallbackUrl(asset('assets/products/blue-mind.jpg'));
+
+        $this->addMediaCollection('gallery');
+        $this->addMediaCollection('documents');
+    }
+
+    /**
+     * Register Spatie media conversions.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(150)
+            ->height(150)
+            ->nonQueued();
+
+        $this->addMediaConversion('medium')
+            ->width(600)
+            ->height(600)
+            ->nonQueued();
+    }
+
+    /**
+     * Primary image URL accessor.
+     */
+    public function getPrimaryImageUrlAttribute(): string
+    {
+        if ($this->hasMedia('primary_image')) {
+            return $this->getFirstMediaUrl('primary_image');
+        }
+
+        if (! empty($this->image)) {
+            return str_starts_with($this->image, 'http') ? $this->image : asset($this->image);
+        }
+
+        return asset('assets/products/blue-mind.jpg');
+    }
+
+    /**
+     * Get all gallery image URLs.
+     *
+     * @return array<int, string>
+     */
+    public function getGalleryUrlsAttribute(): array
+    {
+        $urls = [];
+
+        if ($this->hasMedia('gallery')) {
+            foreach ($this->getMedia('gallery') as $media) {
+                $urls[] = $media->getUrl();
+            }
+        }
+
+        if (empty($urls) && ! empty($this->images) && is_array($this->images)) {
+            foreach ($this->images as $img) {
+                $urls[] = str_starts_with($img, 'http') ? $img : asset($img);
+            }
+        }
+
+        if (empty($urls)) {
+            $urls[] = $this->primary_image_url;
+        }
+
+        return $urls;
+    }
+
+    /**
+     * Get stock status for display.
      */
     public function getStockStatusAttribute(): string
     {
-        $total = $this->total_stock;
-
+        $total = $this->stock_online + $this->stock_offline;
         if ($total <= 0) {
             return 'out_of_stock';
         }
-        if ($total <= ($this->low_stock_threshold ?? 5)) {
+        if ($total <= $this->low_stock_threshold) {
             return 'low_stock';
         }
 

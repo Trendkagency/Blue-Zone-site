@@ -130,7 +130,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-cell.jpg',
                 'images' => [
                     '/assets/products/blue-cell.jpg',
-                    '/image.jpg',
                 ],
                 'stock_online' => 96,
                 'stock_offline' => 42,
@@ -304,7 +303,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-metabolic.jpg',
                 'images' => [
                     '/assets/products/blue-metabolic.jpg',
-                    '/image.jpg',
                 ],
                 'stock_online' => 80,
                 'stock_offline' => 25,
@@ -469,7 +467,6 @@ class ProductViewModel
                 'image' => '/assets/products/blue-vitality.jpg',
                 'images' => [
                     '/assets/products/blue-vitality.jpg',
-                    '/image.jpg',
                 ],
                 'stock_online' => 65,
                 'stock_offline' => 20,

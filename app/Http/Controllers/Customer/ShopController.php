@@ -12,6 +12,9 @@ use Illuminate\View\View;
 
 class ShopController extends Controller
 {
+    /**
+     * Render the catalog shop with filters and pagination.
+     */
     public function index(Request $request): View
     {
         $categorySlug = $request->query('category');

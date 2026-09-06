@@ -196,13 +196,4 @@
 
         <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($products)" />
     </div>
-
-    <!-- Confirmation Modal for Deletion -->
-    <x-confirmation-modal 
-        id="deleteProductModal" 
-        title="Delete Formulation" 
-        message="Are you sure you wish to deprecate and delete this formulation? Active subscriptions and historical stock logs will require archiving." 
-        confirmText="Confirm Delete" 
-        confirmType="btn-danger" 
-    />
 </x-layouts.admin>

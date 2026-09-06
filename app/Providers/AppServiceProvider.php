@@ -36,13 +36,13 @@ class AppServiceProvider extends ServiceProvider
             'manage_products',
             'manage_inventory',
             'manage_orders',
+            'manage_offline_sales',
             'manage_customers',
-            'manage_content',
-            'manage_settings',
             'manage_users',
+            'manage_roles',
+            'manage_cms',
             'view_reports',
-            'create_offline_sales',
-            'manage_invoices',
+            'manage_settings',
         ];
 
         foreach ($permissions as $permission) {

@@ -4,6 +4,27 @@
             {{ __('shop.account.profile') }}
         </h1>
 
+        @if(session('success'))
+            <div class="alert alert-success" style="margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-circle-check mr-1.5 ml-1.5 text-success"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-triangle-exclamation mr-1.5 ml-1.5 text-danger"></i>
+                <div>
+                    @foreach($errors->all() as $error)
+                        <div>• {{ $error }}</div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <div class="account-layout">
+            <!-- Navigation -->
+            <aside class="account-sidebar-nav">
+                <a href="{{ route('customer.account.dashboard') }}" class="account-nav-link">
                     <i class="fa-solid fa-chart-pie mr-1.5 ml-1.5"></i> {{ __('shop.account.dashboard') }}
                 </a>
                 <a href="{{ route('customer.account.orders') }}" class="account-nav-link">

@@ -142,12 +142,4 @@
 
         <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($categories)" />
     </div>
-
-    <x-confirmation-modal 
-        id="deleteCategoryModal" 
-        title="Delete Category" 
-        message="Are you sure you wish to delete this category? Associated formulations will need to be re-assigned." 
-        confirmText="Delete Category" 
-        confirmType="btn-danger" 
-    />
 </x-layouts.admin>

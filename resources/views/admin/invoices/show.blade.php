@@ -38,6 +38,12 @@
                 <img src="{{ asset('assets/logo/logo-main.png') }}" alt="{{ __('app.brand_name') }}" style="height: 48px; margin-bottom: 0.75rem;" onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
                 <div style="font-weight: 800; font-size: 1.25rem;">BLUE ZONE Bioceuticals Inc.</div>
                 <div style="font-size: 0.8125rem; color: #64748B;">Tax Registration # 31004829100003</div>
+                <div style="font-size: 0.8125rem; color: #64748B;">Commercial Record # CR-1010842910</div>
+                <div style="font-size: 0.8125rem; color: #64748B;">King Fahd Road, Riyadh, Saudi Arabia</div>
+            </div>
+
+            <div style="text-align: end;">
+                <h2 style="font-size: 1.75rem; font-weight: 900; color: var(--bz-ocean-blue); margin: 0 0 0.25rem 0;">TAX INVOICE</h2>
                 <div style="font-family: monospace; font-weight: 700; font-size: 1rem;">{{ $invNum }}</div>
                 <div style="font-size: 0.8125rem; color: #64748B; margin-top: 0.25rem;">Date: {{ $ordDate }}</div>
                 <div style="font-size: 0.8125rem; color: #64748B;">Order Ref: {{ $ordNum }}</div>

@@ -168,15 +168,19 @@ class ProductResource extends Resource
                                             ->label('Base Retail Price ($)')
                                             ->numeric()
                                             ->prefix('$')
-                                            ->required(),
+                                            ->helperText(fn () => 'Dynamic VAT (' . \App\Services\TaxService::getTaxRate() . '%) applied at checkout.')
+                                            ->required()
+                                            ->step(0.01),
                                         Forms\Components\TextInput::make('sale_price')
-                                            ->label('Sale Price ($)')
+                                            ->label('Sale / Promotional Price ($)')
                                             ->numeric()
-                                            ->prefix('$'),
+                                            ->prefix('$')
+                                            ->step(0.01),
                                         Forms\Components\TextInput::make('cost_price')
-                                            ->label('Cost Price ($)')
+                                            ->label('Manufacturing Unit Cost ($)')
                                             ->numeric()
-                                            ->prefix('$'),
+                                            ->prefix('$')
+                                            ->step(0.01),
                                     ]),
                                     Grid::make(2)->schema([
                                         Forms\Components\TextInput::make('rating')
