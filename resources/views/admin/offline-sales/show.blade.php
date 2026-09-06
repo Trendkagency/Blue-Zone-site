@@ -5,7 +5,11 @@
 >
     <x-slot name="actions">
         <button type="button" class="btn btn-primary" onclick="window.print()">
+<<<<<<< HEAD
             🖨️ Print Receipt
+=======
+            <i class="fa-solid fa-print mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'طباعة الإيصال' : 'Print Receipt' }}
+>>>>>>> origin/main
         </button>
     </x-slot>
 

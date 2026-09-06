@@ -44,11 +44,19 @@
 
   function addToCart(productId, quantity = 1) {
     const products = window.BLUEZONE_PRODUCTS || [];
+<<<<<<< HEAD
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
     const cart = getCart();
     const existingIndex = cart.findIndex(item => item.id === productId);
+=======
+    const product = products.find(p => p.id === productId || String(p.id) === String(productId) || p.slug === productId);
+    if (!product) return;
+
+    const cart = getCart();
+    const existingIndex = cart.findIndex(item => item.id === product.id || String(item.id) === String(product.id));
+>>>>>>> origin/main
 
     if (existingIndex > -1) {
       cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + quantity;
@@ -59,14 +67,25 @@
     saveCart(cart);
     openCartDrawer();
 
+<<<<<<< HEAD
     if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
       window.BLUEZONE_APP.showToast(`${product.name} added to cart!`, 'success');
       window.BLUEZONE_APP.announce(`${product.name} added to cart. Total items: ${cart.reduce((s, i) => s + i.quantity, 0)}.`);
+=======
+    const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
+    const prodName = isAr && product.name_ar ? product.name_ar : (product.name || product.name_en);
+
+    if (window.toast) {
+      window.toast.success(isAr ? `تمت إضافة [${prodName}] إلى سلة التسوق` : `Added [${prodName}] to your protocol cart`);
+    } else if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+      window.BLUEZONE_APP.showToast(`${product.name || product.name_en} added to cart!`, 'success');
+>>>>>>> origin/main
     }
   }
 
   function removeFromCart(productId) {
     const cart = getCart();
+<<<<<<< HEAD
     const item = cart.find(i => i.id === productId);
     const updated = cart.filter(i => i.id !== productId);
     saveCart(updated);
@@ -74,12 +93,29 @@
     if (item && window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
       window.BLUEZONE_APP.showToast(`${item.name} removed from cart.`, 'info');
       window.BLUEZONE_APP.announce(`${item.name} removed from cart.`);
+=======
+    const item = cart.find(i => i.id === productId || String(i.id) === String(productId));
+    const updated = cart.filter(i => i.id !== productId && String(i.id) !== String(productId));
+    saveCart(updated);
+
+    const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
+    const itemName = item ? (isAr && item.name_ar ? item.name_ar : (item.name || item.name_en)) : '';
+
+    if (item && window.toast) {
+      window.toast.info(isAr ? `تمت إزالة [${itemName}] من السلة` : `Removed [${itemName}] from cart`);
+    } else if (item && window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+      window.BLUEZONE_APP.showToast(`${itemName} removed from cart.`, 'info');
+>>>>>>> origin/main
     }
   }
 
   function updateQuantity(productId, delta) {
     const cart = getCart();
+<<<<<<< HEAD
     const item = cart.find(i => i.id === productId);
+=======
+    const item = cart.find(i => i.id === productId || String(i.id) === String(productId));
+>>>>>>> origin/main
     if (!item) return;
 
     item.quantity = (item.quantity || 1) + delta;
@@ -166,6 +202,7 @@
       return;
     }
 
+<<<<<<< HEAD
         container.innerHTML = cart.map(item => `
       <div data-testid="cart-item" data-product-id="${item.id}" class="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm hover:border-[#0A4F78]/30 transition-all">
         <div class="w-16 h-16 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] p-2 flex-shrink-0 flex items-center justify-center overflow-hidden border border-[#0A4F78]/10 dark:border-[#0A4F78]/25">
@@ -174,10 +211,21 @@
         <div class="flex-1 min-w-0 space-y-1">
           <div class="flex items-start justify-between gap-2">
             <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] leading-tight truncate">${item.name}</h4>
+=======
+    container.innerHTML = cart.map(item => `
+      <div data-testid="cart-item" data-product-id="${item.id}" class="flex items-center gap-3.5 p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm hover:border-[#0A4F78]/30 transition-all">
+        <div class="w-16 h-16 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] p-2 flex-shrink-0 flex items-center justify-center overflow-hidden border border-[#0A4F78]/10 dark:border-[#0A4F78]/25">
+          <img src="${item.image || '/assets/logo/logo-main.png'}" alt="${item.name_en || item.name || 'Product'}" onerror="this.onerror=null; this.src='/assets/logo/logo-main.png';" class="w-full h-full object-contain hover:scale-105 transition-transform" />
+        </div>
+        <div class="flex-1 min-w-0 space-y-1">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] leading-tight truncate">${item.name_en || item.name || 'Product'}</h4>
+>>>>>>> origin/main
             <button onclick="BLUEZONE_CART.remove('${item.id}')" aria-label="Remove item" class="p-1 text-[#031827]/40 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 cursor-pointer transition-colors rounded-lg shrink-0" title="Remove from cart">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
+<<<<<<< HEAD
           <p class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2]">${(item.price || 0).toFixed(2)}</p>
           <div class="flex items-center gap-2 pt-1">
             <div class="flex items-center border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 rounded-lg bg-[#F6F5EF] dark:bg-[#031827] overflow-hidden text-[#031827] dark:text-white shadow-xs">
@@ -186,6 +234,16 @@
               <button onclick="BLUEZONE_CART.updateQty('${item.id}', 1)" aria-label="Increase quantity" class="px-2.5 py-1 text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">+</button>
             </div>
             <span class="text-[11px] text-[#031827]/50 dark:text-[#F6F5EF]/50 font-bold ml-auto">${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+=======
+          <p class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2]">$${(item.price || 0).toFixed(2)}</p>
+          <div class="flex items-center gap-2 pt-1">
+            <div class="flex items-center border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 rounded-lg bg-[#F6F5EF] dark:bg-[#031827] overflow-hidden text-[#031827] dark:text-white shadow-xs">
+              <button onclick="BLUEZONE_CART.updateQty('${item.id}', -1)" aria-label="Decrease quantity" class="px-2.5 py-1 text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">-</button>
+              <span class="px-2.5 text-xs font-bold text-[#031827] dark:text-white min-w-[20px] text-center">${item.quantity || 1}</span>
+              <button onclick="BLUEZONE_CART.updateQty('${item.id}', 1)" aria-label="Increase quantity" class="px-2.5 py-1 text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">+</button>
+            </div>
+            <span class="text-[11px] text-[#031827]/50 dark:text-[#F6F5EF]/50 font-bold ml-auto">$${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</span>
+>>>>>>> origin/main
           </div>
         </div>
       </div>

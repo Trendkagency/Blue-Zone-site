@@ -1,4 +1,28 @@
+<<<<<<< HEAD
 <x-layouts.customer :title="($product->name ?? 'PRODUCT') . ' — ' . __('app.brand_name')" :description="$product->short_description ?? 'Clinical formulation inspired by Blue Zone longevity research.'">
+=======
+@php
+    $pSlug = is_array($product) ? ($product['slug'] ?? 'blue-mind') : ($product->slug ?? 'blue-mind');
+    $pName = is_array($product) 
+        ? (app()->getLocale() === 'ar' && !empty($product['name_ar']) ? $product['name_ar'] : ($product['name_en'] ?? $product['name'] ?? 'BLUE MIND'))
+        : ($product->name ?? $product->name_en ?? 'BLUE MIND');
+    $pCategory = is_array($product) 
+        ? (app()->getLocale() === 'ar' && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? $product['category']['name'] ?? 'COGNITIVE'))
+        : ($product->category?->name ?? $product->category?->name_en ?? 'COGNITIVE');
+    $pImage = is_array($product) 
+        ? asset($product['image'] ?? 'assets/products/blue-mind.jpg')
+        : ($product->primary_image_url ?? asset('assets/products/blue-mind.jpg'));
+    $pShortDesc = is_array($product) 
+        ? (app()->getLocale() === 'ar' && !empty($product['short_description_ar']) ? $product['short_description_ar'] : ($product['short_description_en'] ?? $product['short_description'] ?? 'Clinical formulation inspired by Blue Zone longevity research.'))
+        : ($product->short_description ?? 'Clinical formulation inspired by Blue Zone longevity research.');
+    $pDescription = is_array($product) 
+        ? (app()->getLocale() === 'ar' && !empty($product['description_ar']) ? $product['description_ar'] : ($product['description_en'] ?? $product['description'] ?? 'BLUE MIND is a bio-identical nootropic matrix formulated with standardized Bacopa Monnieri, Centella Asiatica, and Phosphatidylserine to sustain neuroplasticity, memory recall, and deep daily focus.'))
+        : ($product->description ?? 'BLUE MIND is a bio-identical nootropic matrix formulated with standardized Bacopa Monnieri, Centella Asiatica, and Phosphatidylserine to sustain neuroplasticity, memory recall, and deep daily focus.');
+    $pPrice = is_array($product) ? ($product['price'] ?? 79) : ($product->price ?? 79);
+@endphp
+
+<x-layouts.customer :title="$pName . ' — ' . __('app.brand_name')" :description="$pShortDesc">
+>>>>>>> origin/main
     <div class="py-12 bg-[#F6F5EF] dark:bg-[#031827] min-h-screen">
       <div id="product-detail-container" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         
@@ -10,7 +34,11 @@
           <div class="text-[11px] font-bold uppercase tracking-widest text-[#031827]/60 dark:text-[#F6F5EF]/60">
             <a href="{{ route('customer.home') }}" class="hover:text-[#0A4F78]">HOME</a> / 
             <a href="{{ route('customer.shop') }}" class="hover:text-[#0A4F78]">PRODUCTS</a> / 
+<<<<<<< HEAD
             <span class="text-[#0A4F78] dark:text-[#2A8FC2]">{{ $product->name ?? 'BLUE MIND' }}</span>
+=======
+            <span class="text-[#0A4F78] dark:text-[#2A8FC2]">{{ $pName }}</span>
+>>>>>>> origin/main
           </div>
         </div>
 
@@ -20,12 +48,21 @@
           <!-- Image Gallery Container -->
           <div class="lg:col-span-6 bg-white dark:bg-[#062B49] rounded-3xl p-8 border border-[#0A4F78]/20 shadow-2xl flex items-center justify-center relative img-zoom-container">
             <span class="absolute top-6 left-6 text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
+<<<<<<< HEAD
               {{ $product->category->name ?? 'COGNITIVE' }}
             </span>
             <img 
               id="product-main-img"
               src="{{ $product->primary_image_url ?? asset('assets/products/blue-mind.jpg') }}" 
               alt="{{ $product->name ?? 'Blue Mind' }}" 
+=======
+              {{ $pCategory }}
+            </span>
+            <img 
+              id="product-main-img"
+              src="{{ $pImage }}" 
+              alt="{{ $pName }}" 
+>>>>>>> origin/main
               onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" 
               class="w-full max-h-[450px] object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
             />
@@ -39,7 +76,11 @@
                 <span class="text-xs text-[#031827]/50 dark:text-[#F6F5EF]/50">(340+ Verified Clinical Reviews)</span>
               </div>
               <h1 class="text-3xl sm:text-5xl font-black text-[#031827] dark:text-[#F6F5EF]">
+<<<<<<< HEAD
                 {{ $product->name ?? 'BLUE MIND' }}
+=======
+                {{ $pName }}
+>>>>>>> origin/main
               </h1>
               <p class="text-xs uppercase font-extrabold tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">
                 SYNAPTIC PLASTICITY & NEURAL LONGEVITY
@@ -47,11 +88,19 @@
             </div>
 
             <div class="text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+<<<<<<< HEAD
               ${{ number_format($product->price ?? 79, 2) }}
             </div>
 
             <p class="text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed font-medium">
               {{ $product->description ?? 'BLUE MIND is a bio-identical nootropic matrix formulated with standardized Bacopa Monnieri, Centella Asiatica, and Phosphatidylserine to sustain neuroplasticity, memory recall, and deep daily focus.' }}
+=======
+              ${{ number_format($pPrice, 2) }}
+            </div>
+
+            <p class="text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed font-medium">
+              {{ $pDescription }}
+>>>>>>> origin/main
             </p>
 
             <!-- Quantity & Actions -->
@@ -66,10 +115,17 @@
               </div>
 
               <div class="flex gap-4">
+<<<<<<< HEAD
                 <button onclick="BLUEZONE_CART.add('{{ $product->slug ?? 'blue-mind' }}', currentDetailQty)" class="flex-1 py-4 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-xl cursor-pointer transition-transform active:scale-95 btn-sheen">
                   ADD TO CART
                 </button>
                 <button onclick="BLUEZONE_WISHLIST.toggle('{{ $product->slug ?? 'blue-mind' }}')" aria-label="Wishlist" class="p-4 rounded-xl border border-[#0A4F78] text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78]/10 font-bold cursor-pointer transition-all">
+=======
+                <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', currentDetailQty)" class="flex-1 py-4 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-xl cursor-pointer transition-transform active:scale-95 btn-sheen">
+                  ADD TO CART
+                </button>
+                <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" aria-label="Wishlist" class="p-4 rounded-xl border border-[#0A4F78] text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78]/10 font-bold cursor-pointer transition-all">
+>>>>>>> origin/main
                   ♥
                 </button>
               </div>

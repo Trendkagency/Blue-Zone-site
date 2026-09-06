@@ -107,12 +107,25 @@ class BluezoneSeeder extends Seeder
             Customer::create([
                 'name' => $c['name'],
                 'email' => $c['email'],
+<<<<<<< HEAD
                 'phone' => $c['phone'] ?? null,
                 'city' => $c['city'] ?? null,
                 'country' => $c['country'] ?? null,
                 'total_orders' => $c['orders_count'] ?? 0,
                 'total_spent' => $c['total_spent'] ?? 0,
                 'status' => $c['status'] ?? 'active',
+=======
+                'password' => bcrypt('password'),
+                'phone' => $c['phone'] ?? '+966 50 123 4567',
+                'address' => '742 Longevity Way, King Fahd District',
+                'city' => $c['city'] ?? 'Riyadh',
+                'country' => $c['country'] ?? 'Saudi Arabia',
+                'postal_code' => '12271',
+                'total_orders' => $c['orders_count'] ?? 0,
+                'total_spent' => $c['total_spent'] ?? 0,
+                'status' => $c['status'] ?? 'active',
+                'email_verified_at' => now(),
+>>>>>>> origin/main
                 'registered_at' => $c['registered_at'] ?? now(),
             ]);
         }
@@ -209,6 +222,12 @@ class BluezoneSeeder extends Seeder
                 'note' => $m['note'] ?? null,
             ]);
         }
+<<<<<<< HEAD
+=======
+
+        // Ensure all products have complete inventory items for all locations
+        \App\Services\InventoryService::syncAllProductsInventory();
+>>>>>>> origin/main
     }
 
     private function seedRoles(): void

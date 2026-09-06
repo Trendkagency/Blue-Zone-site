@@ -416,6 +416,161 @@
       </div>
     </section>
 
+<<<<<<< HEAD
+=======
+    <!-- Inline Script for Pillar Selection Controller -->
+    <script>
+      (function() {
+        const PILLARS_DATA = [
+          {
+            num: "01",
+            title: "MOVEMENT",
+            desc: "Natural daily movement is one of the defining habits shared by centenarians, supporting joint stamina, circulation, and fluid mobility throughout life.",
+            tag: "Joint Stamina & Fluid Articulation",
+            img: "{{ asset('assets/images/hero/hero-03.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>'
+          },
+          {
+            num: "02",
+            title: "NUTRITION",
+            desc: "Bio-engineered from polyphenol-rich plant botanicals and standardized cellular antioxidants to nourish cellular metabolic pathways.",
+            tag: "Botanical Bio-Integrity",
+            img: "{{ asset('assets/images/hero/hero-02.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>'
+          },
+          {
+            num: "03",
+            title: "PURPOSE",
+            desc: "Cultivating Ikigai purpose—a clear sense of daily direction proven to promote neurological resilience and cognitive focus.",
+            tag: "Neurological Resilience & Focus",
+            img: "{{ asset('assets/images/hero/hero-01.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h-0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
+          },
+          {
+            num: "04",
+            title: "COMMUNITY",
+            desc: "Fostering deep social bonds and emotional harmony that reduce systemic cortisol levels and daily physiological stress.",
+            tag: "Cortisol & Stress Reduction",
+            img: "{{ asset('assets/images/okinawa.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'
+          },
+          {
+            num: "05",
+            title: "REST",
+            desc: "Sustaining restorative nighttime sleep and circadian rhythm alignment to allow cellular ATP regeneration without burnout.",
+            tag: "Circadian ATP Regeneration",
+            img: "{{ asset('assets/images/hero/hero-05.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>'
+          },
+          {
+            num: "06",
+            title: "WELLNESS",
+            desc: "Standardized botanical nutrition designed to preserve cellular energy, structural posture, and lifelong immune fortitude.",
+            tag: "Systemic Immune Fortitude",
+            img: "{{ asset('assets/images/hero_longevity.jpg') }}",
+            spokeColor: "#67B34A",
+            svgIcon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>'
+          }
+        ];
+
+        function selectPillar(idx) {
+          if (idx < 0 || idx >= PILLARS_DATA.length) return;
+          const p = PILLARS_DATA[idx];
+
+          // 1. Update Desktop Left Nav
+          const desktopBtns = document.querySelectorAll('.pillar-desktop-btn');
+          desktopBtns.forEach((btn, i) => {
+            const numSpan = btn.querySelector('span:first-child');
+            const titleSpan = btn.querySelector('span:last-child');
+            if (i === idx) {
+              btn.className = 'pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left transition-all duration-300 group cursor-pointer border-l-4 border-[#67B34A] bg-[#67B34A]/10';
+              if (numSpan) numSpan.className = 'text-xs font-extrabold text-[#67B34A] font-mono';
+              if (titleSpan) titleSpan.className = 'text-sm font-bold text-[#67B34A] tracking-wider uppercase';
+            } else {
+              btn.className = 'pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5';
+              if (numSpan) numSpan.className = 'text-xs font-extrabold text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono';
+              if (titleSpan) titleSpan.className = 'text-sm font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 tracking-wider uppercase group-hover:text-[#2A8FC2]';
+            }
+          });
+
+          // 2. Update Mobile Horizontal Nav
+          const mobileBtns = document.querySelectorAll('.pillar-nav-btn');
+          mobileBtns.forEach((btn, i) => {
+            if (i === idx) {
+              btn.className = 'pillar-nav-btn shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all bg-[#67B34A] text-white';
+            } else {
+              btn.className = 'pillar-nav-btn shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all bg-[#0A4F78]/10 text-[#031827] dark:text-[#F6F5EF]';
+            }
+          });
+
+          // 3. Update Orbital Center SVG Nodes & Spokes
+          for (let i = 0; i < 6; i++) {
+            const node = document.getElementById(`node-${i}`);
+            const spoke = document.getElementById(`spoke-${i}`);
+            if (i === idx) {
+              if (node) {
+                node.setAttribute('r', '11');
+                node.setAttribute('fill', '#67B34A');
+                node.setAttribute('stroke', '#FFFFFF');
+                node.setAttribute('stroke-width', '2.5');
+              }
+              if (spoke) {
+                spoke.setAttribute('stroke', '#67B34A');
+                spoke.setAttribute('stroke-width', '2');
+                spoke.setAttribute('opacity', '0.9');
+              }
+            } else {
+              if (node) {
+                node.setAttribute('r', '7');
+                node.setAttribute('fill', '#0A4F78');
+                node.setAttribute('stroke', '#2A8FC2');
+                node.setAttribute('stroke-width', '1.5');
+              }
+              if (spoke) {
+                spoke.setAttribute('stroke', '#2A8FC2');
+                spoke.setAttribute('stroke-width', '1');
+                spoke.setAttribute('opacity', '0.25');
+              }
+            }
+          }
+
+          // 4. Update Right Display Panel with smooth fade
+          const panel = document.getElementById('pillar-content-panel');
+          if (panel) {
+            panel.style.opacity = '0.4';
+            setTimeout(() => {
+              const numEl = document.getElementById('pillar-active-num');
+              const titleEl = document.getElementById('pillar-active-title');
+              const descEl = document.getElementById('pillar-active-desc');
+              const tagEl = document.getElementById('pillar-active-tag');
+              const iconBox = document.getElementById('pillar-active-icon-box');
+              const imgEl = document.getElementById('pillar-active-img');
+
+              if (numEl) numEl.textContent = p.num;
+              if (titleEl) titleEl.textContent = p.title;
+              if (descEl) descEl.textContent = p.desc;
+              if (tagEl) tagEl.innerHTML = `<span>${p.tag}</span>`;
+              if (iconBox) iconBox.innerHTML = p.svgIcon;
+              if (imgEl) {
+                imgEl.src = p.img;
+                imgEl.alt = p.title;
+              }
+
+              panel.style.opacity = '1';
+            }, 180);
+          }
+        }
+
+        window.BLUEZONE_PILLARS = { select: selectPillar };
+      })();
+    </script>
+
+>>>>>>> origin/main
     <!-- 06. FEATURED PRODUCTS SLIDER -->
     <section id="featured-products" class="py-24 bg-white dark:bg-[#062B49] border-b border-[#0A4F78]/10 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -645,6 +800,172 @@
       </div>
     </section>
 
+<<<<<<< HEAD
+=======
+    <!-- Controller Script for Interactive Blue Zones Showcase -->
+    <script>
+      (function() {
+        const REGIONS_DATA = [
+          {
+            num: "01",
+            title: "OKINAWA",
+            country: "JAPAN",
+            img: "{{ asset('assets/images/okinawa.jpg') }}",
+            marker: "COGNITION",
+            desc: "Moai social circles, daily natural movement, and a plant-rich traditional diet abundant in turmeric and purple sweet potatoes."
+          },
+          {
+            num: "02",
+            title: "SARDINIA",
+            country: "ITALY",
+            img: "{{ asset('assets/images/sardinia.jpg') }}",
+            marker: "CARDIO",
+            desc: "Daily mountain walking, polyphenol-rich Cannonau red wine, and strong lifelong family integration across generations."
+          },
+          {
+            num: "03",
+            title: "NICOYA",
+            country: "COSTA RICA",
+            img: "{{ asset('assets/images/nicoya.jpg') }}",
+            marker: "BONE DENSITY",
+            desc: "Calcium-rich natural water, daily outdoor sunshine, and a clear 'Plan de Vida' purpose that drives lifelong physical vitality."
+          },
+          {
+            num: "04",
+            title: "IKARIA",
+            country: "GREECE",
+            img: "{{ asset('assets/images/ikaria.jpg') }}",
+            marker: "VASCULAR",
+            desc: "Wild mountain herbal teas, polyphenol-dense Mediterranean olive oil, stress-free pacing, and restorative afternoon rests."
+          },
+          {
+            num: "05",
+            title: "LOMA LINDA",
+            country: "USA",
+            img: "{{ asset('assets/images/loma_linda.jpg') }}",
+            marker: "CELLULAR",
+            desc: "Whole-food plant-based nutrition, regular outdoor physical exercise, and dedicated weekly Sabbath rest for systemic stress relief."
+          }
+        ];
+
+        let currentIndex = 0;
+        let autoplayTimer = null;
+
+        function selectRegion(idx) {
+          if (idx < 0 || idx >= REGIONS_DATA.length) return;
+          currentIndex = idx;
+          const r = REGIONS_DATA[idx];
+
+          // Update Desktop Right Navigation
+          const desktopBtns = document.querySelectorAll('.region-desktop-btn');
+          desktopBtns.forEach((btn, i) => {
+            const numSpan = btn.querySelector('span:first-child');
+            const h4 = btn.querySelector('h4');
+            const arrow = btn.querySelector('span:last-child');
+            if (i === idx) {
+              btn.className = 'region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-[#67B34A] bg-[#67B34A]/10';
+              if (numSpan) numSpan.className = 'text-xs font-extrabold text-[#67B34A] font-mono';
+              if (h4) h4.className = 'text-sm font-bold text-[#67B34A] tracking-wider uppercase';
+              if (arrow) arrow.className = 'text-xs font-extrabold text-[#67B34A]';
+            } else {
+              btn.className = 'region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5';
+              if (numSpan) numSpan.className = 'text-xs font-extrabold text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono';
+              if (h4) h4.className = 'text-sm font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 tracking-wider uppercase group-hover:text-[#2A8FC2]';
+              if (arrow) arrow.className = 'text-xs font-bold text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]';
+            }
+          });
+
+          // Update Mobile Navigation Bar
+          const mobileBtns = document.querySelectorAll('.region-nav-btn');
+          mobileBtns.forEach((btn, i) => {
+            if (i === idx) {
+              btn.className = 'region-nav-btn shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all bg-[#67B34A] text-white';
+            } else {
+              btn.className = 'region-nav-btn shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all bg-[#0A4F78]/10 text-[#031827] dark:text-[#F6F5EF]';
+            }
+          });
+
+          // Update Main Display Image & Content Overlay with smooth fade
+          const mainImg = document.getElementById('bz-region-active-img');
+          const textPanel = document.getElementById('bz-region-text-panel');
+          
+          if (mainImg) {
+            mainImg.style.opacity = '0.3';
+            setTimeout(() => {
+              mainImg.src = r.img;
+              mainImg.alt = `${r.title} Blue Zone`;
+              mainImg.style.opacity = '1';
+            }, 200);
+          }
+
+          if (textPanel) {
+            textPanel.style.opacity = '0.2';
+            setTimeout(() => {
+              const numEl = document.getElementById('bz-region-active-num');
+              const countryEl = document.getElementById('bz-region-active-country');
+              const titleEl = document.getElementById('bz-region-active-title');
+              const descEl = document.getElementById('bz-region-active-desc');
+              const markerEl = document.getElementById('bz-region-active-marker');
+              const stepEl = document.getElementById('bz-region-curr-step');
+
+              if (numEl) numEl.textContent = r.num;
+              if (countryEl) countryEl.textContent = r.country;
+              if (titleEl) titleEl.textContent = r.title;
+              if (descEl) descEl.textContent = r.desc;
+              if (markerEl) markerEl.textContent = r.marker;
+              if (stepEl) stepEl.textContent = r.num;
+
+              textPanel.style.opacity = '1';
+            }, 200);
+          }
+
+          restartAutoplay();
+        }
+
+        function startAutoplay() {
+          stopAutoplay();
+          autoplayTimer = setInterval(() => {
+            let nextIndex = (currentIndex + 1) % REGIONS_DATA.length;
+            selectRegion(nextIndex);
+          }, 5500);
+        }
+
+        function stopAutoplay() {
+          if (autoplayTimer) {
+            clearInterval(autoplayTimer);
+            autoplayTimer = null;
+          }
+        }
+
+        function restartAutoplay() {
+          stopAutoplay();
+          autoplayTimer = setInterval(() => {
+            let nextIndex = (currentIndex + 1) % REGIONS_DATA.length;
+            selectRegion(nextIndex);
+          }, 5500);
+        }
+
+        function initRegions() {
+          startAutoplay();
+
+          const container = document.getElementById('bz-region-interactive-container');
+          if (container) {
+            container.addEventListener('mouseenter', stopAutoplay);
+            container.addEventListener('mouseleave', startAutoplay);
+          }
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initRegions);
+        } else {
+          initRegions();
+        }
+
+        window.BLUEZONE_REGIONS = { select: selectRegion };
+      })();
+    </script>
+
+>>>>>>> origin/main
     <!-- 09. OUR SCIENCE (4-STAGE JOURNEY) -->
     <section id="our-science" class="py-20 bg-white dark:bg-[#062B49] border-b border-[#0A4F78]/10 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -741,6 +1062,108 @@
       </div>
     </section>
 
+<<<<<<< HEAD
+=======
+    <!-- Inline Controller Script for Science Journey -->
+    <script>
+      (function() {
+        const SCIENCE_DATA = [
+          {
+            num: "01",
+            code: "01/04",
+            stage: "SOURCE",
+            title: "FROM NATURE",
+            desc: "Selected botanical and nutritional ingredients inspired by the natural foundations of centenarian longevity across Okinawa, Sardinia, and Nicoya.",
+            img: "{{ asset('assets/images/hero_longevity.jpg') }}",
+            chips: ["Standardized Botanical Extraction", "Peak Potency Sourcing"]
+          },
+          {
+            num: "02",
+            code: "02/04",
+            stage: "FORMULATION",
+            title: "PRECISION IN EVERY FORMULA",
+            desc: "Bringing selected bio-identical dietary compounds together into targeted, standardized wellness formulations engineered for high biological bioavailability.",
+            img: "{{ asset('assets/images/products/blue-mind.jpg') }}",
+            chips: ["Bio-Identical Nutrient Ratios", "Cellular Absorption Focus"]
+          },
+          {
+            num: "03",
+            code: "03/04",
+            stage: "VALIDATION",
+            title: "QUALITY YOU CAN TRUST",
+            desc: "Rigorous quality control processes and laboratory verification to maintain clean dietary bio-integrity with zero synthetic fillers or unnecessary additives.",
+            img: "{{ asset('assets/images/blog-1.jpg') }}",
+            chips: ["Third-Party Quality Verified", "Zero Synthetic Additives"]
+          },
+          {
+            num: "04",
+            code: "04/04",
+            stage: "WELLNESS",
+            title: "DESIGNED FOR DAILY LIFE",
+            desc: "Translating longevity-inspired science into simple daily nutritional support designed to sustain focus, stamina, and long-term cellular health.",
+            img: "{{ asset('assets/images/blog-2.jpg') }}",
+            chips: ["Cognitive Resilience", "Daily Vitality Support"]
+          }
+        ];
+
+        function selectScience(idx) {
+          if (idx < 0 || idx >= SCIENCE_DATA.length) return;
+          const s = SCIENCE_DATA[idx];
+
+          // 1. Update Node Buttons
+          const nodeBtns = document.querySelectorAll('.bz-science-node-btn');
+          nodeBtns.forEach((btn, i) => {
+            const circle = btn.querySelector('div > span:first-child');
+            const title = btn.querySelector('div > span:last-child');
+            if (i === idx) {
+              btn.className = 'bz-science-node-btn p-4 rounded-2xl bg-[#67B34A]/10 border-2 border-[#67B34A] text-left transition-all duration-300 group cursor-pointer flex flex-col items-center md:items-start gap-1.5';
+              if (circle) circle.className = 'w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-bold shadow-md';
+              if (title) title.className = 'text-xs font-bold text-[#67B34A] uppercase tracking-wider';
+            } else {
+              btn.className = 'bz-science-node-btn p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/15 hover:border-[#2A8FC2]/50 text-left transition-all duration-300 group cursor-pointer flex flex-col items-center md:items-start gap-1.5';
+              if (circle) circle.className = 'w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center font-mono text-xs font-bold';
+              if (title) title.className = 'text-xs font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 uppercase tracking-wider group-hover:text-[#2A8FC2]';
+            }
+          });
+
+          // 2. Update Display Panel with smooth fade
+          const panel = document.getElementById('bz-science-panel');
+          if (panel) {
+            panel.style.opacity = '0.4';
+            setTimeout(() => {
+              const imgEl = document.getElementById('bz-science-active-img');
+              const codeEl = document.getElementById('bz-science-stage-code');
+              const numEl = document.getElementById('bz-science-active-num');
+              const stageEl = document.getElementById('bz-science-active-stage');
+              const titleEl = document.getElementById('bz-science-active-title');
+              const descEl = document.getElementById('bz-science-active-desc');
+              const chipsEl = document.getElementById('bz-science-active-chips');
+
+              if (imgEl) {
+                imgEl.src = s.img;
+                imgEl.alt = s.title;
+              }
+              if (codeEl) codeEl.textContent = s.code;
+              if (numEl) numEl.textContent = s.num;
+              if (stageEl) stageEl.textContent = s.stage;
+              if (titleEl) titleEl.textContent = s.title;
+              if (descEl) descEl.textContent = s.desc;
+              if (chipsEl) {
+                chipsEl.innerHTML = s.chips.map((chip, cIdx) => 
+                  `<span class="px-3 py-1.5 rounded-lg ${cIdx === 0 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF]'} text-xs font-bold">${chip}</span>`
+                ).join('');
+              }
+
+              panel.style.opacity = '1';
+            }, 180);
+          }
+        }
+
+        window.BLUEZONE_SCIENCE = { select: selectScience };
+      })();
+    </script>
+
+>>>>>>> origin/main
     <!-- 11. BLUE ZONE JOURNAL -->
     <section id="blue-zone-journal" class="py-24 bg-white dark:bg-[#062B49] border-b border-[#0A4F78]/10 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">

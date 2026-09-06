@@ -9,7 +9,12 @@
         "php": "^8.3",
         "filament/filament": "^5.7",
         "laravel/framework": "^13.17",
+<<<<<<< HEAD
         "laravel/tinker": "^3.0"
+=======
+        "laravel/tinker": "^3.0",
+        "spatie/laravel-medialibrary": "*"
+>>>>>>> origin/main
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

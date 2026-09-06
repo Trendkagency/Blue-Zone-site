@@ -49,14 +49,31 @@
     let list = getWishlist();
     const exists = list.some(item => item.id === productId);
 
+<<<<<<< HEAD
     if (exists) {
       list = list.filter(item => item.id !== productId);
       if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+=======
+    const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
+    const prodName = isAr && product.name_ar ? product.name_ar : (product.name || product.name_en);
+
+    if (exists) {
+      list = list.filter(item => item.id !== productId);
+      if (window.toast) {
+        window.toast.info(isAr ? `تمت إزالة [${prodName}] من قائمة الرغبات` : `Removed [${prodName}] from wishlist`);
+      } else if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+>>>>>>> origin/main
         window.BLUEZONE_APP.showToast(`${product.name} removed from wishlist.`, 'info');
       }
     } else {
       list.push(product);
+<<<<<<< HEAD
       if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+=======
+      if (window.toast) {
+        window.toast.success(isAr ? `تمت إضافة [${prodName}] إلى قائمة الرغبات` : `Added [${prodName}] to your wishlist`);
+      } else if (window.BLUEZONE_APP && window.BLUEZONE_APP.showToast) {
+>>>>>>> origin/main
         window.BLUEZONE_APP.showToast(`${product.name} added to wishlist!`, 'success');
       }
     }

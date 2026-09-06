@@ -12,10 +12,29 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+<<<<<<< HEAD
         $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             \App\Http\Middleware\SetLocaleMiddleware::class,
         ]);
+=======
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocaleMiddleware::class,
+        ]);
+
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin/*') || $request->is('admin')) {
+                return route('filament.admin.auth.login');
+            }
+            return route('customer.auth.login');
+        });
+
+        $middleware->alias([
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
+            'auth.customer' => \App\Http\Middleware\AuthenticateCustomer::class,
+        ]);
+>>>>>>> origin/main
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

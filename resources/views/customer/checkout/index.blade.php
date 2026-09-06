@@ -183,11 +183,19 @@
                 </div>
 
                 <a href="{{ route('customer.account.orders.show', 'BZ-10492') }}" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
+<<<<<<< HEAD
                     🔒 {{ __('shop.checkout.place_order') }}
                 </a>
 
                 <div class="text-xs text-muted text-center" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                     <span>🛡️ 30-Day Cellular Efficacy Guarantee</span>
+=======
+                    <i class="fa-solid fa-lock mr-1.5 ml-1.5"></i> {{ __('shop.checkout.place_order') }}
+                </a>
+
+                <div class="text-xs text-muted text-center" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <span><i class="fa-solid fa-shield-halved text-success mr-1 ml-1"></i> 30-Day Cellular Efficacy Guarantee</span>
+>>>>>>> origin/main
                 </div>
             </div>
         </div>

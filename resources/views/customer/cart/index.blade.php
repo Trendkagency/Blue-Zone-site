@@ -7,7 +7,11 @@
         <!-- Free Shipping Tier Indicator -->
         <div class="shipping-progress-bar">
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.9375rem; font-weight: 600;">
+<<<<<<< HEAD
                 <span>🚚 {{ __('shop.cart.shipping_unlocked') }}</span>
+=======
+                <span><i class="fa-solid fa-truck-fast mr-1.5 ml-1.5 text-success"></i> {{ __('shop.cart.shipping_unlocked') }}</span>
+>>>>>>> origin/main
                 <span class="badge badge-success">100% Unlocked</span>
             </div>
             <div class="progress-track">
@@ -57,7 +61,11 @@
                                     ${{ number_format($item['total'], 2) }}
                                 </span>
                                 <button type="button" class="btn btn-ghost btn-sm" style="color: var(--color-danger); padding: 0.25rem;" title="Remove">
+<<<<<<< HEAD
                                     🗑️
+=======
+                                    <i class="fa-solid fa-trash-can"></i>
+>>>>>>> origin/main
                                 </button>
                             </div>
                         </div>
@@ -65,7 +73,11 @@
 
                     <div style="padding: 1.25rem 1.5rem; background: var(--color-bg-subtle); display: flex; align-items: center; justify-content: space-between;">
                         <a href="{{ route('customer.shop') }}" class="btn btn-secondary btn-sm">
+<<<<<<< HEAD
                             ← {{ __('app.actions.continue_shopping') }}
+=======
+                            <i class="fa-solid fa-arrow-left mr-1.5 ml-1.5"></i> {{ __('app.actions.continue_shopping') }}
+>>>>>>> origin/main
                         </a>
                         <button type="button" class="btn btn-ghost btn-sm text-muted">
                             {{ __('shop.cart.clear_cart') }}

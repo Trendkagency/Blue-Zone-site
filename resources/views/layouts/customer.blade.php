@@ -8,7 +8,11 @@
     <div class="topbar">
         <div class="container" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
             <div class="text-xs font-semibold">
+<<<<<<< HEAD
                 ✨ {{ __('shop.cart.shipping_unlocked') }}
+=======
+                <i class="fa-solid fa-wand-magic-sparkles mr-1.5 ml-1.5 text-accent"></i> {{ __('shop.cart.shipping_unlocked') }}
+>>>>>>> origin/main
             </div>
             <div class="topbar-links">
                 <!-- Language Switcher -->
@@ -25,15 +29,24 @@
                 <span style="opacity: 0.3;">|</span>
 
                 <!-- Theme Toggle Button -->
+<<<<<<< HEAD
                 <button type="button" onclick="toggleTheme()" class="text-xs font-semibold" style="display: inline-flex; align-items: center; gap: 0.25rem;">
                     🌓 {{ __('app.theme') }}
+=======
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="text-xs font-semibold" style="display: inline-flex; align-items: center; gap: 0.25rem;" title="Switch Theme">
+                    <span data-theme-label><i class="fa-solid fa-circle-half-stroke mr-1 ml-1"></i> Dark Mode</span>
+>>>>>>> origin/main
                 </button>
 
                 <span style="opacity: 0.3;">|</span>
 
                 <!-- Admin Link -->
                 <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold" style="color: #94A3B8;">
+<<<<<<< HEAD
                     {{ __('app.nav.admin_portal') }} →
+=======
+                    {{ __('app.nav.admin_portal') }} <i class="fa-solid fa-arrow-right mr-1 ml-1"></i>
+>>>>>>> origin/main
                 </a>
             </div>
         </div>

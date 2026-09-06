@@ -8,6 +8,7 @@
     <title>{{ $title ?? __('app.brand_name') . ' — ' . __('app.brand_tagline') }}</title>
     <meta name="description" content="{{ $description ?? __('shop.catalog_subtitle') }}">
 
+<<<<<<< HEAD
     <!-- Immediate Theme Initialization to Prevent Flash of Wrong Theme -->
     <script>
         (function() {
@@ -17,6 +18,16 @@
                 if (savedTheme === 'dark') {
                     document.documentElement.classList.add('dark');
                 } else if (savedTheme === 'light') {
+=======
+    <!-- Immediate Theme Initialization to Prevent Flash of Wrong Theme (Default: Light) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('bluezone_theme') || localStorage.getItem('bz_theme');
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+>>>>>>> origin/main
                     document.documentElement.classList.remove('dark');
                 }
             } catch(e) {}
@@ -54,17 +65,28 @@
                         'warm-sand': '#E8DCC4',
                     },
                     fontFamily: {
+<<<<<<< HEAD
                         cairo: ['Cairo', 'sans-serif'],
+=======
+                        cairo: ['var(--font-family-base)', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', 'sans-serif'],
+                        primary: ['var(--font-family-base)', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', 'sans-serif'],
+                        headings: ['var(--font-family-headings)', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', 'sans-serif'],
+>>>>>>> origin/main
                     }
                 }
             }
         }
     </script>
 
+<<<<<<< HEAD
     <!-- Google Fonts: Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+=======
+    <!-- FontAwesome 6 Local Asset (Zero CDN Network Dependency) -->
+    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+>>>>>>> origin/main
 
     <!-- Custom CSS & Map Loader CSS from lazy_html -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
@@ -72,11 +94,23 @@
 
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+<<<<<<< HEAD
 </head>
 <body class="font-cairo bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white {{ $bodyClass ?? '' }}">
     {{ $slot }}
 
     <!-- Scripts from lazy_html -->
+=======
+
+    <!-- Global Dynamic Typography Engine -->
+    @include('partials.fonts')
+</head>
+<body class="bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white {{ $bodyClass ?? '' }}">
+    {{ $slot }}
+
+    <!-- Scripts from lazy_html & Toast Engine -->
+    <script src="{{ asset('js/toast.js') }}"></script>
+>>>>>>> origin/main
     <script src="{{ asset('js/theme.js') }}"></script>
     <script src="{{ asset('js/cart.js') }}"></script>
     <script src="{{ asset('js/wishlist.js') }}"></script>
@@ -87,6 +121,11 @@
     <script src="{{ asset('js/products.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
 
+<<<<<<< HEAD
+=======
+    <x-toast />
+
+>>>>>>> origin/main
     @stack('scripts')
 </body>
 </html>

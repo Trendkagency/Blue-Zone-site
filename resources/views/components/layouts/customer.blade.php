@@ -103,10 +103,34 @@
                     <a href="{{ route('locale.switch', 'ar') }}" class="font-bold text-[#2A8FC2] hover:underline">العربية (AR)</a>
                 @endif
                 <span>|</span>
+<<<<<<< HEAD
                 <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" class="hover:text-white transition-colors cursor-pointer">
                     🌓 Theme
                 </button>
                 <span>|</span>
+=======
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5" title="Switch Theme">
+                    <span data-theme-label>🌙 Dark Mode</span>
+                </button>
+                <span>|</span>
+                @if(auth('customer')->check())
+                    <a href="{{ route('customer.account.dashboard') }}" class="font-bold text-[#67B34A] hover:underline flex items-center gap-1">
+                        <span>👤 {{ auth('customer')->user()->name }}</span>
+                    </a>
+                    <span>|</span>
+                    <form action="{{ route('customer.auth.logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="hover:text-red-400 transition-colors cursor-pointer font-semibold">
+                            Logout
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('customer.auth.login') }}" class="font-bold text-[#E8DCC4] hover:text-white transition-colors">
+                        {{ __('app.nav.login') }}
+                    </a>
+                @endif
+                <span>|</span>
+>>>>>>> origin/main
                 <a href="{{ route('admin.dashboard') }}" class="font-bold text-[#94A3B8] hover:text-white transition-colors">
                     Admin Portal →
                 </a>
@@ -159,7 +183,11 @@
                 </button>
 
                 <!-- Theme Toggle -->
+<<<<<<< HEAD
                 <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" aria-label="Toggle Theme" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" title="Toggle Theme">
+=======
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle aria-label="Switch to Dark Mode" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer" title="Switch to Dark Mode">
+>>>>>>> origin/main
                     <svg class="w-5 h-5 hidden dark:block text-[#E8DCC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     <svg class="w-5 h-5 block dark:hidden text-[#031827]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
@@ -205,7 +233,20 @@
                 <a href="{{ route('customer.pages.contact') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
                     <span>CONTACT</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
                 </a>
+<<<<<<< HEAD
                 <a href="{{ route('customer.shop') }}" class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-3 shadow-md">
+=======
+                <!-- Mobile Theme Toggle -->
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="w-full py-2.5 px-3 rounded-xl border border-[#0A4F78]/20 bg-white/50 dark:bg-[#062B49]/50 text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] flex justify-between items-center hover:bg-[#0A4F78]/10 cursor-pointer transition-colors" title="Switch Theme">
+                    <span class="flex items-center gap-2">
+                        <span class="dark:hidden">🌙</span>
+                        <span class="hidden dark:inline">☀️</span>
+                        <span>THEME</span>
+                    </span>
+                    <span data-theme-label class="text-[#0A4F78] dark:text-[#2A8FC2]">🌙 Dark Mode</span>
+                </button>
+                <a href="{{ route('customer.shop') }}" class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-1 shadow-md">
+>>>>>>> origin/main
                     SHOP NOW
                 </a>
             </div>

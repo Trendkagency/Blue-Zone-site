@@ -38,14 +38,40 @@
         <div id="shop-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 transition-opacity duration-300">
           <!-- Fallback Server-Rendered Cards while JS initializes -->
           @foreach($products ?? [] as $product)
+<<<<<<< HEAD
+=======
+            @php
+              $pSlug = is_array($product) ? ($product['slug'] ?? '') : ($product->slug ?? '');
+              $pName = is_array($product) 
+                  ? (app()->getLocale() === 'ar' && !empty($product['name_ar']) ? $product['name_ar'] : ($product['name_en'] ?? $product['name'] ?? ''))
+                  : ($product->name ?? $product->name_en ?? '');
+              $pCategory = is_array($product) 
+                  ? (app()->getLocale() === 'ar' && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? $product['category']['name'] ?? 'SUPPLEMENT'))
+                  : ($product->category?->name ?? $product->category?->name_en ?? 'SUPPLEMENT');
+              $pImage = is_array($product) 
+                  ? asset($product['image'] ?? 'assets/products/blue-mind.jpg')
+                  : ($product->primary_image_url ?? asset('assets/products/blue-mind.jpg'));
+              $pShortDesc = is_array($product) 
+                  ? (app()->getLocale() === 'ar' && !empty($product['short_description_ar']) ? $product['short_description_ar'] : ($product['short_description_en'] ?? $product['short_description'] ?? ''))
+                  : ($product->short_description ?? $product->description ?? '');
+              $pPrice = is_array($product) ? ($product['price'] ?? 79) : ($product->price ?? 79);
+            @endphp
+>>>>>>> origin/main
             <div class="bg-white dark:bg-[#062B49] rounded-3xl p-6 border border-[#0A4F78]/15 shadow-xl flex flex-col justify-between card-hover-lift">
               <div class="space-y-4">
                 <div class="aspect-square rounded-2xl overflow-hidden bg-[#031827]/5 flex items-center justify-center relative p-6">
                   <span class="absolute top-3 left-3 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
+<<<<<<< HEAD
                     {{ $product->category->name ?? 'SUPPLEMENT' }}
                   </span>
                   <a href="{{ route('customer.product.show', $product->slug) }}" class="w-full h-full flex items-center justify-center">
                     <img src="{{ $product->primary_image_url ?? asset('assets/products/blue-mind.jpg') }}" alt="{{ $product->name }}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
+=======
+                    {{ $pCategory }}
+                  </span>
+                  <a href="{{ route('customer.product.show', $pSlug) }}" class="w-full h-full flex items-center justify-center">
+                    <img src="{{ $pImage }}" alt="{{ $pName }}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
+>>>>>>> origin/main
                   </a>
                 </div>
                 <div>
@@ -54,18 +80,28 @@
                     <span class="text-[#031827]/50 dark:text-[#F6F5EF]/50 font-mono">60 CAPS</span>
                   </div>
                   <h3 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
+<<<<<<< HEAD
                     <a href="{{ route('customer.product.show', $product->slug) }}" class="hover:text-[#67B34A] transition-colors">
                       {{ $product->name }}
                     </a>
                   </h3>
                   <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 line-clamp-2 mt-1 font-medium">
                     {{ $product->short_description ?? $product->description }}
+=======
+                    <a href="{{ route('customer.product.show', $pSlug) }}" class="hover:text-[#67B34A] transition-colors">
+                      {{ $pName }}
+                    </a>
+                  </h3>
+                  <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 line-clamp-2 mt-1 font-medium">
+                    {{ $pShortDesc }}
+>>>>>>> origin/main
                   </p>
                 </div>
               </div>
 
               <div class="pt-6 border-t border-[#0A4F78]/10 mt-6 flex items-center justify-between gap-4">
                 <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+<<<<<<< HEAD
                   ${{ number_format($product->price ?? 79, 2) }}
                 </div>
                 <div class="flex gap-2">
@@ -73,6 +109,15 @@
                     ♥
                   </button>
                   <button onclick="BLUEZONE_CART.add('{{ $product->slug }}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
+=======
+                  ${{ number_format($pPrice, 2) }}
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer">
+                    ♥
+                  </button>
+                  <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
+>>>>>>> origin/main
                     ADD TO CART
                   </button>
                 </div>

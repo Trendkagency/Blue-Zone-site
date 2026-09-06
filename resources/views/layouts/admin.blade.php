@@ -164,13 +164,22 @@
                     @endif
 
                     <!-- Theme Toggle -->
+<<<<<<< HEAD
                     <button type="button" onclick="toggleTheme()" class="btn btn-ghost btn-icon" title="{{ __('app.theme') }}">
                         🌓
+=======
+                    <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="btn btn-ghost btn-icon cursor-pointer" title="{{ __('app.theme') }}">
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+>>>>>>> origin/main
                     </button>
 
                     <!-- View Storefront Link -->
                     <a href="{{ route('customer.home') }}" class="btn btn-outline btn-sm" target="_blank">
+<<<<<<< HEAD
                         {{ __('app.nav.home') }} ↗
+=======
+                        {{ __('app.nav.home') }} <i class="fa-solid fa-arrow-up-right-from-square mr-1 ml-1"></i>
+>>>>>>> origin/main
                     </a>
 
                     <!-- User Pill -->

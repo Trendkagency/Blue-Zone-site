@@ -78,4 +78,8 @@ return [
         'disclaimer' => 'These statements have not been evaluated by traditional drug registries. Formulations are not intended to diagnose, treat, cure or prevent any disease.',
         'copyright' => '© :year BLUE ZONE Bioceuticals Inc. All Rights Reserved.',
     ],
+<<<<<<< HEAD
+=======
+    'login_required_notice' => 'To continue, please sign in or create an account. This ensures secure access to your personalized health information.',
+>>>>>>> origin/main
 ];
