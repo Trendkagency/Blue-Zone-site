@@ -6,14 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Product extends Model implements HasMedia
+class Product extends Model
 {
     use SoftDeletes;
-    use InteractsWithMedia;
 
     protected $fillable = [
         'slug', 'sku', 'barcode', 'name_en', 'name_ar',
