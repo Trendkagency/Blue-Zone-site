@@ -17,17 +17,21 @@ class ScienceController extends Controller
      */
     public function show(string $slug): View
     {
-        // Check if product exists in database but is inactive
-        $dbProduct = Product::where('slug', $slug)->first();
-        if ($dbProduct && (! $dbProduct->is_active || $dbProduct->status === 'inactive')) {
-            abort(404, 'Product science dossier not found.');
-        }
+        try {
+            // Check if product exists in database but is inactive
+            $dbProduct = Product::where('slug', $slug)->first();
+            if ($dbProduct && (! $dbProduct->is_active || $dbProduct->status === 'inactive')) {
+                abort(404, 'Product science dossier not found.');
+            }
 
-        // Safely fetch active product with eager loaded category to avoid N+1 queries
-        $product = Product::with('category')
-            ->where('is_active', true)
-            ->where('slug', $slug)
-            ->first();
+            // Safely fetch active product with eager loaded category to avoid N+1 queries
+            $product = Product::with('category')
+                ->where('is_active', true)
+                ->where('slug', $slug)
+                ->first();
+        } catch (\Throwable) {
+            $product = null;
+        }
 
         // Fallback to ViewModel if database is seeding or transitioning
         if (! $product) {
@@ -42,12 +46,16 @@ class ScienceController extends Controller
         $productId = is_array($product) ? ($product['id'] ?? 0) : $product->id;
 
         // Eager-load related active products for the science cross-navigation carousel
-        $relatedProducts = Product::with('category')
-            ->where('id', '!=', $productId)
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->take(4)
-            ->get();
+        try {
+            $relatedProducts = Product::with('category')
+                ->where('id', '!=', $productId)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->take(4)
+                ->get();
+        } catch (\Throwable) {
+            $relatedProducts = collect();
+        }
 
         if ($relatedProducts->isEmpty()) {
             $all = ProductViewModel::all();

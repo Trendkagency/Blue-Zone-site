@@ -139,40 +139,11 @@ class Product extends Model
     }
 
     /**
-     * Register Spatie media collections.
-     */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('primary_image')
-            ->singleFile()
-            ->useFallbackUrl(asset('assets/products/blue-mind.jpg'));
-
-        $this->addMediaCollection('gallery');
-        $this->addMediaCollection('documents');
-    }
-
-    /**
-     * Register Spatie media conversions.
-     */
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150)
-            ->nonQueued();
-
-        $this->addMediaConversion('medium')
-            ->width(600)
-            ->height(600)
-            ->nonQueued();
-    }
-
-    /**
      * Primary image URL accessor.
      */
     public function getPrimaryImageUrlAttribute(): string
     {
-        if ($this->hasMedia('primary_image')) {
+        if (method_exists($this, 'hasMedia') && $this->hasMedia('primary_image')) {
             return $this->getFirstMediaUrl('primary_image');
         }
 
@@ -192,7 +163,7 @@ class Product extends Model
     {
         $urls = [];
 
-        if ($this->hasMedia('gallery')) {
+        if (method_exists($this, 'hasMedia') && $this->hasMedia('gallery')) {
             foreach ($this->getMedia('gallery') as $media) {
                 $urls[] = $media->getUrl();
             }

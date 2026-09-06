@@ -16,8 +16,12 @@ class PageController extends Controller
 
     public function science(): View
     {
-        $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->get();
-        if ($products->isEmpty()) {
+        try {
+            $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->get();
+            if ($products->isEmpty()) {
+                $products = collect(\App\View\ViewModels\ProductViewModel::all());
+            }
+        } catch (\Throwable) {
             $products = collect(\App\View\ViewModels\ProductViewModel::all());
         }
 

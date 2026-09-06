@@ -33,21 +33,12 @@ class Category extends Model
     /**
      * Register Spatie media collections for Category.
      */
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('icon')
-            ->singleFile();
-
-        $this->addMediaCollection('banner')
-            ->singleFile();
-    }
-
     /**
      * Get category icon URL (media or legacy string).
      */
     public function getIconUrlAttribute(): ?string
     {
-        if ($this->hasMedia('icon')) {
+        if (method_exists($this, 'hasMedia') && $this->hasMedia('icon')) {
             return $this->getFirstMediaUrl('icon');
         }
 

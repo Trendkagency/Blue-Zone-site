@@ -22,53 +22,61 @@ class ShopController extends Controller
         $sort = $request->query('sort', 'featured');
         $goal = $request->query('goal');
 
-        $query = Product::with('category')->where('is_active', true);
+        try {
+            $query = Product::with('category')->where('is_active', true);
 
-        if ($categorySlug) {
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            if ($categorySlug) {
+                $query->whereHas('category', function ($q) use ($categorySlug) {
+                    $q->where('slug', $categorySlug);
+                });
+            }
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name_en', 'like', "%{$search}%")
+                      ->orWhere('name_ar', 'like', "%{$search}%")
+                      ->orWhere('short_description_en', 'like', "%{$search}%")
+                      ->orWhere('sku', 'like', "%{$search}%");
+                });
+            }
+
+            if ($goal) {
+                $query->where('health_goal', $goal);
+            }
+
+            switch ($sort) {
+                case 'price_low':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_high':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'rating':
+                    $query->orderBy('rating', 'desc');
+                    break;
+                case 'newest':
+                    $query->latest();
+                    break;
+                default:
+                    $query->orderBy('sort_order', 'asc');
+                    break;
+            }
+
+            $products = $query->get();
+        } catch (\Throwable) {
+            $products = collect();
         }
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name_en', 'like', "%{$search}%")
-                  ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('short_description_en', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
-            });
-        }
-
-        if ($goal) {
-            $query->where('health_goal', $goal);
-        }
-
-        switch ($sort) {
-            case 'price_low':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'price_high':
-                $query->orderBy('price', 'desc');
-                break;
-            case 'rating':
-                $query->orderBy('rating', 'desc');
-                break;
-            case 'newest':
-                $query->latest();
-                break;
-            default:
-                $query->orderBy('sort_order', 'asc');
-                break;
-        }
-
-        $products = $query->get();
 
         // Fallback to ViewModel if database records are empty
         if ($products->isEmpty() && !$search && !$categorySlug) {
             $products = collect(ProductViewModel::all());
         }
 
-        $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+        try {
+            $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+        } catch (\Throwable) {
+            $categories = collect();
+        }
         if ($categories->isEmpty()) {
             $categories = collect(CategoryViewModel::all());
         }
