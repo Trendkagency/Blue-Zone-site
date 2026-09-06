@@ -1,0 +1,93 @@
+<!-- BLUE ZONE Centralized Header Component -->
+<header class="sticky top-0 z-50 bg-[#F6F5EF]/90 dark:bg-[#031827]/90 backdrop-blur-md border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/30 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    
+    <!-- Brand Logo Image -->
+    <a href="index.html" class="flex items-center group">
+      <img
+        src="assets/images/bluezone-logo.png"
+        alt="BLUE ZONE"
+        onerror="BLUEZONE_APP.handleImageFallback(this)"
+        class="h-11 sm:h-13 w-auto object-contain transition-transform duration-300 group-hover:scale-105 mix-blend-multiply dark:mix-blend-normal dark:bg-white/95 dark:px-3 dark:py-1.5 dark:rounded-xl dark:shadow-md"
+      />
+    </a>
+
+    <!-- Desktop Navigation Links (All 7 mandatory links) -->
+    <nav class="hidden lg:flex items-center gap-7">
+      <a href="index.html" data-nav="home" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">HOME</a>
+      <a href="science.html" data-nav="science" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">OUR SCIENCE</a>
+      <a href="products.html" data-nav="products" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">PRODUCTS</a>
+      <a href="team.html" data-nav="team" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">MEET THE TEAM</a>
+      <a href="blog.html" data-nav="blog" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">BLOG</a>
+      <a href="shop.html" data-nav="shop" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">SHOP</a>
+      <a href="contact.html" data-nav="contact" class="nav-link text-xs uppercase tracking-[0.15em] font-bold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors py-1">CONTACT</a>
+    </nav>
+
+    <!-- Right Side Actions -->
+    <div class="flex items-center gap-3 sm:gap-4">
+      
+      <!-- Search Trigger -->
+      <button onclick="BLUEZONE_SEARCH.open()" aria-label="Search" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </button>
+
+      <!-- Wishlist Icon Trigger -->
+      <button onclick="BLUEZONE_WISHLIST.open()" aria-label="Wishlist" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="wishlist-badge-count absolute top-1 right-1 w-4 h-4 rounded-full bg-[#0A4F78] text-white text-[10px] font-bold hidden items-center justify-center">0</span>
+      </button>
+
+      <!-- Cart Icon Trigger -->
+      <button onclick="BLUEZONE_CART.open()" aria-label="Cart" class="relative p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span class="cart-badge-count absolute top-1 right-1 w-4 h-4 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
+      </button>
+
+      <!-- Theme Toggle -->
+      <button onclick="BLUEZONE_THEME.toggle()" aria-label="Toggle Theme" class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer">
+        <svg class="w-5 h-5 hidden dark:block text-[#E8DCC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <svg class="w-5 h-5 block dark:hidden text-[#031827]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+
+      <!-- SHOP NOW CTA -->
+      <a href="shop.html" class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest transition-all shadow-md btn-sheen">
+        SHOP NOW
+      </a>
+
+      <!-- Mobile Hamburger Button -->
+      <button id="mobile-menu-btn" aria-label="Toggle menu" class="lg:hidden p-2 rounded-md text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Navigation Drawer -->
+  <div id="mobile-nav-drawer" class="hidden lg:hidden bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/20 px-6 py-6 space-y-4">
+    <div class="flex flex-col gap-3">
+      <a href="index.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>HOME</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="science.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>OUR SCIENCE</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="products.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>PRODUCTS</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="team.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>MEET THE TEAM</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="blog.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>BLOG</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="shop.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>SHOP</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="contact.html" class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center">
+        <span>CONTACT</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+      </a>
+      <a href="shop.html" class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-3 shadow-md">
+        SHOP NOW
+      </a>
+    </div>
+  </div>
+</header>
