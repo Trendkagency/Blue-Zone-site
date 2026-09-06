@@ -29,6 +29,16 @@ class InventoryMovement extends Model
     {
         return [
             'date' => 'date',
+            'quantity' => 'integer',
+            'previous_qty' => 'integer',
+            'new_qty' => 'integer',
+        ];
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     public function getMovementNumberAttribute(): string
     {

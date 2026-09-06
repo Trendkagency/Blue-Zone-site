@@ -3,6 +3,17 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Product;
+use App\View\ViewModels\CategoryViewModel;
+use App\View\ViewModels\ProductViewModel;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class ShopController extends Controller
+{
+    public function index(Request $request): View
+    {
         $categorySlug = $request->query('category');
         $search = $request->query('search');
         $sort = $request->query('sort', 'featured');

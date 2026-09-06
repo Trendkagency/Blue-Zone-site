@@ -26,6 +26,19 @@ class InventoryItem extends Model
     protected function casts(): array
     {
         return [
+            'current_stock' => 'integer',
+            'available_stock' => 'integer',
+            'reserved_stock' => 'integer',
+            'low_stock_threshold' => 'integer',
+            'unit_cost' => 'decimal:2',
+            'retail_price' => 'decimal:2',
+        ];
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
 
     public function location(): BelongsTo
     {

@@ -3,6 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\InventoryItem;
+use App\Models\InventoryMovement;
+use App\Models\Order;
+use App\Models\Product;
+use App\View\ViewModels\InventoryViewModel;
+use App\View\ViewModels\OrderViewModel;
+use App\View\ViewModels\ProductViewModel;
+use App\View\ViewModels\ReportViewModel;
+use Illuminate\View\View;
+
+class DashboardController extends Controller
+{
+    /**
      * Render the comprehensive Admin Dashboard overview with live metrics.
      */
     public function index(): View

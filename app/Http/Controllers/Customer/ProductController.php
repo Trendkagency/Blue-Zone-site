@@ -3,6 +3,14 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\View\ViewModels\ProductViewModel;
+use Illuminate\View\View;
+
+class ProductController extends Controller
+{
+    public function show(string $slug): View
+    {
         $product = Product::with('category')->where('slug', $slug)->first();
 
         if (!$product) {

@@ -168,6 +168,16 @@ class ProductResource extends Resource
                                             ->label('Base Retail Price ($)')
                                             ->numeric()
                                             ->prefix('$')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('sale_price')
+                                            ->label('Sale Price ($)')
+                                            ->numeric()
+                                            ->prefix('$'),
+                                        Forms\Components\TextInput::make('cost_price')
+                                            ->label('Cost Price ($)')
+                                            ->numeric()
+                                            ->prefix('$'),
+                                    ]),
                                     Grid::make(2)->schema([
                                         Forms\Components\TextInput::make('rating')
                                             ->label('Average Rating')
