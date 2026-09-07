@@ -253,6 +253,15 @@
                     </span>
                     <span data-theme-label class="text-[#0A4F78] dark:text-[#2A8FC2]">🌙 Dark Mode</span>
                 </button>
+                                <!-- Mobile Cart Link -->
+                <button type="button" id="mobile-cart-btn" onclick="const m=document.getElementById('mobile-nav-drawer'); if(m){m.classList.add('hidden');} if(window.BLUEZONE_CART){BLUEZONE_CART.open();}else{window.location.href='{{ route('customer.cart') }}';}" class="mobile-nav-link w-full text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all text-[#031827] dark:text-[#F6F5EF] cursor-pointer text-start">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-[#0A4F78] dark:text-[#2A8FC2]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'سلة المشتريات' : 'SHOPPING CART' }}</span>
+                        <span class="cart-badge-count px-2 py-0.5 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
+                    </span>
+                    <span class="text-[#0A4F78] dark:text-[#2A8FC2] rtl:rotate-180">→</span>
+                </button>
                 <a href="{{ route('customer.shop') }}" class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-1 shadow-md">
                     SHOP NOW
                 </a>
@@ -343,6 +352,62 @@
     </footer>
 
     <!-- Cart Drawer -->
+    <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end rtl:justify-start bg-black/60 backdrop-blur-sm transition-opacity duration-300" role="dialog" aria-modal="true" aria-label="{{ __('shop.cart.title') ?? 'Shopping Cart' }}">
+        <div class="absolute inset-0" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}"></div>
+        <div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l rtl:border-l-0 rtl:border-r border-[#0A4F78]/20">
+            <!-- Header -->
+            <div class="p-5 sm:p-6 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex items-center justify-between bg-white/50 dark:bg-[#062B49]/50 backdrop-blur-xs">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-[#0A4F78]/10 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center justify-center shadow-inner">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF] flex items-center gap-2">
+                            <span>{{ app()->getLocale() === 'ar' ? 'سلة البروتوكول' : 'YOUR CART' }}</span>
+                            <span id="cart-drawer-badge" class="px-2 py-0.5 text-[11px] font-black rounded-full bg-[#0A4F78]/10 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2]">0</span>
+                        </h2>
+                        <p class="text-[10px] text-[#031827]/60 dark:text-[#F6F5EF]/60 font-bold uppercase tracking-wider">
+                            {{ app()->getLocale() === 'ar' ? 'تركيبات إكلينيكية معتمدة' : 'Clinically Validated Protocol' }}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button type="button" onclick="if(confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من تفريغ سلة المشتريات؟' : 'Are you sure you want to clear your cart?' }}')){BLUEZONE_CART.clear();}" id="cart-drawer-clear-btn" class="p-2 rounded-xl text-[#031827]/40 dark:text-white/40 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer hidden" title="{{ app()->getLocale() === 'ar' ? 'تفريغ السلة' : 'Clear Cart' }}" aria-label="{{ app()->getLocale() === 'ar' ? 'تفريغ السلة' : 'Clear Cart' }}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                    <button type="button" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" aria-label="{{ __('app.actions.close') ?? 'Close cart drawer' }}" class="p-2 rounded-xl hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer transition-colors text-base font-bold">
+                        ✕
+                    </button>
+                </div>
+            </div>
+
+            <!-- Free Shipping Tier Progress Banner -->
+            <div class="px-5 sm:px-6 py-3 bg-[#E8DCC4]/40 dark:bg-[#062B49]/90 border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/25 space-y-2">
+                <div id="free-shipping-text" class="flex items-center gap-2 text-xs font-bold text-[#031827] dark:text-[#F6F5EF]">
+                    <i class="fa-solid fa-truck-fast text-[#0A4F78] dark:text-[#2A8FC2]"></i>
+                    <span>Add .00 more for FREE EXPRESS SHIPPING</span>
+                </div>
+                <div class="w-full h-1.5 bg-[#031827]/10 dark:bg-black/30 rounded-full overflow-hidden">
+                    <div id="free-shipping-bar" class="h-full bg-gradient-to-r from-[#0A4F78] via-[#2A8FC2] to-[#67B34A] transition-all duration-500 rounded-full" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cart-items-container" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-3.5"></div>
+
+            <!-- Cart Drawer Footer -->
+            <div id="cart-drawer-footer" class="p-5 sm:p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-3.5 shadow-xl">
+                <!-- Trust Micro-Badges -->
+                <div class="grid grid-cols-3 gap-2 py-1 text-center border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/20 text-[10px] font-black text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-tight">
+                    <span class="flex items-center justify-center gap-1">❄️ {{ app()->getLocale() === 'ar' ? 'شحن مبرد' : 'Cold-Chain' }}</span>
+                    <span class="flex items-center justify-center gap-1">🩺 {{ app()->getLocale() === 'ar' ? 'أطباء معتمدون' : 'MD Clinical' }}</span>
+                    <span class="flex items-center justify-center gap-1">🔒 {{ app()->getLocale() === 'ar' ? 'دفع آمن 100%' : '256-Bit SSL' }}</span>
+                </div>
+
+                <!-- Subtotal Breakdown -->
+                <div class="flex justify-between items-baseline text-base sm:text-lg font-black text-[#031827] dark:text-white">
+                    <span>{{ app()->getLocale() === 'ar' ? 'المجموع الفرعي' : 'SUBTOTAL' }}</span>
+                    <span id="cart-subtotal" class="text-[#0A4F78] dark:text-[#2A8FC2] tracking-tight text-xl"><!-- Cart Drawer -->
     <div id="cart-drawer" class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Shopping Cart">
         <div class="absolute inset-0" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}"></div>
         <div class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20">
@@ -376,6 +441,24 @@
                     </a>
                     <a href="{{ route('customer.checkout') }}" class="flex-1 py-3.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all btn-sheen">
                         CHECKOUT →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist Drawer -->.00</span>
+                </div>
+
+                <!-- Action CTAs -->
+                <div class="flex gap-2.5">
+                    <a href="{{ route('customer.cart') }}" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" class="flex-1 py-3.5 px-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#0A4F78] hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-xs uppercase font-black tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'عرض السلة' : 'VIEW CART' }}</span>
+                    </a>
+                    <a href="{{ route('customer.checkout') }}" class="flex-1 py-3.5 px-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transition-all btn-sheen cursor-pointer">
+                        <span>{{ app()->getLocale() === 'ar' ? 'إتمام الطلب' : 'CHECKOUT' }}</span>
+                        <span class="rtl:rotate-180">→</span>
                     </a>
                 </div>
             </div>
