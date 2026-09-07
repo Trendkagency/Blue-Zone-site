@@ -18,28 +18,28 @@ Route::get('/products/{slug}', [ProductController::class, 'show'])->name('custom
 // Cart & Protocol Management
 Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');
 Route::get('/cart/items', [CartController::class, 'items'])->name('customer.cart.items');
-Route::post('/cart/add', [CartController::class, 'add'])->name('customer.cart.add');
-Route::post('/cart/update', [CartController::class, 'update'])->name('customer.cart.update');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('customer.cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('customer.cart.clear');
-Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('customer.cart.coupon');
-Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->name('customer.cart.coupon.remove');
+Route::post('/cart/add', [CartController::class, 'add'])->middleware('throttle:cart')->name('customer.cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->middleware('throttle:cart')->name('customer.cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->middleware('throttle:cart')->name('customer.cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->middleware('throttle:cart')->name('customer.cart.clear');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->middleware('throttle:coupon')->name('customer.cart.coupon');
+Route::delete('/cart/coupon', [CartController::class, 'removeCoupon'])->middleware('throttle:coupon')->name('customer.cart.coupon.remove');
 
 // Checkout & Order Placement
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.checkout');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('customer.checkout.store');
+Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('customer.checkout.store');
 Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('customer.checkout.confirmation');
 
 // Customer Authentication (Guest Only)
 Route::middleware('guest:customer')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.auth.login');
-    Route::post('/login', [AuthController::class, 'login'])->name('customer.auth.login.submit');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('customer.auth.login.submit');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('customer.auth.register');
-    Route::post('/register', [AuthController::class, 'register'])->name('customer.auth.register.submit');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:register')->name('customer.auth.register.submit');
     Route::get('/forgot-password', [AuthController::class, 'showForgotPassword'])->name('customer.auth.forgot-password');
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('customer.auth.forgot-password.submit');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset')->name('customer.auth.forgot-password.submit');
     Route::get('/reset-password/{token?}', [AuthController::class, 'showResetPassword'])->name('customer.auth.reset-password');
-    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('customer.auth.reset-password.submit');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('customer.auth.reset-password.submit');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('customer.auth.logout');

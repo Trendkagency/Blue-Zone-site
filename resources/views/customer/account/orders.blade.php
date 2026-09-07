@@ -127,7 +127,7 @@
                                         <td>
                                             <x-status-badge :status="$oStatus" />
                                         </td>
-                                        <td class="font-bold">${{ number_format((float)$oTotal, 2) }}</td>
+                                        <td class="font-bold">@currency((float)$oTotal)</td>
                                         <td>
                                             <div class="table-actions" style="display: flex; gap: 0.35rem;">
                                                 <a href="{{ route('customer.account.orders.show', $oNum) }}" class="btn btn-secondary btn-xs" title="View Details">

@@ -129,15 +129,31 @@ class NotificationController extends Controller
     {
         $request->validate([
             'fcm_token' => ['required', 'string'],
-            'device_info' => ['nullable', 'string', 'max:255'],
+            'device_info' => ['nullable'],
         ]);
 
         $user = $request->user() ?? auth()->user();
 
         if ($user) {
+            $rawDeviceInfo = $request->input('device_info');
+            $deviceInfo = null;
+
+            if (is_array($rawDeviceInfo)) {
+                $deviceInfo = $rawDeviceInfo;
+            } elseif (is_string($rawDeviceInfo) && trim($rawDeviceInfo) !== '') {
+                $decoded = json_decode($rawDeviceInfo, true);
+                $deviceInfo = is_array($decoded) ? $decoded : ['user_agent' => $rawDeviceInfo];
+            } else {
+                $deviceInfo = [
+                    'user_agent' => $request->userAgent() ?: 'Unknown Browser',
+                    'ip'         => $request->ip(),
+                    'linked_at'  => now()->toIso8601String(),
+                ];
+            }
+
             $user->update([
                 'fcm_token'       => $request->input('fcm_token'),
-                'fcm_device_info' => $request->input('device_info', $request->userAgent()),
+                'fcm_device_info' => $deviceInfo,
             ]);
 
             return response()->json([

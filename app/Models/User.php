@@ -109,12 +109,13 @@ class User extends Authenticatable implements FilamentUser
             'pos' => 'offline_sales',
             'product' => 'products',
             'order' => 'orders',
-            'customer' => 'customers',
+            'customer', 'client', 'clients' => 'customers',
             'invoice' => 'invoices',
             'report' => 'reports',
             'setting' => 'settings',
-            'user' => 'users',
+            'user', 'staff', 'admin' => 'users',
             'role' => 'roles',
+            'notification', 'notifications' => 'notifications',
             default => $module,
         };
 
@@ -189,6 +190,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'preferences' => 'array',
+            'fcm_device_info' => 'array',
         ];
     }
 }

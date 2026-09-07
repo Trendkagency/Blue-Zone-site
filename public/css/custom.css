@@ -1468,7 +1468,7 @@ html.dark .bz-toast-info .bz-toast-icon {
   background-color: rgba(239, 68, 68, 0.1) !important;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   .admin-sidebar {
     position: fixed;
     top: 0;
@@ -1563,3 +1563,82 @@ footer p {
 
 
 
+
+/* Customer & User Dossier Responsive Layout */
+.customer-dossier-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .customer-dossier-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.customer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* Explicit Desktop Layout Lock */
+@media (min-width: 1024px) {
+  .admin-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+  }
+
+  .admin-sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    flex-shrink: 0 !important;
+    height: 100vh !important;
+    box-shadow: none !important;
+    z-index: 50 !important;
+    display: flex !important;
+  }
+
+  [dir="rtl"] .admin-sidebar {
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .admin-sidebar-backdrop {
+    display: none !important;
+  }
+
+  .admin-main {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: calc(100% - 280px) !important;
+    max-width: calc(100% - 280px) !important;
+  }
+
+  .admin-mobile-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023.98px) {
+  .admin-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+  .admin-mobile-toggle {
+    display: inline-flex !important;
+  }
+}

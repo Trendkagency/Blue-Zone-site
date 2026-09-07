@@ -9,7 +9,7 @@
                 <span class="stat-label">{{ __('admin.kpi.total_revenue') }}</span>
                 <span class="stat-icon"><i class="fa-solid fa-wallet text-accent"></i></span>
             </div>
-            <div class="stat-value">${{ number_format($kpi['total_sales'], 2) }}</div>
+            <div class="stat-value">@currency($kpi['total_sales'])</div>
             <div class="stat-footer text-success font-bold">
                 <i class="fa-solid fa-arrow-trend-up mr-1 ml-1"></i> {{ $kpi['growth_rate'] }} {{ __('admin.dashboard.vs_last_month') }}
             </div>
@@ -20,7 +20,7 @@
                 <span class="stat-label">{{ __('admin.kpi.online_channel') }}</span>
                 <span class="stat-icon"><i class="fa-solid fa-globe text-success"></i></span>
             </div>
-            <div class="stat-value">${{ number_format($kpi['online_sales'], 2) }}</div>
+            <div class="stat-value">@currency($kpi['online_sales'])</div>
             <div class="stat-footer text-muted">
                 71.6% {{ __('admin.dashboard.pct_of_gross') }}
             </div>
@@ -31,7 +31,7 @@
                 <span class="stat-label">{{ __('admin.kpi.offline_channel') }}</span>
                 <span class="stat-icon"><i class="fa-solid fa-store text-warning"></i></span>
             </div>
-            <div class="stat-value">${{ number_format($kpi['offline_sales'], 2) }}</div>
+            <div class="stat-value">@currency($kpi['offline_sales'])</div>
             <div class="stat-footer text-muted">
                 28.4% {{ __('admin.dashboard.pct_of_gross') }}
             </div>
@@ -93,7 +93,7 @@
                                 <td>
                                     <x-status-badge :status="$order['status']" />
                                 </td>
-                                <td class="font-bold">${{ number_format($order['total'], 2) }}</td>
+                                <td class="font-bold">@currency($order['total'])</td>
                             </tr>
                         @endforeach
                     </tbody>

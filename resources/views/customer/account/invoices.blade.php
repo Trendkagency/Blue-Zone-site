@@ -78,7 +78,7 @@
                                     </td>
                                     <td class="text-xs text-muted">{{ $oDate }}</td>
                                     <td class="text-xs font-semibold">15% VAT</td>
-                                    <td class="font-bold">${{ number_format((float)$oTotal, 2) }}</td>
+                                    <td class="font-bold">@currency((float)$oTotal)</td>
                                     <td>
                                         <span class="badge badge-success text-xs font-bold">{{ $oPayStatus }}</span>
                                     </td>

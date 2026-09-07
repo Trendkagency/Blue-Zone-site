@@ -22,6 +22,8 @@ class CustomerAccountTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \App\Models\Setting::set('enable_captcha_login', false);
+        \App\Models\Setting::set('enable_captcha_register', false);
 
         $this->category = Category::create([
             'slug' => 'cognitive-health',

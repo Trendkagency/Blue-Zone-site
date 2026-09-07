@@ -164,6 +164,8 @@
                 </label>
             </div>
 
+            <x-captcha context="register" />
+
             <button type="submit" class="w-full py-4 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer mt-2">
                 {{ __('app.nav.register') }} →
             </button>

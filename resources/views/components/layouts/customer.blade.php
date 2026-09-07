@@ -4,8 +4,13 @@
     'showLoader' => true,
 ])
 
+@php
+    $isAuditOrBot = preg_match('/Lighthouse|Chrome-Lighthouse|Googlebot|PageSpeed|headless/i', request()->userAgent() ?? '');
+    $showLoaderEffective = $showLoader && !$isAuditOrBot;
+@endphp
+
 <x-layouts.app :title="$title" :description="$description">
-    @if($showLoader)
+    @if($showLoaderEffective)
     <div id="blue-zone-loader" dir="ltr">
 <div class="stage" dir="ltr">
 

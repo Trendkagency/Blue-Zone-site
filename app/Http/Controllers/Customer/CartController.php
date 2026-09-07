@@ -9,6 +9,7 @@ use App\View\ViewModels\ProductViewModel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CartController extends Controller
@@ -54,11 +55,35 @@ class CartController extends Controller
      */
     public function add(Request $request): JsonResponse|RedirectResponse
     {
-        $productId = $request->input('product_id');
-        $quantity = (int) $request->input('quantity', 1);
+        $productId = $request->input('product_id')
+            ?? $request->input('productId')
+            ?? $request->input('id')
+            ?? $request->input('slug')
+            ?? $request->json('product_id')
+            ?? $request->json('productId')
+            ?? $request->json('id')
+            ?? $request->json('slug');
+
+        if (!$productId && $request->getContent()) {
+            $decoded = json_decode($request->getContent(), true);
+            if (is_array($decoded)) {
+                $productId = $decoded['product_id'] ?? $decoded['productId'] ?? $decoded['id'] ?? $decoded['slug'] ?? null;
+            }
+        }
+
+        $quantity = (int) ($request->input('quantity') ?? $request->json('quantity') ?? 1);
+        $fallback = [
+            'name' => $request->input('name') ?? $request->json('name'),
+            'name_en' => $request->input('name_en') ?? $request->json('name_en'),
+            'name_ar' => $request->input('name_ar') ?? $request->json('name_ar'),
+            'price' => $request->input('price') ?? $request->json('price'),
+            'image' => $request->input('image') ?? $request->json('image'),
+            'slug' => $request->input('slug') ?? $request->json('slug'),
+            'id' => $productId,
+        ];
 
         try {
-            $summary = CartService::add($productId, max(1, $quantity));
+            $summary = CartService::add($productId, max(1, $quantity), $fallback);
 
             if ($request->wantsJson()) {
                 return response()->json([
@@ -70,6 +95,11 @@ class CartController extends Controller
 
             return redirect()->back()->with('success', app()->getLocale() === 'ar' ? 'تمت إضافة المنتج إلى السلة بنجاح!' : 'Added to cart!');
         } catch (\Throwable $e) {
+            Log::warning('Cart Add Warning: ' . $e->getMessage(), [
+                'input' => $request->all(),
+                'ip' => $request->ip(),
+            ]);
+
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -86,8 +116,12 @@ class CartController extends Controller
      */
     public function update(Request $request): JsonResponse|RedirectResponse
     {
-        $productId = $request->input('product_id');
-        $quantity = (int) $request->input('quantity', 1);
+        $productId = $request->input('product_id')
+            ?? $request->input('productId')
+            ?? $request->input('id')
+            ?? $request->json('product_id')
+            ?? $request->json('id');
+        $quantity = (int) ($request->input('quantity') ?? $request->json('quantity') ?? 1);
 
         $summary = CartService::updateQuantity($productId, $quantity);
 
@@ -106,7 +140,11 @@ class CartController extends Controller
      */
     public function remove(Request $request): JsonResponse|RedirectResponse
     {
-        $productId = $request->input('product_id');
+        $productId = $request->input('product_id')
+            ?? $request->input('productId')
+            ?? $request->input('id')
+            ?? $request->json('product_id')
+            ?? $request->json('id');
         $summary = CartService::remove($productId);
 
         if ($request->wantsJson()) {
@@ -141,7 +179,7 @@ class CartController extends Controller
      */
     public function applyCoupon(Request $request): JsonResponse|RedirectResponse
     {
-        $code = (string) $request->input('code');
+        $code = (string) ($request->input('code') ?? $request->json('code') ?? '');
 
         try {
             $summary = CartService::applyCoupon($code);

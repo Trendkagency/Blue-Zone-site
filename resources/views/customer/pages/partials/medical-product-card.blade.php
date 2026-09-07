@@ -18,7 +18,7 @@
 
     // Image resolution
     $rawImage = data_get($product, 'image', '');
-    $imagePath = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'))) : asset('assets/products/blue-mind.jpg');
+    $imagePath = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'))) : asset('assets/products/blue-mind.webp');
 
     // Clinical / Medical Information
     $mechanism = data_get($product, 'clinical_mechanism') 
@@ -99,10 +99,10 @@
                 </h3>
                 <div class="text-right">
                     @if($salePrice && $salePrice < $price)
-                        <span class="text-xs text-gray-400 line-through mr-1">${{ number_format($price, 2) }}</span>
-                        <span class="text-lg sm:text-xl font-black text-[#67B34A]">${{ number_format($salePrice, 2) }}</span>
+                        <span class="text-xs text-gray-400 line-through mr-1">@currency($price)</span>
+                        <span class="text-lg sm:text-xl font-black text-[#67B34A]">@currency($salePrice)</span>
                     @else
-                        <span class="text-lg sm:text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">${{ number_format($price, 2) }}</span>
+                        <span class="text-lg sm:text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($price)</span>
                     @endif
                 </div>
             </div>

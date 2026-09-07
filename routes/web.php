@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\PaymentWebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +11,9 @@ Route::get('lang/{locale}', function ($locale) {
     }
     return redirect()->back();
 })->name('locale.switch');
+
+// Security CAPTCHA Challenge Refresh
+Route::get('/captcha/refresh', [CaptchaController::class, 'refresh'])->middleware('throttle:polling')->name('captcha.refresh');
 
 // Payment Gateway Webhooks (Excluded from CSRF)
 Route::post('/webhooks/payment/{gateway}', [PaymentWebhookController::class, 'handle'])->name('payment.webhook');

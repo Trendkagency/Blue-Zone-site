@@ -22,9 +22,9 @@
                 <div style="display: flex; justify-content: space-between; font-size: 0.9375rem;">
                     <div>
                         <div class="font-bold">{{ $it['product_name_en'] }}</div>
-                        <div class="text-xs text-muted">{{ $it['quantity'] }} × ${{ number_format($it['unit_price'], 2) }}</div>
+                        <div class="text-xs text-muted">{{ $it['quantity'] }} × @currency($it['unit_price'])</div>
                     </div>
-                    <div class="font-bold">${{ number_format($it['total'], 2) }}</div>
+                    <div class="font-bold">@currency($it['total'])</div>
                 </div>
             @endforeach
         </div>
@@ -32,15 +32,15 @@
         <div style="border-top: 2px dashed var(--color-border); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9375rem;">
             <div class="summary-row">
                 <span>SUBTOTAL:</span>
-                <span>${{ number_format($sale['subtotal'], 2) }}</span>
+                <span>@currency($sale['subtotal'])</span>
             </div>
             <div class="summary-row">
                 <span>VAT (15%):</span>
-                <span>${{ number_format($sale['tax'], 2) }}</span>
+                <span>@currency($sale['tax'])</span>
             </div>
             <div class="summary-row total" style="font-size: 1.25rem;">
                 <span>TOTAL:</span>
-                <span>${{ number_format($sale['total'], 2) }}</span>
+                <span>@currency($sale['total'])</span>
             </div>
             <div class="summary-row text-xs text-muted" style="margin-top: 0.5rem;">
                 <span>TENDER TYPE:</span>

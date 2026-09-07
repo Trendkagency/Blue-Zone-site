@@ -327,4 +327,43 @@ class CartAndCheckoutCycleTest extends TestCase
         $this->assertEquals('whsec_custom_webhook_for_test', Setting::get('payment_stripe_webhook_secret'));
         $this->assertEquals(5.00, (float) Setting::get('payment_cod_extra_fee'));
     }
+    public function test_cart_add_supports_all_storefront_slugs_and_resolves_without_422(): void
+    {
+        $slugs = ['blue-mind', 'blue-energy', 'blue-immunity', 'blue-flex', 'blue-gut', 'blue-rest'];
+
+        foreach ($slugs as $slug) {
+            $res = $this->postJson(route('customer.cart.add'), [
+                'product_id' => $slug,
+                'quantity' => 1,
+            ]);
+
+            $res->assertStatus(200);
+            $res->assertJsonPath('success', true);
+        }
+
+        // Test unknown arbitrary formulation adds gracefully without 422
+        $res = $this->postJson(route('customer.cart.add'), [
+            'product_id' => 'custom-longevity-blend',
+            'quantity' => 2,
+        ]);
+
+        $res->assertStatus(200);
+        $res->assertJsonPath('success', true);
+    }
+
+    public function test_coop_header_only_set_on_trustworthy_origins(): void
+    {
+        // 1. Untrustworthy HTTP domain (e.g. blue-zone.test) -> Should NOT have COOP header
+        $resHttp = $this->call('GET', 'http://blue-zone.test/');
+        $this->assertFalse($resHttp->headers->has('Cross-Origin-Opener-Policy'));
+
+        // 2. HTTPS domain -> Should have COOP header
+        $resHttps = $this->call('GET', 'https://bluezone.com/');
+        $this->assertTrue($resHttps->headers->has('Cross-Origin-Opener-Policy'));
+        $this->assertEquals('same-origin', $resHttps->headers->get('Cross-Origin-Opener-Policy'));
+
+        // 3. Localhost -> Should have COOP header
+        $resLocalhost = $this->call('GET', 'http://localhost/');
+        $this->assertTrue($resLocalhost->headers->has('Cross-Origin-Opener-Policy'));
+    }
 }

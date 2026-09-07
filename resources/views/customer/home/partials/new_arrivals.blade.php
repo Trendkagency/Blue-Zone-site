@@ -86,11 +86,11 @@
                     <div class="flex items-baseline justify-between">
                       <div class="flex items-baseline gap-2">
                         <span class="text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                          ${{ number_format($product['sale_price'] ?? $product['price'], 2) }}
+                          @currency($product['sale_price'] ?? $product['price'])
                         </span>
                         @if(!empty($product['sale_price']) && $product['sale_price'] < $product['price'])
                           <span class="text-xs text-slate-400 line-through">
-                            ${{ number_format($product['price'], 2) }}
+                            @currency($product['price'])
                           </span>
                         @endif
                       </div>

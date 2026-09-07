@@ -257,10 +257,10 @@
     const totalEl = document.getElementById('checkout-total');
     const submitBtn = document.getElementById('checkout-submit-btn');
 
-    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-    if (shippingEl) shippingEl.textContent = isFree ? 'FREE' : `$${shipping.toFixed(2)}`;
-    if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
-    if (submitBtn) submitBtn.textContent = `PLACE ORDER ($${total.toFixed(2)})`;
+    if (subtotalEl) subtotalEl.textContent = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(subtotal) : `$${subtotal.toFixed(2)}`;
+    if (shippingEl) shippingEl.textContent = isFree ? 'FREE' : (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(shipping) : `$${shipping.toFixed(2)}`);
+    if (totalEl) totalEl.textContent = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(total) : `$${total.toFixed(2)}`;
+    if (submitBtn) submitBtn.textContent = `PLACE ORDER (${window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(total) : `$${total.toFixed(2)}`})`;
   }
 
   function handleCheckoutSubmit(e) {

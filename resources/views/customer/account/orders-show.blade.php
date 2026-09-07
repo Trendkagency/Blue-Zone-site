@@ -111,7 +111,7 @@
                                         $iPrice = is_array($item) ? $item['unit_price'] : $item->unit_price;
                                         $iQty = is_array($item) ? $item['quantity'] : $item->quantity;
                                         $iTotal = is_array($item) ? $item['total'] : $item->total;
-                                        $iImg = is_array($item) ? ($item['image'] ?? 'assets/products/blue-mind.jpg') : ($item->image ?? 'assets/products/blue-mind.jpg');
+                                        $iImg = is_array($item) ? ($item['image'] ?? 'assets/products/blue-mind.webp') : ($item->image ?? 'assets/products/blue-mind.webp');
                                     @endphp
                                     <tr>
                                         <td>
@@ -123,9 +123,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>${{ number_format((float)$iPrice, 2) }}</td>
+                                        <td>@currency((float)$iPrice)</td>
                                         <td class="font-bold">{{ $iQty }}</td>
-                                        <td class="font-bold">${{ number_format((float)$iTotal, 2) }}</td>
+                                        <td class="font-bold">@currency((float)$iTotal)</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -160,19 +160,19 @@
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
                         <div style="display: flex; justify-content: space-between;">
                             <span class="text-muted">{{ __('admin.pos.subtotal') }}:</span>
-                            <span class="font-bold">${{ number_format((float)$oSubtotal, 2) }}</span>
+                            <span class="font-bold">@currency((float)$oSubtotal)</span>
                         </div>
 
                         @if((float)$oDiscount > 0)
                             <div style="display: flex; justify-content: space-between; color: #10B981;">
                                 <span>{{ app()->getLocale() === 'ar' ? 'خصم العضوية:' : 'Member Discount:' }}</span>
-                                <span class="font-bold">-${{ number_format((float)$oDiscount, 2) }}</span>
+                                <span class="font-bold">-@currency((float)$oDiscount)</span>
                             </div>
                         @endif
 
                         <div style="display: flex; justify-content: space-between;">
                             <span class="text-muted">{{ __('admin.invoices.vat_breakdown') }}:</span>
-                            <span>${{ number_format((float)$oTax, 2) }}</span>
+                            <span>@currency((float)$oTax)</span>
                         </div>
 
                         <div style="display: flex; justify-content: space-between;">
@@ -182,7 +182,7 @@
 
                         <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--color-border); padding-top: 0.75rem; font-size: 1.1rem; font-weight: 800;">
                             <span>{{ __('admin.pos.total_payable') }}:</span>
-                            <span class="text-primary font-black">${{ number_format((float)$oTotal, 2) }}</span>
+                            <span class="text-primary font-black">@currency((float)$oTotal)</span>
                         </div>
                     </div>
 

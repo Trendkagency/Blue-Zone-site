@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\CaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,16 @@ class AuthController extends Controller
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
+
+        if (CaptchaService::isEnabled('admin')) {
+            if (!CaptchaService::verify($request->input('captcha'))) {
+                return back()->withErrors([
+                    'captcha' => app()->getLocale() === 'ar'
+                        ? 'رمز التحقق الأمني غير صحيح أو منتهي الصلاحية، يرجى المحاولة مرة أخرى.'
+                        : 'The security verification answer is incorrect or expired. Please try again.',
+                ])->withInput($request->except(['password', 'captcha']));
+            }
+        }
 
         $remember = $request->boolean('remember');
 

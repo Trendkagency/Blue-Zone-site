@@ -21,7 +21,7 @@
     if ($product instanceof \App\Models\Product) {
         $imageUrl = $product->primary_image_url;
     } else {
-        $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'))) : asset('assets/products/blue-mind.jpg');
+        $imageUrl = $rawImage ? (str_starts_with($rawImage, 'http') ? $rawImage : asset(ltrim($rawImage, '/'))) : asset('assets/products/blue-mind.webp');
     }
 
     // Science description
@@ -124,7 +124,7 @@
                 <img
                   src="{{ $imageUrl }}"
                   alt="{{ $name }}"
-                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';"
+                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                   class="w-4/5 h-4/5 object-contain relative z-10 group-hover:scale-108 transition-transform duration-700 filter drop-shadow-2xl"
                 />
 
@@ -186,7 +186,7 @@
                 @if($price > 0)
                   <div>
                     <span class="block text-[10px] font-mono uppercase text-[#031827]/60 dark:text-[#F6F5EF]/60">{{ $isRtl ? 'السعر السريري' : 'CLINICAL PRICE' }}</span>
-                    <span class="text-2xl sm:text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">${{ number_format($price, 2) }}</span>
+                    <span class="text-2xl sm:text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($price)</span>
                   </div>
                   <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.add('{{ $slug }}', 1);}" class="px-8 py-3.5 bg-[#2A8FC2] hover:bg-[#0A4F78] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer flex items-center gap-2">
                     <i class="fa-solid fa-cart-shopping"></i>
@@ -424,7 +424,7 @@
                 $relImage = data_get($rel, 'image');
                 $relImageUrl = $rel instanceof \App\Models\Product 
                     ? $rel->primary_image_url 
-                    : ($relImage ? (str_starts_with($relImage, 'http') ? $relImage : asset(ltrim($relImage, '/'))) : asset('assets/products/blue-mind.jpg'));
+                    : ($relImage ? (str_starts_with($relImage, 'http') ? $relImage : asset(ltrim($relImage, '/'))) : asset('assets/products/blue-mind.webp'));
                 $relCat = data_get($rel, 'category');
                 $relCatName = $relCat ? ($isRtl ? data_get($relCat, 'name_ar') : data_get($relCat, 'name_en')) : (data_get($rel, 'category_en') ?: 'Science');
               @endphp
@@ -434,7 +434,7 @@
                     <img
                       src="{{ $relImageUrl }}"
                       alt="{{ $relName }}"
-                      onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';"
+                      onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                       class="max-h-36 object-contain group-hover:scale-105 transition-transform"
                     />
                   </div>

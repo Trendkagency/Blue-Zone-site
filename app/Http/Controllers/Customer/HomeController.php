@@ -42,7 +42,7 @@ class HomeController extends Controller
         $configuredOrder = $settings['landing_sections_order'] ?? $defaultOrder;
         if (is_string($configuredOrder)) {
             $decoded = json_decode($configuredOrder, true);
-            if (is_array($decoded)) {
+            if (is_array($decoded) && !empty($decoded)) {
                 $configuredOrder = $decoded;
             }
         }

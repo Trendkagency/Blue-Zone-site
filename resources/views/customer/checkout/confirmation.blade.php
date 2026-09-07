@@ -81,13 +81,13 @@
                             <div>
                                 <h4 class="text-xs sm:text-sm font-black text-[#031827] dark:text-[#F6F5EF]">{{ $name }}</h4>
                                 <span class="text-[11px] text-[#031827]/60 dark:text-[#F6F5EF]/60">
-                                    Qty: {{ $item->quantity }} × ${{ number_format($item->unit_price, 2) }}
+                                    Qty: {{ $item->quantity }} × @currency($item->unit_price)
                                 </span>
                             </div>
                         </div>
 
                         <span class="text-xs sm:text-sm font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                            ${{ number_format($item->total, 2) }}
+                            @currency($item->total)
                         </span>
                     </div>
                 @endforeach
@@ -97,31 +97,31 @@
             <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 space-y-2 text-xs sm:text-sm">
                 <div class="flex justify-between text-[#031827]/80 dark:text-[#F6F5EF]/80">
                     <span>{{ __('shop.cart.subtotal') }}</span>
-                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($order->subtotal, 2) }}</span>
+                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($order->subtotal)</span>
                 </div>
 
                 @if($order->discount > 0)
                     <div class="flex justify-between text-[#67B34A] font-bold">
                         <span>{{ __('shop.cart.discount') }} ({{ $order->coupon_code ?? '' }})</span>
-                        <span>-${{ number_format($order->discount, 2) }}</span>
+                        <span>-@currency($order->discount)</span>
                     </div>
                 @endif
 
                 <div class="flex justify-between text-[#031827]/80 dark:text-[#F6F5EF]/80">
                     <span>Shipping</span>
-                    <span class="font-bold text-[#67B34A]">{{ $order->shipping <= 0 ? 'Complimentary ($0.00)' : '$' . number_format($order->shipping, 2) }}</span>
+                    <span class="font-bold text-[#67B34A]">{{ $order->shipping <= 0 ? ('Complimentary (' . format_currency(0) . ')') : format_currency($order->shipping) }}</span>
                 </div>
 
                 @if($order->tax > 0)
                     <div class="flex justify-between text-[#031827]/80 dark:text-[#F6F5EF]/80">
                         <span>VAT</span>
-                        <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($order->tax, 2) }}</span>
+                        <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($order->tax)</span>
                     </div>
                 @endif
 
                 <div class="pt-3 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex justify-between items-center">
                     <span class="text-sm sm:text-base font-black text-[#031827] dark:text-[#F6F5EF]">{{ __('shop.cart.total') }}</span>
-                    <span class="text-xl sm:text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">${{ number_format($order->total, 2) }}</span>
+                    <span class="text-xl sm:text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($order->total)</span>
                 </div>
             </div>
         </div>

@@ -61,7 +61,7 @@
                         @foreach($products as $product)
                             @php
                                 $pName = app()->getLocale() === 'ar' ? ($product->name_ar ?? $product->name_en) : $product->name_en;
-                                $pImg = $product->image ?? 'assets/products/blue-mind.jpg';
+                                $pImg = $product->image ?? 'assets/products/blue-mind.webp';
                             @endphp
                             <div class="card card-hover-lift" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
@@ -79,7 +79,7 @@
                                     </div>
 
                                     <div class="font-black text-lg text-primary" style="margin-bottom: 1rem;">
-                                        ${{ number_format((float)$product->price, 2) }}
+                                        @currency((float)$product->price)
                                     </div>
                                 </div>
 

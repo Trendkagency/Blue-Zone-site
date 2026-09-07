@@ -20,6 +20,7 @@ class AdminProfileAndAuthTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \App\Models\Setting::set('enable_captcha_admin_login', false);
 
         $this->adminRole = Role::create([
             'name' => 'Super Administrator',

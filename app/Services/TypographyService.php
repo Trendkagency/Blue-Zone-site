@@ -7,154 +7,137 @@ use App\Models\Setting;
 class TypographyService
 {
     /**
-     * Curated collection of high quality Arabic & Latin Google Fonts.
+     * Curated, modern, high-performance typography catalog for luxury longevity & clinical aesthetic.
      *
-     * @return array<string, array{name: string, label: string, category: string, weights: int[], preview_ar: string, preview_en: string, description: string}>
+     * @return array<string, array{
+     *     name: string,
+     *     label: string,
+     *     category: string,
+     *     weights: array<int>,
+     *     preview_ar: string,
+     *     preview_en: string,
+     *     description: string,
+     *     is_local?: bool
+     * }>
      */
     public static function getAvailableFonts(): array
     {
         return [
             'Mont Blanc' => [
                 'name' => 'Mont Blanc',
-                'label' => 'Mont Blanc & Tajawal (مون بلان مع تجوال)',
-                'category' => 'Bilingual Luxury Sans',
+                'label' => 'Mont Blanc (Default Luxury Brand)',
+                'category' => 'Geometric Luxury Brand',
                 'weights' => [400, 500, 600, 700, 800],
-                'preview_ar' => 'بلوزون — هندسة الصحة الخلوية وطول العمر',
-                'preview_en' => 'MONT BLANC & TAJAWAL BILINGUAL',
-                'description' => 'Ultra-clean geometric luxury typography (Mont Blanc / Montserrat) paired seamlessly with Tajawal for modern Arabic interfaces.',
+                'preview_ar' => 'علوم متقدمة لإطالة العمر والنشاط الحيوي',
+                'preview_en' => 'Cellular Optimization & Longevity Science',
+                'description' => 'Flagship brand font delivering geometric precision and authoritative luxury tone.',
+                'is_local' => true,
             ],
             'Cairo' => [
                 'name' => 'Cairo',
                 'label' => 'Cairo (القاهرة)',
-                'category' => 'Arabic Modern Sans',
-                'weights' => [400, 500, 600, 700, 800],
-                'preview_ar' => 'بلوزون — هندسة الصحة وطول العمر',
-                'preview_en' => 'BLUE ZONE — Cellular Health & Longevity',
-                'description' => 'A versatile, balanced contemporary typeface with broad geometric Arabic & Latin letterforms.',
+                'category' => 'Contemporary Corporate Sans',
+                'weights' => [300, 400, 500, 600, 700, 800, 900],
+                'preview_ar' => 'أفضل جودة سريرية وأمان بيولوجي موثق',
+                'preview_en' => 'Clinical excellence and premium readability across mobile & desktop',
+                'description' => 'Wide, balanced proportions providing exceptional legibility on digital screens.',
             ],
             'Tajawal' => [
                 'name' => 'Tajawal',
                 'label' => 'Tajawal (تجوال)',
-                'category' => 'Arabic Modern Sans',
-                'weights' => [400, 500, 700, 800],
-                'preview_ar' => 'تجربة تسوق سلسة وسريعة للعملاء',
-                'preview_en' => 'Seamless digital commerce experience',
-                'description' => 'Crisp, contemporary sans-serif with smooth low-contrast curves, highly legible on screens.',
+                'category' => 'Clean Tech Modern',
+                'weights' => [300, 400, 500, 700, 800, 900],
+                'preview_ar' => 'تصميم عصري ونقي يعكس روح الابتكار والصفاء',
+                'preview_en' => 'Streamlined, modern typography crafted for clean digital interfaces',
+                'description' => 'Highly versatile geometric sans-serif with a crisp, contemporary aesthetic.',
             ],
             'Almarai' => [
                 'name' => 'Almarai',
                 'label' => 'Almarai (المراعي)',
-                'category' => 'Contemporary Editorial',
+                'category' => 'Editorial & Clinical',
                 'weights' => [300, 400, 700, 800],
-                'preview_ar' => 'أحدث المكملات الغذائية والحلول الحيوية',
-                'preview_en' => 'Pinnacle of cellular nutrition & biology',
-                'description' => 'Engineered by Dalton Maag for high-end digital editorial and enterprise interfaces.',
+                'preview_ar' => 'دقة عالية في القراءة وتوازن بصري فائق الرقي',
+                'preview_en' => 'Engineered specifically for optimal Arabic digital editorial balance',
+                'description' => 'Smooth, authoritative font inspired by professional publication standards.',
             ],
             'Readex Pro' => [
                 'name' => 'Readex Pro',
-                'label' => 'Readex Pro (ريديكس)',
-                'category' => 'Clean Tech Geometric',
+                'label' => 'Readex Pro (ريدكس برو)',
+                'category' => 'High-Legibility Science',
                 'weights' => [300, 400, 500, 600, 700],
-                'preview_ar' => 'واجهة تقنية متطورة وقراءة مريحة',
-                'preview_en' => 'Engineered for high readability and UI speed',
-                'description' => 'Variable font designed specifically to minimize reading strain on high-density screens.',
+                'preview_ar' => 'مصمم خصيصاً للقراءة السريعة والمحتوى العلمي',
+                'preview_en' => 'Engineered with Thomas Jockin for scientific clarity and fast perception',
+                'description' => 'Variable-based high-legibility typeface ideal for medical and supplement specs.',
             ],
             'Alexandria' => [
                 'name' => 'Alexandria',
                 'label' => 'Alexandria (الإسكندرية)',
-                'category' => 'Distinctive Brand Identity',
+                'category' => 'Futuristic Minimalist',
                 'weights' => [300, 400, 500, 600, 700, 800, 900],
-                'preview_ar' => 'هوية بصرية فاخرة وحضور رقمي استثنائي',
-                'preview_en' => 'Elevated typographic presence for luxury brands',
-                'description' => 'Character-rich geometric font with confident proportions and stunning modern appeal.',
+                'preview_ar' => 'خط مستقبلي بلمسات نقية ومظهر فائق الحداثة',
+                'preview_en' => 'Forward-looking futuristic geometry with ultra-clean counters',
+                'description' => 'Geometric masterpiece giving storefronts an elite, science-backed atmosphere.',
             ],
             'IBM Plex Sans Arabic' => [
                 'name' => 'IBM Plex Sans Arabic',
                 'label' => 'IBM Plex Sans Arabic (آي بي إم بلكس)',
-                'category' => 'Corporate & Enterprise',
+                'category' => 'Corporate & Scientific Authority',
                 'weights' => [300, 400, 500, 600, 700],
-                'preview_ar' => 'إدارة المخزون والعمليات اللوجستية بدقة',
-                'preview_en' => 'Enterprise logistics and omnichannel control',
-                'description' => 'IBM corporate typeface crafted to illustrate the harmony between human and machine.',
-            ],
-            'Noto Sans Arabic' => [
-                'name' => 'Noto Sans Arabic',
-                'label' => 'Noto Sans Arabic (نوتو سانس)',
-                'category' => 'Universal Standard',
-                'weights' => [300, 400, 500, 600, 700, 800, 900],
-                'preview_ar' => 'تطابق عالمي متكامل مع كافة المنصات',
-                'preview_en' => 'Google flagship global typography standard',
-                'description' => 'Google global typographic masterpiece with harmonized glyphs across languages.',
-            ],
-            'Rubik' => [
-                'name' => 'Rubik',
-                'label' => 'Rubik (روبيك)',
-                'category' => 'Friendly Modern Rounded',
-                'weights' => [300, 400, 500, 600, 700, 800, 900],
-                'preview_ar' => 'تصميم دافئ وودود يرحب بالعملاء',
-                'preview_en' => 'Warm, inviting UI with subtly rounded corners',
-                'description' => 'Modern sans-serif with softly rounded corners for friendly, accessible user experiences.',
-            ],
-            'El Messiri' => [
-                'name' => 'El Messiri',
-                'label' => 'El Messiri (المسيري)',
-                'category' => 'Luxury & Elegant Curves',
-                'weights' => [400, 500, 600, 700],
-                'preview_ar' => 'أناقة كلاسيكية تليق بالمنتجات الفاخرة',
-                'preview_en' => 'Classical calligraphy meets modern luxury',
-                'description' => 'Harmonious blend of traditional Ruqaa calligraphy and contemporary display typography.',
-            ],
-            'Amiri' => [
-                'name' => 'Amiri',
-                'label' => 'Amiri (أميري)',
-                'category' => 'Heritage & Traditional Luxury',
-                'weights' => [400, 700],
-                'preview_ar' => 'عراقة الخط العربي وأصالته الملكية',
-                'preview_en' => 'Prestigious Naskh typography and heritage',
-                'description' => 'Classical Arabic Naskh typeface revivified for premium literary and royal branding.',
-            ],
-            'Marhey' => [
-                'name' => 'Marhey',
-                'label' => 'Marhey (مرحي)',
-                'category' => 'Playful Display',
-                'weights' => [400, 500, 600, 700],
-                'preview_ar' => 'حيوية وشغف بالصحة والنشاط اليومي',
-                'preview_en' => 'Vibrant lifestyle energy and visual delight',
-                'description' => 'Fluid, dynamic Arabic display typeface overflowing with motion and cheerful vitality.',
-            ],
-            'Changa' => [
-                'name' => 'Changa',
-                'label' => 'Changa (شانغا)',
-                'category' => 'Bold Industrial Display',
-                'weights' => [400, 500, 600, 700, 800],
-                'preview_ar' => 'عناوين قوية تبرز العروض الحصرية',
-                'preview_en' => 'High-impact geometric display for banners',
-                'description' => 'Punchy geometric Arabic and Latin font that stands out emphatically in marketing headlines.',
+                'preview_ar' => 'معايير علمية وتصميم مؤسسي محكم ورصين',
+                'preview_en' => 'Engineered by IBM for technical authority and global elegance',
+                'description' => 'Industrial-grade clarity, designed for clear data and medical formulations.',
             ],
             'Inter' => [
                 'name' => 'Inter',
-                'label' => 'Inter (إنتر)',
-                'category' => 'Global UI Benchmark',
+                'label' => 'Inter (إنتر - English / Bilingual)',
+                'category' => 'Neutral Precision Screen',
                 'weights' => [300, 400, 500, 600, 700, 800, 900],
-                'preview_ar' => 'نظام واجهات رقمية احترافي وعالمي',
-                'preview_en' => 'The world-standard variable typeface for screens',
-                'description' => 'The premier open-source font engineered for computerized user interfaces.',
+                'preview_ar' => 'واجهات تفاعلية عالمية وسلاسة لا تضاهى',
+                'preview_en' => 'The world-standard UI typeface for crisp micro-details',
+                'description' => 'Crafted by Rasmus Andersson for high-DPI screens and luxury product cards.',
             ],
             'Plus Jakarta Sans' => [
                 'name' => 'Plus Jakarta Sans',
                 'label' => 'Plus Jakarta Sans (بلس جاكرتا)',
-                'category' => 'Trendy SaaS / Brand',
-                'weights' => [300, 400, 500, 600, 700, 800],
-                'preview_ar' => 'حداثة وأناقة تناسب المنتجات الذكية',
-                'preview_en' => 'Fresh, energetic geometric styling for modern SaaS',
-                'description' => 'Contemporary geometric sans with clean lines and warm, inviting humanist undertones.',
+                'category' => 'Warm Luxury Modern',
+                'weights' => [400, 500, 600, 700, 800],
+                'preview_ar' => 'أناقة دافئة وحداثة تلائم العلامات الفاخرة',
+                'preview_en' => 'Warm geometric modernism for luxury wellness brands',
+                'description' => 'Clean geometric lines with friendly warmth, perfect for boutique cosmetics.',
             ],
             'Outfit' => [
                 'name' => 'Outfit',
                 'label' => 'Outfit (أوتفت)',
-                'category' => 'Sleek Geometric Aesthetic',
+                'category' => 'Brand & Display Luxury',
                 'weights' => [300, 400, 500, 600, 700, 800, 900],
-                'preview_ar' => 'رؤية مستقبلية لصحة الجسم والعقل',
+                'preview_ar' => 'عناوين استثنائية وجاذبية بصرية ملهمة',
+                'preview_en' => 'Vibrant geometric display font for high-impact hero headings',
+                'description' => 'Commercial-grade aesthetic built specifically for luxury brand typography.',
+            ],
+            'Changa' => [
+                'name' => 'Changa',
+                'label' => 'Changa (شانجا)',
+                'category' => 'Square Headline Accent',
+                'weights' => [400, 500, 600, 700, 800],
+                'preview_ar' => 'قوة الحضور وجرأة العناوين البارزة',
+                'preview_en' => 'Heavy square geometry for bold impact headers',
+                'description' => 'Square-based solid forms ideal for dramatic promotional banners.',
+            ],
+            'Vazirmatn' => [
+                'name' => 'Vazirmatn',
+                'label' => 'Vazirmatn (وزير متن)',
+                'category' => 'Balanced Humanist Sans',
+                'weights' => [300, 400, 500, 600, 700, 800, 900],
+                'preview_ar' => 'انسيابية طبيعية ومسافات متناسقة لراحة العين',
+                'preview_en' => 'Harmonious proportions crafted for extensive reading',
+                'description' => 'Very comfortable for reading long clinical case studies and blog entries.',
+            ],
+            'Space Grotesk' => [
+                'name' => 'Space Grotesk',
+                'label' => 'Space Grotesk (سبيس جروتسك)',
+                'category' => 'Futuristic Tech Display',
+                'weights' => [400, 500, 600, 700],
+                'preview_ar' => 'جماليات مستقبلية وتقنية تلفت الأنظار فوراً',
                 'preview_en' => 'Forward-looking geometric beauty and symmetry',
                 'description' => 'Stunning modern geometric font with flawless circular balance, perfect for tech-forward brands.',
             ],
@@ -198,6 +181,24 @@ class TypographyService
         return "'{$family}', 'Cairo', 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
     }
 
+    protected static ?array $cachedConfig = null;
+
+    /**
+     * Clear the memoized typography configuration.
+     */
+    public static function clearConfigCache(): void
+    {
+        static::$cachedConfig = null;
+    }
+
+    /**
+     * Alias for clearConfigCache.
+     */
+    public static function clearCache(): void
+    {
+        static::$cachedConfig = null;
+    }
+
     /**
      * Get active typography configuration with fallbacks.
      *
@@ -215,6 +216,10 @@ class TypographyService
      */
     public static function getActiveConfig(): array
     {
+        if (!app()->runningUnitTests() && static::$cachedConfig !== null) {
+            return static::$cachedConfig;
+        }
+
         $primary = (string) Setting::get('font_family', 'Mont Blanc');
         $heading = (string) Setting::get('font_heading_family', $primary);
         $sizeBase = (string) Setting::get('font_size_base', '16px');
@@ -226,7 +231,7 @@ class TypographyService
         $primary = $primary ?: 'Mont Blanc';
         $heading = $heading ?: $primary;
 
-        return [
+        $config = [
             'font_family' => $primary,
             'font_heading_family' => $heading,
             'font_family_stack' => self::getCssStack($primary),
@@ -237,6 +242,12 @@ class TypographyService
             'font_letter_spacing' => $letterSpacing ?: 'normal',
             'font_provider' => $provider ?: 'bunny',
         ];
+
+        if (!app()->runningUnitTests()) {
+            static::$cachedConfig = $config;
+        }
+
+        return $config;
     }
 
     /**

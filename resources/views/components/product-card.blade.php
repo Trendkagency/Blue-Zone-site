@@ -38,9 +38,9 @@
 
         <div class="product-price-row">
             <div>
-                <span class="price-current">${{ number_format($product['sale_price'] ?? $product['price'], 2) }}</span>
+                <span class="price-current">@currency($product['sale_price'] ?? $product['price'])</span>
                 @if(isset($product['sale_price']) && $product['sale_price'] < $product['price'])
-                    <span class="price-original">${{ number_format($product['price'], 2) }}</span>
+                    <span class="price-original">@currency($product['price'])</span>
                 @endif
             </div>
 

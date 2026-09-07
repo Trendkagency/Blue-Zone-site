@@ -73,7 +73,7 @@
                 <div class="text-sm" style="display: flex; flex-direction: column; gap: 0.5rem;">
                     <div><strong>SKU:</strong> {{ $product['sku'] }}</div>
                     <div><strong>GTIN:</strong> {{ $product['barcode'] }}</div>
-                    <div><strong>Retail:</strong> ${{ number_format($product['price'], 2) }}</div>
+                    <div><strong>Retail:</strong> @currency($product['price'])</div>
                     <div><strong>Status:</strong> <x-status-badge :status="$product['status']" /></div>
                 </div>
             </div>

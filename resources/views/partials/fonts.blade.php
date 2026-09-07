@@ -9,7 +9,9 @@
 <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="{{ $primaryFontUrl }}" rel="stylesheet" id="bz-global-typography-font" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.href='{{ $fallbackFontUrl }}';}">
+<link rel="preload" as="style" href="{{ $primaryFontUrl }}">
+<link href="{{ $primaryFontUrl }}" rel="stylesheet" media="print" onload="this.media='all'" id="bz-global-typography-font" onerror="if(!this.dataset.failed){this.dataset.failed='1';this.href='{{ $fallbackFontUrl }}';}">
+<noscript><link href="{{ $primaryFontUrl }}" rel="stylesheet"></noscript>
 
 <style id="bz-global-typography-vars">
 

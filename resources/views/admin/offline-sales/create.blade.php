@@ -44,7 +44,7 @@
                          onclick="selectPOSProduct('{{ $pId }}', '{{ addslashes($pDisplay) }}', '{{ addslashes($pVariant) }}', {{ $pPrice }}, {{ $pStock }})">
                         <img src="{{ asset($pImg) }}" alt="{{ $pDisplay }}" style="width: 75px; height: 75px; margin: 0 auto 0.5rem auto; object-fit: cover; border-radius: var(--radius-sm); background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
                         <div class="font-bold text-xs" style="margin-bottom: 0.25rem; height: 32px; overflow: hidden;">{{ $pDisplay }}</div>
-                        <div class="font-black text-sm text-primary">${{ number_format($pPrice, 2) }}</div>
+                        <div class="font-black text-sm text-primary">@currency($pPrice)</div>
                         <div class="text-xs text-muted" style="margin-top: 0.25rem;">
                             {{ app()->getLocale() == 'ar' ? 'مخزون المعرض: ' : 'Boutique Stock: ' }}
                             <strong style="color: {{ $pStock <= 0 ? '#EF4444' : ($pStock < 5 ? '#F59E0B' : 'var(--color-success)') }};">
@@ -110,7 +110,7 @@
                     <!-- Quantity & Price Row -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem;">
                         <div>
-                            <label class="text-xs text-muted font-semibold">{{ app()->getLocale() == 'ar' ? 'سعر الوحدة ($):' : 'Unit Price ($):' }}</label>
+                            <label class="text-xs text-muted font-semibold">{{ app()->getLocale() == 'ar' ? ('سعر الوحدة (' . \App\Services\CurrencyService::symbol() . '):') : ('Unit Price (' . \App\Services\CurrencyService::symbol() . '):') }}</label>
                             <input type="number" step="0.01" name="unit_price" id="posUnitPrice" value="{{ $products[0]->price ?? 68 }}" class="form-control text-xs" oninput="recalcPOS()">
                         </div>
                         <div>
@@ -128,7 +128,7 @@
 
                 <!-- Discount Input -->
                 <div style="margin-bottom: 1rem;">
-                    <label class="text-xs font-bold text-muted">{{ app()->getLocale() == 'ar' ? 'الخصم الترويجي ($)' : 'Promotional Discount ($)' }}</label>
+                    <label class="text-xs font-bold text-muted">{{ app()->getLocale() == 'ar' ? ('الخصم الترويجي (' . \App\Services\CurrencyService::symbol() . ')') : ('Promotional Discount (' . \App\Services\CurrencyService::symbol() . ')') }}</label>
                     <input type="number" step="0.01" min="0" name="discount" id="posDiscount" value="0.00" class="form-control text-sm" style="margin-top: 0.25rem;" oninput="recalcPOS()">
                 </div>
 
@@ -210,10 +210,11 @@
             const tax = discountedSubtotal * 0.15;
             const total = discountedSubtotal + tax;
 
-            document.getElementById('posSubtotal').innerText = '$' + subtotal.toFixed(2);
-            document.getElementById('posDiscountDisplay').innerText = '-$' + discount.toFixed(2);
-            document.getElementById('posTax').innerText = '$' + tax.toFixed(2);
-            document.getElementById('posGrandTotal').innerText = '$' + total.toFixed(2);
+            const formatCurr = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
+            document.getElementById('posSubtotal').innerText = formatCurr(subtotal);
+            document.getElementById('posDiscountDisplay').innerText = '-' + formatCurr(discount);
+            document.getElementById('posTax').innerText = formatCurr(tax);
+            document.getElementById('posGrandTotal').innerText = formatCurr(total);
 
             const warningBox = document.getElementById('stockExceededWarning');
             const submitBtn = document.getElementById('posSubmitBtn');

@@ -4,27 +4,47 @@
     :breadcrumbs="[__('admin.menu.customers') => route('admin.customers.index'), ($customer['name'] ?? 'Client') => route('admin.customers.show', $customer['id'] ?? 1)]"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.customers.edit', $customer['id'] ?? 1) }}" class="btn btn-primary font-bold shadow-sm">
-                <i class="fa-solid fa-pen-to-square mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تعديل الملف' : 'Edit Customer' }}
-            </a>
+        <div class="flex items-center gap-2 flex-wrap">
+            @if(empty($customer['deleted_at']))
+                <a href="{{ route('admin.customers.edit', $customer['id'] ?? 1) }}" class="btn btn-primary font-bold shadow-sm">
+                    <i class="fa-solid fa-user-pen mr-1.5 ml-1.5"></i> {{ __('admin.customers.edit_profile') }}
+                </a>
+
+                <form method="POST" action="{{ route('admin.customers.toggle-status', $customer['id'] ?? 1) }}" class="inline">
+                    @csrf
+                    @if(($customer['status'] ?? 'active') === 'active')
+                        <button type="submit" class="btn btn-secondary font-bold text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/30 border border-amber-300 dark:border-amber-700" title="{{ __('admin.customers.deactivate_title') }}">
+                            <i class="fa-solid fa-user-slash mr-1.5 ml-1.5"></i> {{ __('admin.customers.deactivate') }}
+                        </button>
+                    @else
+                        <button type="submit" class="btn btn-secondary font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700" title="{{ __('admin.customers.activate_title') }}">
+                            <i class="fa-solid fa-user-check mr-1.5 ml-1.5"></i> {{ __('admin.customers.activate') }}
+                        </button>
+                    @endif
+                </form>
+            @endif
+
             <a href="{{ route('admin.customers.index') }}" class="btn btn-secondary font-bold">
-                <i class="fa-solid fa-arrow-left rtl:rotate-180 mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'قائمة العملاء' : 'Back to Customers' }}
+                <i class="fa-solid fa-arrow-left rtl:rotate-180 mr-1.5 ml-1.5"></i> {{ __('admin.customers.back_to_list') }}
             </a>
         </div>
     </x-slot>
 
-    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem;">
+    <div class="customer-dossier-grid">
         <div>
             <!-- Stats Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="customer-stats-grid">
                 <div class="card stat-card stat-accent">
                     <div class="stat-label">{{ __('admin.customers.total_spent') }}</div>
-                    <div class="stat-value text-success">${{ number_format((float)($customer['total_spent'] ?? 0), 2) }}</div>
+                    <div class="stat-value text-success">@currency((float)($customer['total_spent'] ?? 0))</div>
                 </div>
                 <div class="card stat-card">
                     <div class="stat-label">{{ __('admin.customers.orders_count') }}</div>
                     <div class="stat-value">{{ $customer['orders_count'] ?? 0 }}</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-label">{{ __('admin.customers.avg_order_value') }}</div>
+                    <div class="stat-value" style="font-size: 1.35rem;">@currency((float)($customer['avg_order_value'] ?? 0))</div>
                 </div>
                 <div class="card stat-card stat-success">
                     <div class="stat-label">{{ __('admin.customers.member_tier') }}</div>
@@ -36,7 +56,7 @@
             <div class="card">
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h3 class="card-title">{{ __('admin.customers.order_history') }}</h3>
-                    <span class="badge badge-subtle">{{ count($orders ?? []) }} {{ app()->getLocale() === 'ar' ? 'طلبات' : 'Orders' }}</span>
+                    <span class="badge badge-subtle">{{ count($orders ?? []) }} {{ __('admin.customers.orders') }}</span>
                 </div>
                 <div class="table-responsive" style="border: none; border-radius: 0;">
                     <table class="table">
@@ -55,9 +75,9 @@
                                     <td class="font-bold text-primary">{{ $o['order_number'] ?? ('#' . ($o['id'] ?? '')) }}</td>
                                     <td>{{ $o['date'] ?? '-' }}</td>
                                     <td><x-status-badge :status="$o['status'] ?? 'pending'" /></td>
-                                    <td class="font-bold">${{ number_format((float)($o['total'] ?? 0), 2) }}</td>
+                                    <td class="font-bold">@currency((float)($o['total'] ?? 0))</td>
                                     <td style="text-align: center;">
-                                        <a href="{{ route('admin.orders.show', $o['id'] ?? ($o['order_number'] ?? 1)) }}" class="action-btn">
+                                        <a href="{{ route('admin.orders.show', $o['id'] ?? ($o['order_number'] ?? 1)) }}" class="action-btn" title="{{ __('app.actions.view') }}">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                     </td>
@@ -66,7 +86,7 @@
                                 <tr>
                                     <td colspan="5" style="text-align: center; padding: 2.5rem 1rem;" class="text-secondary">
                                         <i class="fa-solid fa-receipt" style="font-size: 1.75rem; margin-bottom: 0.5rem; opacity: 0.4; display: block;"></i>
-                                        {{ app()->getLocale() === 'ar' ? 'لا توجد طلبات مسجلة لهذا العميل حتى الآن.' : 'No orders recorded for this customer yet.' }}
+                                        {{ __('admin.customers.no_orders') }}
                                     </td>
                                 </tr>
                             @endforelse
@@ -83,17 +103,39 @@
                     <i class="fa-solid fa-address-card text-primary"></i>
                     {{ __('admin.customers.contact_info') }}
                 </h4>
-                <div class="text-sm" style="display: flex; flex-direction: column; gap: 0.65rem;">
-                    <div><strong>{{ __('app.fields.email') }}:</strong> {{ $customer['email'] ?? '-' }}</div>
-                    <div><strong>{{ __('app.fields.phone') }}:</strong> {{ $customer['phone'] ?? '-' }}</div>
-                    <div><strong>{{ __('app.fields.city') }}:</strong> {{ $customer['city'] ?? '-' }}{{ !empty($customer['country']) ? ', ' . $customer['country'] : '' }}</div>
+                <div class="text-sm" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div><strong>{{ __('admin.customers.email') }}:</strong> <a href="mailto:{{ $customer['email'] ?? '' }}" class="text-primary hover:underline">{{ $customer['email'] ?? '-' }}</a></div>
+                    <div>
+                        <strong>{{ __('admin.customers.phone') }}:</strong> 
+                        <span class="inline-flex items-center gap-1.5">
+                            {{ $customer['phone'] ?? '-' }}
+                            @if(!empty($customer['phone']))
+                                @php
+                                    $cleanPhone = preg_replace('/[^0-9]/', '', $customer['phone']);
+                                @endphp
+                                <a href="https://wa.me/{{ $cleanPhone }}" target="_blank" class="text-emerald-600 hover:text-emerald-700" title="WhatsApp">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </a>
+                            @endif
+                        </span>
+                    </div>
+                    <div><strong>{{ __('admin.customers.city') }}:</strong> {{ $customer['city'] ?? '-' }}{{ !empty($customer['country']) ? ', ' . $customer['country'] : '' }}</div>
                     @if(!empty($customer['address']))
                         <div><strong>{{ __('admin.customers.address') }}:</strong> {{ $customer['address'] }}</div>
                     @endif
-                    <div><strong>{{ __('admin.orders.status') }}:</strong> <x-status-badge :status="$customer['status'] ?? 'active'" /></div>
+                    <div><strong>{{ __('admin.customers.order_status') }}:</strong> <x-status-badge :status="$customer['status'] ?? 'active'" /></div>
                     @if(!empty($customer['registered_at']))
                         <div><strong>{{ __('admin.customers.member_since') }}:</strong> {{ $customer['registered_at'] }}</div>
                     @endif
+                    @if(!empty($customer['last_order_date']))
+                        <div><strong>{{ __('admin.customers.last_purchase') }}:</strong> {{ $customer['last_order_date'] }}</div>
+                    @endif
+                </div>
+
+                <div class="pt-3 mt-3 border-t border-gray-100 dark:border-gray-800">
+                    <a href="{{ route('admin.customers.edit', $customer['id']) }}" class="btn btn-secondary btn-sm w-full font-bold flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-pen-to-square"></i> {{ __('admin.customers.edit_or_reset') }}
+                    </a>
                 </div>
             </div>
 
@@ -122,7 +164,7 @@
                             </div>
                             @if(!empty($ad['postal_code']))
                                 <div class="text-secondary" style="font-size: 0.75rem; margin-top: 0.25rem;">
-                                    <span class="font-medium">{{ __('app.fields.postal_code') ?? 'Postal Code' }}:</span> {{ $ad['postal_code'] }}
+                                    <span class="font-medium">{{ __('admin.customers.postal_code') }}:</span> {{ $ad['postal_code'] }}
                                 </div>
                             @endif
                         </div>

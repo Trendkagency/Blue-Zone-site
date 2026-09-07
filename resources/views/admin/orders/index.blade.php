@@ -111,7 +111,7 @@
                             <td>
                                 <span class="badge badge-success text-xs">{{ $payStatus }}</span>
                             </td>
-                            <td class="font-bold">${{ number_format((float)$total, 2) }}</td>
+                            <td class="font-bold">@currency((float)$total)</td>
                             <td class="text-xs text-muted">{{ $ordDate }}</td>
                             <td>
                                 <div class="table-actions justify-center flex items-center gap-1.5">

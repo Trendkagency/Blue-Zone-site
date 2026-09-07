@@ -248,11 +248,11 @@
                                             {{ $pName }}
                                         </h4>
                                         <span class="text-[11px] text-[#031827]/60 dark:text-[#F6F5EF]/60">
-                                            Qty: {{ $item['quantity'] }} × ${{ number_format($item['price'], 2) }}
+                                            Qty: {{ $item['quantity'] }} × @currency($item['price'])
                                         </span>
                                     </div>
                                     <span class="text-xs font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                                        ${{ number_format($item['total'], 2) }}
+                                        @currency($item['total'])
                                     </span>
                                 </div>
                             @endforeach
@@ -262,35 +262,35 @@
                         <div class="space-y-3 pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 text-xs sm:text-sm">
                             <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                 <span>{{ __('shop.cart.subtotal') }}</span>
-                                <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($summary['subtotal'], 2) }}</span>
+                                <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($summary['subtotal'])</span>
                             </div>
 
                             @if($summary['discount'] > 0)
                                 <div class="flex justify-between items-center text-[#67B34A] font-bold">
                                     <span>{{ __('shop.cart.discount') }} ({{ $summary['coupon']['code'] ?? '' }})</span>
-                                    <span>-${{ number_format($summary['discount'], 2) }}</span>
+                                    <span>-@currency($summary['discount'])</span>
                                 </div>
                             @endif
 
                             <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                 <span>Insured Shipping</span>
                                 @if($summary['shipping'] <= 0)
-                                    <span class="font-bold text-[#67B34A]">Free ($0.00)</span>
+                                    <span class="font-bold text-[#67B34A]">Free (@currency(0))</span>
                                 @else
-                                    <span class="font-bold">${{ number_format($summary['shipping'], 2) }}</span>
+                                    <span class="font-bold">@currency($summary['shipping'])</span>
                                 @endif
                             </div>
 
                             @if($summary['tax'] > 0)
                                 <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                     <span>Estimated VAT ({{ $summary['tax_percentage'] }}%)</span>
-                                    <span class="font-bold">${{ number_format($summary['tax'], 2) }}</span>
+                                    <span class="font-bold">@currency($summary['tax'])</span>
                                 </div>
                             @endif
 
                             <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex justify-between items-center">
                                 <span class="text-base font-black text-[#031827] dark:text-[#F6F5EF]">{{ __('shop.cart.total') }}</span>
-                                <span class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">${{ number_format($summary['total'], 2) }}</span>
+                                <span class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($summary['total'])</span>
                             </div>
                         </div>
 

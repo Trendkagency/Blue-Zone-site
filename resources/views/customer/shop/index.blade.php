@@ -47,8 +47,8 @@
                   ? (app()->getLocale() === 'ar' && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? $product['category']['name'] ?? 'SUPPLEMENT'))
                   : ($product->category?->name ?? $product->category?->name_en ?? 'SUPPLEMENT');
               $pImage = is_array($product) 
-                  ? asset($product['image'] ?? 'assets/products/blue-mind.jpg')
-                  : ($product->primary_image_url ?? asset('assets/products/blue-mind.jpg'));
+                  ? asset($product['image'] ?? 'assets/products/blue-mind.webp')
+                  : ($product->primary_image_url ?? asset('assets/products/blue-mind.webp'));
               $pShortDesc = is_array($product) 
                   ? (app()->getLocale() === 'ar' && !empty($product['short_description_ar']) ? $product['short_description_ar'] : ($product['short_description_en'] ?? $product['short_description'] ?? ''))
                   : ($product->short_description ?? $product->description ?? '');
@@ -61,7 +61,7 @@
                     {{ $pCategory }}
                   </span>
                   <a href="{{ route('customer.product.show', $pSlug) }}" class="w-full h-full flex items-center justify-center">
-                    <img src="{{ $pImage }}" alt="{{ $pName }}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
+                    <img src="{{ $pImage }}" alt="{{ $pName }}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
                   </a>
                 </div>
                 <div>
@@ -90,7 +90,7 @@
 
                 <div class="flex items-center justify-between gap-4 pt-1">
                   <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                    ${{ number_format($pPrice, 2) }}
+                    @currency($pPrice)
                   </div>
                   <div class="flex gap-2">
                     <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'المفضلة' : 'Wishlist' }}">
@@ -144,7 +144,7 @@
                   ${p.category}
                 </span>
                 <a href="/products/${productSlug}" class="w-full h-full flex items-center justify-center">
-                  <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
+                  <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
                 </a>
               </div>
               <div>

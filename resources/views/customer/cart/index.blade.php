@@ -109,7 +109,7 @@
                                     <!-- Unit Price -->
                                     <div class="sm:col-span-2 sm:text-center text-xs sm:text-sm font-black text-[#0A4F78] dark:text-[#2A8FC2]">
                                         <span class="sm:hidden text-muted font-normal text-xs">{{ app()->getLocale() === 'ar' ? 'السعر:' : 'Price:' }} </span>
-                                        ${{ number_format($item['price'], 2) }}
+                                        @currency($item['price'])
                                     </div>
 
                                     <!-- Quantity Stepper -->
@@ -124,7 +124,7 @@
                                     <!-- Line Total & Delete Action -->
                                     <div class="sm:col-span-2 flex items-center justify-between sm:justify-end gap-3">
                                         <span class="text-sm sm:text-base font-black text-[#031827] dark:text-[#F6F5EF]">
-                                            ${{ number_format($item['total'], 2) }}
+                                            @currency($item['total'])
                                         </span>
                                         <button type="button" onclick="BLUEZONE_CART.remove('{{ $item['id'] }}')" aria-label="Remove item" class="p-2 text-red-500/70 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer" title="{{ __('shop.cart.remove') ?? 'Remove' }}">
                                             <i class="fa-solid fa-trash-can text-sm"></i>
@@ -194,35 +194,35 @@
                             
                             <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                 <span>{{ __('shop.cart.subtotal') }}</span>
-                                <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($subtotal, 2) }}</span>
+                                <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($subtotal)</span>
                             </div>
 
                             @if($discount > 0)
                                 <div class="flex justify-between items-center text-[#67B34A] font-bold">
                                     <span>{{ __('shop.cart.discount') }} ({{ $coupon['percent'] ?? 0 }}%)</span>
-                                    <span>-${{ number_format($discount, 2) }}</span>
+                                    <span>-@currency($discount)</span>
                                 </div>
                             @endif
 
                             <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                 <span>{{ app()->getLocale() === 'ar' ? 'الشحن المبرد المضمون' : 'Insured Cold-Chain Shipping' }}</span>
                                 @if($shipping <= 0)
-                                    <span class="font-bold text-[#67B34A]">{{ app()->getLocale() === 'ar' ? 'مجاني ($0.00)' : 'Complimentary ($0.00)' }}</span>
+                                    <span class="font-bold text-[#67B34A]">{{ app()->getLocale() === 'ar' ? ('مجاني (' . format_currency(0) . ')') : ('Complimentary (' . format_currency(0) . ')') }}</span>
                                 @else
-                                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($shipping, 2) }}</span>
+                                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($shipping)</span>
                                 @endif
                             </div>
 
                             @if($tax > 0)
                                 <div class="flex justify-between items-center text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium">
                                     <span>{{ app()->getLocale() === 'ar' ? 'ضريبة القيمة المضافة المقدرة' : 'Estimated VAT' }} ({{ $taxPercentage }}%)</span>
-                                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">${{ number_format($tax, 2) }}</span>
+                                    <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">@currency($tax)</span>
                                 </div>
                             @endif
 
                             <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex justify-between items-center">
                                 <span class="text-base font-black text-[#031827] dark:text-[#F6F5EF]">{{ __('shop.cart.total') }}</span>
-                                <span class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">${{ number_format($total, 2) }}</span>
+                                <span class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($total)</span>
                             </div>
 
                         </div>

@@ -39,6 +39,8 @@
                     </div>
                 </div>
 
+                <x-captcha context="admin" />
+
                 <button type="submit"
                     class="w-full py-3.5 px-4 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white font-bold text-sm tracking-wider shadow-lg hover:shadow-xl transition-all active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2">
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>

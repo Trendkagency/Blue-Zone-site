@@ -37,7 +37,7 @@
                 <img
                   src="{{ asset('assets/products/blue-mind.webp') }}"
                   alt="Bluemint Focus Prep"
-                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';"
+                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                   width="200" height="200"
                   loading="lazy" decoding="async"
                   class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
@@ -68,14 +68,14 @@
 
             <div class="pt-6 mt-4 border-t border-[#0A4F78]/10 dark:border-white/10 space-y-2">
               <div class="flex justify-between items-baseline">
-                <span class="text-2xl font-black text-[#031827] dark:text-white">$58.00</span>
+                <span class="text-2xl font-black text-[#031827] dark:text-white">@currency(58.00)</span>
                 <span class="text-xs text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">60 Capsules</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <a href="{{ route('customer.product.show', 'blue-mind') }}" class="py-2.5 text-center text-xs font-bold rounded-xl border border-[#0A4F78]/20 dark:border-white/20 hover:border-[#0A4F78] dark:hover:border-white text-[#0A4F78] dark:text-white transition-colors">
                   {{ app()->getLocale() === 'ar' ? 'الملف' : 'Monograph' }}
                 </a>
-                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(1, 'BLUE MIND', 58.00, '{{ asset('assets/products/blue-mind.jpg') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-[#2A8FC2] hover:bg-[#0A4F78] text-white transition-all shadow-md cursor-pointer">
+                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(1, 'BLUE MIND', 58.00, '{{ asset('assets/products/blue-mind.webp') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-[#2A8FC2] hover:bg-[#0A4F78] text-white transition-all shadow-md cursor-pointer">
                   {{ app()->getLocale() === 'ar' ? 'أضف' : 'Add Prep' }}
                 </button>
               </div>
@@ -96,7 +96,7 @@
                 <img
                   src="{{ asset('assets/products/blue-cell.webp') }}"
                   alt="Bluemint Cell Prep"
-                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-cell.jpg') }}';"
+                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-cell.webp') }}';"
                   width="200" height="200"
                   loading="lazy" decoding="async"
                   class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
@@ -127,14 +127,14 @@
 
             <div class="pt-6 mt-4 border-t border-[#0A4F78]/10 dark:border-white/10 space-y-2">
               <div class="flex justify-between items-baseline">
-                <span class="text-2xl font-black text-[#031827] dark:text-white">$64.00</span>
+                <span class="text-2xl font-black text-[#031827] dark:text-white">@currency(64.00)</span>
                 <span class="text-xs text-[#589c3e] dark:text-[#67B34A] font-semibold">60 Capsules</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <a href="{{ route('customer.product.show', 'blue-cell') }}" class="py-2.5 text-center text-xs font-bold rounded-xl border border-[#0A4F78]/20 dark:border-white/20 hover:border-[#0A4F78] dark:hover:border-white text-[#0A4F78] dark:text-white transition-colors">
                   {{ app()->getLocale() === 'ar' ? 'الملف' : 'Monograph' }}
                 </a>
-                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(2, 'BLUE CELL', 64.00, '{{ asset('assets/products/blue-cell.jpg') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-[#67B34A] hover:bg-[#589c3e] text-white transition-all shadow-md cursor-pointer">
+                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(2, 'BLUE CELL', 64.00, '{{ asset('assets/products/blue-cell.webp') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-[#67B34A] hover:bg-[#589c3e] text-white transition-all shadow-md cursor-pointer">
                   {{ app()->getLocale() === 'ar' ? 'أضف' : 'Add Prep' }}
                 </button>
               </div>
@@ -155,7 +155,7 @@
                 <img
                   src="{{ asset('assets/products/blue-sleep.webp') }}"
                   alt="Bluemint Rest Prep"
-                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-sleep.jpg') }}';"
+                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-sleep.webp') }}';"
                   width="200" height="200"
                   loading="lazy" decoding="async"
                   class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
@@ -186,14 +186,14 @@
 
             <div class="pt-6 mt-4 border-t border-[#0A4F78]/10 dark:border-white/10 space-y-2">
               <div class="flex justify-between items-baseline">
-                <span class="text-2xl font-black text-[#031827] dark:text-white">$42.00</span>
+                <span class="text-2xl font-black text-[#031827] dark:text-white">@currency(42.00)</span>
                 <span class="text-xs text-indigo-600 dark:text-indigo-300 font-semibold">60 Capsules</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <a href="{{ route('customer.product.show', 'blue-sleep') }}" class="py-2.5 text-center text-xs font-bold rounded-xl border border-[#0A4F78]/20 dark:border-white/20 hover:border-[#0A4F78] dark:hover:border-white text-[#0A4F78] dark:text-white transition-colors">
                   {{ app()->getLocale() === 'ar' ? 'الملف' : 'Monograph' }}
                 </a>
-                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(5, 'BLUE SLEEP', 42.00, '{{ asset('assets/products/blue-sleep.jpg') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer">
+                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(5, 'BLUE SLEEP', 42.00, '{{ asset('assets/products/blue-sleep.webp') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md cursor-pointer">
                   {{ app()->getLocale() === 'ar' ? 'أضف' : 'Add Prep' }}
                 </button>
               </div>
@@ -214,7 +214,7 @@
                 <img
                   src="{{ asset('assets/products/blue-metabolic.webp') }}"
                   alt="Bluemint Metabolic Prep"
-                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-metabolic.jpg') }}';"
+                  onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-metabolic.webp') }}';"
                   width="200" height="200"
                   loading="lazy" decoding="async"
                   class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
@@ -245,14 +245,14 @@
 
             <div class="pt-6 mt-4 border-t border-[#0A4F78]/10 dark:border-white/10 space-y-2">
               <div class="flex justify-between items-baseline">
-                <span class="text-2xl font-black text-[#031827] dark:text-white">$52.00</span>
+                <span class="text-2xl font-black text-[#031827] dark:text-white">@currency(52.00)</span>
                 <span class="text-xs text-amber-600 dark:text-amber-300 font-semibold">60 Capsules</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <a href="{{ route('customer.product.show', 'blue-metabolic') }}" class="py-2.5 text-center text-xs font-bold rounded-xl border border-[#0A4F78]/20 dark:border-white/20 hover:border-[#0A4F78] dark:hover:border-white text-[#0A4F78] dark:text-white transition-colors">
                   {{ app()->getLocale() === 'ar' ? 'الملف' : 'Monograph' }}
                 </a>
-                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(4, 'BLUE METABOLIC', 52.00, '{{ asset('assets/products/blue-metabolic.jpg') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-black transition-all shadow-md cursor-pointer">
+                <button onclick="if(window.BLUEZONE_CART){window.BLUEZONE_CART.addItem(4, 'BLUE METABOLIC', 52.00, '{{ asset('assets/products/blue-metabolic.webp') }}', 1);}" class="py-2.5 text-center text-xs font-black uppercase rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-black transition-all shadow-md cursor-pointer">
                   {{ app()->getLocale() === 'ar' ? 'أضف' : 'Add Prep' }}
                 </button>
               </div>

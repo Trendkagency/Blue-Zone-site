@@ -148,8 +148,9 @@
   min-width: 0;
   height: 100vh;
   max-height: 100vh;
-  width: calc(100vw - var(--admin-sidebar-width, 280px));
-  max-width: calc(100vw - var(--admin-sidebar-width, 280px));
+  flex: 1 1 0%;
+  width: calc(100% - var(--admin-sidebar-width, 280px));
+  max-width: calc(100% - var(--admin-sidebar-width, 280px));
   overflow-y: auto;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -157,7 +158,7 @@
   scrollbar-color: rgba(10, 79, 120, 0.35) transparent;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   .admin-main {
     width: 100vw;
     max-width: 100vw;
@@ -650,7 +651,7 @@
 }
 
 
-@media (max-width: 1024px) {
+@media (max-width: 1023.98px) {
   .admin-sidebar {
     position: fixed;
     top: 0;
@@ -715,3 +716,71 @@
   }
 }
 
+
+/* Customer & User Dossier Responsive Layout */
+.customer-dossier-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .customer-dossier-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.customer-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* Explicit Desktop Layout Lock (Prevents Sidebar Overlay Collisions) */
+@media (min-width: 1024px) {
+  .admin-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+  }
+
+  .admin-sidebar {
+    position: sticky !important;
+    top: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: var(--admin-sidebar-width, 280px) !important;
+    min-width: var(--admin-sidebar-width, 280px) !important;
+    max-width: var(--admin-sidebar-width, 280px) !important;
+    flex-shrink: 0 !important;
+    height: 100vh !important;
+    box-shadow: none !important;
+    z-index: 50 !important;
+    display: flex !important;
+  }
+
+  [dir="rtl"] .admin-sidebar {
+    transform: none !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  .admin-sidebar-backdrop {
+    display: none !important;
+  }
+
+  .admin-main {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    width: calc(100% - var(--admin-sidebar-width, 280px)) !important;
+    max-width: calc(100% - var(--admin-sidebar-width, 280px)) !important;
+  }
+
+  .admin-mobile-toggle {
+    display: none !important;
+  }
+}

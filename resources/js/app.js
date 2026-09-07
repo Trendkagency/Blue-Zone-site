@@ -104,8 +104,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Admin Sidebar Mobile Toggle
     window.toggleAdminSidebar = () => {
         const sidebar = document.querySelector('.admin-sidebar');
+        const backdrop = document.getElementById('adminSidebarBackdrop');
         if (sidebar) {
-            sidebar.classList.toggle('is-open');
+            const isOpen = sidebar.classList.toggle('is-open');
+            if (backdrop) {
+                if (isOpen) {
+                    backdrop.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    backdrop.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
         }
     };
+
+    // Auto-close sidebar on link click in mobile drawer
+    document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 1024) {
+                const sidebar = document.querySelector('.admin-sidebar');
+                const backdrop = document.getElementById('adminSidebarBackdrop');
+                if (sidebar) sidebar.classList.remove('is-open');
+                if (backdrop) backdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
 });

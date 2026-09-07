@@ -66,6 +66,9 @@ class SettingController extends Controller
             'tagline' => ['nullable', 'string', 'max:255'],
             'default_language' => ['nullable', 'string', 'in:en,ar'],
             'currency' => ['nullable', 'string', 'max:10'],
+            'currency_symbol' => ['nullable', 'string', 'max:20'],
+            'currency_position' => ['nullable', 'string', 'in:auto,before,after'],
+            'currency_decimals' => ['nullable', 'integer', 'min:0', 'max:4'],
             'timezone' => ['nullable', 'string', 'max:50'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
@@ -80,6 +83,7 @@ class SettingController extends Controller
             'font_size_base' => ['nullable', 'string', 'max:20'],
             'font_weight_headings' => ['nullable', 'string', 'max:20'],
             'font_weight_body' => ['nullable', 'string', 'max:20'],
+            'font_letter_spacing' => ['nullable', 'string', 'max:20'],
 
             // Store & Inventory
             'low_stock_threshold' => ['nullable', 'integer', 'min:1'],
@@ -253,7 +257,10 @@ class SettingController extends Controller
         if (isset($validated['site_name'])) Setting::set('site_name', $validated['site_name'], 'general');
         if (isset($validated['tagline'])) Setting::set('tagline', $validated['tagline'], 'general');
         if (isset($validated['default_language'])) Setting::set('default_language', $validated['default_language'], 'general');
-        if (isset($validated['currency'])) Setting::set('currency', $validated['currency'], 'general');
+        if (isset($validated['currency'])) Setting::set('currency', strtoupper(trim($validated['currency'])), 'general');
+        if (array_key_exists('currency_symbol', $validated)) Setting::set('currency_symbol', trim($validated['currency_symbol'] ?? ''), 'general');
+        if (isset($validated['currency_position'])) Setting::set('currency_position', $validated['currency_position'], 'general');
+        if (isset($validated['currency_decimals'])) Setting::set('currency_decimals', (int) $validated['currency_decimals'], 'general', 'integer');
         if (isset($validated['timezone'])) Setting::set('timezone', $validated['timezone'], 'general');
         if (isset($validated['contact_email'])) Setting::set('contact_email', $validated['contact_email'], 'general');
         if (isset($validated['contact_phone'])) Setting::set('contact_phone', $validated['contact_phone'], 'general');
@@ -265,6 +272,7 @@ class SettingController extends Controller
         if (isset($validated['font_size_base'])) Setting::set('font_size_base', $validated['font_size_base'], 'general');
         if (isset($validated['font_weight_headings'])) Setting::set('font_weight_headings', $validated['font_weight_headings'], 'general');
         if (isset($validated['font_weight_body'])) Setting::set('font_weight_body', $validated['font_weight_body'], 'general');
+        if (isset($validated['font_letter_spacing'])) Setting::set('font_letter_spacing', $validated['font_letter_spacing'], 'general');
 
         // Store & Inventory
         if (isset($validated['low_stock_threshold'])) Setting::set('low_stock_threshold', (int) $validated['low_stock_threshold'], 'store', 'integer');
@@ -458,6 +466,16 @@ class SettingController extends Controller
         if (isset($validated['landing_meta_keywords'])) Setting::set('landing_meta_keywords', $validated['landing_meta_keywords'], 'landing');
 
         \Illuminate\Support\Facades\Cache::flush();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => app()->getLocale() === 'ar'
+                    ? 'تم حفظ وتطبيق إعدادات الخطوط والطباعة بنجاح على كامل النظام!'
+                    : 'Typography settings saved and applied globally across the entire system!',
+                'config' => \App\Services\TypographyService::getActiveConfig(),
+            ]);
+        }
 
         return redirect()->route('admin.settings.index')
             ->with('success', app()->getLocale() === 'ar'

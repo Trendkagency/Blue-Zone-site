@@ -7,8 +7,8 @@
         ? (app()->getLocale() === 'ar' && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? $product['category']['name'] ?? 'COGNITIVE'))
         : ($product->category?->name ?? $product->category?->name_en ?? 'COGNITIVE');
     $pImage = is_array($product) 
-        ? asset($product['image'] ?? 'assets/products/blue-mind.jpg')
-        : ($product->primary_image_url ?? asset('assets/products/blue-mind.jpg'));
+        ? asset($product['image'] ?? 'assets/products/blue-mind.webp')
+        : ($product->primary_image_url ?? asset('assets/products/blue-mind.webp'));
     $pShortDesc = is_array($product) 
         ? (app()->getLocale() === 'ar' && !empty($product['short_description_ar']) ? $product['short_description_ar'] : ($product['short_description_en'] ?? $product['short_description'] ?? 'Clinical formulation inspired by Blue Zone longevity research.'))
         : ($product->short_description ?? 'Clinical formulation inspired by Blue Zone longevity research.');
@@ -46,7 +46,7 @@
               id="product-main-img"
               src="{{ $pImage }}" 
               alt="{{ $pName }}" 
-              onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';" 
+              onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" 
               class="w-full max-h-[450px] object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
             />
           </div>
@@ -67,7 +67,7 @@
             </div>
 
             <div class="text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-              ${{ number_format($pPrice, 2) }}
+              @currency($pPrice)
             </div>
 
             <p class="text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed font-medium">

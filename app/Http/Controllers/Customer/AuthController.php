@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Services\CaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,16 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
+
+        if (CaptchaService::isEnabled('login')) {
+            if (!CaptchaService::verify($request->input('captcha'))) {
+                return back()->withErrors([
+                    'captcha' => app()->getLocale() === 'ar'
+                        ? 'رمز التحقق الأمني غير صحيح أو منتهي الصلاحية، يرجى المحاولة مرة أخرى.'
+                        : 'The security verification answer is incorrect or expired. Please try again.',
+                ])->withInput($request->except(['password', 'captcha']));
+            }
+        }
 
         $remember = $request->boolean('remember');
 
@@ -85,6 +96,16 @@ class AuthController extends Controller
             'city' => ['nullable', 'string', 'max:100'],
             'country' => ['nullable', 'string', 'max:100'],
         ]);
+
+        if (CaptchaService::isEnabled('register')) {
+            if (!CaptchaService::verify($request->input('captcha'))) {
+                return back()->withErrors([
+                    'captcha' => app()->getLocale() === 'ar'
+                        ? 'رمز التحقق الأمني غير صحيح أو منتهي الصلاحية، يرجى المحاولة مرة أخرى.'
+                        : 'The security verification answer is incorrect or expired. Please try again.',
+                ])->withInput($request->except(['password', 'password_confirmation', 'captcha']));
+            }
+        }
 
         $defaultAddress = [
             [
@@ -148,6 +169,16 @@ class AuthController extends Controller
     public function forgotPassword(Request $request): RedirectResponse
     {
         $request->validate(['email' => ['required', 'email']]);
+
+        if (CaptchaService::isEnabled('forgot-password')) {
+            if (!CaptchaService::verify($request->input('captcha'))) {
+                return back()->withErrors([
+                    'captcha' => app()->getLocale() === 'ar'
+                        ? 'رمز التحقق الأمني غير صحيح أو منتهي الصلاحية، يرجى المحاولة مرة أخرى.'
+                        : 'The security verification answer is incorrect or expired. Please try again.',
+                ])->withInput($request->except(['captcha']));
+            }
+        }
 
         // Simulating password reset notification / dispatching
         return back()->with('success', __('app.reset_link_sent', ['default' => 'If an account exists with this email, a recovery link has been dispatched.']));

@@ -33,8 +33,8 @@
                                 </a>
                             </td>
                             <td class="font-bold text-sm">{{ $order['customer_name'] }}</td>
-                            <td>${{ number_format($order['tax'], 2) }}</td>
-                            <td class="font-bold">${{ number_format($order['total'], 2) }}</td>
+                            <td>@currency($order['tax'])</td>
+                            <td class="font-bold">@currency($order['total'])</td>
                             <td>
                                 <span class="badge badge-success text-xs">{{ $order['payment_status'] }}</span>
                             </td>

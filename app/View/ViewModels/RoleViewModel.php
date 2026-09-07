@@ -31,6 +31,7 @@ class RoleViewModel
                     'users' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
                     'roles' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
                     'settings' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
+                    'notifications' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => true],
                 ],
             ],
             [
@@ -52,6 +53,7 @@ class RoleViewModel
                     'users' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'roles' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'settings' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
+                    'notifications' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
                 ],
             ],
             [
@@ -73,6 +75,7 @@ class RoleViewModel
                     'users' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'roles' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'settings' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
+                    'notifications' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
                 ],
             ],
             [
@@ -94,6 +97,7 @@ class RoleViewModel
                     'users' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'roles' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
                     'settings' => ['view' => false, 'create' => false, 'edit' => false, 'delete' => false],
+                    'notifications' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
                 ],
             ],
         ];
@@ -118,6 +122,7 @@ class RoleViewModel
             'users' => 'Administrative Users',
             'roles' => 'Roles & Permissions',
             'settings' => 'System & Store Settings',
+            'notifications' => 'System Notifications',
         ];
     }
 }

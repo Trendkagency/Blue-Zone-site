@@ -22,7 +22,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Guest Admin Auth Routes
     Route::middleware(['guest:web'])->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+        Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.submit');
     });
 
     // Authenticated Admin Routes
@@ -35,11 +35,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Notifications
         Route::prefix('notifications')->name('notifications.')->group(function () {
-            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::get('/', [NotificationController::class, 'index'])->middleware('throttle:polling')->name('index');
             Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
             Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
             Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
-            Route::post('/fcm-token', [NotificationController::class, 'updateFcmToken'])->name('fcm-token');
+            Route::post('/fcm-token', [NotificationController::class, 'updateFcmToken'])->middleware('throttle:polling')->name('fcm-token');
             Route::post('/test-push', [NotificationController::class, 'testPush'])->name('test-push');
         });
 
@@ -118,6 +118,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [CustomerController::class, 'destroy'])->middleware('permission:customers.delete')->name('destroy');
             Route::post('/{id}/restore', [CustomerController::class, 'restore'])->middleware('permission:customers.delete')->name('restore');
             Route::delete('/{id}/force-delete', [CustomerController::class, 'forceDelete'])->middleware('permission:customers.delete')->name('force-delete');
+            Route::post('/{id}/toggle-status', [CustomerController::class, 'toggleStatus'])->middleware('permission:customers.edit')->name('toggle-status');
         });
 
         // Reports & Print Dossier
@@ -147,6 +148,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [UserController::class, 'index'])->middleware('permission:users.view')->name('index');
             Route::get('/create', [UserController::class, 'create'])->middleware('permission:users.create')->name('create');
             Route::post('/', [UserController::class, 'store'])->middleware('permission:users.create')->name('store');
+            Route::get('/{id}', [UserController::class, 'show'])->middleware('permission:users.view')->name('show');
+            Route::post('/{id}/toggle-status', [UserController::class, 'toggleStatus'])->middleware('permission:users.edit')->name('toggle-status');
             Route::get('/{id}/edit', [UserController::class, 'edit'])->middleware('permission:users.edit')->name('edit');
             Route::put('/{id}', [UserController::class, 'update'])->middleware('permission:users.edit')->name('update');
             Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');

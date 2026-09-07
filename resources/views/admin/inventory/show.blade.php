@@ -41,7 +41,7 @@
                 </div>
                 <div>
                     <div class="text-xs text-muted font-bold">{{ app()->getLocale() == 'ar' ? 'القيمة التقديرية للتكلفة' : 'Cost Valuation' }}</div>
-                    <div class="font-black text-2xl" style="color: #10B981;">${{ number_format($totalValuation, 2) }}</div>
+                    <div class="font-black text-2xl" style="color: #10B981;">@currency($totalValuation)</div>
                 </div>
             </div>
         </div>

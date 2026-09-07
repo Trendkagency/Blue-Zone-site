@@ -53,7 +53,7 @@
                             <td>
                                 <span class="badge badge-accent text-xs">{{ $sPay }}</span>
                             </td>
-                            <td class="font-bold">${{ number_format((float)$sTotal, 2) }}</td>
+                            <td class="font-bold">@currency((float)$sTotal)</td>
                             <td class="text-xs text-muted">{{ $sDate }} {{ $sTime }}</td>
                             <td>
                                 <a href="{{ route('admin.offline-sales.show', $sId) }}" class="btn btn-secondary btn-sm">

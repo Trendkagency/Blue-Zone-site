@@ -99,9 +99,9 @@
                                 @endif
                             </td>
                             <td style="font-family: monospace; font-size: 0.8125rem;">{{ $iSku }}</td>
-                            <td>${{ number_format((float)$iPrice, 2) }}</td>
+                            <td>@currency((float)$iPrice)</td>
                             <td style="font-weight: 700;">{{ $iQty }}</td>
-                            <td style="font-weight: 700;">${{ number_format((float)$iTot, 2) }}</td>
+                            <td style="font-weight: 700;">@currency((float)$iTot)</td>
                         </tr>
                     @empty
                         <tr>
@@ -117,21 +117,21 @@
             <div style="width: 280px; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9375rem;">
                 <div style="display: flex; justify-content: space-between;">
                     <span>Subtotal:</span>
-                    <span style="font-weight: 700;">${{ number_format((float)$subtotal, 2) }}</span>
+                    <span style="font-weight: 700;">@currency((float)$subtotal)</span>
                 </div>
                 @if((float)$discount > 0)
                     <div style="display: flex; justify-content: space-between; color: #16A34A;">
                         <span>Discount:</span>
-                        <span style="font-weight: 700;">-${{ number_format((float)$discount, 2) }}</span>
+                        <span style="font-weight: 700;">-@currency((float)$discount)</span>
                     </div>
                 @endif
                 <div style="display: flex; justify-content: space-between;">
                     <span>Standard VAT (15%):</span>
-                    <span>${{ number_format((float)$tax, 2) }}</span>
+                    <span>@currency((float)$tax)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; border-top: 2px solid #031827; padding-top: 0.75rem; font-size: 1.25rem; font-weight: 900;">
                     <span>Total Due:</span>
-                    <span style="color: var(--bz-ocean-blue);">${{ number_format((float)$total, 2) }}</span>
+                    <span style="color: var(--bz-ocean-blue);">@currency((float)$total)</span>
                 </div>
             </div>
         </div>

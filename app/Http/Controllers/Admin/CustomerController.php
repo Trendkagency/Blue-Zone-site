@@ -17,6 +17,7 @@ class CustomerController extends Controller
     public function index(Request $request): View
     {
         $status = $request->query('status');
+        $tier = $request->query('tier');
         $isTrashed = $status === 'trashed';
 
         $query = Customer::withCount('orders')->with('orders')->latest();
@@ -27,17 +28,22 @@ class CustomerController extends Controller
             $query->where('status', $status);
         }
 
+        if ($tier) {
+            $query->where('tier', $tier);
+        }
+
         $search = $request->query('search');
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%");
             });
         }
 
         $trashedCount = Customer::onlyTrashed()->count();
-        $activeCount = Customer::count();
+        $activeCount = Customer::where('status', 'active')->count();
         $totalDbCount = Customer::withTrashed()->count();
         $dbCustomers = $query->paginate(15)->withQueryString();
 
@@ -75,6 +81,7 @@ class CustomerController extends Controller
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
+            'currentTier' => $tier,
         ]);
     }
 
@@ -93,6 +100,7 @@ class CustomerController extends Controller
             'country' => 'nullable|string|max:100',
             'address' => 'nullable|string|max:500',
             'postal_code' => 'nullable|string|max:20',
+            'tier' => 'nullable|string|max:50',
             'status' => 'required|string|in:active,inactive',
             'password' => 'nullable|string|min:8',
         ]);
@@ -108,6 +116,7 @@ class CustomerController extends Controller
             'country' => $validated['country'] ?? 'Saudi Arabia',
             'address' => $validated['address'] ?? '',
             'postal_code' => $validated['postal_code'] ?? '11564',
+            'tier' => $validated['tier'] ?? 'Member',
             'status' => $validated['status'],
             'registered_at' => now(),
         ]);
@@ -120,7 +129,7 @@ class CustomerController extends Controller
 
     public function show(int $id): View
     {
-        $dbCustomer = Customer::with('orders.items')->find($id);
+        $dbCustomer = Customer::with(['orders' => fn ($q) => $q->latest()->with('items')])->find($id);
 
         if ($dbCustomer) {
             $addresses = [];
@@ -138,6 +147,11 @@ class CustomerController extends Controller
                 ];
             }
 
+            $ordersCount = $dbCustomer->orders->count();
+            $totalSpent = (float) $dbCustomer->orders->sum('total');
+            $avgOrderValue = $ordersCount > 0 ? ($totalSpent / $ordersCount) : 0;
+            $lastOrder = $dbCustomer->orders->first();
+
             $customer = [
                 'id' => $dbCustomer->id,
                 'name' => $dbCustomer->name,
@@ -148,20 +162,25 @@ class CustomerController extends Controller
                 'address' => $dbCustomer->address ?? '',
                 'postal_code' => $dbCustomer->postal_code ?? '',
                 'tier' => $dbCustomer->tier ?? 'Member',
-                'orders_count' => $dbCustomer->orders->count(),
-                'total_spent' => (float) $dbCustomer->orders->sum('total'),
+                'orders_count' => $ordersCount,
+                'total_spent' => $totalSpent,
+                'avg_order_value' => $avgOrderValue,
+                'last_order_date' => $lastOrder?->date?->format('d M Y') ?? ($lastOrder?->created_at?->format('d M Y') ?? null),
                 'status' => $dbCustomer->status ?? 'active',
-                'registered_at' => $dbCustomer->created_at?->format('M Y') ?? 'Jan 2026',
+                'registered_at' => $dbCustomer->created_at?->format('d M Y, h:i A') ?? 'Jan 2026',
+                'deleted_at' => $dbCustomer->deleted_at,
                 'addresses' => $addresses,
             ];
+
             $orders = $dbCustomer->orders->map(function ($o) {
                 return [
                     'id' => $o->id,
                     'order_number' => $o->order_number,
                     'invoice_number' => $o->invoice_number,
-                    'date' => $o->date?->format('Y-m-d') ?? now()->toDateString(),
+                    'date' => $o->date?->format('Y-m-d') ?? $o->created_at?->format('Y-m-d'),
                     'status' => $o->status,
                     'payment_status' => $o->payment_status,
+                    'items_count' => $o->items->count(),
                     'total' => (float) $o->total,
                 ];
             })->toArray();
@@ -170,6 +189,8 @@ class CustomerController extends Controller
             if (!isset($customer['addresses'])) {
                 $customer['addresses'] = [];
             }
+            $customer['avg_order_value'] = 249.50;
+            $customer['last_order_date'] = '01 Sep 2026';
             $orders = OrderViewModel::all();
         }
 
@@ -177,6 +198,24 @@ class CustomerController extends Controller
             'customer' => $customer,
             'orders' => $orders,
         ]);
+    }
+
+    public function toggleStatus(Request $request, int $id): RedirectResponse
+    {
+        $customer = Customer::findOrFail($id);
+
+        $newStatus = ($customer->status === 'active') ? 'inactive' : 'active';
+        $customer->update(['status' => $newStatus]);
+
+        $msgAr = $newStatus === 'active' 
+            ? "تم تفعيل وتنشيط حساب العميل [{$customer->name}] بنجاح." 
+            : "تم تعطيل حساب العميل [{$customer->name}].";
+        $msgEn = $newStatus === 'active'
+            ? "Customer [{$customer->name}] account has been activated."
+            : "Customer [{$customer->name}] account has been deactivated.";
+
+        return redirect()->back()
+            ->with('success', app()->getLocale() === 'ar' ? $msgAr : $msgEn);
     }
 
     public function edit(int $id): View
@@ -193,6 +232,7 @@ class CustomerController extends Controller
                 'country' => $dbCustomer->country ?? 'Saudi Arabia',
                 'address' => $dbCustomer->address ?? '',
                 'postal_code' => $dbCustomer->postal_code ?? '11564',
+                'tier' => $dbCustomer->tier ?? 'Member',
                 'status' => $dbCustomer->status ?? 'active',
             ];
         } else {
@@ -223,6 +263,7 @@ class CustomerController extends Controller
             'country' => 'nullable|string|max:100',
             'address' => 'nullable|string|max:500',
             'postal_code' => 'nullable|string|max:20',
+            'tier' => 'nullable|string|max:50',
             'status' => 'required|string|in:active,inactive',
             'password' => 'nullable|string|min:8',
         ]);
@@ -235,6 +276,7 @@ class CustomerController extends Controller
             'country' => $validated['country'] ?? 'Saudi Arabia',
             'address' => $validated['address'] ?? '',
             'postal_code' => $validated['postal_code'] ?? '11564',
+            'tier' => $validated['tier'] ?? 'Member',
             'status' => $validated['status'],
         ];
 

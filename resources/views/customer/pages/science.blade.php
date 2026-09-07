@@ -334,7 +334,7 @@
             stage: "FORMULATION",
             title: "PRECISION IN EVERY FORMULA.",
             desc: "Thoughtfully selected ingredients brought together into focused wellness formulations.",
-            img: "{{ asset('assets/products/blue-mind.jpg') }}",
+            img: "{{ asset('assets/products/blue-mind.webp') }}",
             chips: ["Bio-Identical Nutrient Ratios", "Cellular Absorption Focus"],
             flowStep: 2
           },

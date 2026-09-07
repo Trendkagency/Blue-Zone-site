@@ -17,7 +17,7 @@
               <img
                 src="{{ asset('assets/products/blue-mind.webp') }}"
                 alt="BLUE MIND Flagship Nootropic"
-                onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.jpg') }}';"
+                onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                 width="400"
                 height="400"
                 loading="lazy"
@@ -63,7 +63,7 @@
             <div class="pt-6 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/50 flex flex-wrap items-center gap-6">
               <div>
                 <span class="block text-[10px] font-bold uppercase tracking-widest text-[#0A4F78]/70 dark:text-[#7EA5B8]">60 CAPSULES • 30-DAY SUPPLY</span>
-                <span class="text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">$64.00</span>
+                <span class="text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency(64.00)</span>
               </div>
               <div class="flex flex-wrap gap-3">
                 <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.add('blue-mind', 1);}" class="px-8 py-4 bg-[#2A8FC2] hover:bg-[#0A4F78] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer">

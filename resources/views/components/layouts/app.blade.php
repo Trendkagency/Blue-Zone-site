@@ -83,10 +83,46 @@
 <body class="bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white {{ $bodyClass ?? '' }}">
     {{ $slot }}
 
+        <!-- Global Dynamic Currency Engine -->
+    <script>
+        window.BLUEZONE_CURRENCY = {
+            code: @json(\App\Services\CurrencyService::code()),
+            symbol: @json(\App\Services\CurrencyService::symbol()),
+            position: @json(\App\Services\CurrencyService::position()),
+            decimals: {{ \App\Services\CurrencyService::decimals() }},
+            format: function(amount) {
+                var num = (amount === null || amount === undefined || isNaN(amount)) ? 0 : parseFloat(amount);
+                var formatted = num.toLocaleString(undefined, {
+                    minimumFractionDigits: this.decimals,
+                    maximumFractionDigits: this.decimals
+                });
+                if (this.position === 'before') {
+                    var separator = (this.symbol.length > 1 && !/^[\$\€\£\¥]$/.test(this.symbol)) ? ' ' : '';
+                    return this.symbol + separator + formatted;
+                }
+                return formatted + ' ' + this.symbol;
+            }
+        };
+    </script>
+
+    <!-- Early Global Cart Interface Stub -->
+    <script>
+        window.BLUEZONE_CART = window.BLUEZONE_CART || {
+            _queue: [],
+            add: function() { this._queue.push(['add', Array.from(arguments)]); },
+            addItem: function() { this._queue.push(['addItem', Array.from(arguments)]); },
+            open: function() { this._queue.push(['open', Array.from(arguments)]); },
+            close: function() { this._queue.push(['close', Array.from(arguments)]); }
+        };
+    </script>
+
+    <!-- Global Request Lazy Loading & Progress Engine -->
+    <script src="{{ asset('js/request-loader.js') }}"></script>
+
     <!-- Scripts from lazy_html & Toast Engine (Deferred) -->
     <script defer src="{{ asset('js/toast.js') }}"></script>
     <script defer src="{{ asset('js/theme.js') }}"></script>
-    <script defer src="{{ asset('js/cart.js') }}"></script>
+    <script defer src="{{ asset('js/cart.js') }}?v={{ file_exists(public_path('js/cart.js')) ? filemtime(public_path('js/cart.js')) : 1 }}"></script>
     <script defer src="{{ asset('js/wishlist.js') }}"></script>
     <script defer src="{{ asset('js/search.js') }}"></script>
     <script defer src="{{ asset('js/hero-slider.js') }}"></script>

@@ -601,9 +601,9 @@
                                 @endif
                             </td>
                             <td class="item-sku">{{ $iSku }}</td>
-                            <td style="text-align: right;">${{ number_format((float)$iPrice, 2) }}</td>
+                            <td style="text-align: right;">@currency((float)$iPrice)</td>
                             <td style="text-align: center; font-weight: 700;">{{ $iQty }}</td>
-                            <td style="text-align: right; font-weight: 800;">${{ number_format((float)$iTotal, 2) }}</td>
+                            <td style="text-align: right; font-weight: 800;">@currency((float)$iTotal)</td>
                         </tr>
                     @empty
                         <tr>
@@ -642,24 +642,24 @@
             <div class="totals-card">
                 <div class="totals-row">
                     <span>Taxable Subtotal / المجموع الفرعي:</span>
-                    <span style="font-weight: 700;">${{ number_format((float)$subtotal, 2) }}</span>
+                    <span style="font-weight: 700;">@currency((float)$subtotal)</span>
                 </div>
 
                 @if((float)$discount > 0)
                     <div class="totals-row discount">
                         <span>Discount / الخصم المعتمد:</span>
-                        <span>-${{ number_format((float)$discount, 2) }}</span>
+                        <span>-@currency((float)$discount)</span>
                     </div>
                 @endif
 
                 <div class="totals-row">
                     <span>Shipping & Handling / الشحن والتسليم:</span>
-                    <span>{{ (float)$shipping > 0 ? '$' . number_format((float)$shipping, 2) : 'Free Shipping' }}</span>
+                    <span>{{ (float)$shipping > 0 ? format_currency((float)$shipping) : 'Free Shipping' }}</span>
                 </div>
 
                 <div class="totals-row">
                     <span>VAT (15%) / ضريبة القيمة المضافة:</span>
-                    <span>${{ number_format((float)$tax, 2) }}</span>
+                    <span>@currency((float)$tax)</span>
                 </div>
 
                 <div class="totals-row grand-total">
@@ -667,7 +667,7 @@
                         <div>Grand Total</div>
                         <div style="font-family: 'Cairo', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--bz-gray-500);">المبلغ الإجمالي المستحق</div>
                     </div>
-                    <div class="grand-price">${{ number_format((float)$total, 2) }}</div>
+                    <div class="grand-price">@currency((float)$total)</div>
                 </div>
             </div>
         </section>

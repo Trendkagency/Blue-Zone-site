@@ -171,7 +171,7 @@
                 </span>
             </div>
             <div class="stat-value" style="font-size: 1.85rem; font-weight: 900; color: var(--color-text); margin-bottom: 0.35rem; font-variant-numeric: tabular-nums;">
-                ${{ number_format($kpi['total_sales'], 2) }}
+                @currency($kpi['total_sales'])
             </div>
             <div class="stat-footer text-success font-bold" style="font-size: 0.8125rem; display: flex; align-items: center; gap: 0.35rem;">
                 <i class="fa-solid fa-arrow-trend-up"></i>
@@ -188,10 +188,10 @@
                 </span>
             </div>
             <div class="stat-value" style="font-size: 1.85rem; font-weight: 900; color: #10B981; margin-bottom: 0.35rem; font-variant-numeric: tabular-nums;">
-                ${{ number_format($kpi['net_revenue'], 2) }}
+                @currency($kpi['net_revenue'])
             </div>
             <div class="stat-footer text-muted" style="font-size: 0.8125rem;">
-                {{ __('admin.reports.discounts_given') }}: <strong>${{ number_format($kpi['total_discounts'], 2) }}</strong>
+                {{ __('admin.reports.discounts_given') }}: <strong>@currency($kpi['total_discounts'])</strong>
             </div>
         </div>
 
@@ -204,7 +204,7 @@
                 </span>
             </div>
             <div class="stat-value" style="font-size: 1.85rem; font-weight: 900; color: var(--color-text); margin-bottom: 0.35rem; font-variant-numeric: tabular-nums;">
-                ${{ number_format($kpi['average_order_value'], 2) }}
+                @currency($kpi['average_order_value'])
             </div>
             <div class="stat-footer text-muted" style="font-size: 0.8125rem;">
                 {{ __('admin.reports.across_channels') }}
@@ -253,7 +253,7 @@
                 </span>
             </div>
             <div class="stat-value" style="font-size: 1.85rem; font-weight: 900; color: var(--color-text); margin-bottom: 0.35rem; font-variant-numeric: tabular-nums;">
-                ${{ number_format($inventory['total_valuation'], 2) }}
+                @currency($inventory['total_valuation'])
             </div>
             <div class="stat-footer text-muted" style="font-size: 0.8125rem;">
                 {{ $inventory['total_units'] }} {{ __('admin.reports.total_units_sold') }}
@@ -348,7 +348,7 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.75rem; color: var(--color-text-muted);">
                     <span><i class="fa-solid fa-circle-info mr-1 ml-1"></i> {{ __('admin.reports.across_channels') }}</span>
-                    <span>Peak Month Volume: <strong>${{ number_format($maxTotal, 2) }}</strong></span>
+                    <span>Peak Month Volume: <strong>@currency($maxTotal)</strong></span>
                 </div>
             </div>
 
@@ -368,7 +368,7 @@
                                     {{ app()->getLocale() === 'ar' ? $cat['name_ar'] : $cat['name_en'] }}
                                 </span>
                                 <span style="font-variant-numeric: tabular-nums;">
-                                    <strong>${{ number_format($cat['amount'], 2) }}</strong> 
+                                    <strong>@currency($cat['amount'])</strong> 
                                     <span style="color: var(--color-text-muted); font-size: 0.8rem; margin-inline-start: 0.35rem;">({{ $cat['percentage'] }}%)</span>
                                 </span>
                             </div>
@@ -438,13 +438,13 @@
                                     </span>
                                 </td>
                                 <td style="padding: 0.85rem 1rem; font-weight: 700; font-variant-numeric: tabular-nums;">
-                                    ${{ number_format($p['price'], 2) }}
+                                    @currency($p['price'])
                                 </td>
                                 <td style="padding: 0.85rem 1rem; text-align: center; font-weight: 800; color: var(--color-primary); font-variant-numeric: tabular-nums;">
                                     {{ $p['units_sold'] }}
                                 </td>
                                 <td style="padding: 0.85rem 1rem; font-weight: 800; color: var(--color-text); font-variant-numeric: tabular-nums;">
-                                    ${{ number_format($p['revenue'], 2) }}
+                                    @currency($p['revenue'])
                                 </td>
                                 <td style="padding: 0.85rem 1rem; text-align: center;">
                                     <span class="badge badge-accent font-bold text-xs" style="padding: 0.2rem 0.5rem;">
@@ -502,7 +502,7 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.gross_revenue') }}:</span>
-                        <span class="font-extrabold text-sm" style="color: var(--color-primary);">${{ number_format($channels['online']['revenue'], 2) }}</span>
+                        <span class="font-extrabold text-sm" style="color: var(--color-primary);">@currency($channels['online']['revenue'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.total_transactions') }}:</span>
@@ -510,7 +510,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.avg_order_value') }}:</span>
-                        <span class="font-extrabold text-sm">${{ number_format($channels['online']['avg_ticket'], 2) }}</span>
+                        <span class="font-extrabold text-sm">@currency($channels['online']['avg_ticket'])</span>
                     </div>
                 </div>
 
@@ -538,7 +538,7 @@
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.gross_revenue') }}:</span>
-                        <span class="font-extrabold text-sm" style="color: #F59E0B;">${{ number_format($channels['pos']['revenue'], 2) }}</span>
+                        <span class="font-extrabold text-sm" style="color: #F59E0B;">@currency($channels['pos']['revenue'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.total_transactions') }}:</span>
@@ -546,7 +546,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.avg_order_value') }}:</span>
-                        <span class="font-extrabold text-sm">${{ number_format($channels['pos']['avg_ticket'], 2) }}</span>
+                        <span class="font-extrabold text-sm">@currency($channels['pos']['avg_ticket'])</span>
                     </div>
                 </div>
 
@@ -615,7 +615,7 @@
                                     {{ $vip['orders_count'] }}
                                 </td>
                                 <td style="padding: 0.85rem 1rem; font-weight: 800; color: #10B981; font-variant-numeric: tabular-nums;">
-                                    ${{ number_format($vip['total_spent'], 2) }}
+                                    @currency($vip['total_spent'])
                                 </td>
                                 <td style="padding: 0.85rem 1rem; text-align: center;" class="no-print">
                                     <a href="{{ route('admin.customers.show', $vip['id']) }}" class="btn btn-ghost btn-sm" title="{{ __('app.actions.view') }}">
@@ -650,27 +650,27 @@
                 <div style="display: flex; flex-direction: column; gap: 0.85rem;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
                         <span class="text-muted">{{ __('admin.reports.subtotal_gross') }}:</span>
-                        <span class="font-bold font-mono">${{ number_format($tax['subtotal_gross'], 2) }}</span>
+                        <span class="font-bold font-mono">@currency($tax['subtotal_gross'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: #EF4444;">
                         <span><i class="fa-solid fa-tag mr-1 ml-1"></i> {{ __('admin.reports.discounts_given') }}:</span>
-                        <span class="font-bold font-mono">-${{ number_format($tax['discounts'], 2) }}</span>
+                        <span class="font-bold font-mono">-@currency($tax['discounts'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem; border-top: 1px dashed var(--color-border); padding-top: 0.6rem;">
                         <span class="font-bold">{{ __('admin.reports.net_taxable') }}:</span>
-                        <span class="font-bold font-mono">${{ number_format($tax['net_taxable'], 2) }}</span>
+                        <span class="font-bold font-mono">@currency($tax['net_taxable'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: #0A4F78;">
                         <span class="font-bold">{{ __('admin.reports.tax_collected') }}:</span>
-                        <span class="font-bold font-mono">+${{ number_format($tax['vat_15'], 2) }}</span>
+                        <span class="font-bold font-mono">+@currency($tax['vat_15'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem; color: #10B981;">
                         <span class="font-bold">{{ __('admin.reports.shipping_collected') }}:</span>
-                        <span class="font-bold font-mono">+${{ number_format($tax['shipping_total'], 2) }}</span>
+                        <span class="font-bold font-mono">+@currency($tax['shipping_total'])</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 800; border-top: 2px solid var(--color-border); padding-top: 0.75rem; color: var(--color-text);">
                         <span>{{ __('admin.reports.gross_revenue') }}:</span>
-                        <span class="font-mono text-primary">${{ number_format($tax['realized_gross'], 2) }}</span>
+                        <span class="font-mono text-primary">@currency($tax['realized_gross'])</span>
                     </div>
                 </div>
             </div>
@@ -705,7 +705,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 800; border-top: 2px solid var(--color-border); padding-top: 0.75rem; color: var(--color-text);">
                         <span>Retail Asset Valuation:</span>
-                        <span class="font-mono text-success">${{ number_format($inventory['total_valuation'], 2) }}</span>
+                        <span class="font-mono text-success">@currency($inventory['total_valuation'])</span>
                     </div>
                 </div>
 
@@ -786,7 +786,7 @@
                                 <span style="font-size: 0.8rem; color: var(--color-text-muted);">({{ $city['orders'] }} Orders)</span>
                             </span>
                             <span style="font-variant-numeric: tabular-nums;">
-                                <strong>${{ number_format($city['sales'], 2) }}</strong> 
+                                <strong>@currency($city['sales'])</strong> 
                                 <span style="color: var(--color-text-muted); font-size: 0.8rem;">({{ $city['share'] }}%)</span>
                             </span>
                         </div>

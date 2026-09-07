@@ -133,6 +133,10 @@
                             <i class="fa-solid fa-sliders sidebar-link-icon"></i>
                             <span>{{ __('admin.menu.settings') }}</span>
                         </a>
+                        <a href="{{ route('admin.settings.index') }}#tab-typography" class="sidebar-link" title="{{ app()->getLocale() == 'ar' ? 'المعاينة الحية والتحكم في خطوط النظام' : 'Live Interactive Typography Control' }}">
+                            <i class="fa-solid fa-font sidebar-link-icon text-sky-400"></i>
+                            <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة (Live)' : 'Typography & Fonts (Live)' }}</span>
+                        </a>
                     @endif
                 @endif
             </nav>
@@ -143,7 +147,7 @@
             <!-- Header -->
             <header class="admin-header">
                 <div class="header-left">
-                    <button type="button" class="btn btn-ghost btn-icon cursor-pointer" onclick="toggleAdminSidebar()" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+                    <button type="button" class="btn btn-ghost btn-icon cursor-pointer admin-mobile-toggle lg:hidden" onclick="toggleAdminSidebar()" title="Toggle Sidebar" aria-label="Toggle Sidebar">
                         <i class="fa-solid fa-bars text-lg"></i>
                     </button>
 
@@ -267,9 +271,9 @@
                                     <span>{{ __('admin.notifications.view_all') ?? 'View all notifications' }}</span>
                                     <i class="fa-solid fa-arrow-right text-[10px]"></i>
                                 </a>
-                                <button type="button" onclick="openFcmPermissionModal()" class="text-xs text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-300 font-semibold bg-transparent border-none p-0 cursor-pointer flex items-center gap-1.5" title="{{ app()->getLocale() == 'ar' ? 'إعدادات الإشعارات والمتصفح' : 'Notification & Browser Settings' }}">
+                                <button type="button" onclick="openFcmPermissionModal()" class="text-xs text-slate-500 hover:text-sky-600 dark:text-slate-400 dark:hover:text-sky-300 font-semibold bg-transparent border-none p-0 cursor-pointer flex items-center gap-1.5" title="{{ __('admin.notifications.browser_setup_title') }}">
                                     <i class="fa-solid fa-gear text-[11px]"></i>
-                                    <span>{{ app()->getLocale() == 'ar' ? 'ضبط المتصفح' : 'Browser Setup' }}</span>
+                                    <span>{{ __('admin.notifications.browser_setup') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -371,10 +375,12 @@
                                     <i class="fa-solid fa-shield-keyhole" style="width: 18px; color: #0284c7;"></i>
                                     <span>{{ __('admin.profile.password') }}</span>
                                 </a>
-                                <a href="{{ route('admin.profile.index') }}#preferences" class="admin-dropdown-item">
-                                    <i class="fa-solid fa-volume-high" style="width: 18px; color: #10b981;"></i>
-                                    <span>{{ __('admin.profile.acoustic_feedback') }}</span>
-                                </a>
+                                @if($u->hasPermission('settings.view') || $u->hasPermission('settings') || $u->isSuperAdmin())
+                                    <a href="{{ route('admin.settings.index') }}" class="admin-dropdown-item">
+                                        <i class="fa-solid fa-sliders" style="width: 18px; color: #10b981;"></i>
+                                        <span>{{ __('admin.menu.settings') }}</span>
+                                    </a>
+                                @endif
                                 <a href="{{ route('customer.home') }}" target="_blank" class="admin-dropdown-item">
                                     <i class="fa-solid fa-store" style="width: 18px; color: #8b5cf6;"></i>
                                     <span style="flex: 1;">{{ __('app.nav.home') }}</span>
@@ -1319,12 +1325,15 @@
                                                     </button>
                                                 `;
                                             }
+                                            // Only show toast if triggered manually by user action, avoid showing on every page refresh
+                                            if (typeof callback === 'function') {
                                             showAdminToast(
                                                 '{{ app()->getLocale() == "ar" ? "تم ربط توكن FCM بنجاح" : "FCM Device Token Linked" }}',
                                                 '{{ app()->getLocale() == "ar" ? "متصفحك متصل الآن بالإشعارات السحابية الفورية." : "Your browser is now registered for live push notifications." }}',
                                                 'fa-solid fa-circle-check text-emerald-500'
                                             );
-                                            if (typeof callback === 'function') callback({ success: true, token: token });
+                                                callback({ success: true, token: token });
+                                            }
                                         }).catch(err => {
                                             console.warn('Token sync note:', err);
                                             if (typeof callback === 'function') callback({ success: false, error: err.message });

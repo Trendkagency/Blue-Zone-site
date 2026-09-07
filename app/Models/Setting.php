@@ -15,7 +15,70 @@ class Setting extends Model
     ];
 
     /**
-     * Get a setting value with fallback and caching.
+     * In-memory runtime cache to eliminate repeated queries within the same request lifecycle.
+     *
+     * @var array<string, mixed>
+     */
+    protected static array $runtimeCache = [];
+
+    /**
+     * Flag indicating whether all settings have been bulk-preloaded.
+     */
+    protected static bool $allLoaded = false;
+
+    /**
+     * Model boot hooks to ensure runtime caches are invalidated on save/delete.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            static::flushRuntimeCache();
+            if (class_exists(\App\Services\TypographyService::class)) {
+                \App\Services\TypographyService::clearCache();
+            }
+            Cache::forget('all_settings_array');
+        });
+
+        static::deleted(function () {
+            static::flushRuntimeCache();
+            if (class_exists(\App\Services\TypographyService::class)) {
+                \App\Services\TypographyService::clearCache();
+            }
+            Cache::forget('all_settings_array');
+        });
+    }
+
+    /**
+     * Preload all settings into runtime memory at once.
+     */
+    public static function preloadAll(): void
+    {
+        try {
+            $settings = static::all();
+            foreach ($settings as $s) {
+                static::$runtimeCache[$s->key] = static::castValue($s->value, $s->type);
+            }
+            static::$allLoaded = true;
+        } catch (\Throwable) {}
+    }
+
+    /**
+     * Flush the in-memory runtime cache (useful for tests or setting updates).
+     */
+    public static function clearCache(): void
+    {
+        static::flushRuntimeCache();
+        \Illuminate\Support\Facades\Cache::forget('all_settings_array');
+    }
+
+    public static function flushRuntimeCache(): void
+    {
+        static::$runtimeCache = [];
+        static::$allLoaded = false;
+    }
+
+    /**
+     * Get a setting value with fallback and high-speed in-memory caching.
      *
      * @param string $key
      * @param mixed $default
@@ -23,18 +86,26 @@ class Setting extends Model
      */
     public static function get(string $key, mixed $default = null): mixed
     {
-        try {
-            return Cache::rememberForever("setting_{$key}", function () use ($key, $default) {
-                $setting = static::where('key', $key)->first();
-                if (!$setting) {
-                    return $default;
-                }
-
-                return static::castValue($setting->value, $setting->type);
-            });
-        } catch (\Throwable $e) {
-            return $default;
+        if (app()->runningUnitTests()) {
+            $setting = static::where('key', $key)->first();
+            return $setting !== null ? static::castValue($setting->value, $setting->type) : $default;
         }
+
+        if (array_key_exists($key, static::$runtimeCache)) {
+            return static::$runtimeCache[$key];
+        }
+
+        // On first get, bulk load all settings into memory at once
+        if (!static::$allLoaded) {
+            static::preloadAll();
+            if (array_key_exists($key, static::$runtimeCache)) {
+                return static::$runtimeCache[$key];
+            }
+        }
+
+        // If key was not in DB table, memoize the default value to avoid querying again
+        static::$runtimeCache[$key] = $default;
+        return $default;
     }
 
     /**
@@ -62,6 +133,13 @@ class Setting extends Model
                 'type' => $type,
             ]
         );
+
+        $cast = static::castValue($serializedValue, $type);
+        static::$runtimeCache[$key] = $cast;
+
+        if (class_exists(\App\Services\TypographyService::class)) {
+            \App\Services\TypographyService::clearCache();
+        }
 
         Cache::forget("setting_{$key}");
         Cache::forget('all_settings_array');

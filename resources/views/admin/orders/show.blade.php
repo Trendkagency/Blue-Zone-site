@@ -82,9 +82,9 @@
                                         </div>
                                     </td>
                                     <td class="font-mono text-xs">{{ $iSku }}</td>
-                                    <td>${{ number_format((float)$iPrice, 2) }}</td>
+                                    <td>@currency((float)$iPrice)</td>
                                     <td class="font-bold">{{ $iQty }}</td>
-                                    <td class="font-bold">${{ number_format((float)$iTot, 2) }}</td>
+                                    <td class="font-bold">@currency((float)$iTot)</td>
                                 </tr>
                             @empty
                                 <tr>
@@ -192,25 +192,25 @@
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <div class="summary-row" style="display: flex; justify-content: space-between;">
                         <span>{{ __('admin.invoices.subtotal') }}:</span>
-                        <span class="font-bold">${{ number_format((float)$subtotal, 2) }}</span>
+                        <span class="font-bold">@currency((float)$subtotal)</span>
                     </div>
                     @if((float)$discount > 0)
                         <div class="summary-row text-success" style="display: flex; justify-content: space-between; color: var(--color-success);">
                             <span>{{ __('admin.pos.discount') }}:</span>
-                            <span class="font-bold">-${{ number_format((float)$discount, 2) }}</span>
+                            <span class="font-bold">-@currency((float)$discount)</span>
                         </div>
                     @endif
                     <div class="summary-row" style="display: flex; justify-content: space-between;">
                         <span>{{ app()->getLocale() == 'ar' ? 'الشحن والتوصيل:' : 'Shipping:' }}</span>
-                        <span>{{ (float)$shipping > 0 ? '$' . number_format((float)$shipping, 2) : (app()->getLocale() == 'ar' ? 'شحن مجاني' : 'Free Shipping') }}</span>
+                        <span>{{ (float)$shipping > 0 ? format_currency((float)$shipping) : (app()->getLocale() == 'ar' ? 'شحن مجاني' : 'Free Shipping') }}</span>
                     </div>
                     <div class="summary-row" style="display: flex; justify-content: space-between;">
                         <span>{{ __('admin.invoices.vat_breakdown') }}:</span>
-                        <span>${{ number_format((float)$tax, 2) }}</span>
+                        <span>@currency((float)$tax)</span>
                     </div>
                     <div class="summary-row total" style="display: flex; justify-content: space-between; border-top: 1px solid var(--color-border); padding-top: 0.5rem; font-weight: 900; font-size: 1.1rem; color: var(--color-primary);">
                         <span>{{ __('admin.invoices.grand_total') }}:</span>
-                        <span>${{ number_format((float)$total, 2) }}</span>
+                        <span>@currency((float)$total)</span>
                     </div>
                 </div>
             </div>

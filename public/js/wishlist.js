@@ -35,8 +35,9 @@
       b.style.display = count > 0 ? 'flex' : 'none';
       if (count > 0) {
         b.classList.remove('animate-badge-pop');
-        void b.offsetWidth;
-        b.classList.add('animate-badge-pop');
+        requestAnimationFrame(() => {
+          b.classList.add('animate-badge-pop');
+        });
       }
     });
   }

@@ -37,6 +37,7 @@ class CategoryController extends Controller
 
         $trashedCount = Category::onlyTrashed()->count();
         $activeCount = Category::count();
+        $dbCategories = $query->paginate(15)->withQueryString();
         $totalDbCount = Category::withTrashed()->count();
 
         if ($totalDbCount > 0) {

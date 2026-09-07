@@ -354,28 +354,28 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
                         <div class="stat-card" style="background: var(--color-bg-surface); padding: 1rem; border-radius: var(--radius-md);">
                             <div class="text-xs text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'تكلفة الإنتاج' : 'Unit Cost' }}</div>
-                            <div class="font-bold font-mono text-lg" id="displayCostPrice">${{ number_format($taxInfo['cost_price'], 2) }}</div>
+                            <div class="font-bold font-mono text-lg" id="displayCostPrice">@currency($taxInfo['cost_price'])</div>
                         </div>
 
                         <div class="stat-card" style="background: var(--color-bg-surface); padding: 1rem; border-radius: var(--radius-md);">
                             <div class="text-xs text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'السعر الأساسي' : 'Net Base Price' }}</div>
-                            <div class="font-bold font-mono text-lg text-primary" id="displayNetPrice">${{ number_format($taxInfo['net_price'], 2) }}</div>
+                            <div class="font-bold font-mono text-lg text-primary" id="displayNetPrice">@currency($taxInfo['net_price'])</div>
                         </div>
 
                         <div class="stat-card" style="background: var(--color-bg-surface); padding: 1rem; border-radius: var(--radius-md);">
                             <div class="text-xs text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'ضريبة القيمة المضافة' : 'VAT Tax Amount' }}</div>
-                            <div class="font-bold font-mono text-lg text-warning" id="displayTaxAmount">${{ number_format($taxInfo['tax_amount'], 2) }}</div>
+                            <div class="font-bold font-mono text-lg text-warning" id="displayTaxAmount">@currency($taxInfo['tax_amount'])</div>
                         </div>
 
                         <div class="stat-card" style="background: var(--color-bg-surface); padding: 1rem; border-radius: var(--radius-md);">
                             <div class="text-xs text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'السعر الإجمالي للعميل' : 'Gross Consumer Price' }}</div>
-                            <div class="font-bold font-mono text-lg text-success" id="displayGrossPrice">${{ number_format($taxInfo['gross_price'], 2) }}</div>
+                            <div class="font-bold font-mono text-lg text-success" id="displayGrossPrice">@currency($taxInfo['gross_price'])</div>
                         </div>
 
                         <div class="stat-card" style="background: var(--color-bg-surface); padding: 1rem; border-radius: var(--radius-md);">
                             <div class="text-xs text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'هامش الربح الصافي' : 'Net Margin' }}</div>
                             <div class="font-bold font-mono text-lg text-success" id="displayProfitMargin">
-                                ${{ number_format($taxInfo['profit_margin'], 2) }} ({{ $taxInfo['profit_margin_percentage'] }}%)
+                                @currency($taxInfo['profit_margin']) ({{ $taxInfo['profit_margin_percentage'] }}%)
                             </div>
                         </div>
                     </div>
@@ -684,7 +684,7 @@
                         </div>
                         <div>
                             <span class="text-muted">{{ __('admin.products.fields.retail_price') }}:</span>
-                            <div class="font-bold font-mono text-primary" id="reviewPrice">${{ number_format($product['price'], 2) }}</div>
+                            <div class="font-bold font-mono text-primary" id="reviewPrice">@currency($product['price'])</div>
                         </div>
                         <div>
                             <span class="text-muted">{{ app()->getLocale() === 'ar' ? 'إجمالي المخزون الأولي' : 'Total Initial Units' }}:</span>
@@ -896,11 +896,12 @@
             const margin = netPrice - cost;
             const marginPct = (netPrice > 0) ? ((margin / netPrice) * 100).toFixed(1) : 0;
 
-            document.getElementById('displayCostPrice').innerText = '$' + cost.toFixed(2);
-            document.getElementById('displayNetPrice').innerText = '$' + netPrice.toFixed(2);
-            document.getElementById('displayTaxAmount').innerText = '$' + taxAmount.toFixed(2);
-            document.getElementById('displayGrossPrice').innerText = '$' + grossPrice.toFixed(2);
-            document.getElementById('displayProfitMargin').innerText = '$' + margin.toFixed(2) + ' (' + marginPct + '%)';
+            const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
+            document.getElementById('displayCostPrice').innerText = formatC(cost);
+            document.getElementById('displayNetPrice').innerText = formatC(netPrice);
+            document.getElementById('displayTaxAmount').innerText = formatC(taxAmount);
+            document.getElementById('displayGrossPrice').innerText = formatC(grossPrice);
+            document.getElementById('displayProfitMargin').innerText = formatC(margin) + ' (' + marginPct + '%)';
         }
 
         function updateReviewSummary() {
@@ -917,7 +918,7 @@
 
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
-            if (rPrice) rPrice.innerText = '$' + price.toFixed(2);
+            if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
             if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Boutique)';
         }
 

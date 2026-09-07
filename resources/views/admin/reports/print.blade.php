@@ -164,7 +164,7 @@
                 <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1rem; background: #F8FAFC;">
                     <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">GROSS REVENUE</div>
                     <div style="font-size: 1.5rem; font-weight: 900; color: #031827; margin: 0.25rem 0; font-variant-numeric: tabular-nums;">
-                        ${{ number_format($kpi['total_sales'], 2) }}
+                        @currency($kpi['total_sales'])
                     </div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #10B981;">
                         <i class="fa-solid fa-arrow-trend-up"></i> {{ $kpi['growth_rate'] }} YoY
@@ -174,7 +174,7 @@
                 <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1rem; background: #F8FAFC;">
                     <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">NET REALIZED REVENUE</div>
                     <div style="font-size: 1.5rem; font-weight: 900; color: #10B981; margin: 0.25rem 0; font-variant-numeric: tabular-nums;">
-                        ${{ number_format($kpi['net_revenue'], 2) }}
+                        @currency($kpi['net_revenue'])
                     </div>
                     <div style="font-size: 0.75rem; color: #64748B;">Excl. discounts</div>
                 </div>
@@ -182,7 +182,7 @@
                 <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1rem; background: #F8FAFC;">
                     <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">AVERAGE ORDER VALUE</div>
                     <div style="font-size: 1.5rem; font-weight: 900; color: #0A4F78; margin: 0.25rem 0; font-variant-numeric: tabular-nums;">
-                        ${{ number_format($kpi['average_order_value'], 2) }}
+                        @currency($kpi['average_order_value'])
                     </div>
                     <div style="font-size: 0.75rem; color: #64748B;">Across all channels</div>
                 </div>
@@ -190,7 +190,7 @@
                 <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1rem; background: #F8FAFC;">
                     <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">TOTAL INVENTORY VALUATION</div>
                     <div style="font-size: 1.5rem; font-weight: 900; color: #031827; margin: 0.25rem 0; font-variant-numeric: tabular-nums;">
-                        ${{ number_format($inventory['total_valuation'], 2) }}
+                        @currency($inventory['total_valuation'])
                     </div>
                     <div style="font-size: 0.75rem; color: #64748B;">{{ $inventory['total_units'] }} Units on Hand</div>
                 </div>
@@ -222,9 +222,9 @@
                             <td style="font-family: monospace; font-weight: 700; color: #475569;">{{ $p['sku'] }}</td>
                             <td style="font-weight: 800; color: #031827;">{{ app()->getLocale() === 'ar' ? $p['name_ar'] : $p['name_en'] }}</td>
                             <td>{{ app()->getLocale() === 'ar' ? $p['category_ar'] : $p['category_en'] }}</td>
-                            <td style="text-align: right; font-variant-numeric: tabular-nums;">${{ number_format($p['price'], 2) }}</td>
+                            <td style="text-align: right; font-variant-numeric: tabular-nums;">@currency($p['price'])</td>
                             <td style="text-align: center; font-weight: 800; color: #0A4F78;">{{ $p['units_sold'] }}</td>
-                            <td style="text-align: right; font-weight: 800; font-variant-numeric: tabular-nums;">${{ number_format($p['revenue'], 2) }}</td>
+                            <td style="text-align: right; font-weight: 800; font-variant-numeric: tabular-nums;">@currency($p['revenue'])</td>
                             <td style="text-align: center; font-weight: 700;">{{ $p['share_pct'] }}%</td>
                             <td style="text-align: center;">
                                 <span style="display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: #DCFCE7; color: #166534;">
@@ -250,10 +250,10 @@
                         <span style="font-size: 0.75rem; font-weight: 700; background: #E0F2FE; color: #0369A1; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ $channels['online']['percentage'] }}% Gross Share</span>
                     </div>
                     <div style="font-size: 1.35rem; font-weight: 900; color: #031827; margin-bottom: 0.25rem;">
-                        ${{ number_format($channels['online']['revenue'], 2) }}
+                        @currency($channels['online']['revenue'])
                     </div>
                     <div style="font-size: 0.8125rem; color: #64748B;">
-                        {{ $channels['online']['orders_count'] }} Orders | Average Basket: ${{ number_format($channels['online']['avg_ticket'], 2) }}
+                        {{ $channels['online']['orders_count'] }} Orders | Average Basket: @currency($channels['online']['avg_ticket'])
                     </div>
                 </div>
 
@@ -263,10 +263,10 @@
                         <span style="font-size: 0.75rem; font-weight: 700; background: #FEF3C7; color: #B45309; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ $channels['pos']['percentage'] }}% Gross Share</span>
                     </div>
                     <div style="font-size: 1.35rem; font-weight: 900; color: #031827; margin-bottom: 0.25rem;">
-                        ${{ number_format($channels['pos']['revenue'], 2) }}
+                        @currency($channels['pos']['revenue'])
                     </div>
                     <div style="font-size: 0.8125rem; color: #64748B;">
-                        {{ $channels['pos']['orders_count'] }} Tickets | Average Basket: ${{ number_format($channels['pos']['avg_ticket'], 2) }}
+                        {{ $channels['pos']['orders_count'] }} Tickets | Average Basket: @currency($channels['pos']['avg_ticket'])
                     </div>
                 </div>
             </div>
@@ -281,23 +281,23 @@
             <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1.25rem; background: #F8FAFC; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; text-align: center;">
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #64748B;">Gross Subtotal</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #031827; margin-top: 0.25rem;">${{ number_format($tax['subtotal_gross'], 2) }}</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #031827; margin-top: 0.25rem;">@currency($tax['subtotal_gross'])</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #DC2626;">Discounts Given</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #DC2626; margin-top: 0.25rem;">-${{ number_format($tax['discounts'], 2) }}</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #DC2626; margin-top: 0.25rem;">-@currency($tax['discounts'])</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #0A4F78;">Net Taxable Base</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #0A4F78; margin-top: 0.25rem;">${{ number_format($tax['net_taxable'], 2) }}</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #0A4F78; margin-top: 0.25rem;">@currency($tax['net_taxable'])</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #0A4F78;">VAT 15% Collected</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #0A4F78; margin-top: 0.25rem;">+${{ number_format($tax['vat_15'], 2) }}</div>
+                    <div style="font-size: 1.1rem; font-weight: 800; color: #0A4F78; margin-top: 0.25rem;">+@currency($tax['vat_15'])</div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; font-weight: 700; color: #10B981;">Gross Cash Realized</div>
-                    <div style="font-size: 1.1rem; font-weight: 900; color: #10B981; margin-top: 0.25rem;">${{ number_format($tax['realized_gross'], 2) }}</div>
+                    <div style="font-size: 1.1rem; font-weight: 900; color: #10B981; margin-top: 0.25rem;">@currency($tax['realized_gross'])</div>
                 </div>
             </div>
         </div>

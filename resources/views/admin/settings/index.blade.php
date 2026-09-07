@@ -61,15 +61,118 @@
                     <x-forms.input name="tagline" :label="__('admin.settings.fields.tagline')" :value="$settings['tagline'] ?? 'Cellular Longevity & Botanical Medicine'" required />
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
                     <x-forms.select 
                         name="default_language" 
                         :label="__('admin.settings.fields.default_language')" 
                         :selected="$settings['default_language'] ?? $settings['default_locale'] ?? 'en'"
                         :options="['en' => 'English (LTR)', 'ar' => 'العربية (RTL)']" 
                     />
-                    <x-forms.input name="currency" :label="__('admin.settings.fields.currency')" :value="$settings['currency'] ?? $settings['default_currency'] ?? 'USD'" required />
                     <x-forms.input name="timezone" :label="__('admin.settings.fields.timezone')" :value="$settings['timezone'] ?? 'Asia/Riyadh'" required />
+                </div>
+
+                <!-- Dynamic Currency & Pricing Engine Section -->
+                <div id="section-setting-currency" style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <h4 style="font-size: 1rem; font-weight: 800; margin: 0; color: var(--color-text);">
+                                <i class="fa-solid fa-coins text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'إعدادات العملة والأسعار الديناميكية (Currency Settings)' : 'Dynamic Currency & Pricing Settings' }}
+                            </h4>
+                            <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                                {{ app()->getLocale() == 'ar' ? 'تحديد عملة النظام والمتاجر والرموز وموضع العرض عبر واجهات المتجر والسلة والطلبات ونقاط البيع.' : 'Configure active storefront currency, localized symbols, and display positions across catalog, cart, checkout, and invoices.' }}
+                            </p>
+                        </div>
+                        <span class="badge badge-primary font-mono text-xs px-2.5 py-1">
+                            {{ app()->getLocale() == 'ar' ? 'مزامنة ديناميكية 100%' : '100% Dynamic Sync' }}
+                        </span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+                        <x-forms.select 
+                            id="currency_code_select"
+                            name="currency" 
+                            :label="__('admin.settings.fields.currency')" 
+                            :selected="$settings['currency'] ?? $settings['default_currency'] ?? 'SAR'"
+                            :options="[
+                                'SAR' => 'SAR - Saudi Riyal (ر.س)',
+                                'USD' => 'USD - US Dollar ($)',
+                                'AED' => 'AED - UAE Dirham (د.إ)',
+                                'EUR' => 'EUR - Euro (€)',
+                                'GBP' => 'GBP - British Pound (£)',
+                                'KWD' => 'KWD - Kuwaiti Dinar (د.ك)',
+                                'QAR' => 'QAR - Qatari Riyal (ر.ق)',
+                                'BHD' => 'BHD - Bahraini Dinar (د.ب)',
+                                'OMR' => 'OMR - Omani Rial (ر.ع)',
+                                'EGP' => 'EGP - Egyptian Pound (ج.م)',
+                            ]"
+                            required 
+                        />
+
+                        <x-forms.select 
+                            id="currency_position_select"
+                            name="currency_position" 
+                            :label="__('admin.settings.fields.currency_position')" 
+                            :selected="$settings['currency_position'] ?? 'auto'"
+                            :options="[
+                                'auto' => app()->getLocale() == 'ar' ? 'تلقائي (حسب المعايير القياسية للعملة)' : 'Auto (Standard Convention)',
+                                'after' => app()->getLocale() == 'ar' ? 'بعد المبلغ (مثال: 150.00 ر.س)' : 'After Amount (e.g. 150.00 SAR)',
+                                'before' => app()->getLocale() == 'ar' ? 'قبل المبلغ (مثال: $150.00)' : 'Before Amount (e.g. $150.00)',
+                            ]"
+                        />
+
+                        <x-forms.select 
+                            id="currency_decimals_select"
+                            name="currency_decimals" 
+                            :label="__('admin.settings.fields.currency_decimals')" 
+                            :selected="$settings['currency_decimals'] ?? 2"
+                            :options="[
+                                '2' => '2 Decimals (150.00)',
+                                '0' => '0 Decimals (150)',
+                                '3' => '3 Decimals (150.000)',
+                            ]"
+                        />
+
+                        <x-forms.input 
+                            id="currency_symbol_override"
+                            name="currency_symbol" 
+                            :label="__('admin.settings.fields.currency_symbol')" 
+                            :value="$settings['currency_symbol'] ?? ''" 
+                            placeholder="{{ app()->getLocale() == 'ar' ? 'اختياري (اتركه فارغاً للاستخدام التلقائي)' : 'Optional (leave blank for automatic)' }}"
+                        />
+                    </div>
+
+                    <!-- Real-Time Interactive Live Preview Card -->
+                    <div style="margin-top: 1rem; padding: 1rem 1.25rem; background: var(--color-surface-hover, rgba(10, 79, 120, 0.04)); border: 1px dashed var(--color-border); border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(10,79,120,0.1); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">
+                                    {{ app()->getLocale() == 'ar' ? 'معاينة حية لشكل السعر في المتجر' : 'Live Price Format Preview' }}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+                                    {{ app()->getLocale() == 'ar' ? 'عينة سعر: 245.50' : 'Sample amount: 245.50' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block;">{{ app()->getLocale() == 'ar' ? 'بالعربية' : 'Arabic View' }}</span>
+                                <span id="preview_currency_ar" style="font-size: 1.15rem; font-weight: 800; color: #0A4F78; font-family: monospace;">
+                                    {{ \App\Services\CurrencyService::format(245.50, null, 'ar') }}
+                                </span>
+                            </div>
+                            <div style="height: 30px; width: 1px; background: var(--color-border);"></div>
+                            <div style="text-align: center;">
+                                <span style="font-size: 0.7rem; color: var(--color-text-muted); display: block;">{{ app()->getLocale() == 'ar' ? 'بالإنجليزية' : 'English View' }}</span>
+                                <span id="preview_currency_en" style="font-size: 1.15rem; font-weight: 800; color: #0A4F78; font-family: monospace;">
+                                    {{ \App\Services\CurrencyService::format(245.50, null, 'en') }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
@@ -1127,80 +1230,1073 @@
             </div>
         </div>
 
-        <!-- Tab: Typography & Fonts -->
+        <!-- Tab: Typography & Fonts (Live Interactive System Control) -->
         <div id="tab-typography" data-tab-content="admin-settings" style="display: none;">
-            <div class="card" style="padding: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            @php
+                $availableFonts = \App\Services\TypographyService::getAvailableFonts();
+                $activeConfig = \App\Services\TypographyService::getActiveConfig();
+            @endphp
+
+            <!-- Hidden inputs synchronized for main settings form submission -->
+            <input type="hidden" name="font_family" id="bz_input_font_family" value="{{ $settings['font_family'] ?? $activeConfig['font_family'] }}">
+            <input type="hidden" name="font_heading_family" id="bz_input_font_heading_family" value="{{ $settings['font_heading_family'] ?? $activeConfig['font_heading_family'] }}">
+            <input type="hidden" name="font_size_base" id="bz_input_font_size_base" value="{{ $settings['font_size_base'] ?? $activeConfig['font_size_base'] }}">
+            <input type="hidden" name="font_weight_headings" id="bz_input_font_weight_headings" value="{{ $settings['font_weight_headings'] ?? $activeConfig['font_weight_headings'] }}">
+            <input type="hidden" name="font_weight_body" id="bz_input_font_weight_body" value="{{ $settings['font_weight_body'] ?? $activeConfig['font_weight_body'] }}">
+            <input type="hidden" name="font_letter_spacing" id="bz_input_font_letter_spacing" value="{{ $settings['font_letter_spacing'] ?? $activeConfig['font_letter_spacing'] }}">
+
+            <div class="bz-typo-container">
+                <style>
+                    .bz-typo-container {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1.5rem;
+                    }
+                    .bz-typo-hero {
+                        background: linear-gradient(135deg, #0A4F78 0%, #062B49 55%, #031827 100%);
+                        color: #FFFFFF;
+                        border-radius: 1rem;
+                        padding: 1.75rem;
+                        box-shadow: 0 10px 25px -5px rgba(10, 79, 120, 0.35);
+                        border: 1px solid rgba(255, 255, 255, 0.12);
+                    }
+                    .bz-typo-hero-header {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1.25rem;
+                        justify-content: space-between;
+                    }
+                    @media (min-width: 900px) {
+                        .bz-typo-hero-header {
+                            flex-direction: row;
+                            align-items: center;
+                        }
+                    }
+                    .bz-typo-brand {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.1rem;
+                    }
+                    .bz-typo-icon {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 3.5rem;
+                        height: 3.5rem;
+                        border-radius: 0.85rem;
+                        background: rgba(255, 255, 255, 0.12);
+                        font-size: 1.85rem;
+                        backdrop-filter: blur(8px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        color: #60A5FA;
+                        flex-shrink: 0;
+                    }
+                    .bz-typo-title {
+                        font-size: 1.45rem;
+                        font-weight: 800;
+                        margin: 0;
+                        color: #FFFFFF;
+                        letter-spacing: -0.02em;
+                    }
+                    .bz-typo-desc {
+                        font-size: 0.875rem;
+                        margin: 0.3rem 0 0 0;
+                        color: rgba(255, 255, 255, 0.82);
+                        line-height: 1.5;
+                        max-width: 650px;
+                    }
+                    .bz-typo-toolbar {
+                        display: flex;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        gap: 0.75rem;
+                    }
+                    .bz-typo-toggle-label {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: rgba(255, 255, 255, 0.12);
+                        padding: 0.6rem 0.95rem;
+                        border-radius: 0.625rem;
+                        font-size: 0.8rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        transition: background 0.2s;
+                        user-select: none;
+                    }
+                    .bz-typo-toggle-label:hover {
+                        background: rgba(255, 255, 255, 0.2);
+                    }
+                    .bz-typo-btn-reset {
+                        background: rgba(255, 255, 255, 0.08);
+                        border: 1px solid rgba(255, 255, 255, 0.25);
+                        color: #FFFFFF;
+                        font-weight: 700;
+                        font-size: 0.825rem;
+                        padding: 0.6rem 1.1rem;
+                        border-radius: 0.625rem;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    }
+                    .bz-typo-btn-reset:hover {
+                        background: rgba(255, 255, 255, 0.18);
+                    }
+                    .bz-typo-btn-save {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: #10B981;
+                        color: #FFFFFF;
+                        font-weight: 800;
+                        font-size: 0.825rem;
+                        padding: 0.65rem 1.35rem;
+                        border-radius: 0.625rem;
+                        border: none;
+                        cursor: pointer;
+                        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+                        transition: all 0.2s;
+                        text-transform: uppercase;
+                        letter-spacing: 0.03em;
+                    }
+                    .bz-typo-btn-save:hover {
+                        background: #059669;
+                        transform: translateY(-1px);
+                    }
+                    .bz-typo-pills-row {
+                        margin-top: 1.25rem;
+                        padding-top: 1.1rem;
+                        border-top: 1px solid rgba(255, 255, 255, 0.15);
+                        display: flex;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        gap: 0.6rem;
+                        font-size: 0.8rem;
+                    }
+                    .bz-typo-pill {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                        padding: 0.3rem 0.75rem;
+                        border-radius: 9999px;
+                        background: rgba(255, 255, 255, 0.14);
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                        font-weight: 600;
+                    }
+
+                    /* 2-Column Responsive Grid */
+                    .bz-typo-grid {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        gap: 1.5rem;
+                    }
+                    @media (min-width: 1080px) {
+                        .bz-typo-grid {
+                            grid-template-columns: 7fr 5fr;
+                        }
+                    }
+
+                    .bz-typo-panel {
+                        background: #FFFFFF;
+                        border: 1px solid var(--color-border, #E2E8F0);
+                        border-radius: 1rem;
+                        padding: 1.75rem;
+                        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+                    }
+                    .bz-typo-panel-title {
+                        font-size: 1.125rem;
+                        font-weight: 800;
+                        margin: 0 0 1.25rem 0;
+                        color: var(--color-text, #0F172A);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+
+                    /* Choice button groups */
+                    .bz-btn-group-5 {
+                        display: grid;
+                        grid-template-columns: repeat(5, 1fr);
+                        gap: 0.35rem;
+                    }
+                    .bz-btn-group-3 {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 0.35rem;
+                    }
+                    .bz-choice-btn {
+                        padding: 0.55rem 0.25rem;
+                        text-align: center;
+                        font-size: 0.785rem;
+                        font-weight: 700;
+                        border-radius: 0.5rem;
+                        border: 1px solid #CBD5E1;
+                        background: #F8FAFC;
+                        color: #334155;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                    }
+                    .bz-choice-btn:hover {
+                        border-color: #2A8FC2;
+                        background: #F1F5F9;
+                    }
+                    .bz-choice-btn.active {
+                        background: #0A4F78;
+                        color: #FFFFFF;
+                        border-color: #0A4F78;
+                        box-shadow: 0 2px 6px rgba(10, 79, 120, 0.3);
+                    }
+
+                    /* Catalog Section */
+                    .bz-cat-header {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.75rem;
+                        margin-bottom: 1.1rem;
+                    }
+                    @media (min-width: 640px) {
+                        .bz-cat-header {
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: space-between;
+                        }
+                    }
+                    .bz-cat-pills {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 0.4rem;
+                    }
+                    .bz-cat-pill-btn {
+                        padding: 0.35rem 0.75rem;
+                        font-size: 0.75rem;
+                        font-weight: 700;
+                        border-radius: 0.5rem;
+                        border: 1px solid #E2E8F0;
+                        background: #F8FAFC;
+                        color: #475569;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                    }
+                    .bz-cat-pill-btn:hover {
+                        border-color: #2A8FC2;
+                    }
+                    .bz-cat-pill-btn.active {
+                        background: #2A8FC2;
+                        color: #FFFFFF;
+                        border-color: #2A8FC2;
+                    }
+                    .bz-font-grid-cards {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        gap: 0.85rem;
+                        max-height: 520px;
+                        overflow-y: auto;
+                        padding-right: 0.35rem;
+                    }
+                    @media (min-width: 640px) {
+                        .bz-font-grid-cards {
+                            grid-template-columns: 1fr 1fr;
+                        }
+                    }
+                    .bz-font-card-item {
+                        padding: 0.95rem;
+                        border-radius: 0.75rem;
+                        border: 1px solid #E2E8F0;
+                        background: #FFFFFF;
+                        cursor: pointer;
+                        transition: all 0.15s ease-in-out;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                    }
+                    .bz-font-card-item:hover {
+                        border-color: #2A8FC2;
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(42, 143, 194, 0.12);
+                    }
+                    .bz-font-card-item.active {
+                        border-color: #0A4F78;
+                        background: rgba(10, 79, 120, 0.04);
+                        box-shadow: 0 0 0 2px #0A4F78;
+                    }
+
+                    /* Sandbox & Sticky Preview */
+                    .bz-sticky-sandbox-box {
+                        position: sticky;
+                        top: 2rem;
+                    }
+                    .bz-sandbox-view {
+                        background: #FAFAF9;
+                        border: 2px dashed #CBD5E1;
+                        border-radius: 0.85rem;
+                        padding: 1.5rem;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1.25rem;
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .bz-live-pulse-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.35rem;
+                        background: rgba(16, 185, 129, 0.15);
+                        color: #059669;
+                        font-size: 0.75rem;
+                        font-weight: 800;
+                        padding: 0.25rem 0.65rem;
+                        border-radius: 9999px;
+                        text-transform: uppercase;
+                    }
+                    .bz-pulse-circle {
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 9999px;
+                        background-color: #10B981;
+                        animation: bz-pulse-anim 1.5s infinite;
+                    }
+                    @keyframes bz-pulse-anim {
+                        0% { transform: scale(0.9); opacity: 0.7; }
+                        50% { transform: scale(1.3); opacity: 1; }
+                        100% { transform: scale(0.9); opacity: 0.7; }
+                    }
+                </style>
+
+                <!-- Hero Section with Action Toolbar -->
+                <div class="bz-typo-hero">
+                    <div class="bz-typo-hero-header">
+                        <div class="bz-typo-brand">
+                            <div class="bz-typo-icon">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div>
+                                <h2 class="bz-typo-title">
+                                    {{ app()->getLocale() == 'ar' ? 'المعاينة الحية والتحكم في خطوط النظام (Live Interactive Typography)' : 'Live Typography & System Font Engine' }}
+                                </h2>
+                                <p class="bz-typo-desc">
+                                    {{ app()->getLocale() == 'ar' 
+                                        ? 'التحكم الفوري في خطوط المتجر ولوحة التحكم مع معاينة لحظية وتطبيق فوري على مستوى النظام بالكامل بدون الانتقال لأي لوحة أخرى.' 
+                                        : 'Select and update fonts with instantaneous real-time preview across Admin Dashboard, Storefront, and System Management.' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bz-typo-toolbar">
+                            <label class="bz-typo-toggle-label" title="{{ app()->getLocale() == 'ar' ? 'تطبيق الخطوط المحددة مباشرة على لوحة الإدارة الحالية للمعاينة' : 'Preview fonts live on this admin panel' }}">
+                                <input type="checkbox" id="bz_toggle_admin_preview" style="accent-color: #2A8FC2; width: 1.1rem; height: 1.1rem; cursor: pointer;">
+                                <span>{{ app()->getLocale() == 'ar' ? 'معاينة حية على لوحة الإدارة' : 'Live Admin Panel Preview' }}</span>
+                            </label>
+
+                            <button type="button" class="bz-typo-btn-reset" onclick="BzTypography.resetDefaults()">
+                                <i class="fa-solid fa-arrow-rotate-left mr-1 ml-1"></i>
+                                {{ app()->getLocale() == 'ar' ? 'استعادة الافتراضي' : 'Reset Defaults' }}
+                            </button>
+
+                            <button type="button" class="bz-typo-btn-save" onclick="BzTypography.saveGlobally(this)">
+                                <i class="fa-solid fa-check mr-1 ml-1"></i>
+                                {{ app()->getLocale() == 'ar' ? 'حفظ وتطبيق على كامل النظام' : 'SAVE & APPLY GLOBALLY' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Active Config Badges -->
+                    <div class="bz-typo-pills-row">
+                        <span style="opacity: 0.9; font-weight: 700;">{{ app()->getLocale() == 'ar' ? 'الإعدادات النشطة:' : 'Active Config:' }}</span>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Primary:</span>
+                            <span id="pill_primary" style="color: #67E8F9;">{{ $activeConfig['font_family'] }}</span>
+                        </div>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Headings:</span>
+                            <span id="pill_headings" style="color: #67E8F9;">{{ $activeConfig['font_heading_family'] }}</span>
+                        </div>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Size:</span>
+                            <span id="pill_size" style="color: #FDE047;">{{ $activeConfig['font_size_base'] }}</span>
+                        </div>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Headings Weight:</span>
+                            <span id="pill_hweight" style="color: #A7F3D0;">{{ $activeConfig['font_weight_headings'] }}</span>
+                        </div>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Body Weight:</span>
+                            <span id="pill_bweight" style="color: #A7F3D0;">{{ $activeConfig['font_weight_body'] }}</span>
+                        </div>
+                        <div class="bz-typo-pill">
+                            <span style="opacity: 0.7;">Spacing:</span>
+                            <span id="pill_spacing" style="color: #DDD6FE;">{{ $activeConfig['font_letter_spacing'] }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main 2-Column Layout -->
+                <div class="bz-typo-grid">
+                    
+                    <!-- Left Column: Controls and Font Catalog -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        
+                        <!-- Panel 1: Typography Parameters -->
+                        <div class="bz-typo-panel">
+                            <div class="bz-typo-panel-title">
+                                <span><i class="fa-solid fa-sliders text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'خصائص الخطوط والأحجام' : 'Typography Parameters' }}</span>
+                                <span style="font-size: 0.75rem; color: #10B981; font-weight: 800; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 9999px;">
+                                    <i class="fa-solid fa-bolt mr-1 ml-1"></i> Real-Time Sync
+                                </span>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'الخط الأساسي للنصوص (Primary Body Font)' : 'Primary Body Font' }}
+                                    </label>
+                                    <select id="bz_select_primary" class="form-input" style="font-weight: 700; width: 100%;" onchange="BzTypography.setPrimaryFont(this.value)">
+                                        @foreach($availableFonts as $key => $f)
+                                            <option value="{{ $key }}" {{ ($settings['font_family'] ?? $activeConfig['font_family']) === $key ? 'selected' : '' }}>
+                                                {{ $f['label'] }} — {{ $f['category'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'خط العناوين والهوية (Headings & Brand Font)' : 'Headings & Brand Font' }}
+                                    </label>
+                                    <select id="bz_select_headings" class="form-input" style="font-weight: 700; width: 100%;" onchange="BzTypography.setHeadingFont(this.value)">
+                                        @foreach($availableFonts as $key => $f)
+                                            <option value="{{ $key }}" {{ ($settings['font_heading_family'] ?? $activeConfig['font_heading_family']) === $key ? 'selected' : '' }}>
+                                                {{ $f['label'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Buttons: Sizes & Weights -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+                                <!-- Base Size -->
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'حجم الخط الأساسي' : 'Base Font Size' }}
+                                    </label>
+                                    <div class="bz-btn-group-5" id="group_sizes">
+                                        @foreach(['14px', '15px', '16px', '17px', '18px'] as $sz)
+                                            <button type="button" class="bz-choice-btn {{ ($settings['font_size_base'] ?? $activeConfig['font_size_base']) === $sz ? 'active' : '' }}" onclick="BzTypography.setFontSize('{{ $sz }}')">
+                                                {{ $sz }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Headings Weight -->
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'سُمك العناوين' : 'Headings Weight' }}
+                                    </label>
+                                    <div class="bz-btn-group-5" id="group_hweight">
+                                        @foreach(['500' => 'Med', '600' => 'Semi', '700' => 'Bold', '800' => 'XBold', '900' => 'Black'] as $wVal => $wLabel)
+                                            <button type="button" class="bz-choice-btn {{ ($settings['font_weight_headings'] ?? $activeConfig['font_weight_headings']) == $wVal ? 'active' : '' }}" onclick="BzTypography.setHeadingWeight('{{ $wVal }}')">
+                                                {{ $wLabel }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Body Weight -->
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'سُمك نصوص المحتوى' : 'Body Text Weight' }}
+                                    </label>
+                                    <div class="bz-btn-group-3" id="group_bweight">
+                                        @foreach(['300' => 'Light', '400' => 'Regular', '500' => 'Medium'] as $bwVal => $bwLabel)
+                                            <button type="button" class="bz-choice-btn {{ ($settings['font_weight_body'] ?? $activeConfig['font_weight_body']) == $bwVal ? 'active' : '' }}" onclick="BzTypography.setBodyWeight('{{ $bwVal }}')">
+                                                {{ $bwLabel }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Letter Spacing -->
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 0.4rem;">
+                                        {{ app()->getLocale() == 'ar' ? 'تباعد الحروف اللاتينية' : 'Letter Spacing' }}
+                                    </label>
+                                    <div class="bz-btn-group-3" id="group_spacing">
+                                        @foreach(['tight' => 'Tight', 'normal' => 'Normal', 'relaxed' => 'Relaxed'] as $spVal => $spLabel)
+                                            <button type="button" class="bz-choice-btn {{ ($settings['font_letter_spacing'] ?? $activeConfig['font_letter_spacing']) === $spVal ? 'active' : '' }}" onclick="BzTypography.setLetterSpacing('{{ $spVal }}')">
+                                                {{ $spLabel }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Panel 2: Curated Font Library with Live Samples -->
+                        <div class="bz-typo-panel">
+                            <div class="bz-cat-header">
+                                <div>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0 0 0.25rem 0;">
+                                        <i class="fa-solid fa-shapes text-primary mr-1.5 ml-1.5"></i>
+                                        {{ app()->getLocale() == 'ar' ? 'مكتبة الخطوط المعتمدة وسريعة التحميل' : 'Curated Font Library' }}
+                                    </h4>
+                                    <p style="font-size: 0.8rem; color: #64748B; margin: 0;">
+                                        {{ app()->getLocale() == 'ar' ? 'اختر الخط مباشرة للمعاينة الحية بضغطة زر' : 'Click on any font card to apply instantaneously to sandbox' }}
+                                    </p>
+                                </div>
+
+                                <div style="position: relative; min-width: 200px;">
+                                    <input type="text" id="bz_font_search" placeholder="{{ app()->getLocale() == 'ar' ? 'بحث عن خط...' : 'Search font...' }}" class="form-input" style="font-size: 0.825rem; padding: 0.45rem 0.85rem;" oninput="BzTypography.filterCatalog()">
+                                </div>
+                            </div>
+
+                            <!-- Category Filter Pills -->
+                            <div class="bz-cat-pills" style="margin-bottom: 1rem;" id="bz_category_pills">
+                                <button type="button" class="bz-cat-pill-btn active" onclick="BzTypography.setCategory('All', this)">All</button>
+                                <button type="button" class="bz-cat-pill-btn" onclick="BzTypography.setCategory('Arabic', this)">Arabic Specialized</button>
+                                <button type="button" class="bz-cat-pill-btn" onclick="BzTypography.setCategory('Modern Sans', this)">Modern Sans</button>
+                                <button type="button" class="bz-cat-pill-btn" onclick="BzTypography.setCategory('Clean UI', this)">Clean UI</button>
+                                <button type="button" class="bz-cat-pill-btn" onclick="BzTypography.setCategory('Geometric', this)">Geometric</button>
+                            </div>
+
+                            <!-- Font Cards Grid -->
+                            <div class="bz-font-grid-cards" id="bz_font_cards_grid">
+                                @foreach($availableFonts as $fKey => $fMeta)
+                                    <div 
+                                        class="bz-font-card-item {{ ($settings['font_family'] ?? $activeConfig['font_family']) === $fKey ? 'active' : '' }}" 
+                                        data-font-name="{{ $fKey }}"
+                                        data-font-cat="{{ $fMeta['category'] }}"
+                                        onclick="BzTypography.selectFontDirect('{{ $fKey }}')"
+                                    >
+                                        <div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                                <div style="font-size: 0.925rem; font-weight: 800; color: #0F172A;">
+                                                    {{ $fMeta['name'] }}
+                                                </div>
+                                                <span style="font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 9999px; background: #F1F5F9; color: #64748B;">
+                                                    {{ $fMeta['category'] }}
+                                                </span>
+                                            </div>
+
+                                            <div style="font-family: '{{ $fKey }}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 700; color: #1E293B; margin-bottom: 0.35rem; line-height: 1.3;">
+                                                {{ $fMeta['preview_ar'] }}
+                                            </div>
+
+                                            <div style="font-family: '{{ $fKey }}', sans-serif; font-size: 0.775rem; color: #64748B; margin-bottom: 0.6rem;">
+                                                {{ $fMeta['preview_en'] }}
+                                            </div>
+                                        </div>
+
+                                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 0.5rem; margin-top: 0.5rem; font-size: 0.725rem;">
+                                            <button type="button" class="btn btn-outline btn-xs" style="font-weight: 700; font-size: 0.7rem; padding: 0.2rem 0.5rem;" onclick="event.stopPropagation(); BzTypography.setHeadingFont('{{ $fKey }}');">
+                                                <i class="fa-solid fa-heading mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'للعناوين' : 'Headings' }}
+                                            </button>
+                                            <span style="color: #94A3B8; font-size: 0.7rem;">
+                                                {{ count($fMeta['weights']) }} weights
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interactive Real-Time Live Preview Sandbox -->
                     <div>
-                        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem;">
-                            <i class="fa-solid fa-font text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة للنظام بالكامل' : 'System-Wide Typography & Font Styles' }}
-                        </h3>
-                        <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0;">
-                            {{ app()->getLocale() == 'ar' ? 'التحكم في خط الموقع والمتجر ولوحة التحكم مع المعاينة الحية الفورية.' : 'Control typography across customer storefront and admin dashboard with real-time preview.' }}
-                        </p>
+                        <div class="bz-sticky-sandbox-box">
+                            <div class="bz-typo-panel" style="box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);">
+                                <div class="bz-typo-panel-title">
+                                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <i class="fa-solid fa-bolt text-amber-500"></i>
+                                        <span>{{ app()->getLocale() == 'ar' ? 'المعاينة الحية الفورية (Live Sandbox)' : 'Real-Time Live Preview Sandbox' }}</span>
+                                    </span>
+                                    <span class="bz-live-pulse-badge">
+                                        <span class="bz-pulse-circle"></span> Live
+                                    </span>
+                                </div>
+
+                                <!-- The Dynamic Live Sandbox Container -->
+                                <div 
+                                    id="bz_live_sandbox" 
+                                    class="bz-sandbox-view"
+                                    style="
+                                        font-family: '{{ $settings['font_family'] ?? $activeConfig['font_family'] }}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', system-ui, sans-serif;
+                                        font-size: {{ $settings['font_size_base'] ?? $activeConfig['font_size_base'] }};
+                                        font-weight: {{ $settings['font_weight_body'] ?? $activeConfig['font_weight_body'] }};
+                                        letter-spacing: {{ $settings['font_letter_spacing'] ?? $activeConfig['font_letter_spacing'] }};
+                                    "
+                                >
+                                    <!-- Arabic Headline -->
+                                    <div>
+                                        <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">
+                                            Arabic Headline (H1)
+                                        </span>
+                                        <h1 
+                                            id="bz_preview_h1"
+                                            style="
+                                                margin: 0;
+                                                font-family: '{{ $settings['font_heading_family'] ?? $activeConfig['font_heading_family'] }}', '{{ $settings['font_family'] ?? $activeConfig['font_family'] }}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif; 
+                                                font-weight: {{ $settings['font_weight_headings'] ?? $activeConfig['font_weight_headings'] }};
+                                                font-size: 1.55rem;
+                                                color: #0A4F78;
+                                                line-height: 1.35;
+                                            "
+                                        >
+                                            بلوزون — هندسة الصحة الخلوية وطول العمر
+                                        </h1>
+                                    </div>
+
+                                    <!-- English Headline -->
+                                    <div>
+                                        <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">
+                                            English Headline (H2)
+                                        </span>
+                                        <h2 
+                                            id="bz_preview_h2"
+                                            style="
+                                                margin: 0;
+                                                font-family: '{{ $settings['font_heading_family'] ?? $activeConfig['font_heading_family'] }}', '{{ $settings['font_family'] ?? $activeConfig['font_family'] }}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', sans-serif; 
+                                                font-weight: {{ $settings['font_weight_headings'] ?? $activeConfig['font_weight_headings'] }};
+                                                font-size: 1.2rem;
+                                                color: #0F172A;
+                                                line-height: 1.35;
+                                            "
+                                        >
+                                            Cellular Optimization & Longevity Medicine
+                                        </h2>
+                                    </div>
+
+                                    <!-- Body Paragraphs -->
+                                    <div>
+                                        <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem;">
+                                            Body Typography
+                                        </span>
+                                        <p style="margin: 0; font-size: 0.95rem; color: #334155; line-height: 1.6;">
+                                            نظام رقمي متكامل يربط إدارة المخزون والمبيعات وتجربة العميل بأعلى معايير الجودة والأداء.
+                                        </p>
+                                        <p style="margin: 0.4rem 0 0 0; font-size: 0.85rem; color: #64748B; line-height: 1.5;">
+                                            Precision engineered for omnichannel retail, multi-warehouse inventory routing, and clinical-grade formulations.
+                                        </p>
+                                    </div>
+
+                                    <!-- Interactive Buttons & Badges -->
+                                    <div>
+                                        <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #94A3B8; letter-spacing: 0.05em; display: block; margin-bottom: 0.35rem;">
+                                            Buttons & Badges
+                                        </span>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;">
+                                            <button 
+                                                type="button" 
+                                                style="background: #0A4F78; color: #FFFFFF; font-weight: 700; font-size: 0.775rem; padding: 0.5rem 0.95rem; border-radius: 0.5rem; border: none; cursor: pointer;"
+                                            >
+                                                أضف للسلة • Add to Cart
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                style="background: #FFFFFF; color: #0A4F78; border: 1px solid #2A8FC2; font-weight: 700; font-size: 0.775rem; padding: 0.5rem 0.95rem; border-radius: 0.5rem; cursor: pointer;"
+                                            >
+                                                تفاصيل المنتج
+                                            </button>
+                                            <span style="background: rgba(16, 185, 129, 0.15); color: #059669; font-weight: 700; font-size: 0.725rem; padding: 0.25rem 0.65rem; border-radius: 9999px;">
+                                                <i class="fa-solid fa-circle-check mr-1 ml-1"></i> متوفر في المخزون
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- E-commerce Price Card Preview -->
+                                    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 0.75rem; padding: 0.85rem 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);">
+                                        <div>
+                                            <div style="font-size: 0.85rem; font-weight: 800; color: #0F172A;">
+                                                NMN Longevity Complex 500mg
+                                            </div>
+                                            <div style="font-size: 0.725rem; color: #94A3B8; margin-top: 0.15rem;">
+                                                المخزون المتوفر: 48 عبوة
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 1rem; font-weight: 900; color: #0A4F78;">
+                                                350.00 ر.س
+                                            </div>
+                                            <div style="font-size: 0.725rem; color: #94A3B8; text-decoration: line-through;">
+                                                420.00 ر.س
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Numbers & Monospace Sample -->
+                                    <div style="background: rgba(0, 0, 0, 0.04); border-radius: 0.5rem; padding: 0.6rem; text-align: center; font-size: 0.75rem; font-weight: 700; color: #475569;">
+                                        الأرقام والرموز: 0123456789 • SAR 1,299.00 • VAT 15% (31004829100003)
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 1.1rem; padding-top: 0.85rem; border-top: 1px solid #F1F5F9; font-size: 0.775rem; color: #64748B; line-height: 1.5;">
+                                    💡 <strong>{{ app()->getLocale() == 'ar' ? 'المعاينة التفاعلية فورية:' : 'Instant live preview:' }}</strong>
+                                    {{ app()->getLocale() == 'ar' ? 'التغييرات تنعكس مباشرة في المعاينة أعلاه. اضغط "حفظ وتطبيق على كامل النظام" لاعتمادها في قاعدة البيانات.' : 'Changes update live in this dashboard. Click "SAVE & APPLY GLOBALLY" to commit to the system database.' }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <a href="{{ route('filament.admin.pages.manage-typography') }}" class="btn btn-primary" target="_blank" style="background: linear-gradient(135deg, #0A4F78, #2A8FC2); border: none; font-weight: 800;">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5 ml-1.5"></i>
-                        {{ app()->getLocale() == 'ar' ? 'المعاينة الحية التفاعلية للخطوط' : 'Open Live Interactive Typography Customizer' }}
-                    </a>
-
-                </div>
-
-                @php
-                    $availableFonts = \App\Services\TypographyService::getAvailableFonts();
-                    $activeConfig = \App\Services\TypographyService::getActiveConfig();
-                @endphp
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
-                    <x-forms.select 
-                        name="font_family" 
-                        :label="app()->getLocale() == 'ar' ? 'الخط الأساسي للنظام (Primary Font)' : 'Primary System Font'" 
-                        :selected="$settings['font_family'] ?? $activeConfig['font_family']"
-                        :options="collect($availableFonts)->mapWithKeys(fn($f, $k) => [$k => $f['label'] . ' — ' . $f['category']])->toArray()" 
-                    />
-
-                    <x-forms.select 
-                        name="font_heading_family" 
-                        :label="app()->getLocale() == 'ar' ? 'خط العناوين الرئيسية (Headings Font)' : 'Headings & Brand Font'" 
-                        :selected="$settings['font_heading_family'] ?? $activeConfig['font_heading_family']"
-                        :options="collect($availableFonts)->mapWithKeys(fn($f, $k) => [$k => $f['label']])->toArray()" 
-                    />
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
-                    <x-forms.select 
-                        name="font_size_base" 
-                        :label="app()->getLocale() == 'ar' ? 'حجم الخط الأساسي' : 'Base Font Size'" 
-                        :selected="$settings['font_size_base'] ?? $activeConfig['font_size_base']"
-                        :options="['14px' => '14px (Compact)', '15px' => '15px (Medium)', '16px' => '16px (Standard / Recommended)', '17px' => '17px (Spacious)', '18px' => '18px (Large)']" 
-                    />
-
-                    <x-forms.select 
-                        name="font_weight_headings" 
-                        :label="app()->getLocale() == 'ar' ? 'سُمك العناوين (Weight)' : 'Headings Weight'" 
-                        :selected="$settings['font_weight_headings'] ?? $activeConfig['font_weight_headings']"
-                        :options="['500' => 'Medium (500)', '600' => 'Semi-Bold (600)', '700' => 'Bold (700)', '800' => 'Extra-Bold (800)', '900' => 'Black (900)']" 
-                    />
-
-                    <x-forms.select 
-                        name="font_weight_body" 
-                        :label="app()->getLocale() == 'ar' ? 'سُمك نصوص المحتوى' : 'Body Text Weight'" 
-                        :selected="$settings['font_weight_body'] ?? $activeConfig['font_weight_body']"
-                        :options="['300' => 'Light (300)', '400' => 'Regular (400)', '500' => 'Medium (500)']" 
-                    />
-                </div>
-
-                <!-- Preview Banner inside custom admin -->
-                <div style="margin-top: 1.5rem; background: rgba(10, 79, 120, 0.05); border: 1px dashed var(--bz-accent-blue); padding: 1.25rem; border-radius: var(--radius-lg);">
-                    <div style="font-size: 0.8125rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.5rem;">
-                        <i class="fa-solid fa-eye mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'معاينة الخط النشط حالياً:' : 'Active Applied Font:' }} {{ $activeConfig['font_family'] }}
-                    </div>
-                    <p style="margin: 0; font-size: 1.125rem; font-weight: 700;">
-                        {{ app()->getLocale() == 'ar' ? 'بلوزون — التجربة الاستثنائية للصحة الخلوية وحلول إطالة العمر.' : 'BLUE ZONE — Peak Cellular Longevity & Botanical Medicine.' }}
-                    </p>
                 </div>
             </div>
+
+            <!-- JavaScript Engine for Live Interactive Typography inside Main System Dashboard -->
+            <script>
+                (function() {
+                    const loadedFonts = new Set(['Cairo', 'Mont Blanc']);
+
+                    window.BzTypography = {
+                        state: {
+                            primaryFont: '{{ $settings["font_family"] ?? $activeConfig["font_family"] }}',
+                            headingFont: '{{ $settings["font_heading_family"] ?? $activeConfig["font_heading_family"] }}',
+                            fontSize: '{{ $settings["font_size_base"] ?? $activeConfig["font_size_base"] }}',
+                            headingWeight: '{{ $settings["font_weight_headings"] ?? $activeConfig["font_weight_headings"] }}',
+                            bodyWeight: '{{ $settings["font_weight_body"] ?? $activeConfig["font_weight_body"] }}',
+                            letterSpacing: '{{ $settings["font_letter_spacing"] ?? $activeConfig["font_letter_spacing"] }}',
+                            adminLivePreview: false,
+                            activeCategory: 'All',
+                        },
+
+                        init() {
+                            this.loadFont(this.state.primaryFont);
+                            if (this.state.headingFont && this.state.headingFont !== this.state.primaryFont) {
+                                this.loadFont(this.state.headingFont);
+                            }
+
+                            const toggleAdmin = document.getElementById('bz_toggle_admin_preview');
+                            if (toggleAdmin) {
+                                toggleAdmin.addEventListener('change', (e) => {
+                                    this.state.adminLivePreview = e.target.checked;
+                                    if (this.state.adminLivePreview) {
+                                        this.applyAdminPreview();
+                                    } else {
+                                        this.removeAdminPreview();
+                                    }
+                                });
+                            }
+
+                            this.updateSandbox();
+                            this.updatePills();
+                        },
+
+                        loadFont(fontName) {
+                            if (!fontName || loadedFonts.has(fontName)) return;
+
+                            if (fontName === 'Mont Blanc') {
+                                this.loadFont('Montserrat');
+                                this.loadFont('Tajawal');
+                                loadedFonts.add('Mont Blanc');
+                                return;
+                            }
+
+                            const kebab = fontName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                            const formattedGoogle = fontName.replace(/\s+/g, '+');
+                            const linkId = 'bz-font-link-' + kebab;
+
+                            if (!document.getElementById(linkId)) {
+                                const link = document.createElement('link');
+                                link.id = linkId;
+                                link.rel = 'stylesheet';
+                                link.href = `https://fonts.bunny.net/css?family=${kebab}:300,400,500,600,700,800,900&display=swap`;
+                                link.onerror = () => {
+                                    link.href = `https://fonts.googleapis.com/css2?family=${formattedGoogle}:wght@300;400;500;600;700;800;900&display=swap`;
+                                };
+                                document.head.appendChild(link);
+                                loadedFonts.add(fontName);
+                            }
+                        },
+
+                        selectFontDirect(fontName) {
+                            this.setPrimaryFont(fontName);
+                            this.setHeadingFont(fontName);
+                        },
+
+                        setPrimaryFont(fontName) {
+                            this.state.primaryFont = fontName;
+                            this.loadFont(fontName);
+
+                            const select = document.getElementById('bz_select_primary');
+                            if (select) select.value = fontName;
+
+                            const input = document.getElementById('bz_input_font_family');
+                            if (input) input.value = fontName;
+
+                            this.highlightActiveCards();
+                            this.updateSandbox();
+                            this.updatePills();
+
+                            if (this.state.adminLivePreview) {
+                                this.applyAdminPreview();
+                            }
+                        },
+
+                        setHeadingFont(fontName) {
+                            this.state.headingFont = fontName;
+                            this.loadFont(fontName);
+
+                            const select = document.getElementById('bz_select_headings');
+                            if (select) select.value = fontName;
+
+                            const input = document.getElementById('bz_input_font_heading_family');
+                            if (input) input.value = fontName;
+
+                            this.updateSandbox();
+                            this.updatePills();
+
+                            if (this.state.adminLivePreview) {
+                                this.applyAdminPreview();
+                            }
+                        },
+
+                        setFontSize(size) {
+                            this.state.fontSize = size;
+                            const input = document.getElementById('bz_input_font_size_base');
+                            if (input) input.value = size;
+
+                            this.updateButtonGroup('group_sizes', size);
+                            this.updateSandbox();
+                            this.updatePills();
+                        },
+
+                        setHeadingWeight(weight) {
+                            this.state.headingWeight = weight;
+                            const input = document.getElementById('bz_input_font_weight_headings');
+                            if (input) input.value = weight;
+
+                            this.updateButtonGroup('group_hweight', weight);
+                            this.updateSandbox();
+                            this.updatePills();
+
+                            if (this.state.adminLivePreview) {
+                                this.applyAdminPreview();
+                            }
+                        },
+
+                        setBodyWeight(weight) {
+                            this.state.bodyWeight = weight;
+                            const input = document.getElementById('bz_input_font_weight_body');
+                            if (input) input.value = weight;
+
+                            this.updateButtonGroup('group_bweight', weight);
+                            this.updateSandbox();
+                            this.updatePills();
+                        },
+
+                        setLetterSpacing(spacing) {
+                            this.state.letterSpacing = spacing;
+                            const input = document.getElementById('bz_input_font_letter_spacing');
+                            if (input) input.value = spacing;
+
+                            this.updateButtonGroup('group_spacing', spacing);
+                            this.updateSandbox();
+                            this.updatePills();
+                        },
+
+                        updateButtonGroup(groupId, activeVal) {
+                            const group = document.getElementById(groupId);
+                            if (!group) return;
+                            const buttons = group.querySelectorAll('.bz-choice-btn');
+                            buttons.forEach(btn => {
+                                const text = btn.textContent.trim();
+                                if (text.startsWith(activeVal) || text === activeVal || (groupId === 'group_hweight' && (
+                                    (activeVal === '500' && text.startsWith('Med')) ||
+                                    (activeVal === '600' && text.startsWith('Semi')) ||
+                                    (activeVal === '700' && text.startsWith('Bold')) ||
+                                    (activeVal === '800' && text.startsWith('XBold')) ||
+                                    (activeVal === '900' && text.startsWith('Black'))
+                                )) || (groupId === 'group_bweight' && (
+                                    (activeVal === '300' && text.startsWith('Light')) ||
+                                    (activeVal === '400' && text.startsWith('Regular')) ||
+                                    (activeVal === '500' && text.startsWith('Medium'))
+                                )) || (groupId === 'group_spacing' && (
+                                    (activeVal === 'tight' && text.startsWith('Tight')) ||
+                                    (activeVal === 'normal' && text.startsWith('Normal')) ||
+                                    (activeVal === 'relaxed' && text.startsWith('Relaxed'))
+                                ))) {
+                                    btn.classList.add('active');
+                                } else {
+                                    btn.classList.remove('active');
+                                }
+                            });
+                        },
+
+                        highlightActiveCards() {
+                            const cards = document.querySelectorAll('.bz-font-card-item');
+                            cards.forEach(card => {
+                                if (card.getAttribute('data-font-name') === this.state.primaryFont) {
+                                    card.classList.add('active');
+                                } else {
+                                    card.classList.remove('active');
+                                }
+                            });
+                        },
+
+                        updateSandbox() {
+                            const sandbox = document.getElementById('bz_live_sandbox');
+                            const h1 = document.getElementById('bz_preview_h1');
+                            const h2 = document.getElementById('bz_preview_h2');
+
+                            const primaryStack = `'${this.state.primaryFont}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', system-ui, sans-serif`;
+                            const headingStack = `'${this.state.headingFont}', '${this.state.primaryFont}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', system-ui, sans-serif`;
+
+                            let spacingCss = 'normal';
+                            if (this.state.letterSpacing === 'tight') spacingCss = '-0.02em';
+                            if (this.state.letterSpacing === 'relaxed') spacingCss = '0.04em';
+
+                            if (sandbox) {
+                                sandbox.style.fontFamily = primaryStack;
+                                sandbox.style.fontSize = this.state.fontSize;
+                                sandbox.style.fontWeight = this.state.bodyWeight;
+                                sandbox.style.letterSpacing = spacingCss;
+                            }
+
+                            if (h1) {
+                                h1.style.fontFamily = headingStack;
+                                h1.style.fontWeight = this.state.headingWeight;
+                            }
+
+                            if (h2) {
+                                h2.style.fontFamily = headingStack;
+                                h2.style.fontWeight = this.state.headingWeight;
+                            }
+                        },
+
+                        updatePills() {
+                            const p1 = document.getElementById('pill_primary');
+                            const p2 = document.getElementById('pill_headings');
+                            const p3 = document.getElementById('pill_size');
+                            const p4 = document.getElementById('pill_hweight');
+                            const p5 = document.getElementById('pill_bweight');
+                            const p6 = document.getElementById('pill_spacing');
+
+                            if (p1) p1.textContent = this.state.primaryFont;
+                            if (p2) p2.textContent = this.state.headingFont;
+                            if (p3) p3.textContent = this.state.fontSize;
+                            if (p4) p4.textContent = this.state.headingWeight;
+                            if (p5) p5.textContent = this.state.bodyWeight;
+                            if (p6) p6.textContent = this.state.letterSpacing;
+                        },
+
+                        applyAdminPreview() {
+                            let styleTag = document.getElementById('bz-admin-live-font-override');
+                            if (!styleTag) {
+                                styleTag = document.createElement('style');
+                                styleTag.id = 'bz-admin-live-font-override';
+                                document.head.appendChild(styleTag);
+                            }
+
+                            const primaryStack = `'${this.state.primaryFont}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', system-ui, sans-serif`;
+                            const headingStack = `'${this.state.headingFont}', '${this.state.primaryFont}', 'Mont Blanc', 'Montserrat', 'Tajawal', 'Cairo', system-ui, sans-serif`;
+
+                            styleTag.innerHTML = `
+                                body, .app-sidebar, .app-header, .card, table, input, select, button, .tab-btn {
+                                    font-family: ${primaryStack} !important;
+                                }
+                                h1, h2, h3, h4, h5, h6, .card-title, .page-header-title {
+                                    font-family: ${headingStack} !important;
+                                    font-weight: ${this.state.headingWeight} !important;
+                                }
+                            `;
+                        },
+
+                        removeAdminPreview() {
+                            const styleTag = document.getElementById('bz-admin-live-font-override');
+                            if (styleTag) styleTag.remove();
+                        },
+
+                        resetDefaults() {
+                            this.setPrimaryFont('Mont Blanc');
+                            this.setHeadingFont('Mont Blanc');
+                            this.setFontSize('16px');
+                            this.setHeadingWeight('700');
+                            this.setBodyWeight('400');
+                            this.setLetterSpacing('normal');
+                        },
+
+                        setCategory(cat, btn) {
+                            this.state.activeCategory = cat;
+                            const catButtons = document.querySelectorAll('#bz_category_pills .bz-cat-pill-btn');
+                            catButtons.forEach(b => b.classList.remove('active'));
+                            if (btn) btn.classList.add('active');
+                            this.filterCatalog();
+                        },
+
+                        filterCatalog() {
+                            const query = (document.getElementById('bz_font_search')?.value || '').toLowerCase().trim();
+                            const cat = this.state.activeCategory;
+                            const cards = document.querySelectorAll('.bz-font-card-item');
+
+                            cards.forEach(card => {
+                                const name = (card.getAttribute('data-font-name') || '').toLowerCase();
+                                const fontCat = (card.getAttribute('data-font-cat') || '').toLowerCase();
+
+                                const matchesQuery = !query || name.includes(query) || fontCat.includes(query);
+                                const matchesCat = cat === 'All' || fontCat.includes(cat.toLowerCase()) || (cat === 'Arabic' && (name === 'tajawal' || name === 'cairo' || name === 'alexandria' || name === 'almarai' || name.includes('arabic') || name === 'readex pro'));
+
+                                if (matchesQuery && matchesCat) {
+                                    card.style.display = 'flex';
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        },
+
+                        saveGlobally(btn) {
+                            const originalHtml = btn ? btn.innerHTML : '';
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1 ml-1"></i> {{ app()->getLocale() == "ar" ? "جاري الحفظ..." : "Saving..." }}';
+                            }
+
+                            const form = document.getElementById('settingsForm');
+                            const formData = form ? new FormData(form) : new FormData();
+
+                            formData.set('font_family', this.state.primaryFont);
+                            formData.set('font_heading_family', this.state.headingFont);
+                            formData.set('font_size_base', this.state.fontSize);
+                            formData.set('font_weight_headings', this.state.headingWeight);
+                            formData.set('font_weight_body', this.state.bodyWeight);
+                            formData.set('font_letter_spacing', this.state.letterSpacing);
+
+                            fetch('{{ route("admin.settings.update") }}', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                                    'Accept': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: formData
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (window.showAdminToast) {
+                                    window.showAdminToast(
+                                        '{{ app()->getLocale() == "ar" ? "تم حفظ وتطبيق الخطوط بنجاح!" : "Typography Saved Globally!" }}',
+                                        '{{ app()->getLocale() == "ar" ? "تم تحديث خطوط المتجر ولوحة الإدارة وتطبيقها فوراً." : "New typography applied across Storefront and Admin Dashboard." }}',
+                                        'fa-solid fa-circle-check text-emerald-500'
+                                    );
+                                } else {
+                                    alert('{{ app()->getLocale() == "ar" ? "تم حفظ وتطبيق الخطوط بنجاح!" : "Typography settings saved successfully!" }}');
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Save error:', err);
+                                // Fallback: submit regular form
+                                if (form) form.submit();
+                            })
+                            .finally(() => {
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalHtml;
+                                }
+                            });
+                        }
+                    };
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        window.BzTypography.init();
+                    });
+                })();
+            </script>
         </div>
 
         <!-- Tab: Firebase Cloud Messaging (FCM) & Push Notifications -->
@@ -1811,6 +2907,52 @@
                 }
             });
         };
+
+        
+        // Dynamic Currency Live Preview Synchronizer
+        const currMap = {
+            'SAR': { sym_ar: 'ر.س', sym_en: 'SAR', pos: 'after' },
+            'USD': { sym_ar: '$', sym_en: '$', pos: 'before' },
+            'AED': { sym_ar: 'د.إ', sym_en: 'AED', pos: 'after' },
+            'EUR': { sym_ar: '€', sym_en: '€', pos: 'before' },
+            'GBP': { sym_ar: '£', sym_en: '£', pos: 'before' },
+            'KWD': { sym_ar: 'د.ك', sym_en: 'KWD', pos: 'after' },
+            'QAR': { sym_ar: 'ر.ق', sym_en: 'QAR', pos: 'after' },
+            'BHD': { sym_ar: 'د.ب', sym_en: 'BHD', pos: 'after' },
+            'OMR': { sym_ar: 'ر.ع', sym_en: 'OMR', pos: 'after' },
+            'EGP': { sym_ar: 'ج.م', sym_en: 'EGP', pos: 'after' }
+        };
+
+        function updateCurrencyPreview() {
+            const code = document.getElementById('currency_code_select')?.value || 'SAR';
+            const posSetting = document.getElementById('currency_position_select')?.value || 'auto';
+            const dec = parseInt(document.getElementById('currency_decimals_select')?.value || '2', 10);
+            const customSym = document.getElementById('currency_symbol_override')?.value?.trim();
+
+            const curr = currMap[code] || { sym_ar: code, sym_en: code, pos: 'after' };
+            const num = (245.50).toFixed(dec);
+
+            const symAr = customSym || curr.sym_ar;
+            const symEn = customSym || curr.sym_en;
+
+            const pos = (posSetting === 'auto') ? curr.pos : posSetting;
+
+            const textAr = (pos === 'before') ? (symAr + num) : (num + ' ' + symAr);
+            const textEn = (pos === 'before') ? (symEn + (symEn.length > 1 ? ' ' : '') + num) : (num + ' ' + symEn);
+
+            const prevAr = document.getElementById('preview_currency_ar');
+            const prevEn = document.getElementById('preview_currency_en');
+            if (prevAr) prevAr.textContent = textAr;
+            if (prevEn) prevEn.textContent = textEn;
+        }
+
+        ['currency_code_select', 'currency_position_select', 'currency_decimals_select', 'currency_symbol_override'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', updateCurrencyPreview);
+                el.addEventListener('input', updateCurrencyPreview);
+            }
+        });
 
         // Open specific tab from URL hash if provided (e.g. #tab-fcm)
         document.addEventListener('DOMContentLoaded', function() {

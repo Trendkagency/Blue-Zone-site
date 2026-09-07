@@ -55,7 +55,7 @@
           <div class="pt-2 sm:pt-6 space-y-2 sm:space-y-3">
             <div class="flex justify-between items-center">
               <span class="text-xs sm:text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                $${p.price.toFixed(2)}
+                ${window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(p.price) : `$${p.price.toFixed(2)}`}
               </span>
               <button
                 onclick="event.stopPropagation(); BLUEZONE_WISHLIST.toggle('${p.id}')"

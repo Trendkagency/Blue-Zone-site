@@ -49,13 +49,21 @@ class ProfileController extends Controller
         $avatarPath = $user->avatar;
 
         if ($request->hasFile('avatar')) {
-            $user->clearMediaCollection('avatar');
-            $media = $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
-            $avatarPath = 'storage/' . $media->id . '/' . $media->file_name;
+            if (method_exists($user, 'clearMediaCollection')) {
+                $user->clearMediaCollection('avatar');
+                $media = $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+                $avatarPath = 'storage/' . $media->id . '/' . $media->file_name;
+            } else {
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            }
         } elseif ($request->hasFile('avatar_file')) {
-            $user->clearMediaCollection('avatar');
-            $media = $user->addMediaFromRequest('avatar_file')->toMediaCollection('avatar');
-            $avatarPath = 'storage/' . $media->id . '/' . $media->file_name;
+            if (method_exists($user, 'clearMediaCollection')) {
+                $user->clearMediaCollection('avatar');
+                $media = $user->addMediaFromRequest('avatar_file')->toMediaCollection('avatar');
+                $avatarPath = 'storage/' . $media->id . '/' . $media->file_name;
+            } else {
+                $avatarPath = $request->file('avatar_file')->store('avatars', 'public');
+            }
         } elseif (is_string($request->input('avatar')) && !empty($request->input('avatar'))) {
             $path = $request->input('avatar');
             if (str_contains($path, '/storage/')) {
