@@ -84,10 +84,6 @@ RUN chown -R www-data:www-data storage bootstrap/cache \
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/zz-custom.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/worker-nginx.conf /etc/supervisor/conf.d/worker-nginx.conf
-COPY docker/worker-phpfpm.conf /etc/supervisor/conf.d/worker-phpfpm.conf
-COPY docker/worker-laravel.conf /etc/supervisor/conf.d/worker-laravel.conf
-COPY docker/worker-scheduler.conf /etc/supervisor/conf.d/worker-scheduler.conf
 COPY docker/start.sh /start.sh
 
 RUN chmod +x /start.sh \

@@ -12,6 +12,7 @@ chown -R www-data:www-data /app/storage /app/bootstrap/cache || true
 chmod -R 775 /app/storage /app/bootstrap/cache || true
 
 # Run standard Laravel optimizations
+php artisan storage:link || true
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
