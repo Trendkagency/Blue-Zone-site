@@ -17,13 +17,22 @@ ENV COMPOSER_PROCESS_TIMEOUT=600
 COPY composer.json composer.lock ./
 
 RUN composer config process-timeout 600 \
-    && composer install \
+    && (composer install \
         --no-dev \
         --no-scripts \
         --no-autoloader \
         --prefer-dist \
         --ignore-platform-reqs \
-        --no-interaction
+        --no-interaction \
+        --no-audit \
+        || composer update \
+        --no-dev \
+        --no-scripts \
+        --no-autoloader \
+        --prefer-dist \
+        --ignore-platform-reqs \
+        --no-interaction \
+        --no-audit)
 
 COPY . .
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
@@ -32,26 +41,16 @@ RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 # ---------- Stage 2: Production image ----------
 FROM php:8.3-fpm-alpine AS production
 
-# System packages: Nginx, Supervisor, PHP extensions
+# Install fast PHP extension installer
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+# System packages & PHP extensions (fast pre-built binary installation)
 RUN apk add --no-cache \
         nginx \
         supervisor \
         bash \
         curl \
-        libzip \
-        libpng \
-        freetype \
-        libjpeg-turbo \
-        icu-libs \
-        oniguruma \
-        libzip-dev \
-        libpng-dev \
-        freetype-dev \
-        jpeg-dev \
-        icu-dev \
-        oniguruma-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" \
+    && install-php-extensions \
         pdo_mysql \
         zip \
         gd \
@@ -59,9 +58,7 @@ RUN apk add --no-cache \
         mbstring \
         bcmath \
         exif \
-    && docker-php-ext-enable opcache \
-    && apk del --no-cache \
-        libzip-dev libpng-dev freetype-dev jpeg-dev icu-dev oniguruma-dev
+        opcache
 
 WORKDIR /app
 
