@@ -90,6 +90,6 @@ RUN chmod +x /start.sh \
     && mkdir -p /var/log/supervisor /var/lib/nginx/tmp \
     && chown -R www-data:www-data /var/lib/nginx /var/log/nginx
 
-EXPOSE 80
+EXPOSE 80 8000
 
 CMD ["/start.sh"]
