@@ -13,9 +13,24 @@ class SettingController extends Controller
 {
     public function index(): View
     {
+        $fcmDefaults = [
+            'fcm_server_key'          => config('fcm.server_key', ''),
+            'fcm_project_id'          => config('fcm.project_id', ''),
+            'fcm_api_key'             => config('fcm.api_key', ''),
+            'fcm_messaging_sender_id' => config('fcm.messaging_sender_id', ''),
+            'fcm_app_id'              => config('fcm.app_id', ''),
+            'fcm_vapid_key'           => config('fcm.vapid_key', ''),
+            'fcm_notify_low_stock'    => config('fcm.triggers.low_stock', true),
+            'fcm_notify_out_stock'    => config('fcm.triggers.out_stock', true),
+            'fcm_notify_transfers'    => config('fcm.triggers.transfers', true),
+            'fcm_notify_issues'       => config('fcm.triggers.issues', true),
+            'fcm_sound_enabled'       => config('fcm.sound_enabled', true),
+        ];
+
         $defaults = SettingViewModel::all();
         $saved = Setting::getAll();
-        $settings = array_merge($defaults, $saved);
+        $settings = array_merge($fcmDefaults, $defaults, $saved);
+
 
         $defaultOrder = $defaults['landing_sections_order'] ?? array_keys(SettingViewModel::landingSections());
         $configuredOrder = $settings['landing_sections_order'] ?? $defaultOrder;
@@ -98,6 +113,23 @@ class SettingController extends Controller
             'notify_low_stock' => ['nullable', 'boolean'],
             'notify_new_order' => ['nullable', 'boolean'],
             'toast_sound_enabled' => ['nullable', 'boolean'],
+
+            // Firebase Cloud Messaging (FCM) Configuration
+            'fcm_server_key' => ['nullable', 'string', 'max:500'],
+            'fcm_project_id' => ['nullable', 'string', 'max:255'],
+            'fcm_api_key' => ['nullable', 'string', 'max:255'],
+            'fcm_auth_domain' => ['nullable', 'string', 'max:255'],
+            'fcm_storage_bucket' => ['nullable', 'string', 'max:255'],
+            'fcm_messaging_sender_id' => ['nullable', 'string', 'max:255'],
+            'fcm_app_id' => ['nullable', 'string', 'max:255'],
+            'fcm_measurement_id' => ['nullable', 'string', 'max:255'],
+            'fcm_vapid_key' => ['nullable', 'string', 'max:500'],
+            'fcm_notify_low_stock' => ['nullable', 'boolean'],
+            'fcm_notify_out_stock' => ['nullable', 'boolean'],
+            'fcm_notify_transfers' => ['nullable', 'boolean'],
+            'fcm_notify_issues' => ['nullable', 'boolean'],
+            'fcm_sound_enabled' => ['nullable', 'boolean'],
+
 
             // Landing Page Section Order
             'landing_sections_order' => ['nullable'],
@@ -266,6 +298,26 @@ class SettingController extends Controller
         Setting::set('notify_low_stock', $request->boolean('notify_low_stock'), 'alerts', 'boolean');
         Setting::set('notify_new_order', $request->boolean('notify_new_order'), 'alerts', 'boolean');
         Setting::set('toast_sound_enabled', $request->boolean('toast_sound_enabled', true), 'alerts', 'boolean');
+
+        // Firebase Cloud Messaging (FCM) Configuration & Real-Time Triggers
+        if (isset($validated['fcm_server_key'])) Setting::set('fcm_server_key', $validated['fcm_server_key'], 'fcm');
+        if (isset($validated['fcm_project_id'])) Setting::set('fcm_project_id', $validated['fcm_project_id'], 'fcm');
+        if (isset($validated['fcm_api_key'])) Setting::set('fcm_api_key', $validated['fcm_api_key'], 'fcm');
+        if (isset($validated['fcm_auth_domain'])) Setting::set('fcm_auth_domain', $validated['fcm_auth_domain'], 'fcm');
+        if (isset($validated['fcm_storage_bucket'])) Setting::set('fcm_storage_bucket', $validated['fcm_storage_bucket'], 'fcm');
+        if (isset($validated['fcm_messaging_sender_id'])) Setting::set('fcm_messaging_sender_id', $validated['fcm_messaging_sender_id'], 'fcm');
+        if (isset($validated['fcm_app_id'])) Setting::set('fcm_app_id', $validated['fcm_app_id'], 'fcm');
+        if (isset($validated['fcm_measurement_id'])) Setting::set('fcm_measurement_id', $validated['fcm_measurement_id'], 'fcm');
+        if (isset($validated['fcm_vapid_key'])) Setting::set('fcm_vapid_key', $validated['fcm_vapid_key'], 'fcm');
+        Setting::set('fcm_notify_low_stock', $request->boolean('fcm_notify_low_stock', true), 'fcm', 'boolean');
+        Setting::set('fcm_notify_out_stock', $request->boolean('fcm_notify_out_stock', true), 'fcm', 'boolean');
+        Setting::set('fcm_notify_transfers', $request->boolean('fcm_notify_transfers', true), 'fcm', 'boolean');
+        Setting::set('fcm_notify_issues', $request->boolean('fcm_notify_issues', true), 'fcm', 'boolean');
+        Setting::set('fcm_sound_enabled', $request->boolean('fcm_sound_enabled', true), 'fcm', 'boolean');
+
+        // Refresh FcmService singleton with the updated credentials
+        \App\Services\FcmService::getInstance()->refreshConfig();
+
 
         // -------------------------------------------------------------
         // LANDING PAGE SECTIONS ORDER & MASTER ON/OFF SWITCHES

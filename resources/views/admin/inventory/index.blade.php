@@ -171,10 +171,11 @@
     </div>
 
     <!-- Inventory Table -->
-    <div class="card">
-        <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+    <div class="card" style="overflow-x: auto;">
+        <div class="table-responsive" style="border: none; border-radius: 0; width: 100%; max-width: 100%; overflow-x: auto; display: block;">
+            <table class="table" style="min-width: 980px; width: 100%;">
                 <thead>
+
                     <tr>
                         <th>{{ app()->getLocale() == 'ar' ? 'التركيبة / رمز SKU' : 'Formulation / SKU' }}</th>
                         <th>{{ __('admin.inventory.location') }}</th>
@@ -329,12 +330,12 @@
                 <div style="margin-bottom: 1rem;">
                     <label class="text-xs font-bold text-muted">{{ app()->getLocale() == 'ar' ? 'نوع الحركة / التسوية' : 'Movement / Adjustment Type' }}</label>
                     <select name="movement_type" id="modalMovementType" class="form-select text-sm" style="width: 100%; margin-top: 0.25rem;" required>
-                        <option value="Stock In">{{ app()->getLocale() == 'ar' ? '➕ توريد / إدخال مخزون (Stock In)' : '➕ Stock In (Supplier Inbound)' }}</option>
-                        <option value="Stock Out">{{ app()->getLocale() == 'ar' ? '➖ إخراج مخزون (Stock Out)' : '➖ Stock Out' }}</option>
-                        <option value="Return">{{ app()->getLocale() == 'ar' ? '↩️ مرتجع عميل صالح (Return)' : '↩️ Customer Return' }}</option>
-                        <option value="Damaged">{{ app()->getLocale() == 'ar' ? '⚠️ تالف / تخريد (Damaged)' : '⚠️ Damaged Goods' }}</option>
-                        <option value="Expired">{{ app()->getLocale() == 'ar' ? '⏳ منتهي الصلاحية (Expired)' : '⏳ Expired Batch' }}</option>
-                        <option value="Manual Adjustment">{{ app()->getLocale() == 'ar' ? '⚙️ تسوية جردية يدوية (Manual Adjustment)' : '⚙️ Manual Stock Adjustment' }}</option>
+                        <option value="Stock In">{{ app()->getLocale() == 'ar' ? 'توريد / إدخال مخزون (Stock In)' : 'Stock In (Supplier Inbound)' }}</option>
+                        <option value="Stock Out">{{ app()->getLocale() == 'ar' ? 'إخراج مخزون (Stock Out)' : 'Stock Out' }}</option>
+                        <option value="Return">{{ app()->getLocale() == 'ar' ? 'مرتجع عميل صالح (Return)' : 'Customer Return' }}</option>
+                        <option value="Damaged">{{ app()->getLocale() == 'ar' ? 'تالف / تخريد (Damaged)' : 'Damaged Goods' }}</option>
+                        <option value="Expired">{{ app()->getLocale() == 'ar' ? 'منتهي الصلاحية (Expired)' : 'Expired Batch' }}</option>
+                        <option value="Manual Adjustment">{{ app()->getLocale() == 'ar' ? 'تسوية جردية يدوية (Manual Adjustment)' : 'Manual Stock Adjustment' }}</option>
                     </select>
                 </div>
 

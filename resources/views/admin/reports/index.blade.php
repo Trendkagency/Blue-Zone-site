@@ -265,24 +265,25 @@
     <!-- Navigation Tabs for Deep Intelligence (Hidden in print) -->
     <div class="no-print" style="margin-bottom: 1.75rem; border-bottom: 2px solid var(--color-border); display: flex; gap: 0.5rem; overflow-x: auto;">
         <button type="button" class="report-tab-btn active" onclick="switchReportTab('overview', this)">
-            {{ __('admin.reports.tabs.overview') }}
+            <i class="fa-solid fa-chart-pie mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.overview') }}</span>
         </button>
         <button type="button" class="report-tab-btn" onclick="switchReportTab('products', this)">
-            {{ __('admin.reports.tabs.products') }}
+            <i class="fa-solid fa-dna mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.products') }}</span>
         </button>
         <button type="button" class="report-tab-btn" onclick="switchReportTab('channels', this)">
-            {{ __('admin.reports.tabs.channels') }}
+            <i class="fa-solid fa-shop mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.channels') }}</span>
         </button>
         <button type="button" class="report-tab-btn" onclick="switchReportTab('customers', this)">
-            {{ __('admin.reports.tabs.customers') }}
+            <i class="fa-solid fa-users mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.customers') }}</span>
         </button>
         <button type="button" class="report-tab-btn" onclick="switchReportTab('tax_inventory', this)">
-            {{ __('admin.reports.tabs.tax_inventory') }}
+            <i class="fa-solid fa-file-invoice-dollar mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.tax_inventory') }}</span>
         </button>
         <button type="button" class="report-tab-btn" onclick="switchReportTab('full_system', this)">
-            {{ __('admin.reports.tabs.full_system') }}
+            <i class="fa-solid fa-network-wired mr-1.5 ml-1.5"></i> <span>{{ __('admin.reports.tabs.full_system') }}</span>
         </button>
     </div>
+
 
     <!-- ========================================================================= -->
     <!-- TAB 1: OVERVIEW & FINANCIAL VELOCITY                                      -->

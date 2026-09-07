@@ -7,7 +7,7 @@
     @if ($errors->any())
         <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); color: var(--color-danger); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
             <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span>⚠️</span>
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
                 <span>{{ app()->getLocale() === 'ar' ? 'يرجى مراجعة الحقول المطلوبة التالية وتصحيحها:' : 'Please correct the following validation errors:' }}</span>
             </div>
             <ul style="margin: 0; padding-inline-start: 1.5rem; font-size: 0.875rem; line-height: 1.6;">
@@ -205,7 +205,7 @@
                 <!-- Arabic Section -->
                 <div style="background: var(--color-bg-subtle); padding: 1.75rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); margin-bottom: 2rem;" dir="rtl">
                     <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span>🇸🇦</span>
+                        <i class="fa-solid fa-language text-sky-500"></i>
                         <span>{{ __('admin.products.sections.arabic_content') }}</span>
                     </h4>
 
@@ -244,7 +244,7 @@
                 <!-- English Section -->
                 <div style="background: var(--color-bg-subtle); padding: 1.75rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border);" dir="ltr">
                     <h4 style="font-size: 1.1rem; font-weight: 800; color: var(--color-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span>🇬🇧</span>
+                        <i class="fa-solid fa-globe text-primary"></i>
                         <span>{{ __('admin.products.sections.english_content') }}</span>
                     </h4>
 
@@ -343,7 +343,7 @@
                 <div style="margin-top: 2rem; background: var(--color-bg-subtle); padding: 1.5rem 2rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--color-primary); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span>📊</span>
+                            <i class="fa-solid fa-chart-pie text-primary"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'التحليل المالي المباشر والضرائب (ZATCA Engine)' : 'Live Tax Breakdown & Margin Analysis' }}</span>
                         </h4>
                         <span class="badge badge-success text-xs font-mono" id="badgeTaxRate">
@@ -440,7 +440,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
                     <div>
                         <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <span>🔬</span>
+                            <i class="fa-solid fa-flask-vial text-primary"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'قسم أبحاث العلوم وطول العمر (Our Science & Clinical Data)' : 'Our Science & Clinical Research Dossier' }}</span>
                         </h3>
                         <p class="text-xs text-muted" style="margin: 0;">
@@ -669,7 +669,7 @@
                 <!-- Final Verification & Review Card -->
                 <div class="card" style="padding: 2.25rem; background: var(--color-bg-subtle); border: 1px solid var(--color-primary);">
                     <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--color-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span>📋</span>
+                        <i class="fa-solid fa-clipboard-check text-primary"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'ملخص مراجعة تعديل التركيبة الحيوية' : 'Formulation Update Final Verification' }}</span>
                     </h4>
 

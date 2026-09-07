@@ -5,7 +5,9 @@
 >
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
         <div class="card card-hover-lift" style="padding: 2rem;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🖼️</div>
+            <div style="font-size: 2rem; margin-bottom: 1rem; color: var(--color-primary);">
+                <i class="fa-regular fa-image"></i>
+            </div>
             <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">
                 {{ __('admin.content.banners_title') }}
             </h3>
@@ -13,12 +15,14 @@
                 {{ __('admin.content.banners_subtitle') }}
             </p>
             <a href="{{ route('admin.content.banners') }}" class="btn btn-primary btn-sm">
-                {{ __('admin.content.edit_hero_btn') }}
+                <i class="fa-solid fa-pen-to-square mr-1 ml-1"></i> {{ __('admin.content.edit_hero_btn') }}
             </a>
         </div>
 
         <div class="card card-hover-lift" style="padding: 2rem;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">🌍</div>
+            <div style="font-size: 2rem; margin-bottom: 1rem; color: #10B981;">
+                <i class="fa-solid fa-earth-americas"></i>
+            </div>
             <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">
                 {{ __('admin.content.story_title') }}
             </h3>
@@ -26,12 +30,14 @@
                 {{ __('admin.content.story_subtitle') }}
             </p>
             <a href="{{ route('admin.content.story') }}" class="btn btn-primary btn-sm">
-                {{ __('admin.content.edit_zones_btn') }}
+                <i class="fa-solid fa-pen-to-square mr-1 ml-1"></i> {{ __('admin.content.edit_zones_btn') }}
             </a>
         </div>
 
         <div class="card card-hover-lift" style="padding: 2rem;">
-            <div style="font-size: 2rem; margin-bottom: 1rem;">❓</div>
+            <div style="font-size: 2rem; margin-bottom: 1rem; color: #6366F1;">
+                <i class="fa-regular fa-circle-question"></i>
+            </div>
             <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">
                 {{ __('admin.content.faqs_title') }}
             </h3>
@@ -39,7 +45,7 @@
                 {{ __('admin.content.faqs_subtitle') }}
             </p>
             <a href="{{ route('admin.content.faqs') }}" class="btn btn-primary btn-sm">
-                {{ __('admin.content.manage_faqs_btn') }}
+                <i class="fa-solid fa-pen-to-square mr-1 ml-1"></i> {{ __('admin.content.manage_faqs_btn') }}
             </a>
         </div>
     </div>

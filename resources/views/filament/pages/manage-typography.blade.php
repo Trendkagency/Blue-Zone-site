@@ -594,14 +594,14 @@
             <div class="bz-hero-header">
                 <div class="bz-brand-badge">
                     <div class="bz-brand-icon">
-                        🔤
+                        <i class="fa-solid fa-font"></i>
                     </div>
                     <div>
                         <h2 class="bz-brand-title">
                             Live Typography & System Font Engine
                         </h2>
                         <p class="bz-brand-desc">
-                            Select and update fonts with instantaneous real-time preview across Filament Admin, Storefront, and Custom Admin.
+                            Select and update fonts with instantaneous real-time preview across Admin Dashboard, Storefront, and System Management.
                         </p>
                     </div>
                 </div>
@@ -611,7 +611,7 @@
                     <!-- Live Admin Preview Toggle -->
                     <label class="bz-toggle-label" title="Toggle immediate font preview across entire admin navigation">
                         <input type="checkbox" x-model="adminLivePreview" style="accent-color: #2A8FC2;">
-                        <span>👁️ Live Admin Panel Preview</span>
+                        <span><i class="fa-solid fa-eye mr-1 ml-1"></i> Live Admin Panel Preview</span>
                     </label>
 
                     <button 

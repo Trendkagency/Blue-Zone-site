@@ -14,7 +14,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Singleton pattern: FcmService
+        $this->app->singleton(\App\Services\FcmService::class, function () {
+            return \App\Services\FcmService::getInstance();
+        });
     }
 
     /**
@@ -22,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Observer pattern: Inventory item and movement observers
+        \App\Models\InventoryItem::observe(\App\Observers\InventoryItemObserver::class);
+        \App\Models\InventoryMovement::observe(\App\Observers\InventoryMovementObserver::class);
+
         if ($this->app->environment('production') || config('app.env') === 'production' || str_starts_with(config('app.url', ''), 'https://')) {
             URL::forceScheme('https');
         }

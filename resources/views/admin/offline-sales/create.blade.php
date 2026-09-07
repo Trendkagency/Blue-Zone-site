@@ -71,11 +71,11 @@
                 <div style="margin-bottom: 1rem;">
                     <label class="text-xs font-bold text-muted">{{ __('admin.pos.select_customer') }}</label>
                     <select name="customer_name" id="customerSelect" class="form-select text-sm" style="margin-top: 0.25rem; width: 100%;" onchange="toggleCustomCustomer(this.value)">
-                        <option value="Walk-In Boutique VIP">👤 {{ __('admin.pos.walk_in') }}</option>
+                        <option value="Walk-In Boutique VIP">{{ __('admin.pos.walk_in') }}</option>
                         @foreach($customers as $c)
                             <option value="{{ $c->name }}" data-phone="{{ $c->phone }}" data-email="{{ $c->email }}">{{ $c->name }} ({{ $c->tier ?? 'Member' }})</option>
                         @endforeach
-                        <option value="__custom__">➕ {{ app()->getLocale() == 'ar' ? 'إدخال عميل جديد يدوي...' : 'Enter new customer details...' }}</option>
+                        <option value="__custom__">{{ app()->getLocale() == 'ar' ? 'إدخال عميل جديد يدوي...' : 'Enter new customer details...' }}</option>
                     </select>
 
                     <div id="customCustomerFields" style="display: none; margin-top: 0.5rem; gap: 0.5rem; flex-direction: column;">
@@ -136,10 +136,10 @@
                 <div style="margin-bottom: 1.25rem;">
                     <label class="text-xs font-bold text-muted">{{ __('admin.pos.payment_method') }}</label>
                     <select name="payment_method" class="form-select text-sm" style="margin-top: 0.25rem; width: 100%;">
-                        <option value="Mada / Debit POS Terminal">💳 {{ app()->getLocale() == 'ar' ? 'مدى / بطاقة مصرفية (POS)' : 'Mada / Debit POS Terminal' }}</option>
-                        <option value="Credit Card (Visa / Mastercard / Amex)">💳 {{ app()->getLocale() == 'ar' ? 'بطاقة ائتمانية (فيزا / ماستركارد)' : 'Credit Card (Visa / Mastercard / Amex)' }}</option>
-                        <option value="Cash Tender">💵 {{ app()->getLocale() == 'ar' ? 'سداد نقدي' : 'Cash Tender' }}</option>
-                        <option value="Apple Pay / Contactless">📱 {{ app()->getLocale() == 'ar' ? 'أبل باي / دفع بدون تلامس' : 'Apple Pay / NFC Contactless' }}</option>
+                        <option value="Mada / Debit POS Terminal">{{ app()->getLocale() == 'ar' ? 'مدى / بطاقة مصرفية (POS)' : 'Mada / Debit POS Terminal' }}</option>
+                        <option value="Credit Card (Visa / Mastercard / Amex)">{{ app()->getLocale() == 'ar' ? 'بطاقة ائتمانية (فيزا / ماستركارد)' : 'Credit Card (Visa / Mastercard / Amex)' }}</option>
+                        <option value="Cash Tender">{{ app()->getLocale() == 'ar' ? 'سداد نقدي' : 'Cash Tender' }}</option>
+                        <option value="Apple Pay / Contactless">{{ app()->getLocale() == 'ar' ? 'أبل باي / دفع بدون تلامس' : 'Apple Pay / NFC Contactless' }}</option>
                     </select>
                 </div>
 

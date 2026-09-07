@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfflineSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -31,6 +32,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Admin Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Notifications
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::post('/{id}/read', [NotificationController::class, 'markAsRead'])->name('read');
+            Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+            Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+            Route::post('/fcm-token', [NotificationController::class, 'updateFcmToken'])->name('fcm-token');
+            Route::post('/test-push', [NotificationController::class, 'testPush'])->name('test-push');
+        });
 
         // Profile & Account Management
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

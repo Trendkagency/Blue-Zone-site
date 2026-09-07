@@ -64,7 +64,7 @@
                 </div>
 
                 <a href="{{ route('admin.inventory.transfers') }}" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 1rem;">
-                    🔄 Transfer Stock
+                    <i class="fa-solid fa-arrow-right-arrow-left mr-1.5 ml-1.5"></i> {{ __('admin.inventory.transfer_stock') ?? 'Transfer Stock' }}
                 </a>
             </div>
 

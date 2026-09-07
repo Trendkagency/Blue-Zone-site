@@ -22,27 +22,32 @@
         <!-- Settings Tabs Navigation -->
         <div class="product-tabs-nav" data-tab-group="admin-settings" style="margin-bottom: 2rem;">
             <button type="button" class="tab-btn active" data-tab-target="tab-general">
-                {{ __('admin.settings.tabs.general') }}
+                <i class="fa-solid fa-sliders mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.general') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-landing">
-                🌐 {{ __('admin.settings.tabs.landing') }}
+                <i class="fa-solid fa-globe mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.landing') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-commerce">
-                {{ __('admin.settings.tabs.commerce') }}
+                <i class="fa-solid fa-credit-card mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.commerce') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-store">
-                {{ __('admin.settings.tabs.store') }}
+                <i class="fa-solid fa-store mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.store') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-shipping">
-                {{ __('admin.settings.tabs.shipping') }}
+                <i class="fa-solid fa-truck-fast mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.shipping') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-typography">
-                🔤 {{ __('admin.settings.tabs.typography') ?? 'Typography & Fonts' }}
+                <i class="fa-solid fa-font mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.typography') }}</span>
             </button>
             <button type="button" class="tab-btn" data-tab-target="tab-alerts">
-                {{ __('admin.settings.tabs.alerts') }}
+                <i class="fa-solid fa-volume-high mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.alerts') }}</span>
+            </button>
+            <button type="button" class="tab-btn" data-tab-target="tab-fcm">
+                <i class="fa-solid fa-satellite-dish mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.fcm') }}</span>
             </button>
         </div>
+
+
 
         <!-- Tab 1: General -->
         <div id="tab-general" data-tab-content="admin-settings" style="display: block;">
@@ -51,12 +56,12 @@
                     {{ __('admin.settings.sections.general_brand') }}
                 </h3>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
                     <x-forms.input name="site_name" :label="__('admin.settings.fields.site_name')" :value="$settings['site_name'] ?? $settings['store_name'] ?? 'BLUE ZONE™ Longevity & Cellular Health'" required />
                     <x-forms.input name="tagline" :label="__('admin.settings.fields.tagline')" :value="$settings['tagline'] ?? 'Cellular Longevity & Botanical Medicine'" required />
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
                     <x-forms.select 
                         name="default_language" 
                         :label="__('admin.settings.fields.default_language')" 
@@ -67,7 +72,7 @@
                     <x-forms.input name="timezone" :label="__('admin.settings.fields.timezone')" :value="$settings['timezone'] ?? 'Asia/Riyadh'" required />
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
                     <x-forms.input name="contact_email" :label="__('admin.settings.fields.contact_email')" :value="$settings['contact_email'] ?? $settings['support_email'] ?? 'care@bluezone.com'" required />
                     <x-forms.input name="contact_phone" :label="__('admin.settings.fields.contact_phone')" :value="$settings['contact_phone'] ?? $settings['support_phone'] ?? '+966 800 123 4567'" required />
                 </div>
@@ -90,15 +95,15 @@
                         />
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
                         <x-forms.select 
                             name="whatsapp_position" 
                             :label="app()->getLocale() == 'ar' ? 'موضع الأيقونة (Position & RTL/LTR)' : 'Widget Position & Alignment'" 
                             :selected="$settings['whatsapp_position'] ?? 'auto'"
                             :options="[
-                                'auto' => app()->getLocale() == 'ar' ? '🌐 تلقائي (يمين بالإنجليزي / يسار بالعربي)' : '🌐 Auto (LTR: Right / RTL: Left)',
-                                'bottom_right' => app()->getLocale() == 'ar' ? '👉 أسفل اليمين دائماً (Bottom-Right)' : '👉 Always Bottom-Right',
-                                'bottom_left' => app()->getLocale() == 'ar' ? '👈 أسفل اليسار دائماً (Bottom-Left)' : '👈 Always Bottom-Left',
+                                'auto' => app()->getLocale() == 'ar' ? 'تلقائي (يمين بالإنجليزي / يسار بالعربي)' : 'Auto (LTR: Right / RTL: Left)',
+                                'bottom_right' => app()->getLocale() == 'ar' ? 'أسفل اليمين دائماً (Bottom-Right)' : 'Always Bottom-Right',
+                                'bottom_left' => app()->getLocale() == 'ar' ? 'أسفل اليسار دائماً (Bottom-Left)' : 'Always Bottom-Left',
                             ]" 
                         />
                         <x-forms.input 
@@ -152,7 +157,7 @@
                             </span>
                         </div>
                         <h3 style="font-size: 1.35rem; font-weight: 900; margin: 0; color: var(--color-text);">
-                            {{ app()->getLocale() == 'ar' ? '🎛️ مصمم وترتيب وتفعيل أقسام الصفحة الرئيسية' : '🎛️ Landing Page Sections Ordering & Master Visibility Builder' }}
+                            <i class="fa-solid fa-sliders text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'مصمم وترتيب وتفعيل أقسام الصفحة الرئيسية' : 'Landing Page Sections Ordering & Master Visibility Builder' }}
                         </h3>
                         <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0.35rem 0 0 0;">
                             {{ app()->getLocale() == 'ar' 
@@ -886,14 +891,14 @@
                             />
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
                             <x-forms.select 
                                 name="payment_stripe_mode" 
                                 :label="app()->getLocale() == 'ar' ? 'بيئة التشغيل (Mode)' : 'Gateway Mode'" 
                                 :selected="$settings['payment_stripe_mode'] ?? 'test'"
                                 :options="[
-                                    'test' => '🧪 Sandbox / Test Mode (No Real Charges)',
-                                    'live' => '🚀 Production / Live Mode (Real Transactions)'
+                                    'test' => app()->getLocale() == 'ar' ? 'بيئة الاختبار التجريبية (Sandbox / Test Mode)' : 'Sandbox / Test Mode (No Real Charges)',
+                                    'live' => app()->getLocale() == 'ar' ? 'بيئة الإنتاج الحية (Production / Live Mode)' : 'Production / Live Mode (Real Transactions)'
                                 ]" 
                             />
 
@@ -905,7 +910,7 @@
                             />
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
                             <x-forms.input 
                                 name="payment_stripe_secret_key" 
                                 type="password"
@@ -1128,17 +1133,18 @@
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.25rem;">
-                            🔤 {{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة للنظام بالكامل' : 'System-Wide Typography & Font Styles' }}
+                            <i class="fa-solid fa-font text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة للنظام بالكامل' : 'System-Wide Typography & Font Styles' }}
                         </h3>
                         <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0;">
-                            {{ app()->getLocale() == 'ar' ? 'التحكم في خط الموقع والمتجر ولوحة التحكم مع المعاينة الحية الفورية.' : 'Control typography across customer storefront, custom admin, and Filament.' }}
+                            {{ app()->getLocale() == 'ar' ? 'التحكم في خط الموقع والمتجر ولوحة التحكم مع المعاينة الحية الفورية.' : 'Control typography across customer storefront and admin dashboard with real-time preview.' }}
                         </p>
                     </div>
 
                     <a href="{{ route('filament.admin.pages.manage-typography') }}" class="btn btn-primary" target="_blank" style="background: linear-gradient(135deg, #0A4F78, #2A8FC2); border: none; font-weight: 800;">
                         <i class="fa-solid fa-wand-magic-sparkles mr-1.5 ml-1.5"></i>
-                        {{ app()->getLocale() == 'ar' ? 'المعاينة الحية الفورية في لوحة فيلامنت' : 'Open Live Interactive Customizer in Filament' }}
+                        {{ app()->getLocale() == 'ar' ? 'المعاينة الحية التفاعلية للخطوط' : 'Open Live Interactive Typography Customizer' }}
                     </a>
+
                 </div>
 
                 @php
@@ -1146,7 +1152,7 @@
                     $activeConfig = \App\Services\TypographyService::getActiveConfig();
                 @endphp
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
                     <x-forms.select 
                         name="font_family" 
                         :label="app()->getLocale() == 'ar' ? 'الخط الأساسي للنظام (Primary Font)' : 'Primary System Font'" 
@@ -1162,7 +1168,7 @@
                     />
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
                     <x-forms.select 
                         name="font_size_base" 
                         :label="app()->getLocale() == 'ar' ? 'حجم الخط الأساسي' : 'Base Font Size'" 
@@ -1197,11 +1203,289 @@
             </div>
         </div>
 
+        <!-- Tab: Firebase Cloud Messaging (FCM) & Push Notifications -->
+        <div id="tab-fcm" data-tab-content="admin-settings" style="display: none;">
+            <!-- Configuration Guide & Status Banner -->
+            <div class="card" style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid #0284C7; background: linear-gradient(135deg, rgba(2, 132, 199, 0.05) 0%, rgba(10, 79, 120, 0.02) 100%);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h4 style="font-size: 1.125rem; font-weight: 800; margin: 0 0 0.35rem 0; color: var(--color-text);">
+                            <i class="fa-solid fa-satellite-dish text-sky-500 mr-1.5 ml-1.5"></i>
+                            {{ app()->getLocale() == 'ar' ? 'إعدادات وتهيئة إشعارات Firebase (FCM Cloud Messaging)' : 'Firebase Cloud Messaging (FCM) Configuration & Push Engine' }}
+                        </h4>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0; max-width: 800px; line-height: 1.5;">
+                            {{ app()->getLocale() == 'ar' 
+                                ? 'تحكم في مفاتيح الربط السحابي لإرسال تنبيهات لحظية فورية للمتصفح والأجهزة المحمولة عند حدوث حركات المخزون، نقص الكميات، التوالف ونقل البضائع.' 
+                                : 'Configure cloud push notification keys to broadcast instant operational alerts to browsers and devices upon inventory transfers, low stock buffers, and product issues.' }}
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <a href="https://console.firebase.google.com/" target="_blank" class="btn btn-outline btn-sm font-bold" style="border-color: #0284C7; color: #0284C7;">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1 ml-1"></i>
+                            {{ app()->getLocale() == 'ar' ? 'لوحة تحكم Firebase' : 'Firebase Console' }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 1: Cloud Credentials -->
+            <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-key text-amber-500"></i>
+                    <span>{{ app()->getLocale() == 'ar' ? 'مفاتيح وبيانات الاتصال بـ Firebase (Project Credentials)' : 'Firebase Project & API Credentials' }}</span>
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <x-forms.input 
+                        name="fcm_project_id" 
+                        :label="app()->getLocale() == 'ar' ? 'معرّف المشروع (Firebase Project ID)' : 'Firebase Project ID'" 
+                        :value="$settings['fcm_project_id'] ?? ''" 
+                        placeholder="e.g. blue-zone-health"
+                    />
+
+                    <x-forms.input 
+                        name="fcm_api_key" 
+                        :label="app()->getLocale() == 'ar' ? 'مفتاح Web API Key' : 'Web API Key (apiKey)'" 
+                        :value="$settings['fcm_api_key'] ?? ''" 
+                        placeholder="AIzaSy..."
+                    />
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <x-forms.input 
+                        name="fcm_server_key" 
+                        type="password"
+                        :label="app()->getLocale() == 'ar' ? 'مفتاح الخادم السحابي (FCM Server Key / Secret)' : 'FCM Server Key / Secret'" 
+                        :value="$settings['fcm_server_key'] ?? ''" 
+                        placeholder="AAAA... or Service Account Key"
+                    />
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                        {{ app()->getLocale() == 'ar' ? 'يُستخدم للإرسال من السيرفر (PHP Backend Dispatcher). يمكن العثور عليه في Firebase Project Settings > Cloud Messaging.' : 'Used by PHP Backend to dispatch push payloads via FCM API.' }}
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <x-forms.input 
+                        name="fcm_auth_domain" 
+                        :label="app()->getLocale() == 'ar' ? 'نطاق المصادقة (Auth Domain)' : 'Auth Domain (authDomain)'" 
+                        :value="$settings['fcm_auth_domain'] ?? ''" 
+                        placeholder="bluezone-998e6.firebaseapp.com"
+                    />
+
+                    <x-forms.input 
+                        name="fcm_storage_bucket" 
+                        :label="app()->getLocale() == 'ar' ? 'مستودع التخزين (Storage Bucket)' : 'Storage Bucket (storageBucket)'" 
+                        :value="$settings['fcm_storage_bucket'] ?? ''" 
+                        placeholder="bluezone-998e6.firebasestorage.app"
+                    />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <x-forms.input 
+                        name="fcm_messaging_sender_id" 
+                        :label="app()->getLocale() == 'ar' ? 'معرّف المرسل (Messaging Sender ID)' : 'Messaging Sender ID'" 
+                        :value="$settings['fcm_messaging_sender_id'] ?? ''" 
+                        placeholder="e.g. 1029384756"
+                    />
+
+                    <x-forms.input 
+                        name="fcm_app_id" 
+                        :label="app()->getLocale() == 'ar' ? 'معرّف التطبيق (Web App ID)' : 'Firebase Web App ID (appId)'" 
+                        :value="$settings['fcm_app_id'] ?? ''" 
+                        placeholder="1:1029384756:web:..."
+                    />
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <x-forms.input 
+                        name="fcm_measurement_id" 
+                        :label="app()->getLocale() == 'ar' ? 'معرّف القياس (Measurement ID)' : 'Analytics / Measurement ID (measurementId)'" 
+                        :value="$settings['fcm_measurement_id'] ?? ''" 
+                        placeholder="G-JKHXY1LDD8"
+                    />
+                </div>
+
+                <div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+                        <span class="text-xs font-bold" style="color: var(--color-text);">
+                            {{ app()->getLocale() == 'ar' ? 'مفتاح شهادة الويب العامة (Web Push VAPID Public Key)' : 'Web Push VAPID Public Key' }}
+                        </span>
+                        @if(empty($settings['fcm_vapid_key']))
+                            <span class="badge badge-warning text-[11px] font-bold" style="background: rgba(245, 158, 11, 0.15); color: #D97706; padding: 0.2rem 0.6rem; border-radius: 9999px;">
+                                <i class="fa-solid fa-triangle-exclamation mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'مطلوب لتوليد توكن المتصفح' : 'Required for Browser Push Token' }}
+                            </span>
+                        @endif
+                    </div>
+                    <x-forms.input 
+                        name="fcm_vapid_key" 
+                        :value="$settings['fcm_vapid_key'] ?? ''" 
+                        placeholder="e.g. BOnv9Kj8a..."
+                    />
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.4rem; line-height: 1.4;">
+                        {{ app()->getLocale() == 'ar' ? 'يتم استخراجه من Firebase Console > Project Settings > Cloud Messaging > Web configuration > Generate key pair. بدون هذا المفتاح يرفض المتصفح إصدار توكن الإشعارات السحابية.' : 'Generated in Firebase Console > Project Settings > Cloud Messaging > Web configuration > Generate key pair. Without this key, browsers cannot issue a device push token.' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Real-Time Event Triggers -->
+            <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.125rem; font-weight: 800; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-bell-concierge text-primary"></i>
+                    <span>{{ app()->getLocale() == 'ar' ? 'أحداث التنبيه التلقائي للمخزون (Operational Event Triggers)' : 'Automated Operational Event Triggers' }}</span>
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <x-forms.toggle 
+                        name="fcm_notify_low_stock" 
+                        :label="app()->getLocale() == 'ar' ? 'تنبيهات انخفاض رصيد المخزون عن حد الأمان (Low Stock Alerts)' : 'Low Stock Alerts (Below Buffer Threshold)'" 
+                        :description="app()->getLocale() == 'ar' ? 'إرسال إشعار فوري لحظي للمدراء عند وصول رصيد أي منتج لحد إعادة الطلب.' : 'Broadcast real-time push alert when any product stock drops to or below its minimum threshold.'" 
+                        :checked="$settings['fcm_notify_low_stock'] ?? true" 
+                    />
+
+                    <x-forms.toggle 
+                        name="fcm_notify_out_stock" 
+                        :label="app()->getLocale() == 'ar' ? 'تنبيهات نفاد المخزون بالكامل (Out of Stock Critical Alerts)' : 'Out of Stock Depleted Alerts (0 Units)'" 
+                        :description="app()->getLocale() == 'ar' ? 'إشعار فوري عاجل باللون الأحمر عند وصول رصيد الصنف إلى 0 في أي موقع أو مستودع.' : 'Urgent critical alert triggered immediately when any item stock reaches 0 units.'" 
+                        :checked="$settings['fcm_notify_out_stock'] ?? true" 
+                    />
+
+                    <x-forms.toggle 
+                        name="fcm_notify_transfers" 
+                        :label="app()->getLocale() == 'ar' ? 'حركات نقل وتوزيع المخزون (Stock Transfers)' : 'Stock Transfers & Distribution Movements'" 
+                        :description="app()->getLocale() == 'ar' ? 'تنبيه مباشر عند إنشاء أمر نقل بين المستودع المركزي والمعارض أو العيادات.' : 'Push notification when stock is transferred between warehouse depots and clinic boutiques.'" 
+                        :checked="$settings['fcm_notify_transfers'] ?? true" 
+                    />
+
+                    <x-forms.toggle 
+                        name="fcm_notify_issues" 
+                        :label="app()->getLocale() == 'ar' ? 'مشاكل وتوالف المنتجات (Damaged & Expired Issues)' : 'Product Issues (Damaged, Expired & Discrepancies)'" 
+                        :description="app()->getLocale() == 'ar' ? 'إشعار المدراء فور تسجيل بضاعة تالفة، منتهية الصلاحية، أو فروقات جرد.' : 'Instant notification when damaged, expired, or discrepancy issues are reported.'" 
+                        :checked="$settings['fcm_notify_issues'] ?? true" 
+                    />
+
+                    <x-forms.toggle 
+                        name="fcm_sound_enabled" 
+                        :label="app()->getLocale() == 'ar' ? 'تشغيل نغمة صوتية عند استلام الإشعار (Acoustic Audio Chime)' : 'Play Acoustic Chime Upon Push Arrival'" 
+                        :description="app()->getLocale() == 'ar' ? 'تشغيل نغمة ويب صوتية نقية عند استلام أي إشعار لحظي في لوحة التحكم.' : 'Plays a distinct synthetic Web Audio chime when a push notification is received.'" 
+                        :checked="$settings['fcm_sound_enabled'] ?? true" 
+                    />
+                </div>
+            </div>
+
+            <!-- Card 3: Interactive Live Push Tester -->
+            <div class="card" style="padding: 2rem; background: var(--color-bg-subtle); border: 1px solid rgba(10, 79, 120, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1.125rem; font-weight: 800; margin: 0; color: var(--color-text); display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-vial-circle-check text-emerald-500"></i>
+                            <span>{{ app()->getLocale() == 'ar' ? 'أداة الفحص والاختبار المباشر لإشعارات FCM (Live Push Tester)' : 'Live FCM Push Notification Tester' }}</span>
+                        </h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0.25rem 0 0 0;">
+                            {{ app()->getLocale() == 'ar' ? 'أرسل إشعاراً تجريبياً حياً لاختبار وصول الإشعار وصوت التنبيه وشريط التوست والربط السحابي فوراً.' : 'Dispatch a customized test notification to verify real-time arrival, audio feedback, and dropdown sync.' }}
+                        </p>
+                    </div>
+
+                    <!-- Device Token Pill -->
+                    <div id="fcmTokenBadgeContainer" style="display: flex; align-items: center; gap: 0.5rem;">
+                        @php
+                            $myToken = auth()->user()?->fcm_token;
+                        @endphp
+                        @if($myToken)
+                            <span class="badge badge-success text-xs font-bold" style="padding: 0.35rem 0.65rem;">
+                                <i class="fa-solid fa-circle-check mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'جهازك متصل بـ FCM' : 'Device FCM Linked' }}
+                            </span>
+                            <button type="button" class="btn btn-outline btn-xs" onclick="copyFcmToken('{{ $myToken }}')">
+                                <i class="fa-regular fa-copy mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'نسخ التوكن' : 'Copy Token' }}
+                            </button>
+                        @else
+                            <span class="badge badge-neutral text-xs" style="padding: 0.35rem 0.65rem;">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'بانتظار توكن المتصفح' : 'Awaiting Browser Token' }}
+                            </span>
+                            <button type="button" class="btn btn-primary btn-xs" onclick="window.activateFcmTokenDirectly(this)">
+                                <i class="fa-solid fa-bell mr-1 ml-1"></i> {{ app()->getLocale() == 'ar' ? 'تفعيل وتوليد التوكن' : 'Activate & Link' }}
+                            </button>
+                        @endif
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                            {{ app()->getLocale() == 'ar' ? 'عنوان الإشعار التجريبي' : 'Notification Title' }}
+                        </label>
+                        <input type="text" id="testFcmTitle" class="form-control text-sm" value="BlueZone Realtime Push Alert">
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                            {{ app()->getLocale() == 'ar' ? 'نوع التنبيه (Event Category)' : 'Notification Category' }}
+                        </label>
+                        <select id="testFcmType" class="form-control text-sm">
+                            <option value="stock">{{ app()->getLocale() == 'ar' ? 'تنبيه مخزون (Low / Out Stock)' : 'Stock Alert' }}</option>
+                            <option value="transfer">{{ app()->getLocale() == 'ar' ? 'حركة نقل مخزون (Stock Transfer)' : 'Stock Transfer' }}</option>
+                            <option value="issue">{{ app()->getLocale() == 'ar' ? 'مشكلة منتج أو تلف (Product Issue)' : 'Product Issue' }}</option>
+                            <option value="order">{{ app()->getLocale() == 'ar' ? 'طلب جديد (New Order)' : 'New Order' }}</option>
+                            <option value="system" selected>{{ app()->getLocale() == 'ar' ? 'نظام إداري عام (System Notice)' : 'System Notice' }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                        {{ app()->getLocale() == 'ar' ? 'نص رسالة الإشعار' : 'Notification Message / Body' }}
+                    </label>
+                    <textarea id="testFcmMessage" class="form-control text-sm" rows="2">تم تأكيد استلام إشعار تجريبي فوري بنجاح. Real-time push notification delivered successfully to BlueZone Admin Console.</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                            {{ app()->getLocale() == 'ar' ? 'وجهة الإرسال (Target)' : 'Delivery Target' }}
+                        </label>
+                        <select id="testFcmTarget" class="form-control text-sm" onchange="toggleCustomTokenInput(this.value)">
+                            <option value="self">{{ app()->getLocale() == 'ar' ? 'متصفحي الحالي (Current Active Browser)' : 'Current Active Device' }}</option>
+                            <option value="all_admins">{{ app()->getLocale() == 'ar' ? 'جميع مدراء النظام (All Administrators)' : 'All Administrators' }}</option>
+                            <option value="token">{{ app()->getLocale() == 'ar' ? 'رمز توكن محدد (Specific FCM Token)' : 'Custom Token' }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                            {{ app()->getLocale() == 'ar' ? 'رابط الإجراء عند الضغط (Action URL)' : 'Click Action URL' }}
+                        </label>
+                        <input type="text" id="testFcmActionUrl" class="form-control text-sm" value="/admin/inventory">
+                    </div>
+                </div>
+
+                <div id="customTokenWrapper" style="display: none; margin-bottom: 1.5rem;">
+                    <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                        {{ app()->getLocale() == 'ar' ? 'رمز الجهاز المستهدف (Device FCM Token)' : 'Target Device FCM Token' }}
+                    </label>
+                    <input type="text" id="testFcmCustomToken" class="form-control text-sm" placeholder="e.g. fD-12948... (paste token here)">
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <button type="button" id="btnDispatchFcmTest" class="btn btn-primary" onclick="runLiveFcmTest()" style="background: linear-gradient(135deg, #0A4F78, #0284C7); border: none; font-weight: 800; padding: 0.75rem 1.5rem;">
+                        <i class="fa-solid fa-paper-plane mr-1.5 ml-1.5"></i>
+                        {{ app()->getLocale() == 'ar' ? 'إرسال إشعار تجريبي فوري الآن (Dispatch Push)' : 'Dispatch Live FCM Test Push' }}
+                    </button>
+                    <span id="fcmTestStatus" class="text-xs text-muted font-bold"></span>
+                </div>
+
+                <!-- Live Diagnostic Log Box -->
+                <div id="fcmLogTerminal" style="display: none; margin-top: 1.5rem; background: #031827; color: #38BDF8; font-family: monospace; font-size: 0.775rem; padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(56, 189, 248, 0.2); max-height: 200px; overflow-y: auto;">
+                    <div style="color: #94A3B8; margin-bottom: 0.35rem;">// FCM Dispatcher Diagnostic Log:</div>
+                    <pre id="fcmLogContent" style="margin: 0; white-space: pre-wrap; word-break: break-all;"></pre>
+                </div>
+            </div>
+        </div>
+
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
             <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i> {{ __('admin.settings.save_settings') }}
             </button>
         </div>
+
     </form>
 
     <script>
@@ -1393,5 +1677,152 @@
                 if (window.toast) window.toast.error('Connection failed: ' + err.message);
             }
         }
+
+        /* =========================================================================
+           FCM Live Notification Tester & Diagnostics
+           ========================================================================= */
+        window.toggleCustomTokenInput = function(targetVal) {
+            const wrapper = document.getElementById('customTokenWrapper');
+            if (wrapper) {
+                wrapper.style.display = targetVal === 'token' ? 'block' : 'none';
+            }
+        };
+
+        window.copyFcmToken = function(token) {
+            if (!token) return;
+            navigator.clipboard.writeText(token).then(() => {
+                if (window.toast) {
+                    window.toast.success('تم نسخ توكن الجهاز إلى الحافظة بنجاح! FCM Device Token copied.');
+                } else {
+                    alert('FCM Device Token copied to clipboard!');
+                }
+            }).catch(() => {
+                const el = document.createElement('textarea');
+                el.value = token;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('Token copied to clipboard!');
+            });
+        };
+
+        window.runLiveFcmTest = function() {
+            const btn = document.getElementById('btnDispatchFcmTest');
+            const statusEl = document.getElementById('fcmTestStatus');
+            const terminal = document.getElementById('fcmLogTerminal');
+            const logContent = document.getElementById('fcmLogContent');
+
+            const title = document.getElementById('testFcmTitle')?.value || 'Test Notification';
+            const message = document.getElementById('testFcmMessage')?.value || '';
+            const type = document.getElementById('testFcmType')?.value || 'system';
+            const target = document.getElementById('testFcmTarget')?.value || 'self';
+            const actionUrl = document.getElementById('testFcmActionUrl')?.value || '/admin/inventory';
+            const targetToken = document.getElementById('testFcmCustomToken')?.value || '';
+
+            if (target === 'self' && !window.currentAdminFcmToken && document.querySelector('#fcmTokenBadgeContainer .badge-neutral')) {
+                if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+                    if (statusEl) {
+                        statusEl.textContent = 'بانتظار الموافقة على إذن المتصفح لتوليد التوكن...';
+                        statusEl.style.color = '#F59E0B';
+                    }
+                    window.activateFcmTokenDirectly(btn);
+                    return;
+                }
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1 ml-1"></i> <span>جاري الإرسال عبر FCM...</span>';
+            }
+            if (statusEl) {
+                statusEl.textContent = 'جاري الإرسال والمعالجة...';
+                statusEl.style.color = '#0284C7';
+            }
+
+            const startTime = performance.now();
+
+            fetch('/admin/notifications/test-push', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    message: message,
+                    type: type,
+                    target: target,
+                    action_url: actionUrl,
+                    target_token: targetToken,
+                    client_token: window.currentAdminFcmToken || ''
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const latency = Math.round(performance.now() - startTime);
+
+                if (terminal && logContent) {
+                    terminal.style.display = 'block';
+                    logContent.textContent = JSON.stringify({
+                        timestamp: new Date().toISOString(),
+                        latency_ms: latency,
+                        response: data
+                    }, null, 2);
+                }
+
+                if (data.success) {
+                    if (statusEl) {
+                        if (data.details && data.details.reason === 'no_token') {
+                            statusEl.textContent = `✓ تم تسجيل الإشعار بالنظام بنجاح (${latency}ms) — [بانتظار تفعيل توكن المتصفح]`;
+                            statusEl.style.color = '#F59E0B';
+                        } else {
+                            statusEl.textContent = `✓ تم الإرسال السحابي بنجاح (${latency}ms)`;
+                            statusEl.style.color = '#10B981';
+                        }
+                    }
+
+                    // Trigger client toast and audio chime
+                    if (typeof showAdminToast === 'function') {
+                        showAdminToast(data.title, data.body, data.icon, data.action_url);
+                    }
+                    if (typeof prependNotificationToDropdown === 'function') {
+                        prependNotificationToDropdown(data.title, data.body, data.icon, data.action_url);
+                    }
+                } else {
+                    if (statusEl) {
+                        statusEl.textContent = `✕ فشل الإرسال: ${data.message || 'خطأ غير معروف'}`;
+                        statusEl.style.color = '#EF4444';
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('FCM Test Error:', err);
+                if (statusEl) {
+                    statusEl.textContent = `✕ تعذر الاتصال: ${err.message}`;
+                    statusEl.style.color = '#EF4444';
+                }
+            })
+            .finally(() => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1.5 ml-1.5"></i> {{ app()->getLocale() == "ar" ? "إرسال إشعار تجريبي فوري الآن (Dispatch Push)" : "Dispatch Live FCM Test Push" }}';
+                }
+            });
+        };
+
+        // Open specific tab from URL hash if provided (e.g. #tab-fcm)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.hash) {
+                const tabId = window.location.hash.replace('#', '');
+                const targetBtn = document.querySelector(`[data-tab-target="${tabId}"]`);
+                if (targetBtn) {
+                    targetBtn.click();
+                }
+            }
+        });
     </script>
 </x-layouts.admin>
+
+

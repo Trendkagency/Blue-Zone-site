@@ -87,14 +87,14 @@
         </div>
 
         <!-- Floating Product Badge -->
-        <div class="hidden lg:flex absolute bottom-24 sm:bottom-28 ltr:right-8 sm:ltr:right-12 rtl:left-8 sm:rtl:left-12 z-20 p-4 rounded-2xl bg-[#031827]/85 border border-[#2A8FC2]/40 backdrop-blur-md items-center gap-4 text-white shadow-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location.href='{{ route('customer.product.show', 'blue-energy') }}'">
+        <div class="hidden lg:flex absolute bottom-24 sm:bottom-28 ltr:right-8 sm:ltr:right-12 rtl:left-8 sm:rtl:left-12 z-20 p-4 rounded-2xl bg-[#031827]/85 border border-[#2A8FC2]/40 backdrop-blur-md items-center gap-4 text-white shadow-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location.href='{{ route('customer.product.show', 'blue-cell') }}'">
           <div class="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center">
-            <img src="{{ asset('assets/products/blue-energy.webp') }}" alt="BLUE ENERGY" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-energy.jpg') }}';" width="48" height="48" loading="lazy" decoding="async" class="w-full h-full object-contain" />
+            <img src="{{ asset('assets/products/blue-cell.jpg') }}" alt="BLUE CELL" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';" width="48" height="48" loading="lazy" decoding="async" class="w-full h-full object-contain" />
           </div>
           <div class="text-left space-y-0.5">
             <span class="block text-[9px] font-mono font-bold text-[#2A8FC2] uppercase tracking-widest">MITOCHONDRIAL ATP</span>
-            <span class="block text-xs font-black text-white">BLUE ENERGY</span>
-            <span class="block text-[10px] text-[#67B34A] font-bold">★ 4.8 Verified Reviews</span>
+            <span class="block text-xs font-black text-white">BLUE CELL</span>
+            <span class="block text-[10px] text-[#67B34A] font-bold">★ 4.9 Verified Reviews</span>
           </div>
         </div>
       </div>

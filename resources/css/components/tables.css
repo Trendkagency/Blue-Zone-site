@@ -1,18 +1,43 @@
 .table-responsive {
   width: 100%;
-  overflow-x: auto;
+  max-width: 100%;
+  overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background-color: var(--color-bg-surface);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 rgba(0, 0, 0, 0.05);
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #94A3B8;
+  border-radius: 9999px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary, #0A4F78);
 }
 
 .table {
   width: 100%;
+  min-width: 800px;
   text-align: start;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
+
 
 .table th {
   background-color: var(--color-bg-subtle);

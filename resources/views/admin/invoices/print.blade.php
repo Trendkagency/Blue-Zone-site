@@ -535,7 +535,7 @@
         <section class="info-grid">
             <div>
                 <div class="info-box-title">
-                    <span>👤</span> Billed To / العميل المكرم
+                    <i class="fa-regular fa-user mr-1.5 ml-1.5 text-primary"></i> Billed To / العميل المكرم
                 </div>
                 <div class="info-box-content">
                     <strong>{{ $custName }}</strong>
@@ -553,7 +553,7 @@
 
             <div>
                 <div class="info-box-title">
-                    <span>💳</span> Payment & Fulfillment / بيانات الدفع والتسليم
+                    <i class="fa-regular fa-credit-card mr-1.5 ml-1.5 text-primary"></i> Payment & Fulfillment / بيانات الدفع والتسليم
                 </div>
                 <div class="info-box-content">
                     <div><strong>Method:</strong> {{ $payMethod }}</div>

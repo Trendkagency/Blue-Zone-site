@@ -14,6 +14,14 @@ class ProductController extends Controller
      */
     public function show(string $slug): View
     {
+        $aliases = [
+            'blue-energy' => 'blue-cell',
+            'blue-immunity' => 'blue-defense',
+            'blue-restore' => 'blue-sleep',
+            'blue-calm' => 'blue-mind',
+        ];
+        $slug = $aliases[$slug] ?? $slug;
+
         try {
             $product = Product::with('category')->where('slug', $slug)->first();
         } catch (\Throwable) {

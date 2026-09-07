@@ -89,6 +89,21 @@ class BluezoneSeeder extends Seeder
             // Notifications
             ['key' => 'notify_low_stock',  'value' => '1', 'group' => 'notifications', 'type' => 'boolean'],
             ['key' => 'notify_new_order',  'value' => '1', 'group' => 'notifications', 'type' => 'boolean'],
+            // Firebase & FCM Cloud Messaging Default Configuration
+            ['key' => 'fcm_project_id',          'value' => 'bluezone-998e6',                             'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_api_key',             'value' => 'AIzaSyCRAdcHPrsQOtHJGW7gMY9ZN1WiIOi8ClU',    'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_auth_domain',         'value' => 'bluezone-998e6.firebaseapp.com',             'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_storage_bucket',      'value' => 'bluezone-998e6.firebasestorage.app',        'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_messaging_sender_id', 'value' => '440590917450',                              'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_app_id',              'value' => '1:440590917450:web:9e289f9a0a36b2f10d2bb3', 'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_measurement_id',     'value' => 'G-JKHXY1LDD8',                               'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_server_key',          'value' => '',                                           'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_vapid_key',           'value' => 'BN_V2qIO7Zn5IyO0W27vogv8CjT0xmzxkBF-Ao7bTuCHh7QQDrWRmxc25W2cnJGAysdhrvQhuykB5bcAq2P0uXI', 'group' => 'fcm', 'type' => 'string'],
+            ['key' => 'fcm_notify_low_stock',    'value' => '1',                                          'group' => 'fcm', 'type' => 'boolean'],
+            ['key' => 'fcm_notify_out_stock',    'value' => '1',                                          'group' => 'fcm', 'type' => 'boolean'],
+            ['key' => 'fcm_notify_transfers',    'value' => '1',                                          'group' => 'fcm', 'type' => 'boolean'],
+            ['key' => 'fcm_notify_issues',       'value' => '1',                                          'group' => 'fcm', 'type' => 'boolean'],
+            ['key' => 'fcm_sound_enabled',       'value' => '1',                                          'group' => 'fcm', 'type' => 'boolean'],
             // System
             ['key' => 'order_prefix',     'value' => 'BZ-',  'group' => 'system', 'type' => 'string'],
             ['key' => 'invoice_prefix',   'value' => 'INV-', 'group' => 'system', 'type' => 'string'],
