@@ -87,7 +87,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->middleware('permission:orders.view')->name('index');
             Route::get('/{id}', [OrderController::class, 'show'])->middleware('permission:orders.view')->name('show');
-            Route::patch('/{id}/status', [OrderController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
+            Route::match(['post', 'patch'], '/{id}/status', [OrderController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
             Route::delete('/{id}', [OrderController::class, 'destroy'])->middleware('permission:orders.delete')->name('destroy');
             Route::post('/{id}/restore', [OrderController::class, 'restore'])->middleware('permission:orders.delete')->name('restore');
             Route::delete('/{id}/force-delete', [OrderController::class, 'forceDelete'])->middleware('permission:orders.delete')->name('force-delete');

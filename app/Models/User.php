@@ -166,14 +166,23 @@ class User extends Authenticatable implements FilamentUser
 
         if (! empty($this->avatar)) {
             $path = $this->avatar;
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return $path;
+            }
             if (str_contains($path, '/storage/')) {
                 $path = substr($path, strpos($path, '/storage/') + 9);
                 return asset('storage/' . ltrim($path, '/'));
             }
-            if (str_starts_with($path, 'http')) {
-                return $path;
+            if (str_starts_with($path, 'storage/')) {
+                return asset(ltrim($path, '/'));
             }
-            return asset(ltrim($path, '/'));
+            if (str_starts_with($path, 'avatars/')) {
+                return asset('storage/' . ltrim($path, '/'));
+            }
+            if (file_exists(public_path(ltrim($path, '/')))) {
+                return asset(ltrim($path, '/'));
+            }
+            return asset('storage/' . ltrim($path, '/'));
         }
 
         return null;

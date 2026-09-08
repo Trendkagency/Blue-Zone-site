@@ -209,6 +209,24 @@
             maxFileSize: '{{ $maxSize }}MB',
             checkValidity: true,
             credits: false,
+            server: {
+                load: (source, load, error, progress, abort, headers) => {
+                    fetch(source)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
+                            }
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            load(blob);
+                        })
+                        .catch(err => {
+                            console.warn('FilePond load preview error:', err);
+                            error(err.message);
+                        });
+                }
+            },
             stylePanelLayout: isCircle ? 'compact circle' : null,
             imagePreviewHeight: isCircle ? 170 : 180,
             imageCropAspectRatio: isCircle ? '1:1' : null,

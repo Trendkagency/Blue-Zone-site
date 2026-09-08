@@ -37,14 +37,24 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $validated = $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:30',
             'bio' => 'nullable|string|max:1000',
             'avatar' => 'nullable',
-            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
+            'avatar_file' => 'nullable',
+        ];
+
+        if ($request->hasFile('avatar_file')) {
+            $rules['avatar_file'] = 'file|image|mimes:jpeg,png,jpg,webp|max:2048';
+        }
+
+        if ($request->hasFile('avatar')) {
+            $rules['avatar'] = 'file|image|mimes:jpeg,png,jpg,webp|max:2048';
+        }
+
+        $validated = $request->validate($rules);
 
         $avatarPath = $user->avatar;
 

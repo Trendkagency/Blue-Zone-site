@@ -116,11 +116,14 @@
                             <td>
                                 <div class="table-actions justify-center flex items-center gap-1.5">
                                     @if(!$isItemTrashed)
-                                        <a href="{{ route('admin.orders.show', $ordId) }}" class="action-btn" title="{{ app()->getLocale() == 'ar' ? 'إدارة الطلب' : 'Manage Order' }}">
+                                        <a href="{{ route('admin.orders.show', $ordId) }}" class="action-btn" title="{{ app()->getLocale() == 'ar' ? 'إدارة وتفاصيل الطلب' : 'Manage Order' }}">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.invoices.show', $ordId) }}" class="action-btn" title="{{ app()->getLocale() == 'ar' ? 'عرض الفاتورة' : 'View Tax Invoice' }}">
+                                        <a href="{{ route('admin.invoices.show', $ordId) }}" class="action-btn text-sky-600 dark:text-sky-400" title="{{ app()->getLocale() == 'ar' ? 'عرض الفاتورة الضريبية' : 'View Tax Invoice' }}">
                                             <i class="fa-solid fa-file-invoice-dollar"></i>
+                                        </a>
+                                        <a href="{{ route('admin.invoices.print', $ordId) }}" target="_blank" class="action-btn text-slate-600 dark:text-slate-300" title="{{ app()->getLocale() == 'ar' ? 'طباعة الفاتورة الرسمية' : 'Print Invoice' }}">
+                                            <i class="fa-solid fa-print"></i>
                                         </a>
                                         @if(is_numeric($numericId) && $numericId > 0)
                                             <button type="button" class="action-btn action-danger cursor-pointer" 

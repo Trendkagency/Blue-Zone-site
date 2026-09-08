@@ -59,7 +59,7 @@
                     <span class="badge badge-subtle">{{ count($orders ?? []) }} {{ __('admin.customers.orders') }}</span>
                 </div>
                 <div class="table-responsive" style="border: none; border-radius: 0;">
-                    <table class="table">
+                    <table class="table" style="min-width: 520px;">
                         <thead>
                             <tr>
                                 <th>{{ __('admin.orders.order_number') }}</th>

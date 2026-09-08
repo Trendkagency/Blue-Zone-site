@@ -1593,26 +1593,33 @@ footer p {
 
 
 
-/* Customer & User Dossier Responsive Layout */
-.customer-dossier-grid {
+/* Customer, Order & User Dossier Responsive Layout */
+.customer-dossier-grid,
+.order-dossier-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 1.75rem;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 1100px) {
-  .customer-dossier-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 1200px) {
+  .customer-dossier-grid,
+  .order-dossier-grid {
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
   }
 }
 
 .customer-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Explicit Desktop Layout Lock */
@@ -1654,6 +1661,7 @@ footer p {
     min-width: 0 !important;
     width: calc(100% - 280px) !important;
     max-width: calc(100% - 280px) !important;
+    overflow-x: hidden !important;
   }
 
   .admin-mobile-toggle {
@@ -1666,6 +1674,7 @@ footer p {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
+    overflow-x: hidden !important;
   }
   .admin-mobile-toggle {
     display: inline-flex !important;
