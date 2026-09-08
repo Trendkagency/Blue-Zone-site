@@ -116,12 +116,12 @@
                                 {{ app()->getLocale() === 'ar' ? 'الدولة' : 'Country' }}
                             </label>
                             <select name="country" class="form-select text-sm" style="width: 100%;">
-                                <option value="Saudi Arabia" {{ old('country', $customer->country) === 'Saudi Arabia' ? 'selected' : '' }}>🇸🇦 Saudi Arabia</option>
-                                <option value="United Arab Emirates" {{ old('country', $customer->country) === 'United Arab Emirates' ? 'selected' : '' }}>🇦🇪 United Arab Emirates</option>
-                                <option value="Kuwait" {{ old('country', $customer->country) === 'Kuwait' ? 'selected' : '' }}>🇰🇼 Kuwait</option>
-                                <option value="Bahrain" {{ old('country', $customer->country) === 'Bahrain' ? 'selected' : '' }}>🇧🇭 Bahrain</option>
-                                <option value="Qatar" {{ old('country', $customer->country) === 'Qatar' ? 'selected' : '' }}>🇶🇦 Qatar</option>
-                                <option value="Oman" {{ old('country', $customer->country) === 'Oman' ? 'selected' : '' }}>🇴🇲 Oman</option>
+                                <option value="Saudi Arabia" {{ old('country', $customer->country) === 'Saudi Arabia' ? 'selected' : '' }}>Saudi Arabia</option>
+                                <option value="United Arab Emirates" {{ old('country', $customer->country) === 'United Arab Emirates' ? 'selected' : '' }}>United Arab Emirates</option>
+                                <option value="Kuwait" {{ old('country', $customer->country) === 'Kuwait' ? 'selected' : '' }}>Kuwait</option>
+                                <option value="Bahrain" {{ old('country', $customer->country) === 'Bahrain' ? 'selected' : '' }}>Bahrain</option>
+                                <option value="Qatar" {{ old('country', $customer->country) === 'Qatar' ? 'selected' : '' }}>Qatar</option>
+                                <option value="Oman" {{ old('country', $customer->country) === 'Oman' ? 'selected' : '' }}>Oman</option>
                             </select>
                         </div>
                         <div>

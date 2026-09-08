@@ -37,22 +37,22 @@ class InventoryMovementObserver
             $actionUrl = '/admin/inventory/transfers';
             $icon = 'fa-solid fa-arrow-right-arrow-left text-cyan-500';
         } elseif (in_array($typeNorm, ['damaged', 'expired', 'issue'], true)) {
-            $title = "⚠️ Product Issue Reported: {$type} Stock ({$productName})";
+            $title = "Product Issue Reported: {$type} Stock ({$productName})";
             $body = "{$qty} units flagged as {$type} at [{$movement->from_location}]. Recorded by {$user}." . ($movement->note ? " Reason: {$movement->note}" : "");
             $actionUrl = '/admin/inventory/history';
             $icon = 'fa-solid fa-triangle-exclamation text-rose-500';
         } elseif (in_array($typeNorm, ['manual adjustment', 'adjustment'], true)) {
-            $title = "📝 Inventory Stock Adjustment: {$productName}";
+            $title = "Inventory Stock Adjustment: {$productName}";
             $body = "Quantity delta: {$movement->quantity} units at [{$movement->from_location}]." . ($movement->note ? " Reason: {$movement->note}" : "");
             $actionUrl = '/admin/inventory/history';
             $icon = 'fa-solid fa-pen-ruler text-amber-500';
         } elseif (in_array($typeNorm, ['stock in', 'in', 'received'], true)) {
-            $title = "📦 Stock Replenishment Received: {$productName}";
+            $title = "Stock Replenishment Received: {$productName}";
             $body = "{$qty} units received at [{$movement->to_location}]. Logged by {$user}.";
             $actionUrl = '/admin/inventory';
             $icon = 'fa-solid fa-box-open text-emerald-500';
         } else {
-            $title = "📦 Inventory Transaction: {$type} ({$productName})";
+            $title = "Inventory Transaction: {$type} ({$productName})";
             $body = "{$qty} units recorded ({$type}) by {$user}.";
             $actionUrl = '/admin/inventory/history';
             $icon = 'fa-solid fa-boxes-stacked text-sky-500';

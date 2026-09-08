@@ -25,8 +25,8 @@
               <span class="text-xs font-bold uppercase text-[#031827]/60 dark:text-[#F6F5EF]/60">SORT BY:</span>
               <select id="shop-sort-select" onchange="sortShopProducts(this.value)" class="bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/30 rounded-xl p-2.5 text-xs font-extrabold text-[#031827] dark:text-white focus:outline-none focus:border-[#2A8FC2] cursor-pointer">
                 <option value="FEATURED">FEATURED</option>
-                <option value="PRICE_LOW">PRICE: LOW → HIGH</option>
-                <option value="PRICE_HIGH">PRICE: HIGH → LOW</option>
+                <option value="PRICE_LOW">PRICE: LOW &rarr; HIGH</option>
+                <option value="PRICE_HIGH">PRICE: HIGH &rarr; LOW</option>
                 <option value="RATING">HIGHEST RATING</option>
               </select>
             </div>
@@ -66,7 +66,7 @@
                 </div>
                 <div>
                   <div class="flex items-center justify-between text-xs font-bold text-[#67B34A] mb-1">
-                    <span>★ 4.9 (120+ Reviews)</span>
+                    <span><i class="fa-solid fa-star text-amber-400 mr-1"></i> 4.9 (120+ Reviews)</span>
                     <span class="text-[#031827]/50 dark:text-[#F6F5EF]/50 font-mono">60 CAPS</span>
                   </div>
                   <h3 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
@@ -94,7 +94,7 @@
                   </div>
                   <div class="flex gap-2">
                     <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'المفضلة' : 'Wishlist' }}">
-                      ♥
+                      <i class="fa-solid fa-heart"></i>
                     </button>
                     <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
                       {{ app()->getLocale() === 'ar' ? 'أضف للسلة' : 'ADD TO CART' }}
@@ -149,7 +149,7 @@
               </div>
               <div>
                 <div class="flex items-center justify-between text-xs font-bold text-[#67B34A] mb-1">
-                  <span>★ ${p.rating} (${p.reviewsCount} Reviews)</span>
+                  <span><i class="fa-solid fa-star text-amber-400 mr-1"></i> ${p.rating} (${p.reviewsCount} Reviews)</span>
                   <span class="text-[#031827]/50 dark:text-[#F6F5EF]/50 font-mono">60 CAPS</span>
                 </div>
                 <h3 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
@@ -177,7 +177,7 @@
                 </div>
                 <div class="flex gap-2">
                   <button onclick="BLUEZONE_WISHLIST.toggle('${productSlug}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="${isArabic ? 'المفضلة' : 'Wishlist'}">
-                    ♥
+                    <i class="fa-solid fa-heart"></i>
                   </button>
                   <button onclick="BLUEZONE_CART.add('${productSlug}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
                     ${isArabic ? 'أضف للسلة' : 'ADD TO CART'}

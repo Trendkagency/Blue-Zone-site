@@ -27,7 +27,7 @@
             </div>
             <div class="p-8 pt-0 flex justify-between items-center border-t border-[#0A4F78]/10 mt-4">
               <span class="text-xs font-bold text-[#7EA5B8]">BY DR. ELENA VANCE • 8 MIN READ</span>
-              <a href="{{ route('customer.pages.blog') }}" class="text-xs font-black uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">READ ARTICLE →</a>
+              <a href="{{ route('customer.pages.blog') }}" class="text-xs font-black uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">READ ARTICLE <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i></a>
             </div>
           </div>
 
@@ -39,7 +39,7 @@
               <div class="space-y-1">
                 <span class="text-[9px] font-black uppercase tracking-wider text-[#2A8FC2]">NEUROLOGY</span>
                 <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] line-clamp-2">Polyphenols & Synaptic Plasticity in Middle Age</h4>
-                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY →</a>
+                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i></a>
               </div>
             </div>
 
@@ -50,7 +50,7 @@
               <div class="space-y-1">
                 <span class="text-[9px] font-mono font-bold uppercase tracking-wider text-[#67B34A]">LONGEVITY HABITS</span>
                 <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] line-clamp-2">Ikigai: The Neurobiology of Purpose and Stress Reduction</h4>
-                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY →</a>
+                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i></a>
               </div>
             </div>
 
@@ -61,7 +61,7 @@
               <div class="space-y-1">
                 <span class="text-[9px] font-black uppercase tracking-wider text-[#2A8FC2]">CIRCADIAN REST</span>
                 <h4 class="text-sm font-black text-[#031827] dark:text-[#F6F5EF] line-clamp-2">Restorative Sleep Habits of Okinawan Centenarians</h4>
-                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY →</a>
+                <a href="{{ route('customer.pages.blog') }}" class="text-[11px] font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline block pt-1">READ STORY <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i></a>
               </div>
             </div>
           </div>

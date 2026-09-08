@@ -49,7 +49,7 @@
             </div>
 
             <button type="submit" class="w-full py-4 bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg btn-sheen cursor-pointer">
-              SUBMIT INQUIRY →
+              SUBMIT INQUIRY <i class="fa-solid fa-paper-plane ml-1.5"></i>
             </button>
           </form>
         </div>

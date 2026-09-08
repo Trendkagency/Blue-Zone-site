@@ -148,7 +148,7 @@
               </h4>
             </div>
             <a href="{{ route('customer.pages.about') }}" class="text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
-              {{ app()->getLocale() === 'ar' ? 'عرض معايير RS الكاملة ←' : 'EXPLORE RS STANDARDS →' }}
+              {{ app()->getLocale() === 'ar' ? 'عرض معايير RS الكاملة' : 'EXPLORE RS STANDARDS' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
             </a>
           </div>
 

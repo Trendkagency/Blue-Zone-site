@@ -64,12 +64,12 @@ class CategoryResource extends Resource
                         Forms\Components\Select::make('icon')
                             ->label('Icon')
                             ->options([
-                                'brain' => '🧠 Brain',
-                                'sparkles' => '✨ Sparkles',
-                                'shield-check' => '🛡️ Shield',
-                                'flame' => '🔥 Flame',
-                                'moon' => '🌙 Moon',
-                                'heart' => '❤️ Heart',
+                                'brain' => 'Brain',
+                                'sparkles' => 'Sparkles',
+                                'shield-check' => 'Shield',
+                                'flame' => 'Flame',
+                                'moon' => 'Moon',
+                                'heart' => 'Heart',
                             ]),
                         Forms\Components\Select::make('parent_id')
                             ->label('Parent Category')

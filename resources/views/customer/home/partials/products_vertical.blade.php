@@ -104,7 +104,7 @@
                     <div class="flex items-center justify-between">
                       <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">PRICE</span>
                       <div class="flex items-center gap-1 text-xs font-bold text-[#67B34A]">
-                        ★ {{ number_format($product['rating'] ?? 4.9, 1) }}
+                        <i class="fa-solid fa-star text-amber-400"></i> {{ number_format($product['rating'] ?? 4.9, 1) }}
                         <span class="text-slate-400 text-[10px]">({{ $product['reviews_count'] ?? 100 }})</span>
                       </div>
                     </div>
@@ -119,7 +119,7 @@
                       @endif
                     </div>
                     <span class="text-[10px] font-bold text-[#67B34A] block">
-                      ✓ {{ app()->getLocale() === 'ar' ? 'جاهز للشحن الفوري' : 'Ready to Dispatch' }}
+                      <i class="fa-solid fa-circle-check text-[#67B34A] mr-1"></i> {{ app()->getLocale() === 'ar' ? 'جاهز للشحن الفوري' : 'Ready to Dispatch' }}
                     </span>
                   </div>
 
@@ -131,7 +131,7 @@
                       <span>{{ app()->getLocale() === 'ar' ? 'أضف للسلة' : 'ADD TO CART' }}</span>
                     </button>
                     <a href="{{ route('customer.product.show', $product['slug']) }}" class="block w-full py-2.5 px-4 text-center text-xs font-bold rounded-xl border border-[#0A4F78]/30 hover:border-[#0A4F78] text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/5 transition-colors">
-                      {{ app()->getLocale() === 'ar' ? 'الملف الطبي الكامل' : 'CLINICAL MONOGRAPH →' }}
+                      {{ app()->getLocale() === 'ar' ? 'الملف الطبي الكامل' : 'CLINICAL MONOGRAPH' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i>
                     </a>
                   </div>
                 </div>

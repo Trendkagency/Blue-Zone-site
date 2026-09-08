@@ -23,10 +23,10 @@
 
                 <div class="space-y-4">
                     <x-forms.input name="email" type="email" :label="__('app.auth.email')"
-                        placeholder="admin@bluezone.com" :value="old('email', 'admin@bluezone.com')" required />
+                        placeholder="admin@bluezone.com" :value="old('email')" required />
 
                     <x-forms.input name="password" type="password" :label="__('app.auth.password')"
-                        placeholder="••••••••" :value="old('password', 'password')" required />
+                        placeholder="••••••••" :value="''" required />
 
                     <div class="flex items-center justify-between text-xs">
                         <label class="flex items-center gap-2 cursor-pointer">

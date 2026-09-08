@@ -55,7 +55,7 @@
           <div class="text-left space-y-0.5">
             <span class="block text-[9px] font-mono font-bold text-[#67B34A] uppercase tracking-widest">FLAGSHIP NOOTROPIC</span>
             <span class="block text-xs font-black text-white">BLUE MIND</span>
-            <span class="block text-[10px] text-[#2A8FC2] font-bold">★ 4.9 Verified Reviews</span>
+            <span class="block text-[10px] text-[#2A8FC2] font-bold"><i class="fa-solid fa-star text-amber-400 mr-1"></i> 4.9 Verified Reviews</span>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@
           <div class="text-left space-y-0.5">
             <span class="block text-[9px] font-mono font-bold text-[#2A8FC2] uppercase tracking-widest">MITOCHONDRIAL ATP</span>
             <span class="block text-xs font-black text-white">BLUE CELL</span>
-            <span class="block text-[10px] text-[#67B34A] font-bold">★ 4.9 Verified Reviews</span>
+            <span class="block text-[10px] text-[#67B34A] font-bold"><i class="fa-solid fa-star text-amber-400 mr-1"></i> 4.9 Verified Reviews</span>
           </div>
         </div>
       </div>
@@ -133,7 +133,7 @@
           <div class="text-left space-y-0.5">
             <span class="block text-[9px] font-mono font-bold text-[#67B34A] uppercase tracking-widest">JOINT MOBILITY</span>
             <span class="block text-xs font-black text-white">BLUE FLEX</span>
-            <span class="block text-[10px] text-[#2A8FC2] font-bold">★ 4.7 Verified Reviews</span>
+            <span class="block text-[10px] text-[#2A8FC2] font-bold"><i class="fa-solid fa-star text-amber-400 mr-1"></i> 4.7 Verified Reviews</span>
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@
           <div class="text-left space-y-0.5">
             <span class="block text-[9px] font-mono font-bold text-[#67B34A] uppercase tracking-widest">DEEP SLEEP MATRIX</span>
             <span class="block text-xs font-black text-white">BLUE REST</span>
-            <span class="block text-[10px] text-[#2A8FC2] font-bold">★ 4.9 Verified Reviews</span>
+            <span class="block text-[10px] text-[#2A8FC2] font-bold"><i class="fa-solid fa-star text-amber-400 mr-1"></i> 4.9 Verified Reviews</span>
           </div>
         </div>
       </div>

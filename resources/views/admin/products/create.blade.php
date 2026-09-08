@@ -110,7 +110,7 @@
                             name="sku" 
                             :label="__('admin.products.fields.sku')" 
                             :placeholder="__('admin.products.placeholders.sku')" 
-                            :value="old('sku', 'BZ-MND-001')" 
+                            :value="old('sku')" 
                             required 
                         />
                     </div>
@@ -119,7 +119,7 @@
                             name="barcode" 
                             :label="__('admin.products.fields.barcode')" 
                             :placeholder="__('admin.products.placeholders.barcode')" 
-                            :value="old('barcode', '628100091001')" 
+                            :value="old('barcode')" 
                         />
                     </div>
                 </div>
@@ -141,14 +141,14 @@
                             name="subcategory_en" 
                             :label="__('admin.products.fields.subcategory') . ' (EN)'" 
                             placeholder="e.g. Nootropics" 
-                            :value="old('subcategory_en', 'Nootropics & Cognitive')" 
+                            :value="old('subcategory_en')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="brand" 
                             :label="__('admin.products.fields.brand')" 
-                            :value="old('brand', 'Blue Zone Bioceuticals')" 
+                            :value="old('brand')" 
                             required 
                         />
                     </div>
@@ -159,21 +159,21 @@
                         <x-forms.input 
                             name="target_gender" 
                             :label="__('admin.products.fields.target_demographic')" 
-                            :value="old('target_gender', 'Unisex')" 
+                            :value="old('target_gender')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="age_group" 
                             :label="__('admin.products.fields.age_cohort')" 
-                            :value="old('age_group', '18+')" 
+                            :value="old('age_group')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="product_size" 
                             :label="__('admin.products.fields.dosage_form')" 
-                            :value="old('product_size', '60 Vegetable Capsules')" 
+                            :value="old('product_size')" 
                         />
                     </div>
                 </div>
@@ -183,7 +183,7 @@
                         name="slug" 
                         label="URL Slug" 
                         placeholder="e.g. blue-mind-precision-nootropic" 
-                        :value="old('slug', 'blue-mind-precision-nootropic')" 
+                        :value="old('slug')" 
                         hint="Unique URL path for storefront routing." 
                     />
                 </div>
@@ -216,7 +216,7 @@
                         name="name_ar" 
                         :label="__('admin.products.fields.name_ar')" 
                         :placeholder="__('admin.products.placeholders.name_ar')" 
-                        :value="old('name_ar', 'بلو مايند منشط ذهني دقيق')" 
+                        :value="old('name_ar')" 
                         required 
                     />
 
@@ -225,7 +225,7 @@
                             name="tagline_ar" 
                             :label="__('admin.products.fields.tagline_ar')" 
                             :placeholder="__('admin.products.placeholders.tagline_ar')" 
-                            :value="old('tagline_ar', 'دعم يومي للوظائف الإدراكية والتركيز الذهني')" 
+                            :value="old('tagline_ar')" 
                         />
                     </div>
 
@@ -235,7 +235,7 @@
                             :label="__('admin.products.fields.description_ar')" 
                             rows="4" 
                             :placeholder="__('admin.products.placeholders.description_ar')" 
-                        >{{ old('description_ar', 'تركيبة حيوية متطورة مصممة لدعم النواقل العصبية والنشاط الذهني وتحفيز التركيز المستدام طوال اليوم.') }}</x-forms.textarea>
+                        >{{ old('description_ar') }}</x-forms.textarea>
                     </div>
 
                     <div style="margin-top: 1rem;">
@@ -244,7 +244,7 @@
                             :label="__('admin.products.fields.usage_ar')" 
                             rows="2" 
                             :placeholder="__('admin.products.placeholders.usage_ar')" 
-                        >{{ old('usage_ar', 'تناول كبسولتين يومياً مع وجبة الإفطار أو عند الحاجة لتركيز ذهني مضاعف.') }}</x-forms.textarea>
+                        >{{ old('usage_ar') }}</x-forms.textarea>
                     </div>
                 </div>
 
@@ -259,7 +259,7 @@
                         name="name_en" 
                         :label="__('admin.products.fields.name_en')" 
                         :placeholder="__('admin.products.placeholders.name_en')" 
-                        :value="old('name_en', 'BLUE MIND Precision Nootropic')" 
+                        :value="old('name_en')" 
                         required 
                     />
 
@@ -268,7 +268,7 @@
                             name="tagline_en" 
                             :label="__('admin.products.fields.tagline_en')" 
                             :placeholder="__('admin.products.placeholders.tagline_en')" 
-                            :value="old('tagline_en', 'Daily Cognitive & Nootropic Support')" 
+                            :value="old('tagline_en')" 
                         />
                     </div>
 
@@ -278,7 +278,7 @@
                             :label="__('admin.products.fields.description_en')" 
                             rows="4" 
                             :placeholder="__('admin.products.placeholders.description_en')" 
-                        >{{ old('description_en', 'Engineered to support mental clarity, neurotransmitter synthesis, and sustained neural energy throughout the day without jitter or crash.') }}</x-forms.textarea>
+                        >{{ old('description_en') }}</x-forms.textarea>
                     </div>
 
                     <div style="margin-top: 1rem;">
@@ -287,7 +287,7 @@
                             :label="__('admin.products.fields.usage_en')" 
                             rows="2" 
                             :placeholder="__('admin.products.placeholders.usage_en')" 
-                        >{{ old('usage_en', 'Take 2 capsules daily with your morning meal, or as recommended by your physician.') }}</x-forms.textarea>
+                        >{{ old('usage_en') }}</x-forms.textarea>
                     </div>
                 </div>
             </div>
@@ -317,7 +317,7 @@
                             step="0.01" 
                             min="0"
                             :label="__('admin.products.fields.cost_price')" 
-                            :value="old('cost_price', '22.00')" 
+                            :value="old('cost_price')" 
                             required 
                             oninput="recalculateTaxAndMargin()"
                         />
@@ -330,7 +330,7 @@
                             step="0.01" 
                             min="0.01"
                             :label="__('admin.products.fields.retail_price')" 
-                            :value="old('price', '68.00')" 
+                            :value="old('price')" 
                             required 
                             oninput="recalculateTaxAndMargin()"
                         />
@@ -435,7 +435,7 @@
                             name="image" 
                             id="inputMainImage"
                             label="Default Asset Fallback Path" 
-                            :value="old('image', 'assets/products/blue-mind.jpg')" 
+                            :value="old('image')" 
                             placeholder="e.g. assets/products/blue-mind.jpg" 
                             hint="Used automatically when no Spatie media file is uploaded."
                         />
@@ -620,7 +620,7 @@
                             type="number" 
                             min="0"
                             :label="__('admin.products.fields.online_stock')" 
-                            :value="old('stock_online', '100')" 
+                            :value="old('stock_online')" 
                             required 
                         />
 
@@ -629,7 +629,7 @@
                             type="number" 
                             min="0"
                             :label="__('admin.products.fields.offline_stock')" 
-                            :value="old('stock_offline', '50')" 
+                            :value="old('stock_offline')" 
                             required 
                         />
 
@@ -638,7 +638,7 @@
                             type="number" 
                             min="1"
                             :label="__('admin.products.fields.low_stock_threshold')" 
-                            :value="old('low_stock_threshold', '10')" 
+                            :value="old('low_stock_threshold')" 
                             required 
                         />
                     </div>
@@ -981,7 +981,6 @@
                     }
                 });
             } else {
-                addIngredientRow('', '', '');
                 addIngredientRow('', '', '');
             }
         });

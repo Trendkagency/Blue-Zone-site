@@ -179,7 +179,7 @@ class NotificationController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
         }
 
-        $title = $request->input('title') ?: '🔔 تجربة إشعارات FCM | FCM Live Test';
+        $title = $request->input('title') ?: 'تجربة إشعارات FCM | FCM Live Test';
         $message = $request->input('message') ?: 'نظام الإشعارات اللحظية يعمل بنجاح للمخزون والتنبيهات الإدارية. Real-time push dispatched!';
         $type = $request->input('type') ?: 'system';
         $target = $request->input('target') ?: 'self';

@@ -30,7 +30,7 @@
             <div class="mb-6 p-4 rounded-2xl bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 text-xs space-y-1 font-semibold">
                 @foreach($errors->all() as $error)
                     <div class="flex items-center gap-2">
-                        <span>•</span>
+                        <i class="fa-solid fa-circle-dot text-[8px] text-red-500"></i>
                         <span>{{ $error }}</span>
                     </div>
                 @endforeach
@@ -49,7 +49,7 @@
                     name="email" 
                     type="email" 
                     placeholder="name@example.com" 
-                    value="{{ old('email', 'zaid.harbi@example.com') }}" 
+                    value="{{ old('email') }}" 
                     required 
                     class="w-full px-4 py-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 focus:border-[#2A8FC2] text-[#031827] dark:text-[#F6F5EF] placeholder-[#031827]/40 dark:placeholder-[#F6F5EF]/40 text-sm focus:outline-none transition-all"
                 />
@@ -64,7 +64,7 @@
                     name="password" 
                     type="password" 
                     placeholder="••••••••" 
-                    value="password"
+                    value=""
                     required 
                     class="w-full px-4 py-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 focus:border-[#2A8FC2] text-[#031827] dark:text-[#F6F5EF] placeholder-[#031827]/40 dark:placeholder-[#F6F5EF]/40 text-sm focus:outline-none transition-all"
                 />
@@ -84,7 +84,7 @@
             <x-captcha context="login" />
 
             <button type="submit" class="w-full py-4 bg-[#0A4F78] hover:bg-[#083f61] dark:bg-[#2A8FC2] dark:hover:bg-[#1f79a8] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer">
-                {{ __('app.nav.login') }} →
+                {{ __('app.nav.login') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
             </button>
         </form>
 

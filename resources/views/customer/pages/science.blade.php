@@ -106,11 +106,11 @@
                   </span>
                   <div class="flex items-center justify-between text-[10px] font-mono font-bold text-white/90">
                     <span id="bz-flow-step-1" class="text-[#67B34A]">INGREDIENT</span>
-                    <span class="text-[#2A8FC2]">→</span>
+                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
                     <span id="bz-flow-step-2" class="text-white/40">FUNCTION</span>
-                    <span class="text-[#2A8FC2]">→</span>
+                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
                     <span id="bz-flow-step-3" class="text-white/40">BODY</span>
-                    <span class="text-[#2A8FC2]">→</span>
+                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
                     <span id="bz-flow-step-4" class="text-white/40">WELLNESS</span>
                   </div>
                 </div>
@@ -308,7 +308,7 @@
           </p>
         </div>
         <a href="{{ route('customer.product.show', 'blue-mind') }}" class="px-7 py-3.5 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md shrink-0 whitespace-nowrap hover:scale-105">
-          EXPLORE BLUE MIND →
+          EXPLORE BLUE MIND <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
         </a>
       </section>
 

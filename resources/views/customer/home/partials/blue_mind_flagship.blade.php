@@ -26,10 +26,10 @@
               />
 
               <div class="absolute top-6 left-6 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-[#031827]/90 border border-[#0A4F78]/20 dark:border-[#2A8FC2]/50 text-[10px] font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] shadow-sm backdrop-blur-md">
-                ⚡ Synaptic Speed
+                <i class="fa-solid fa-bolt-lightning text-[#0A4F78] dark:text-[#2A8FC2] mr-1.5"></i> Synaptic Speed
               </div>
               <div class="absolute bottom-6 right-6 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-[#031827]/90 border border-[#67B34A]/40 dark:border-[#67B34A]/50 text-[10px] font-black uppercase tracking-wider text-[#589c3e] dark:text-[#67B34A] shadow-sm backdrop-blur-md">
-                🌿 Zero Caffeine Jitters
+                <i class="fa-solid fa-leaf text-[#67B34A] mr-1.5"></i> Zero Caffeine Jitters
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@
                   ADD TO CART
                 </button>
                 <a href="{{ route('customer.product.show', 'blue-mind') }}" class="px-6 py-4 border border-[#0A4F78]/30 dark:border-[#2A8FC2]/40 hover:border-[#0A4F78] dark:hover:border-[#2A8FC2] text-[#0A4F78] dark:text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-colors">
-                  EXPLORE CLINICAL STUDY →
+                  EXPLORE CLINICAL STUDY <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                 </a>
               </div>
             </div>

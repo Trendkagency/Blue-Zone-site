@@ -220,7 +220,7 @@ class ProductResource extends Resource
                         ]),
 
                     // Tab 5: Professional Section
-                    Tabs\Tab::make('🩺 Professional Section')
+                    Tabs\Tab::make('Professional Section')->icon('heroicon-o-academic-cap')
                         ->icon('heroicon-o-beaker')
                         ->schema([
                             Section::make('Healthcare Professional Data')

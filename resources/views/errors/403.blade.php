@@ -27,7 +27,7 @@
             <!-- Action Buttons -->
             <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a href="{{ url()->previous() !== url()->current() ? url()->previous() : route('customer.home') }}" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#0A4F78] hover:bg-[#083f61] text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg text-center">
-                    ← {{ app()->getLocale() === 'ar' ? 'الرجوع للخلف' : 'Go Back' }}
+                    <i class="fa-solid fa-arrow-left rtl:rotate-180 mr-1.5"></i> {{ app()->getLocale() === 'ar' ? 'الرجوع للخلف' : 'Go Back' }}
                 </a>
                 <a href="{{ route('customer.home') }}" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg text-center">
                     {{ app()->getLocale() === 'ar' ? 'الرئيسية' : 'Storefront Home' }}

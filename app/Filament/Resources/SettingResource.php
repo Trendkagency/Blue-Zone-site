@@ -42,13 +42,13 @@ class SettingResource extends Resource
                         Forms\Components\Select::make('group')
                             ->label('Setting Group')
                             ->options([
-                                'tax' => '💳 Taxes & VAT (ZATCA)',
+                                'tax' => 'Taxes & VAT (ZATCA)',
                                 'font' => '🔤 Typography & Design',
                                 'general' => '🏢 General & Brand',
                                 'store' => '🏬 Store & Inventory',
                                 'commerce' => '💰 Payments & Gateways',
-                                'shipping' => '🚚 Logistics & Shipping',
-                                'alerts' => '🔔 Notifications',
+                                'shipping' => 'Logistics & Shipping',
+                                'alerts' => 'Notifications',
                             ])
                             ->required()
                             ->default('tax'),

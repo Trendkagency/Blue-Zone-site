@@ -50,22 +50,22 @@
             
             <div class="space-y-3 pt-2">
               <div class="flex items-start gap-3">
-                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5"><i class="fa-solid fa-check"></i></span>
                 <p class="text-xs text-[#031827]/75 dark:text-[#F6F5EF]/75 font-semibold">Standardized cellular polyphenol compounds extracted at peak biological potency.</p>
               </div>
               <div class="flex items-start gap-3">
-                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5"><i class="fa-solid fa-check"></i></span>
                 <p class="text-xs text-[#031827]/75 dark:text-[#F6F5EF]/75 font-semibold">Clean dietary bio-integrity—zero artificial fillers, binders, or synthetic additives.</p>
               </div>
               <div class="flex items-start gap-3">
-                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">✓</span>
+                <span class="w-6 h-6 rounded-full bg-[#67B34A]/20 text-[#67B34A] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5"><i class="fa-solid fa-check"></i></span>
                 <p class="text-xs text-[#031827]/75 dark:text-[#F6F5EF]/75 font-semibold">Bio-identical nutrition formulated to support stamina, brain health, and sleep.</p>
               </div>
             </div>
 
             <div class="pt-4 flex flex-wrap gap-4">
               <a href="#philosophy" class="px-7 py-3.5 bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-md btn-sheen">
-                OUR PHILOSOPHY →
+                OUR PHILOSOPHY <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
               </a>
               <a href="{{ route('customer.pages.science') }}" class="px-7 py-3.5 border border-[#0A4F78]/30 hover:border-[#0A4F78] text-[#031827] dark:text-[#F6F5EF] text-xs font-extrabold uppercase tracking-widest rounded-xl transition-colors">
                 OUR SCIENCE

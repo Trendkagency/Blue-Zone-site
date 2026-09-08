@@ -88,7 +88,7 @@
                     <div class="card stat-card">
                         <div class="stat-label">{{ app()->getLocale() === 'ar' ? 'العناوين المسجلة' : 'Saved Destinations' }}</div>
                         <div class="stat-value">{{ $stats['saved_addresses_count'] }}</div>
-                        <div class="stat-footer"><a href="{{ route('customer.account.addresses') }}" class="text-primary font-bold">{{ app()->getLocale() === 'ar' ? 'إدارة العناوين →' : 'Manage addresses →' }}</a></div>
+                        <div class="stat-footer"><a href="{{ route('customer.account.addresses') }}" class="text-primary font-bold">{{ app()->getLocale() === 'ar' ? 'إدارة العناوين' : 'Manage addresses' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i></a></div>
                     </div>
                 </div>
 
@@ -100,7 +100,7 @@
                             {{ __('shop.account.recent_orders') }}
                         </h3>
                         <a href="{{ route('customer.account.orders') }}" class="text-xs font-bold" style="color: var(--color-primary);">
-                            {{ __('app.actions.view_all') }} →
+                            {{ __('app.actions.view_all') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i>
                         </a>
                     </div>
 

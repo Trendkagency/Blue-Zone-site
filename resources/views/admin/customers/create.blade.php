@@ -34,7 +34,7 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <x-forms.input name="city" :label="__('admin.customers.city')" placeholder="Riyadh" :value="old('city')" />
-                <x-forms.input name="country" :label="__('admin.customers.country')" placeholder="Saudi Arabia" :value="old('country', 'Saudi Arabia')" />
+                <x-forms.input name="country" :label="__('admin.customers.country')" placeholder="Saudi Arabia" :value="old('country')" />
             </div>
 
             <x-forms.input name="address" :label="__('admin.customers.address')" placeholder="Al Yasmin District, St 12" :value="old('address')" />

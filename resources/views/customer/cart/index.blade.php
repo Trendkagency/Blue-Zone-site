@@ -39,7 +39,7 @@
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-truck-fast text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                         @if($freeShippingUnlocked)
-                            <span class="text-[#67B34A]">{{ app()->getLocale() === 'ar' ? '✓ تم تفعيل الشحن المبرد المجاني لطلبك!' : '✓ Compliments of BLUE ZONE: Free Cold-Chain Shipping Unlocked!' }}</span>
+                            <span class="text-[#67B34A] flex items-center gap-1.5"><i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'تم تفعيل الشحن المبرد المجاني لطلبك!' : 'Compliments of BLUE ZONE: Free Cold-Chain Shipping Unlocked!' }}</span>
                         @else
                             <span class="text-[#031827] dark:text-[#F6F5EF]">
                                 {{ app()->getLocale() === 'ar' 
@@ -179,11 +179,11 @@
 
                             @if($coupon)
                                 <div class="mt-2.5 flex items-center justify-between p-2.5 rounded-xl bg-[#67B34A]/15 border border-[#67B34A]/30 text-[#67B34A] text-xs font-bold">
-                                    <span>✓ {{ $coupon['code'] }} (-{{ $coupon['percent'] }}%)</span>
+                                    <span><i class="fa-solid fa-check mr-1"></i> {{ $coupon['code'] }} (-{{ $coupon['percent'] }}%)</span>
                                     <form method="POST" action="{{ route('customer.cart.coupon.remove') }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-600 font-bold ml-2 cursor-pointer" title="Remove coupon">✕</button>
+                                        <button type="submit" class="text-red-500 hover:text-red-600 font-bold ml-2 cursor-pointer" title="Remove coupon"><i class="fa-solid fa-xmark"></i></button>
                                     </form>
                                 </div>
                             @endif
@@ -230,7 +230,7 @@
                         <!-- Checkout Button -->
                         <div class="pt-2">
                             <a href="{{ route('customer.checkout') }}" class="w-full block text-center py-4 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-xl transition-all cursor-pointer btn-sheen">
-                                {{ __('app.actions.checkout') }} →
+                                {{ __('app.actions.checkout') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                             </a>
                         </div>
 
@@ -251,7 +251,7 @@
             <!-- Empty State -->
             <div class="py-20 text-center bg-white dark:bg-[#062B49] rounded-3xl border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm max-w-2xl mx-auto p-8 space-y-6">
                 <div class="w-20 h-20 rounded-full bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 flex items-center justify-center mx-auto text-3xl text-[#0A4F78] dark:text-[#2A8FC2]">
-                    🛒
+                    <i class="fa-solid fa-cart-shopping"></i>
                 </div>
                 <div class="space-y-2">
                     <h2 class="text-2xl font-black text-[#031827] dark:text-[#F6F5EF]">

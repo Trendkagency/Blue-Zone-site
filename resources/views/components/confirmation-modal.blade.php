@@ -10,11 +10,11 @@
     <div class="modal-dialog">
         <div class="modal-header">
             <h4 class="modal-title" style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="color: var(--color-danger);">⚠️</span>
+                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
                 {{ $title }}
             </h4>
             <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal('{{ $id }}')" aria-label="Close">
-                ✕
+                <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 

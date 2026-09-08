@@ -876,13 +876,13 @@
             .then(data => {
                 if (data.success) {
                     showAdminToast(
-                        '🔔 تجربة إشعارات FCM | FCM Realtime Test',
+                        'تجربة إشعارات FCM | FCM Realtime Test',
                         'تم إرسال إشعار تجريبي بنجاح عبر نظام FCM Realtime.',
                         'fa-solid fa-satellite-dish text-sky-500',
                         '/admin/inventory'
                     );
                     prependNotificationToDropdown(
-                        '🔔 تجربة إشعارات FCM',
+                        'تجربة إشعارات FCM',
                         'تم إرسال إشعار تجريبي بنجاح عبر نظام FCM Realtime.',
                         'fa-solid fa-satellite-dish text-sky-500',
                         '/admin/inventory'

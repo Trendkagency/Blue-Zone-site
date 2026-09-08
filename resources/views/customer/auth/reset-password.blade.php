@@ -70,7 +70,7 @@
             </div>
 
             <button type="submit" class="w-full py-4 bg-[#0A4F78] hover:bg-[#083f61] dark:bg-[#2A8FC2] dark:hover:bg-[#1f79a8] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer mt-2">
-                Update Password & Sign In →
+                Update Password & Sign In <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
             </button>
         </form>
     </div>

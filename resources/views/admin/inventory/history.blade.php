@@ -80,9 +80,9 @@
                         <th>{{ __('admin.inventory.movement_id') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'التركيبة والمواصفة' : 'Product & Variant' }}</th>
                         <th>{{ __('admin.inventory.movement_type') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'مسار الحركة (من ← إلى)' : 'Routing (From → To)' }}</th>
+                        <th>{{ app()->getLocale() == 'ar' ? 'مسار الحركة (من إلى)' : 'Routing (From / To)' }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'فرق الكمية' : 'Qty Delta' }}</th>
-                        <th>{{ __('admin.inventory.prev_qty') }} → {{ __('admin.inventory.new_qty') }}</th>
+                        <th>{{ __('admin.inventory.prev_qty') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs"></i> {{ __('admin.inventory.new_qty') }}</th>
                         <th>{{ __('admin.inventory.logged_user') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'الوقت والتبرير' : 'Timestamp & Justification' }}</th>
                     </tr>
@@ -140,7 +140,7 @@
                                 {{ $mQty > 0 ? '+' : '' }}{{ $mQty }}
                             </td>
                             <td class="text-xs font-mono">
-                                {{ $mPrev }} → <strong>{{ $mNew }}</strong>
+                                {{ $mPrev }} <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-muted"></i> <strong>{{ $mNew }}</strong>
                             </td>
                             <td class="text-xs">
                                 <i class="fa-solid fa-user-shield mr-1 ml-1 text-muted"></i> {{ $mUser }}

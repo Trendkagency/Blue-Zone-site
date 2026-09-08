@@ -25,7 +25,7 @@
         <!-- Top Back Navigation & Breadcrumb -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#0A4F78]/15">
           <a href="{{ route('customer.shop') }}" class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">
-            ← BACK TO PRODUCTS
+            <i class="fa-solid fa-arrow-left rtl:rotate-180 mr-1.5"></i> BACK TO PRODUCTS
           </a>
           <div class="text-[11px] font-bold uppercase tracking-widest text-[#031827]/60 dark:text-[#F6F5EF]/60">
             <a href="{{ route('customer.home') }}" class="hover:text-[#0A4F78]">HOME</a> / 
@@ -55,7 +55,7 @@
           <div class="lg:col-span-6 space-y-6">
             <div class="space-y-2">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-[#67B34A]">★ 4.95</span>
+                <span class="text-xs font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.95</span>
                 <span class="text-xs text-[#031827]/50 dark:text-[#F6F5EF]/50">(340+ Verified Clinical Reviews)</span>
               </div>
               <h1 class="text-3xl sm:text-5xl font-black text-[#031827] dark:text-[#F6F5EF]">
@@ -79,9 +79,9 @@
               <div class="flex items-center gap-4">
                 <span class="text-xs font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">QUANTITY:</span>
                 <div class="flex items-center border border-[#0A4F78]/30 rounded-lg overflow-hidden bg-white dark:bg-[#031827]">
-                  <button onclick="updateQty(-1)" class="px-3 py-2 cursor-pointer font-bold hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white">-</button>
+                  <button onclick="updateQty(-1)" class="px-3 py-2 cursor-pointer font-bold hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white"><i class="fa-solid fa-minus text-xs"></i></button>
                   <span id="detail-qty-val" class="px-4 text-xs font-bold text-[#031827] dark:text-white">1</span>
-                  <button onclick="updateQty(1)" class="px-3 py-2 cursor-pointer font-bold hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white">+</button>
+                  <button onclick="updateQty(1)" class="px-3 py-2 cursor-pointer font-bold hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white"><i class="fa-solid fa-plus text-xs"></i></button>
                 </div>
               </div>
 
@@ -90,7 +90,7 @@
                   ADD TO CART
                 </button>
                 <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" aria-label="Wishlist" class="p-4 rounded-xl border border-[#0A4F78] text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78]/10 font-bold cursor-pointer transition-all">
-                  ♥
+                  <i class="fa-solid fa-heart"></i>
                 </button>
               </div>
             </div>
@@ -98,16 +98,16 @@
             <!-- Clinical Features Badge List -->
             <div class="grid grid-cols-2 gap-3 pt-4 border-t border-[#0A4F78]/10 text-xs font-bold text-[#031827]/70 dark:text-[#F6F5EF]/70">
               <div class="flex items-center gap-2">
-                <span class="text-[#67B34A]">✓</span> 100% Bio-Identical Extracts
+                <i class="fa-solid fa-circle-check text-[#67B34A]"></i> 100% Bio-Identical Extracts
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[#67B34A]">✓</span> Third-Party Heavy Metal Screened
+                <i class="fa-solid fa-circle-check text-[#67B34A]"></i> Third-Party Heavy Metal Screened
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[#67B34A]">✓</span> Zero Artificial Fillers
+                <i class="fa-solid fa-circle-check text-[#67B34A]"></i> Zero Artificial Fillers
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-[#67B34A]">✓</span> Cold-Chain Sealed
+                <i class="fa-solid fa-circle-check text-[#67B34A]"></i> Cold-Chain Sealed
               </div>
             </div>
 

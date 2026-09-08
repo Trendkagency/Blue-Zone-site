@@ -129,7 +129,7 @@
                 />
 
                 <div class="absolute top-4 left-4 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-[#031827]/90 border border-[#0A4F78]/20 dark:border-[#2A8FC2]/40 text-[10px] font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-sm">
-                  HPLC Verified ✓
+                  HPLC Verified <i class="fa-solid fa-check ml-1"></i>
                 </div>
                 <div class="absolute bottom-4 right-4 px-3 py-1.5 rounded-xl bg-white/90 dark:bg-[#031827]/90 border border-[#67B34A]/30 dark:border-[#67B34A]/50 text-[10px] font-black uppercase tracking-wider text-[#589c3e] dark:text-[#67B34A] backdrop-blur-md shadow-sm">
                   100% Bio-Identical
@@ -247,19 +247,19 @@
                 </span>
                 <ul class="mt-4 space-y-3 text-xs font-semibold text-[#031827]/80 dark:text-[#F6F5EF]/80">
                   <li class="flex items-center gap-2">
-                    <span class="text-[#589c3e] dark:text-[#67B34A]">✓</span>
+                    <i class="fa-solid fa-check text-[#589c3e] dark:text-[#67B34A]"></i>
                     <span>{{ $isRtl ? 'مطابقة الهوية الجزيئية بنسبة 100%' : '100% Bio-Identical Structure' }}</span>
                   </li>
                   <li class="flex items-center gap-2">
-                    <span class="text-[#589c3e] dark:text-[#67B34A]">✓</span>
+                    <i class="fa-solid fa-check text-[#589c3e] dark:text-[#67B34A]"></i>
                     <span>{{ $isRtl ? 'خالٍ تماماً من الكافيين والمنشطات الاصطناعية' : 'Zero Synthetic Fillers & Caffeine' }}</span>
                   </li>
                   <li class="flex items-center gap-2">
-                    <span class="text-[#589c3e] dark:text-[#67B34A]">✓</span>
+                    <i class="fa-solid fa-check text-[#589c3e] dark:text-[#67B34A]"></i>
                     <span>{{ $isRtl ? 'مصنّع وفق معايير cGMP الأوروبية' : 'cGMP European Certified Batch' }}</span>
                   </li>
                   <li class="flex items-center gap-2">
-                    <span class="text-[#589c3e] dark:text-[#67B34A]">✓</span>
+                    <i class="fa-solid fa-check text-[#589c3e] dark:text-[#67B34A]"></i>
                     <span>{{ $isRtl ? 'فحص المعادن الثقيلة والملوثات' : 'Third-Party Heavy Metal Screened' }}</span>
                   </li>
                 </ul>
@@ -340,7 +340,7 @@
               <div class="space-y-3">
                 @foreach($benefits as $b)
                   <div class="flex items-start gap-3">
-                    <span class="w-5 h-5 rounded-full bg-[#67B34A]/20 text-[#589c3e] dark:text-[#67B34A] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">✓</span>
+                    <span class="w-5 h-5 rounded-full bg-[#67B34A]/20 text-[#589c3e] dark:text-[#67B34A] flex items-center justify-center text-xs font-black shrink-0 mt-0.5"><i class="fa-solid fa-check"></i></span>
                     <span class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed">{{ $b }}</span>
                   </div>
                 @endforeach
@@ -448,7 +448,7 @@
 
                 <div class="pt-4 mt-3 border-t border-[#0A4F78]/10 dark:border-white/10">
                   <a href="{{ route('customer.science.product', $relSlug) }}" class="w-full py-2.5 rounded-xl bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 hover:bg-[#0A4F78] dark:hover:bg-[#2A8FC2] text-[#0A4F78] dark:text-white hover:text-white text-center text-xs font-black uppercase tracking-wider transition-all block">
-                    {{ $isRtl ? 'ملف العلوم السريرية ←' : 'Our Science Details →' }}
+                    {{ $isRtl ? 'ملف العلوم السريرية' : 'Our Science Details' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                   </a>
                 </div>
               </div>

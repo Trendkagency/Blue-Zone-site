@@ -182,7 +182,7 @@
                     <tr>
                         <th>{{ __('admin.inventory.movement_id') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'التركيبة' : 'Product' }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'مسار التحويل (من ← إلى)' : 'Routing (From → To)' }}</th>
+                        <th>{{ app()->getLocale() == 'ar' ? 'مسار التحويل (من إلى)' : 'Routing (From / To)' }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'الكمية المحولة' : 'Transferred Qty' }}</th>
                         <th>{{ __('admin.inventory.logged_user') }}</th>
                         <th>{{ app()->getLocale() == 'ar' ? 'التاريخ والسبب' : 'Date & Note' }}</th>

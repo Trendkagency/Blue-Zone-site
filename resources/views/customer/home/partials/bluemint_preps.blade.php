@@ -30,7 +30,7 @@
                 <span class="text-[9px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#2A8FC2]/15 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] border border-[#2A8FC2]/30">
                   BREP 01 • MORNING
                 </span>
-                <span class="text-[10px] font-bold text-[#67B34A]">★ 4.9</span>
+                <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.9</span>
               </div>
 
               <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#2A8FC2]/20">
@@ -89,7 +89,7 @@
                 <span class="text-[9px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#67B34A]/20 text-[#589c3e] dark:text-[#67B34A] border border-[#67B34A]/30">
                   BREP 02 • CELLULAR
                 </span>
-                <span class="text-[10px] font-bold text-[#67B34A]">★ 4.95</span>
+                <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.95</span>
               </div>
 
               <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#67B34A]/20">
@@ -148,7 +148,7 @@
                 <span class="text-[9px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30">
                   BREP 03 • TWILIGHT
                 </span>
-                <span class="text-[10px] font-bold text-[#67B34A]">★ 4.92</span>
+                <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.92</span>
               </div>
 
               <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-indigo-500/20">
@@ -207,7 +207,7 @@
                 <span class="text-[9px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                   BREP 04 • METABOLIC
                 </span>
-                <span class="text-[10px] font-bold text-[#67B34A]">★ 4.9</span>
+                <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.9</span>
               </div>
 
               <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-amber-500/20">

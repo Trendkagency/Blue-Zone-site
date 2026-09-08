@@ -17,7 +17,7 @@
                     EXPLORE RS STANDARDS ↓
                 </a>
                 <a href="{{ route('customer.shop') }}" class="px-8 py-4 rounded-full border border-[#0A4F78]/30 hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-xs font-black uppercase tracking-widest transition-all">
-                    VIEW FORMULATIONS →
+                    VIEW FORMULATIONS <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                 </a>
             </div>
         </section>
@@ -60,7 +60,7 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-[#031827]/80 via-transparent to-transparent"></div>
                         <div class="absolute bottom-6 left-6 right-6 flex items-center justify-between text-xs text-[#031827] dark:text-white font-bold bg-white/90 dark:bg-[#031827]/80 backdrop-blur-md p-3.5 rounded-xl border border-[#0A4F78]/20 dark:border-white/10 shadow-lg">
                             <span>Clinical Research Compound Verification</span>
-                            <span class="text-[#589c3e] dark:text-[#67B34A] font-mono">HPLC Verified ✓</span>
+                            <span class="text-[#589c3e] dark:text-[#67B34A] font-mono">HPLC Verified <i class="fa-solid fa-check ml-1"></i></span>
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                 <!-- RS Pillar 1 -->
                 <div class="p-8 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md space-y-4 hover:-translate-y-1 transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-[#0A4F78]/10 dark:bg-[#0A4F78]/30 flex items-center justify-center text-2xl text-[#0A4F78] dark:text-[#2A8FC2]">
-                        🔬
+                        <i class="fa-solid fa-microscope"></i>
                     </div>
                     <span class="text-[10px] font-mono font-bold text-[#0A4F78] dark:text-[#2A8FC2] uppercase">RS PROTOCOL 01</span>
                     <h3 class="text-lg font-black text-[#031827] dark:text-[#F6F5EF]">Standardized Potency</h3>
@@ -97,7 +97,7 @@
                 <!-- RS Pillar 2 -->
                 <div class="p-8 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md space-y-4 hover:-translate-y-1 transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-[#67B34A]/15 flex items-center justify-center text-2xl text-[#67B34A]">
-                        🛡️
+                        <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <span class="text-[10px] font-mono font-bold text-[#67B34A] uppercase">RS PROTOCOL 02</span>
                     <h3 class="text-lg font-black text-[#031827] dark:text-[#F6F5EF]">Heavy Metal Screening</h3>
@@ -109,7 +109,7 @@
                 <!-- RS Pillar 3 -->
                 <div class="p-8 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md space-y-4 hover:-translate-y-1 transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-[#2A8FC2]/15 flex items-center justify-center text-2xl text-[#2A8FC2]">
-                        🧬
+                        <i class="fa-solid fa-dna"></i>
                     </div>
                     <span class="text-[10px] font-mono font-bold text-[#2A8FC2] uppercase">RS PROTOCOL 03</span>
                     <h3 class="text-lg font-black text-[#031827] dark:text-[#F6F5EF]">Phospholipid Delivery</h3>
@@ -121,7 +121,7 @@
                 <!-- RS Pillar 4 -->
                 <div class="p-8 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md space-y-4 hover:-translate-y-1 transition-transform">
                     <div class="w-14 h-14 rounded-2xl bg-amber-500/15 flex items-center justify-center text-2xl text-amber-500">
-                        📜
+                        <i class="fa-solid fa-certificate"></i>
                     </div>
                     <span class="text-[10px] font-mono font-bold text-amber-500 uppercase">RS PROTOCOL 04</span>
                     <h3 class="text-lg font-black text-[#031827] dark:text-[#F6F5EF]">Batch-Level Traceability</h3>
@@ -252,7 +252,7 @@
             </p>
             <div class="pt-2">
                 <a href="{{ route('customer.shop') }}" class="inline-block px-10 py-5 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-2xl transition-all btn-sheen">
-                    DISCOVER CLINICAL FORMULATIONS →
+                    DISCOVER CLINICAL FORMULATIONS <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                 </a>
             </div>
         </section>

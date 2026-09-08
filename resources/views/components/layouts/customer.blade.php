@@ -99,7 +99,7 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-[#67B34A] animate-pulse"></span>
-                <span>✨ Complimentary Cold-Chain Shipping on Orders Over $75</span>
+                <span><i class="fa-solid fa-wand-magic-sparkles text-[#67B34A] mr-1"></i> Complimentary Cold-Chain Shipping on Orders Over $75</span>
             </div>
             <div class="flex items-center gap-4">
                 @if(app()->getLocale() === 'ar')
@@ -109,12 +109,12 @@
                 @endif
                 <span>|</span>
                 <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="hover:text-white transition-colors cursor-pointer inline-flex items-center gap-1.5" title="Switch Theme">
-                    <span data-theme-label>🌙 Dark Mode</span>
+                    <span data-theme-label><i class="fa-solid fa-moon mr-1"></i> Dark Mode</span>
                 </button>
                 <span>|</span>
                 @if(auth('customer')->check())
                     <a href="{{ route('customer.account.dashboard') }}" class="font-bold text-[#67B34A] hover:underline flex items-center gap-1">
-                        <span>👤 {{ auth('customer')->user()->name }}</span>
+                        <span><i class="fa-solid fa-circle-user mr-1 text-[#67B34A]"></i> {{ auth('customer')->user()->name }}</span>
                     </a>
                     <span>|</span>
                     <form action="{{ route('customer.auth.logout') }}" method="POST" class="inline">
@@ -130,7 +130,7 @@
                 @endif
                 <span>|</span>
                 <a href="{{ route('admin.dashboard') }}" class="font-bold text-[#94A3B8] hover:text-white transition-colors">
-                    Admin Portal →
+                    Admin Portal <i class="fa-solid fa-arrow-right-to-bracket ml-1 text-xs"></i>
                 </a>
             </div>
         </div>
@@ -224,34 +224,34 @@
         <div id="mobile-nav-drawer" class="hidden lg:hidden bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/20 px-6 py-6 space-y-4">
             <div class="flex flex-col gap-3">
                 <a href="{{ route('customer.home') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.home') || request()->is('/')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>HOME</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>HOME</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.pages.science') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>OUR SCIENCE</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>OUR SCIENCE</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.products') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.products*') || request()->routeIs('customer.product.*') || request()->is('products*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>PRODUCTS</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>PRODUCTS</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.pages.team') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.team*') || request()->is('team*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>MEET THE TEAM</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>MEET THE TEAM</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.pages.blog') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.blog*') || request()->is('blog*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>BLOG</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>BLOG</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.shop') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.shop*') || request()->is('shop*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>SHOP</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>SHOP</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <a href="{{ route('customer.pages.contact') }}" class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ (request()->routeIs('customer.pages.contact*') || request()->is('contact*')) ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>CONTACT</span> <span class="text-[#0A4F78] dark:text-[#2A8FC2]">→</span>
+                    <span>CONTACT</span> <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
                 <!-- Mobile Theme Toggle -->
                 <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="w-full py-2.5 px-3 rounded-xl border border-[#0A4F78]/20 bg-white/50 dark:bg-[#062B49]/50 text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] flex justify-between items-center hover:bg-[#0A4F78]/10 cursor-pointer transition-colors" title="Switch Theme">
                     <span class="flex items-center gap-2">
-                        <span class="dark:hidden">🌙</span>
-                        <span class="hidden dark:inline">☀️</span>
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:inline"></i>
                         <span>THEME</span>
                     </span>
-                    <span data-theme-label class="text-[#0A4F78] dark:text-[#2A8FC2]">🌙 Dark Mode</span>
+                    <span data-theme-label class="text-[#0A4F78] dark:text-[#2A8FC2]"><i class="fa-solid fa-moon mr-1"></i> Dark Mode</span>
                 </button>
                                 <!-- Mobile Cart Link -->
                 <button type="button" id="mobile-cart-btn" onclick="const m=document.getElementById('mobile-nav-drawer'); if(m){m.classList.add('hidden');} if(window.BLUEZONE_CART){BLUEZONE_CART.open();}else{window.location.href='{{ route('customer.cart') }}';}" class="mobile-nav-link w-full text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all text-[#031827] dark:text-[#F6F5EF] cursor-pointer text-start">
@@ -260,7 +260,7 @@
                         <span>{{ app()->getLocale() === 'ar' ? 'سلة المشتريات' : 'SHOPPING CART' }}</span>
                         <span class="cart-badge-count px-2 py-0.5 rounded-full bg-[#67B34A] text-[#031827] text-[10px] font-black hidden items-center justify-center">0</span>
                     </span>
-                    <span class="text-[#0A4F78] dark:text-[#2A8FC2] rtl:rotate-180">→</span>
+                    <i class="fa-solid fa-arrow-right text-[#0A4F78] dark:text-[#2A8FC2] rtl:rotate-180 text-xs"></i>
                 </button>
                 <a href="{{ route('customer.shop') }}" class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-1 shadow-md">
                     SHOP NOW
@@ -376,7 +376,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
                     <button type="button" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" aria-label="{{ __('app.actions.close') ?? 'Close cart drawer' }}" class="p-2 rounded-xl hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer transition-colors text-base font-bold">
-                        ✕
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
@@ -399,9 +399,9 @@
             <div id="cart-drawer-footer" class="p-5 sm:p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-3.5 shadow-xl">
                 <!-- Trust Micro-Badges -->
                 <div class="grid grid-cols-3 gap-2 py-1 text-center border-b border-[#0A4F78]/10 dark:border-[#0A4F78]/20 text-[10px] font-black text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-tight">
-                    <span class="flex items-center justify-center gap-1">❄️ {{ app()->getLocale() === 'ar' ? 'شحن مبرد' : 'Cold-Chain' }}</span>
-                    <span class="flex items-center justify-center gap-1">🩺 {{ app()->getLocale() === 'ar' ? 'أطباء معتمدون' : 'MD Clinical' }}</span>
-                    <span class="flex items-center justify-center gap-1">🔒 {{ app()->getLocale() === 'ar' ? 'دفع آمن 100%' : '256-Bit SSL' }}</span>
+                    <span class="flex items-center justify-center gap-1.5"><i class="fa-solid fa-snowflake text-[#2A8FC2]"></i> {{ app()->getLocale() === 'ar' ? 'شحن مبرد' : 'Cold-Chain' }}</span>
+                    <span class="flex items-center justify-center gap-1.5"><i class="fa-solid fa-user-doctor text-[#67B34A]"></i> {{ app()->getLocale() === 'ar' ? 'أطباء معتمدون' : 'MD Clinical' }}</span>
+                    <span class="flex items-center justify-center gap-1.5"><i class="fa-solid fa-shield-halved text-[#2A8FC2]"></i> {{ app()->getLocale() === 'ar' ? 'دفع آمن 100%' : '256-Bit SSL' }}</span>
                 </div>
 
                 <!-- Subtotal Breakdown -->
@@ -416,7 +416,7 @@
                     <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     <h2 class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">YOUR CART</h2>
                 </div>
-                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" aria-label="Close cart drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
+                <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" aria-label="Close cart drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] border-b border-[#0A4F78]/10 space-y-2">
@@ -440,7 +440,7 @@
                         <i class="fa-solid fa-cart-shopping"></i> VIEW CART
                     </a>
                     <a href="{{ route('customer.checkout') }}" class="flex-1 py-3.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all btn-sheen">
-                        CHECKOUT →
+                        CHECKOUT <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i>
                     </a>
                 </div>
             </div>
@@ -458,7 +458,7 @@
                     </a>
                     <a href="{{ route('customer.checkout') }}" class="flex-1 py-3.5 px-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg hover:shadow-xl flex items-center justify-center gap-2 transition-all btn-sheen cursor-pointer">
                         <span>{{ app()->getLocale() === 'ar' ? 'إتمام الطلب' : 'CHECKOUT' }}</span>
-                        <span class="rtl:rotate-180">→</span>
+                        <i class="fa-solid fa-arrow-right rtl:rotate-180"></i>
                     </a>
                 </div>
             </div>
@@ -474,7 +474,7 @@
                     <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                     <h2 class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">MY WISHLIST</h2>
                 </div>
-                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.close();}" aria-label="Close wishlist drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer">✕</button>
+                <button onclick="if(window.BLUEZONE_WISHLIST){BLUEZONE_WISHLIST.close();}" aria-label="Close wishlist drawer" class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="wishlist-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
         </div>
@@ -484,7 +484,7 @@
     <div id="search-overlay" class="hidden fixed inset-0 z-[9990] bg-[#031827]/95 backdrop-blur-md p-4 sm:p-8 flex-col items-center" role="dialog" aria-modal="true" aria-label="Search Catalog">
         <div class="max-w-4xl w-full flex justify-between items-center mb-8">
             <span class="text-xs uppercase tracking-[0.3em] font-bold text-[#2A8FC2]">LIVE PRODUCT SEARCH</span>
-            <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.close();}" aria-label="Close search overlay" class="p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer text-xl">✕</button>
+            <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.close();}" aria-label="Close search overlay" class="p-2 rounded-full text-white hover:bg-white/10 transition-colors cursor-pointer text-xl"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="max-w-2xl w-full relative mb-6">
             <label for="search-input" class="sr-only">Search</label>
@@ -495,29 +495,29 @@
         <!-- Quick Ingredient Filter Chips -->
         <div class="max-w-2xl w-full mb-8 space-y-2 text-center sm:text-left">
             <div class="text-[10px] font-black uppercase tracking-[0.2em] text-[#67B34A]">
-                {{ app()->getLocale() === 'ar' ? '🔬 تصفية فورية حسب المركب الحيوي / المكون الفعال:' : '🔬 QUICK SEARCH BY ACTIVE INGREDIENT / BIO-COMPOUND:' }}
+                {{ app()->getLocale() === 'ar' ? 'تصفية فورية حسب المركب الحيوي / المكون الفعال:' : 'QUICK SEARCH BY ACTIVE INGREDIENT / BIO-COMPOUND:' }} <i class="fa-solid fa-microscope text-[#2A8FC2] ml-1 mr-1"></i>
             </div>
             <div class="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <button type="button" onclick="document.getElementById('search-input').value='Bacopa'; BLUEZONE_SEARCH.render('Bacopa');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🧬 Bacopa Monnieri
+                    <i class="fa-solid fa-dna mr-1 text-[#2A8FC2]"></i> Bacopa Monnieri
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='Co-Q10'; BLUEZONE_SEARCH.render('Co-Q10');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    ⚡ Co-Q10 Ubiquinol
+                    <i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Co-Q10 Ubiquinol
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='PQQ'; BLUEZONE_SEARCH.render('PQQ');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🔋 PQQ Mitochondria
+                    <i class="fa-solid fa-battery-full text-[#67B34A] mr-1"></i> PQQ Mitochondria
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='Curcumin'; BLUEZONE_SEARCH.render('Curcumin');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🌿 Curcumin Meriva
+                    <i class="fa-solid fa-leaf text-[#67B34A] mr-1"></i> Curcumin Meriva
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='Theanine'; BLUEZONE_SEARCH.render('Theanine');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🌙 L-Theanine
+                    <i class="fa-solid fa-moon text-sky-400 mr-1"></i> L-Theanine
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='Phosphatidylserine'; BLUEZONE_SEARCH.render('Phosphatidylserine');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🧠 Phosphatidylserine
+                    <i class="fa-solid fa-brain text-purple-400 mr-1"></i> Phosphatidylserine
                 </button>
                 <button type="button" onclick="document.getElementById('search-input').value='Zinc'; BLUEZONE_SEARCH.render('Zinc');" class="px-3 py-1 rounded-lg bg-[#062B49] hover:bg-[#0A4F78] border border-[#0A4F78] text-[#F6F5EF] text-xs font-bold transition-all cursor-pointer">
-                    🛡️ Zinc Glycinate
+                    <i class="fa-solid fa-shield-halved text-[#2A8FC2] mr-1"></i> Zinc Glycinate
                 </button>
             </div>
         </div>

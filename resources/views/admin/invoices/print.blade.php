@@ -524,7 +524,7 @@
                 </div>
 
                 @if(strtolower($payStatus) === 'paid' || strtolower($payStatus) === 'completed')
-                    <div class="status-stamp">✓ PAID / مسدد بالكامل</div>
+                    <div class="status-stamp"><i class="fa-solid fa-check mr-1.5 ml-1.5"></i> PAID / مسدد بالكامل</div>
                 @else
                     <div class="status-stamp" style="border-color: #E11D48; color: #E11D48;">{{ strtoupper($payStatus) }}</div>
                 @endif

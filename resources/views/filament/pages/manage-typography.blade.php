@@ -862,7 +862,7 @@
                 <div class="bz-sticky-sandbox">
                     <div class="bz-panel-card">
                         <div class="bz-panel-title">
-                            <span>⚡ Real-Time Live Preview Sandbox</span>
+                            <span><i class="fa-solid fa-bolt text-amber-500 mr-1.5"></i> Real-Time Live Preview Sandbox</span>
                             <span class="bz-live-pulse-badge">
                                 <span class="bz-pulse-dot"></span> Live
                             </span>
@@ -968,7 +968,7 @@
                         </div>
 
                         <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #F1F5F9; font-size: 0.725rem; color: #94A3B8;">
-                            💡 Changes update in real-time. Click <strong>"Save & Apply Globally"</strong> to save to the database and clear cache across the entire system.
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i> Changes update in real-time. Click <strong>"Save & Apply Globally"</strong> to save to the database and clear cache across the entire system.
                         </div>
                     </div>
                 </div>

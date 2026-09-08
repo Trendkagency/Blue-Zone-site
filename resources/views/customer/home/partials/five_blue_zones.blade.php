@@ -75,7 +75,7 @@
                     <span class="text-[10px] font-semibold text-[#031827]/50 dark:text-[#F6F5EF]/50 uppercase tracking-widest">JAPAN</span>
                   </div>
                 </div>
-                <span class="text-xs font-extrabold text-[#67B34A]">→</span>
+                <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#67B34A]"></i>
               </button>
               <button onclick="BLUEZONE_REGIONS.select(1)" onmouseenter="BLUEZONE_REGIONS.select(1)" class="region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5" data-index="1">
                 <div class="flex items-center gap-4">
@@ -85,7 +85,7 @@
                     <span class="text-[10px] font-semibold text-[#031827]/50 dark:text-[#F6F5EF]/50 uppercase tracking-widest">ITALY</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]">→</span>
+                <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]"></i>
               </button>
               <button onclick="BLUEZONE_REGIONS.select(2)" onmouseenter="BLUEZONE_REGIONS.select(2)" class="region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5" data-index="2">
                 <div class="flex items-center gap-4">
@@ -95,7 +95,7 @@
                     <span class="text-[10px] font-semibold text-[#031827]/50 dark:text-[#F6F5EF]/50 uppercase tracking-widest">COSTA RICA</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]">→</span>
+                <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]"></i>
               </button>
               <button onclick="BLUEZONE_REGIONS.select(3)" onmouseenter="BLUEZONE_REGIONS.select(3)" class="region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5" data-index="3">
                 <div class="flex items-center gap-4">
@@ -105,7 +105,7 @@
                     <span class="text-[10px] font-semibold text-[#031827]/50 dark:text-[#F6F5EF]/50 uppercase tracking-widest">GREECE</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]">→</span>
+                <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]"></i>
               </button>
               <button onclick="BLUEZONE_REGIONS.select(4)" onmouseenter="BLUEZONE_REGIONS.select(4)" class="region-desktop-btn w-full py-4 px-4 flex items-center justify-between text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5" data-index="4">
                 <div class="flex items-center gap-4">
@@ -115,7 +115,7 @@
                     <span class="text-[10px] font-semibold text-[#031827]/50 dark:text-[#F6F5EF]/50 uppercase tracking-widest">USA</span>
                   </div>
                 </div>
-                <span class="text-xs font-bold text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]">→</span>
+                <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#031827]/30 dark:text-[#F6F5EF]/30 group-hover:text-[#2A8FC2]"></i>
               </button>
             </div>
           </div>

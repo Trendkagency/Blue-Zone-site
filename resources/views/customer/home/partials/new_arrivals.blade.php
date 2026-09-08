@@ -38,7 +38,7 @@
                         {{ app()->getLocale() === 'ar' ? 'جديد' : 'NEW' }}
                       </span>
                       <span class="text-xs font-bold text-[#67B34A] flex items-center gap-1">
-                        ★ {{ number_format($product['rating'] ?? 4.9, 1) }}
+                        <i class="fa-solid fa-star text-amber-400"></i> {{ number_format($product['rating'] ?? 4.9, 1) }}
                       </span>
                     </div>
 
@@ -95,7 +95,7 @@
                         @endif
                       </div>
                       <span class="text-[10px] font-bold text-[#67B34A]">
-                        ✓ {{ app()->getLocale() === 'ar' ? 'متوفر' : 'In Stock' }}
+                        <i class="fa-solid fa-circle-check text-[#67B34A] mr-1"></i> {{ app()->getLocale() === 'ar' ? 'متوفر' : 'In Stock' }}
                       </span>
                     </div>
 

@@ -1929,7 +1929,7 @@
                                 </div>
 
                                 <div style="margin-top: 1.1rem; padding-top: 0.85rem; border-top: 1px solid #F1F5F9; font-size: 0.775rem; color: #64748B; line-height: 1.5;">
-                                    💡 <strong>{{ app()->getLocale() == 'ar' ? 'المعاينة التفاعلية فورية:' : 'Instant live preview:' }}</strong>
+                                    <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5 ml-1.5"></i> <strong>{{ app()->getLocale() == 'ar' ? 'المعاينة التفاعلية فورية:' : 'Instant live preview:' }}</strong>
                                     {{ app()->getLocale() == 'ar' ? 'التغييرات تنعكس مباشرة في المعاينة أعلاه. اضغط "حفظ وتطبيق على كامل النظام" لاعتمادها في قاعدة البيانات.' : 'Changes update live in this dashboard. Click "SAVE & APPLY GLOBALLY" to commit to the system database.' }}
                                 </div>
                             </div>
@@ -2871,10 +2871,10 @@
                 if (data.success) {
                     if (statusEl) {
                         if (data.details && data.details.reason === 'no_token') {
-                            statusEl.textContent = `✓ تم تسجيل الإشعار بالنظام بنجاح (${latency}ms) — [بانتظار تفعيل توكن المتصفح]`;
+                            statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم تسجيل الإشعار بالنظام بنجاح (${latency}ms) — [بانتظار تفعيل توكن المتصفح]`;
                             statusEl.style.color = '#F59E0B';
                         } else {
-                            statusEl.textContent = `✓ تم الإرسال السحابي بنجاح (${latency}ms)`;
+                            statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم الإرسال السحابي بنجاح (${latency}ms)`;
                             statusEl.style.color = '#10B981';
                         }
                     }
@@ -2888,7 +2888,7 @@
                     }
                 } else {
                     if (statusEl) {
-                        statusEl.textContent = `✕ فشل الإرسال: ${data.message || 'خطأ غير معروف'}`;
+                        statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> فشل الإرسال: ${data.message || 'خطأ غير معروف'}`;
                         statusEl.style.color = '#EF4444';
                     }
                 }
@@ -2896,7 +2896,7 @@
             .catch(err => {
                 console.error('FCM Test Error:', err);
                 if (statusEl) {
-                    statusEl.textContent = `✕ تعذر الاتصال: ${err.message}`;
+                    statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> تعذر الاتصال: ${err.message}`;
                     statusEl.style.color = '#EF4444';
                 }
             })

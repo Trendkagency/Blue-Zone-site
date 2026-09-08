@@ -101,7 +101,7 @@
                         name="city" 
                         type="text" 
                         placeholder="Riyadh" 
-                        value="{{ old('city', 'Riyadh') }}" 
+                        value="{{ old('city') }}" 
                         class="w-full px-4 py-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 focus:border-[#2A8FC2] text-[#031827] dark:text-[#F6F5EF] placeholder-[#031827]/40 dark:placeholder-[#F6F5EF]/40 text-sm focus:outline-none transition-all"
                     />
                 </div>
@@ -114,12 +114,12 @@
                         id="country" 
                         name="country" 
                         class="w-full px-4 py-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 focus:border-[#2A8FC2] text-[#031827] dark:text-[#F6F5EF] text-sm focus:outline-none transition-all">
-                        <option value="Saudi Arabia" {{ old('country') === 'Saudi Arabia' ? 'selected' : '' }}>🇸🇦 Saudi Arabia (المملكة العربية السعودية)</option>
-                        <option value="United Arab Emirates" {{ old('country') === 'United Arab Emirates' ? 'selected' : '' }}>🇦🇪 United Arab Emirates (الإمارات)</option>
-                        <option value="Kuwait" {{ old('country') === 'Kuwait' ? 'selected' : '' }}>🇰🇼 Kuwait (الكويت)</option>
-                        <option value="Bahrain" {{ old('country') === 'Bahrain' ? 'selected' : '' }}>🇧🇭 Bahrain (البحرين)</option>
-                        <option value="Qatar" {{ old('country') === 'Qatar' ? 'selected' : '' }}>🇶🇦 Qatar (قطر)</option>
-                        <option value="Oman" {{ old('country') === 'Oman' ? 'selected' : '' }}>🇴🇲 Oman (عمان)</option>
+                        <option value="Saudi Arabia" {{ old('country') === 'Saudi Arabia' ? 'selected' : '' }}>Saudi Arabia (المملكة العربية السعودية)</option>
+                        <option value="United Arab Emirates" {{ old('country') === 'United Arab Emirates' ? 'selected' : '' }}>United Arab Emirates (الإمارات)</option>
+                        <option value="Kuwait" {{ old('country') === 'Kuwait' ? 'selected' : '' }}>Kuwait (الكويت)</option>
+                        <option value="Bahrain" {{ old('country') === 'Bahrain' ? 'selected' : '' }}>Bahrain (البحرين)</option>
+                        <option value="Qatar" {{ old('country') === 'Qatar' ? 'selected' : '' }}>Qatar (قطر)</option>
+                        <option value="Oman" {{ old('country') === 'Oman' ? 'selected' : '' }}>Oman (عمان)</option>
                     </select>
                 </div>
             </div>
@@ -167,7 +167,7 @@
             <x-captcha context="register" />
 
             <button type="submit" class="w-full py-4 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-xl btn-sheen cursor-pointer mt-2">
-                {{ __('app.nav.register') }} →
+                {{ __('app.nav.register') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
             </button>
         </form>
 
