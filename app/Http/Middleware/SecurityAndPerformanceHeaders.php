@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SecurityAndPerformanceHeaders
 {
@@ -44,6 +46,26 @@ class SecurityAndPerformanceHeaders
         // Content Security Policy (Report-Only safe baseline)
         if (!$response->headers->has('Content-Security-Policy') && !$response->headers->has('Content-Security-Policy-Report-Only')) {
             $response->headers->set('Content-Security-Policy-Report-Only', "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self';");
+        }
+
+        // Performance: Gzip Compression for text/html/json responses
+        if (
+            function_exists('gzencode')
+            && !($response instanceof BinaryFileResponse)
+            && !($response instanceof StreamedResponse)
+            && !$response->headers->has('Content-Encoding')
+            && str_contains($request->header('Accept-Encoding', ''), 'gzip')
+        ) {
+            $content = $response->getContent();
+            if ($content !== false && strlen($content) > 1024) {
+                $compressed = gzencode($content, 6);
+                if ($compressed !== false && strlen($compressed) < strlen($content)) {
+                    $response->setContent($compressed);
+                    $response->headers->set('Content-Encoding', 'gzip');
+                    $response->headers->set('Content-Length', (string) strlen($compressed));
+                    $response->headers->set('Vary', 'Accept-Encoding', false);
+                }
+            }
         }
 
         return $response;
