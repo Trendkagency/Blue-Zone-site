@@ -1,4 +1,4 @@
-    <!-- 06.5 PRODUCTS VERTICAL SECTION (STRUCTURED VERTICAL SHOWCASE) -->
+    {{-- <!-- 06.5 PRODUCTS VERTICAL SECTION (STRUCTURED VERTICAL SHOWCASE) -->
     <section id="products-vertical" class="py-24 bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/10 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="text-center max-w-3xl mx-auto space-y-4">
@@ -12,18 +12,17 @@
             {{ app()->getLocale() === 'ar' ? 'عرض رأسي منظم لكل منتج يوضح المكونات الفعالة، الجرعات السريرية، مسارات التأثير البيولوجي، ومواصفات الدفعة.' : 'A structured vertical breakdown of our clinical formulations—highlighting exact active compound potencies, cellular targets, and daily dosage protocols.' }}
           </p>
         </div>
-
         <!-- Vertical Products List -->
         <div class="space-y-6">
-          @foreach($allProducts ?? [] as $product)
+          @foreach($products ?? [] as $product)
             <div class="bg-white dark:bg-[#062B49] rounded-3xl border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 p-6 sm:p-8 hover:shadow-2xl transition-all duration-300 card-hover-lift group">
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-                
+                  
                 <!-- Left: Product Image & Badges (Col 1-3) -->
                 <div class="lg:col-span-3 flex flex-col items-center">
                   <div class="w-full aspect-square max-w-[220px] p-4 bg-[#F6F5EF] dark:bg-[#031827] rounded-2xl border border-[#0A4F78]/15 relative overflow-hidden flex items-center justify-center group-hover:border-[#67B34A]/50 transition-colors">
                     <img
-                      src="{{ asset('assets/products/' . $product['slug'] . '.webp') }}"
+                      src="{{ asset('assets/products/' . $product->getPrimaryImageUrlAttribute() ?? '') }}"
                       alt="{{ $product['name_en'] }}"
                       onerror="this.onerror=null; this.src='{{ asset('assets/products/' . $product['slug'] . '.jpg') }}';"
                       width="200" height="200"
@@ -141,4 +140,4 @@
           @endforeach
         </div>
       </div>
-    </section>
+    </section> --}}

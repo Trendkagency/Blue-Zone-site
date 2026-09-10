@@ -16,9 +16,9 @@ class HomeController extends Controller
     public function index(): View
     {
         $allProducts = ProductViewModel::all();
-        $featuredProducts = array_values(array_filter($allProducts, fn ($p) => $p['is_featured'] ?? false));
-        $bestSellers = array_values(array_filter($allProducts, fn ($p) => $p['is_best_seller'] ?? false));
-        $newArrivals = array_values(array_filter($allProducts, fn ($p) => ($p['is_new'] ?? false) || in_array($p['slug'], ['blue-cell', 'blue-metabolic', 'blue-defense', 'blue-vitality'])));
+        $featuredProducts = array_values(array_filter($allProducts, fn($p) => $p['is_featured'] ?? false));
+        $bestSellers = array_values(array_filter($allProducts, fn($p) => $p['is_best_seller'] ?? false));
+        $newArrivals = array_values(array_filter($allProducts, fn($p) => ($p['is_new'] ?? false) || in_array($p['slug'], ['blue-cell', 'blue-metabolic', 'blue-defense', 'blue-vitality'])));
         if (empty($newArrivals)) {
             $newArrivals = array_slice($allProducts, 0, 4);
         }
@@ -26,7 +26,7 @@ class HomeController extends Controller
         $content = ContentViewModel::all();
 
         try {
-            $dbProducts = \App\Models\Product::with('category')->where(function ($q) {
+            $dbProducts = \App\Models\Product::orderBy('id', 'desc')->with('category')->where(function ($q) {
                 $q->where('status', 'active')->orWhere('is_active', true);
             })->get();
         } catch (\Throwable) {
@@ -63,9 +63,26 @@ class HomeController extends Controller
             $featuredProducts = array_slice($featuredProducts, 0, $productLimit);
             $bestSellers = array_slice($bestSellers, 0, $productLimit);
         }
-
+        try {
+            // This Is Feature Products 
+            $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->get();
+            if ($products->isEmpty()) {
+                $products = collect(ProductViewModel::all());
+            }
+        } catch (\Throwable) {
+            $products = collect(ProductViewModel::all());
+        }
+        //  Get The Main Product take over view and Rating 
+        $mainProduct = \App\Models\Product::query()
+            ->where('status', 'active')
+            ->orderByDesc('is_featured')
+            ->orderByDesc('rating')
+            ->orderByDesc('reviews_count')
+            ->first();
         return view('customer.home.index', [
             'allProducts' => $allProducts,
+            'products' => $products,
+            'mainProduct' => $mainProduct,
             'featuredProducts' => $featuredProducts,
             'bestSellers' => $bestSellers,
             'newArrivals' => $newArrivals,

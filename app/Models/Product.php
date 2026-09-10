@@ -6,24 +6,57 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Product extends Model
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+class Product extends Model implements HasMedia
 {
     use SoftDeletes;
-
+    use InteractsWithMedia;
     protected $fillable = [
-        'slug', 'sku', 'barcode', 'name_en', 'name_ar',
-        'tagline_en', 'tagline_ar', 'category_id', 'subcategory_en', 'subcategory_ar',
-        'brand', 'price', 'sale_price', 'cost_price',
-        'is_featured', 'is_best_seller', 'is_new', 'status',
-        'rating', 'reviews_count', 'image', 'images',
-        'stock_online', 'stock_offline', 'low_stock_threshold',
-        'short_description_en', 'short_description_ar',
-        'description_en', 'description_ar',
-        'usage_en', 'usage_ar', 'science_en', 'science_ar',
-        'benefits_en', 'benefits_ar', 'ingredients',
-        'target_gender', 'age_group', 'product_size',
-        'clinical_mechanism', 'formula_details', 'contraindications', 'warnings',
+        'slug',
+        'sku',
+        'barcode',
+        'name_en',
+        'name_ar',
+        'tagline_en',
+        'tagline_ar',
+        'category_id',
+        'subcategory_en',
+        'subcategory_ar',
+        'brand',
+        'price',
+        'sale_price',
+        'cost_price',
+        'is_featured',
+        'is_best_seller',
+        'is_new',
+        'status',
+        'rating',
+        'reviews_count',
+        'image',
+        'images',
+        'stock_online',
+        'stock_offline',
+        'low_stock_threshold',
+        'short_description_en',
+        'short_description_ar',
+        'description_en',
+        'description_ar',
+        'usage_en',
+        'usage_ar',
+        'science_en',
+        'science_ar',
+        'benefits_en',
+        'benefits_ar',
+        'ingredients',
+        'target_gender',
+        'age_group',
+        'product_size',
+        'clinical_mechanism',
+        'formula_details',
+        'contraindications',
+        'warnings',
         'enable_backorders',
     ];
 
@@ -72,7 +105,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->name_ar) ? $this->name_ar : ($this->name_en ?? '');
+        return $locale === 'ar' && !empty($this->name_ar) ? $this->name_ar : ($this->name_en ?? '');
     }
 
     /**
@@ -82,7 +115,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->short_description_ar) ? $this->short_description_ar : ($this->short_description_en ?? '');
+        return $locale === 'ar' && !empty($this->short_description_ar) ? $this->short_description_ar : ($this->short_description_en ?? '');
     }
 
     /**
@@ -92,7 +125,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->description_ar) ? $this->description_ar : ($this->description_en ?? '');
+        return $locale === 'ar' && !empty($this->description_ar) ? $this->description_ar : ($this->description_en ?? '');
     }
 
     /**
@@ -102,7 +135,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->tagline_ar) ? $this->tagline_ar : ($this->tagline_en ?? '');
+        return $locale === 'ar' && !empty($this->tagline_ar) ? $this->tagline_ar : ($this->tagline_en ?? '');
     }
 
     /**
@@ -112,7 +145,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->science_ar) ? $this->science_ar : ($this->science_en ?? '');
+        return $locale === 'ar' && !empty($this->science_ar) ? $this->science_ar : ($this->science_en ?? '');
     }
 
     /**
@@ -123,7 +156,7 @@ class Product extends Model
     public function getBenefitsAttribute(): array
     {
         $locale = app()->getLocale();
-        $benefits = $locale === 'ar' && ! empty($this->benefits_ar) ? $this->benefits_ar : ($this->benefits_en ?? []);
+        $benefits = $locale === 'ar' && !empty($this->benefits_ar) ? $this->benefits_ar : ($this->benefits_en ?? []);
 
         return is_array($benefits) ? $benefits : [];
     }
@@ -135,7 +168,7 @@ class Product extends Model
     {
         $locale = app()->getLocale();
 
-        return $locale === 'ar' && ! empty($this->usage_ar) ? $this->usage_ar : ($this->usage_en ?? '');
+        return $locale === 'ar' && !empty($this->usage_ar) ? $this->usage_ar : ($this->usage_en ?? '');
     }
 
     /**
@@ -147,7 +180,7 @@ class Product extends Model
             return $this->getFirstMediaUrl('primary_image');
         }
 
-        if (! empty($this->image)) {
+        if (!empty($this->image)) {
             return str_starts_with($this->image, 'http') ? $this->image : asset($this->image);
         }
 
@@ -169,7 +202,7 @@ class Product extends Model
             }
         }
 
-        if (empty($urls) && ! empty($this->images) && is_array($this->images)) {
+        if (empty($urls) && !empty($this->images) && is_array($this->images)) {
             foreach ($this->images as $img) {
                 $urls[] = str_starts_with($img, 'http') ? $img : asset($img);
             }
@@ -197,4 +230,22 @@ class Product extends Model
 
         return 'in_stock';
     }
+
+
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('primary_image')
+            ->singleFile();
+
+        $this->addMediaCollection('gallery');
+
+        $this->addMediaCollection('documents');
+    }
+
+
+    public function reviews($products): HasMany
+    {
+    }
+
 }

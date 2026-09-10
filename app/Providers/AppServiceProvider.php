@@ -33,6 +33,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        //  Share Localization ISRtl or IsLtr
+        Blade::if('isRtl', function () {
+            return app()->getLocale() === 'ar';
+        });
+        Blade::if('isLtr', function () {
+            return app()->getLocale() === 'en';
+        });
         // Dynamic Currency Directives
         Blade::directive('currency', function ($expression) {
             return "<?php echo \App\Services\CurrencyService::format({$expression}); ?>";
@@ -88,7 +96,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // 1. Authentication: Login (Customer & Admin) - 5 attempts / minute per IP + email
         RateLimiter::for('login', function (Request $request) {
-            $identifier = Str::transliterate(Str::lower($request->input('email', $request->input('username', ''))).'|'.$request->ip());
+            $identifier = Str::transliterate(Str::lower($request->input('email', $request->input('username', ''))) . '|' . $request->ip());
 
             return Limit::perMinute(5)->by($identifier)->response(function (Request $request, array $headers) {
                 $retryAfter = $headers['Retry-After'] ?? 60;
@@ -136,7 +144,7 @@ class AppServiceProvider extends ServiceProvider
 
         // 3. Authentication: Password Reset - 3 requests / minute per IP + email
         RateLimiter::for('password-reset', function (Request $request) {
-            $identifier = Str::transliterate(Str::lower($request->input('email', '')).'|'.$request->ip());
+            $identifier = Str::transliterate(Str::lower($request->input('email', '')) . '|' . $request->ip());
 
             return Limit::perMinute(3)->by($identifier)->response(function (Request $request, array $headers) {
                 $retryAfter = $headers['Retry-After'] ?? 60;
@@ -191,7 +199,9 @@ class AppServiceProvider extends ServiceProvider
                     ], 429, $headers);
                 }
 
-                return back()->withInput()->with('error', app()->getLocale() === 'ar'
+                return back()->withInput()->with(
+                    'error',
+                    app()->getLocale() === 'ar'
                     ? "تم تجاوز الحد المسموح لتجربة الكوبونات. يرجى الانتظار {$retryAfter} ثانية."
                     : "Too many coupon attempts. Please wait {$retryAfter} seconds."
                 )->withHeaders($headers);
@@ -214,7 +224,9 @@ class AppServiceProvider extends ServiceProvider
                     ], 429, $headers);
                 }
 
-                return back()->with('error', app()->getLocale() === 'ar'
+                return back()->with(
+                    'error',
+                    app()->getLocale() === 'ar'
                     ? "يرجى الانتظار {$retryAfter} ثانية قبل تأكيد الطلب مجدداً."
                     : "Please wait {$retryAfter} seconds before placing an order again."
                 )->withHeaders($headers);

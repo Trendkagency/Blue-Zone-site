@@ -1,191 +1,363 @@
-    <!-- 09. OUR SCIENCE (COMPREHENSIVE SCIENTIFIC DOSSIER & IN-DEPTH CELLULAR MECHANISMS) -->
-    <section id="our-science" class="py-24 bg-white dark:bg-[#062B49] border-b border-[#0A4F78]/10 transition-colors">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-        
-        <!-- Header -->
-        <div class="text-center max-w-3xl mx-auto space-y-4">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-xs font-black uppercase tracking-widest border border-[#67B34A]/30">
-            <span class="w-2 h-2 rounded-full bg-[#67B34A]"></span>
-            {{ app()->getLocale() === 'ar' ? 'العلم والأبحاث السريرية الكاملة' : 'OUR SCIENCE & CLINICAL RIGOR' }}
-          </div>
-          <h2 class="text-3xl sm:text-5xl font-black text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-            {{ app()->getLocale() === 'ar' ? 'البيولوجيا الجزيئية وراء طول العمر' : 'THE MOLECULAR SCIENCE OF LONGEVITY' }}
-          </h2>
-          <p class="text-sm sm:text-base text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed">
-            {{ app()->getLocale() === 'ar' 
-               ? 'معلومات علمية شاملة وغير مقتضبة تفصّل المسارات الحيوية، التجارب السريرية المنشورة، والتوافر الحيوي لكل مركب نستخدمه.' 
-               : 'A complete, unabridged scientific breakdown of our 4 biological pathways, published human clinical trials, cellular pharmacokinetics, and standardizations.' }}
-          </p>
-        </div>
-
-        <!-- Dynamic Scientific Mechanism Dossiers (Full admin controlled AR/EN) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          @php
-            $badgeColors = ['#67B34A', '#2A8FC2', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
-          @endphp
-
-          @forelse($scienceProducts as $index => $sp)
-            @php
-              $spSlug = is_array($sp) ? ($sp['slug'] ?? '') : $sp->slug;
-              $spName = is_array($sp) ? ($sp['name_' . app()->getLocale()] ?? $sp['name_en'] ?? $sp['name'] ?? '') : $sp->name;
-              $spCategory = is_array($sp) ? ($sp['category_' . app()->getLocale()] ?? $sp['category_en'] ?? '') : ($sp->category?->name ?? 'Cellular Longevity');
-              $spTagline = is_array($sp) ? ($sp['tagline_' . app()->getLocale()] ?? $sp['tagline_en'] ?? '') : $sp->tagline;
-              $spScience = is_array($sp) ? ($sp['science_' . app()->getLocale()] ?? $sp['science_en'] ?? $sp['description_' . app()->getLocale()] ?? '') : ($sp->science ?: $sp->description);
-              $spMechanism = is_array($sp) ? ($sp['professional_info']['clinical_mechanism'] ?? $sp['clinical_mechanism'] ?? '') : $sp->clinical_mechanism;
-              $spFormula = is_array($sp) ? ($sp['professional_info']['formula_details'] ?? $sp['formula_details'] ?? '') : $sp->formula_details;
-              $spIngredients = is_array($sp) ? ($sp['ingredients'] ?? []) : ($sp->ingredients ?? []);
-              $spBenefits = is_array($sp) ? ($sp['benefits_' . app()->getLocale()] ?? $sp['benefits_en'] ?? $sp['benefits'] ?? []) : $sp->benefits;
-              $color = $badgeColors[$index % count($badgeColors)];
-
-              // Extract top active compounds
-              $compSummaries = [];
-              if (is_array($spIngredients) && !empty($spIngredients)) {
-                foreach (array_slice($spIngredients, 0, 2) as $ing) {
-                  $ingName = is_array($ing) ? ($ing['name_' . app()->getLocale()] ?? $ing['name_en'] ?? $ing['name'] ?? '') : '';
-                  $ingDose = is_array($ing) ? ($ing['dose'] ?? '') : '';
-                  if ($ingName) {
-                    $compSummaries[] = $ingDose ? "{$ingName} ({$ingDose})" : $ingName;
-                  }
-                }
-              }
-              $compText = !empty($compSummaries) ? implode(' + ', $compSummaries) : ($spFormula ? Str::limit($spFormula, 50) : 'Pharmaceutical Grade Actives');
-
-              // Top clinical benefit
-              $benefitText = !empty($spBenefits) && is_array($spBenefits) ? $spBenefits[0] : (app()->getLocale() === 'ar' ? 'تحسن مثبت سريرياً في المؤشرات الحيوية' : 'Clinically validated biomarker optimization');
-            @endphp
-
-            <div class="p-8 rounded-3xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 shadow-md space-y-6 hover:shadow-xl transition-all flex flex-col justify-between">
-              <div class="space-y-6">
-                <!-- Header Card -->
-                <div class="flex items-center justify-between border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 pb-4">
-                  <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-2xl flex items-center justify-center font-mono font-black text-sm" style="background-color: {{ $color }}20; color: {{ $color }}; border: 1px solid {{ $color }}40;">
-                      {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}
-                    </span>
-                    <div>
-                      <span class="text-[10px] font-mono font-bold uppercase tracking-wider block" style="color: {{ $color }};">
-                        {{ $spCategory }}
-                      </span>
-                      <h3 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                        {{ $spName }}
-                      </h3>
-                    </div>
-                  </div>
-                  @if($spTagline)
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold max-w-[140px] truncate" style="background-color: {{ $color }}15; color: {{ $color }};">
-                      {{ $spTagline }}
-                    </span>
-                  @endif
-                </div>
-
-                <!-- Scientific Breakdown / Longevity Foundation -->
-                <div class="space-y-3 text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed">
-                  @if($spScience)
-                    <p>
-                      <strong>{{ app()->getLocale() === 'ar' ? 'الأساس العلمي الخلوي:' : 'Scientific Foundation:' }}</strong>
-                      {{ Str::limit($spScience, 210) }}
-                    </p>
-                  @endif
-                  @if($spMechanism)
-                    <p>
-                      <strong>{{ app()->getLocale() === 'ar' ? 'الآلية الحيوية:' : 'Molecular Mechanism:' }}</strong>
-                      {{ Str::limit($spMechanism, 220) }}
-                    </p>
-                  @endif
-                </div>
-
-                <!-- Clinical Evidence & Dosing Box -->
-                <div class="p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 space-y-2">
-                  <span class="text-[10px] font-black uppercase tracking-wider text-[#2A8FC2] block">
-                    {{ app()->getLocale() === 'ar' ? 'الأدلة السريرية والجرعات القياسية' : 'CLINICAL EVIDENCE & DOSING' }}
-                  </span>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span class="text-slate-400 block text-[10px]">
-                        {{ app()->getLocale() === 'ar' ? 'المركبات النشطة الموحدة:' : 'Standardized Agents:' }}
-                      </span>
-                      <span class="font-bold text-[#031827] dark:text-[#F6F5EF]">
-                        {{ $compText }}
-                      </span>
-                    </div>
-                    <div>
-                      <span class="text-slate-400 block text-[10px]">
-                        {{ app()->getLocale() === 'ar' ? 'النتائج السريرية والمؤشرات:' : 'Clinical Evidence / Result:' }}
-                      </span>
-                      <span class="font-bold text-[#67B34A]">
-                        {{ Str::limit($benefitText, 65) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer with Our Science Details Link -->
-              <div class="flex items-center justify-between pt-4 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20">
-                <span class="text-xs font-semibold text-slate-500">
-                  {{ app()->getLocale() === 'ar' ? 'الملف العلمي الكامل:' : 'Associated Formulation:' }}
-                </span>
-                <a href="{{ route('customer.science.product', $spSlug) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors group">
-                  <span>{{ app()->getLocale() === 'ar' ? 'تفاصيل أبحاث العلوم' : 'Our Science Details' }}</span>
-                  <span class="transition-transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1">&rarr;</span>
-                </a>
-              </div>
-            </div>
-          @empty
-            <div class="col-span-2 text-center py-12 text-slate-500">
-              {{ app()->getLocale() === 'ar' ? 'لا توجد بيانات أبحاث منشورة حالياً.' : 'No scientific formulations available at this time.' }}
-            </div>
-          @endforelse
-        </div>
-
-        <!-- Analytical Standards Table -->
-        <div class="p-8 rounded-3xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-[#67B34A] block">ANALYTICAL RIGOR</span>
-              <h4 class="text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                How Blue Zone Standards Compare to Generic Supplements
-              </h4>
-            </div>
-            <a href="{{ route('customer.pages.about') }}" class="text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
-              {{ app()->getLocale() === 'ar' ? 'عرض معايير RS الكاملة' : 'EXPLORE RS STANDARDS' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
-            </a>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="border-b border-[#0A4F78]/20 text-[#0A4F78] dark:text-[#2A8FC2] uppercase text-[10px] font-mono">
-                  <th class="py-3 px-4">Quality Metric</th>
-                  <th class="py-3 px-4 text-slate-400">Generic Market Brands</th>
-                  <th class="py-3 px-4 text-[#67B34A]">Blue Zone Formulation Standard</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#0A4F78]/10 dark:divide-[#0A4F78]/20 text-[#031827]/80 dark:text-[#F6F5EF]/80">
-                <tr>
-                  <td class="py-3 px-4 font-bold">Potency Verification</td>
-                  <td class="py-3 px-4 text-slate-400">Crude unstandardized ground powder</td>
-                  <td class="py-3 px-4 font-bold text-[#67B34A]">High-Performance Liquid Chromatography (HPLC) Fingerprinted</td>
-                </tr>
-                <tr>
-                  <td class="py-3 px-4 font-bold">Heavy Metal Threshold</td>
-                  <td class="py-3 px-4 text-slate-400">General food-grade threshold (<10 ppm)</td>
-                  <td class="py-3 px-4 font-bold text-[#67B34A]">ICP-MS pharmaceutical screening (<0.01 ppm lead, arsenic, mercury)</td>
-                </tr>
-                <tr>
-                  <td class="py-3 px-4 font-bold">Bioavailability Delivery</td>
-                  <td class="py-3 px-4 text-slate-400">Unprotected crystals (low absorption)</td>
-                  <td class="py-3 px-4 font-bold text-[#67B34A]">Phospholipid Phytosome matrix (9.6x - 29x enhanced absorption)</td>
-                </tr>
-                <tr>
-                  <td class="py-3 px-4 font-bold">Excipients & Additives</td>
-                  <td class="py-3 px-4 text-slate-400">Magnesium stearate, silicon dioxide, dyes</td>
-                  <td class="py-3 px-4 font-bold text-[#67B34A]">100% Clean Label (Zero synthetic binders, zero artificial colorants)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+{{-- <section class="space-y-8 py-6 -my-2 container pt-4" id="bz-clinical-formulations-section">
+  <!-- Section Header with View Mode Switcher and Swapper Arrows -->
+  <div
+    class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
+    <div class="space-y-2 max-w-2xl">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#67B34A] animate-pulse"></span>
+        <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#0A4F78] dark:text-[#2A8FC2]">
+          {{ app()->getLocale() === 'ar' ? 'علم الصيدلة الإكلينيكية والتركيبات' : 'CLINICAL PHARMACOLOGY & FORMULATIONS' }}
+        </span>
       </div>
-    </section>
+      <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#031827] dark:text-[#F6F5EF]">
+        {{ app()->getLocale() === 'ar' ? 'جميع التركيبات الطبية والملفات السريرية' : 'ALL LONGEVITY FORMULATIONS & MEDICAL DATA' }}
+      </h2>
+      <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed">
+        {{ app()->getLocale() === 'ar'
+  ? 'ملف طبي إكلينيكي مفصل لكل منتج: المسار الحيوي الخلوي، المكونات المعايرة، المؤشرات الحيوية، وبروتوكول الاستخدام الطبي.'
+  : 'Complete clinical dossiers for all formulations: biochemical pathways of action, standardized active ingredients, target biomarkers, and dosage protocols.' }}
+      </p>
+    </div>
+
+    <!-- Controls: Swapper Navigation Arrows & Card Grade / Slider Toggle -->
+    <div class="flex items-center gap-3 shrink-0 self-start md:self-end">
+      <!-- View Mode Switcher -->
+      <div class="inline-flex p-1 rounded-xl bg-[#0A4F78]/10 dark:bg-[#062B49] border border-[#0A4F78]/20">
+        <button type="button" id="bz-view-slider-btn" onclick="BLUEZONE_MED_SWAPPER.setView('slider')"
+          class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm"
+          title="{{ app()->getLocale() === 'ar' ? 'سلايدر العرض التفاعلي' : 'Slider Swapper View' }}">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'سلايدر تفاعلي' : 'Slider Swapper' }}</span>
+        </button>
+        <button type="button" id="bz-view-grid-btn" onclick="BLUEZONE_MED_SWAPPER.setView('grid')"
+          class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]"
+          title="{{ app()->getLocale() === 'ar' ? 'شبكة البطاقات' : 'Card Grade View' }}">
+          <i class="fa-solid fa-table-cells-large"></i>
+          <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'شبكة البطاقات' : 'Card Grade' }}</span>
+        </button>
+      </div>
+
+      <!-- Swapper Navigation Arrows -->
+      <div id="bz-swapper-arrows" class="flex items-center gap-2">
+        <button type="button" onclick="BLUEZONE_MED_SWAPPER.prev()"
+          aria-label="{{ app()->getLocale() === 'ar' ? 'السابق' : 'Previous' }}"
+          class="w-10 h-10 rounded-xl bg-white dark:bg-[#062B49] hover:bg-[#0A4F78] hover:text-white dark:hover:bg-[#2A8FC2] dark:hover:text-[#031827] text-[#031827] dark:text-white border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 shadow-sm transition-all flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95">
+          <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-chevron-right' : 'fa-chevron-left' }} text-sm"></i>
+        </button>
+        <button type="button" onclick="BLUEZONE_MED_SWAPPER.next()"
+          aria-label="{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}"
+          class="w-10 h-10 rounded-xl bg-white dark:bg-[#062B49] hover:bg-[#0A4F78] hover:text-white dark:hover:bg-[#2A8FC2] dark:hover:text-[#031827] text-[#031827] dark:text-white border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 shadow-sm transition-all flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95">
+          <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right' }} text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. SLIDER SWAPPER VIEW (Default Active) -->
+  <div id="bz-swapper-container" class="relative w-full space-y-6">
+    <div id="bz-swapper-viewport" class="overflow-hidden relative w-full py-2 -my-2 select-none">
+      <div id="bz-swapper-track" class="flex transition-transform duration-500 ease-out gap-6"
+        style="transform: translateX(0px);">
+        @foreach($products as $product)
+          <div class="bz-swapper-slide w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0">
+            @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'slider'])
+          </div>
+        @endforeach
+      </div>
+    </div>
+
+    <!-- Swapper Pagination Dots -->
+    <div id="bz-swapper-dots" class="flex items-center justify-center gap-2 pt-2">
+      @foreach($products as $idx => $p)
+        <button type="button" onclick="BLUEZONE_MED_SWAPPER.goTo({{ $idx }})" aria-label="Go to product {{ $idx + 1 }}"
+          class="bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer {{ $idx === 0 ? 'w-8 bg-[#67B34A]' : 'w-2.5 bg-[#0A4F78]/20 dark:bg-white/20' }}"
+          data-index="{{ $idx }}">
+        </button>
+      @endforeach
+    </div>
+  </div>
+
+  <!-- 2. CARD GRADE (GRID) VIEW (Toggleable) -->
+  <div id="bz-grid-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+    @foreach($products as $product)
+      <div class="h-full">
+        @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'grid'])
+      </div>
+    @endforeach
+  </div>
+</section>
+
+
+<!-- Science Controller Script -->
+<script>
+  (function () {
+    const SCIENCE_DATA = [
+      {
+        num: "01",
+        code: "01/04",
+        stage: "SOURCE",
+        title: "FROM NATURE",
+        desc: "Selected botanical and nutritional ingredients inspired by the natural foundations of longevity.",
+        img: "{{ asset('assets/images/hero_longevity.jpg') }}",
+        chips: ["Standardized Botanical Extraction", "Peak Potency Sourcing"],
+        flowStep: 1
+      },
+      {
+        num: "02",
+        code: "02/04",
+        stage: "FORMULATION",
+        title: "PRECISION IN EVERY FORMULA.",
+        desc: "Thoughtfully selected ingredients brought together into focused wellness formulations.",
+        img: "{{ asset('assets/products/blue-mind.webp') }}",
+        chips: ["Bio-Identical Nutrient Ratios", "Cellular Absorption Focus"],
+        flowStep: 2
+      },
+      {
+        num: "03",
+        code: "03/04",
+        stage: "VALIDATION",
+        title: "QUALITY YOU CAN TRUST.",
+        desc: "A clear focus on ingredient quality, consistency, and responsible formulation.",
+        img: "{{ asset('assets/images/blog-1.jpg') }}",
+        chips: ["Third-Party Quality Verified", "Zero Synthetic Additives"],
+        flowStep: 3
+      },
+      {
+        num: "04",
+        code: "04/04",
+        stage: "WELLNESS",
+        title: "DESIGNED FOR DAILY LIFE.",
+        desc: "Bringing longevity-inspired principles into modern everyday wellness.",
+        img: "{{ asset('assets/images/blog-2.jpg') }}",
+        chips: ["Cognitive Resilience", "Daily Vitality Support"],
+        flowStep: 4
+      }
+    ];
+
+    function selectScience(idx) {
+      if (idx < 0 || idx >= SCIENCE_DATA.length) return;
+      const s = SCIENCE_DATA[idx];
+
+      const progressLine = document.getElementById('bz-timeline-progress');
+      if (progressLine) {
+        const percents = [0, 33.3, 66.6, 100];
+        progressLine.style.width = percents[idx] + '%';
+      }
+
+      const desktopNodes = document.querySelectorAll('#bz-science-desktop-timeline .bz-timeline-node');
+      desktopNodes.forEach((node, i) => {
+        const circle = node.querySelector('.node-circle');
+        const title = node.querySelector('.node-title');
+        if (i === idx) {
+          if (circle) circle.className = 'node-circle w-11 h-11 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-black shadow-[0_0_15px_rgba(103,179,74,0.4)] scale-110 border-2 border-[#67B34A] transition-all';
+          if (title) title.className = 'node-title text-xs font-extrabold uppercase tracking-widest text-[#67B34A]';
+        } else {
+          if (circle) circle.className = 'node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]';
+          if (title) title.className = 'node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors';
+        }
+      });
+
+      const mobileNodes = document.querySelectorAll('#bz-science-mobile-timeline .bz-mobile-node');
+      mobileNodes.forEach((btn, i) => {
+        if (i === idx) {
+          btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-bold text-[#67B34A]';
+        } else {
+          btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60';
+        }
+      });
+
+      for (let step = 1; step <= 4; step++) {
+        const flowEl = document.getElementById(`bz-flow-step-${step}`);
+        if (flowEl) {
+          if (step <= s.flowStep) {
+            flowEl.className = 'text-[#67B34A] font-bold';
+          } else {
+            flowEl.className = 'text-white/40 font-normal';
+          }
+        }
+      }
+
+      const panel = document.getElementById('bz-science-panel');
+      if (panel) {
+        panel.style.opacity = '0.3';
+        setTimeout(() => {
+          const imgEl = document.getElementById('bz-science-active-img');
+          const codeEl = document.getElementById('bz-science-stage-code');
+          const numEl = document.getElementById('bz-science-active-num');
+          const stageEl = document.getElementById('bz-science-active-stage');
+          const titleEl = document.getElementById('bz-science-active-title');
+          const descEl = document.getElementById('bz-science-active-desc');
+          const chipsEl = document.getElementById('bz-science-active-chips');
+
+          if (imgEl) {
+            imgEl.src = s.img;
+            imgEl.alt = s.title;
+          }
+          if (codeEl) codeEl.textContent = s.code;
+          if (numEl) numEl.textContent = s.num;
+          if (stageEl) stageEl.textContent = s.stage;
+          if (titleEl) titleEl.textContent = s.title;
+          if (descEl) descEl.textContent = s.desc;
+          if (chipsEl) {
+            chipsEl.innerHTML = s.chips.map((chip, cIdx) =>
+              `<span class="px-3 py-1.5 rounded-lg ${cIdx === 0 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF]'} text-xs font-bold">${chip}</span>`
+            ).join('');
+          }
+
+          panel.style.opacity = '1';
+        }, 180);
+      }
+    }
+
+    window.BLUEZONE_SCIENCE = { select: selectScience };
+  })();
+
+  // Clinical Formulations Medical Swapper / Slider Controller
+  (function () {
+    let currentIdx = 0;
+    let currentView = 'slider';
+    let startX = 0;
+    let isDragging = false;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
+
+    const track = document.getElementById('bz-swapper-track');
+    const slides = document.querySelectorAll('.bz-swapper-slide');
+    const dots = document.querySelectorAll('#bz-swapper-dots .bz-dot-indicator');
+    const totalSlides = slides.length;
+
+    function getVisibleCount() {
+      const w = window.innerWidth;
+      if (w < 640) return 1;
+      if (w < 1024) return 2;
+      return 3;
+    }
+
+    function getMaxIndex() {
+      const visible = getVisibleCount();
+      return Math.max(0, totalSlides - visible);
+    }
+
+    function updateSwapper(smooth = true) {
+      if (!track || slides.length === 0) return;
+      const maxIdx = getMaxIndex();
+      if (currentIdx > maxIdx) currentIdx = maxIdx;
+      if (currentIdx < 0) currentIdx = 0;
+
+      const slideWidth = slides[0].getBoundingClientRect().width;
+      const gap = 24; // 1.5rem (gap-6)
+      const offset = currentIdx * (slideWidth + gap);
+
+      track.style.transition = smooth ? 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)' : 'none';
+      track.style.transform = isRtl ? `translateX(${offset}px)` : `translateX(-${offset}px)`;
+
+      dots.forEach((dot, i) => {
+        if (i === currentIdx) {
+          dot.className = 'bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer w-8 bg-[#67B34A]';
+        } else {
+          dot.className = 'bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer w-2.5 bg-[#0A4F78]/20 dark:bg-white/20';
+        }
+      });
+    }
+
+    function nextSlide() {
+      const maxIdx = getMaxIndex();
+      if (currentIdx < maxIdx) {
+        currentIdx++;
+      } else {
+        currentIdx = 0;
+      }
+      updateSwapper();
+    }
+
+    function prevSlide() {
+      const maxIdx = getMaxIndex();
+      if (currentIdx > 0) {
+        currentIdx--;
+      } else {
+        currentIdx = maxIdx;
+      }
+      updateSwapper();
+    }
+
+    function goToSlide(idx) {
+      const maxIdx = getMaxIndex();
+      currentIdx = Math.min(Math.max(0, idx), maxIdx);
+      updateSwapper();
+    }
+
+    function setView(view) {
+      currentView = view;
+      const swapperContainer = document.getElementById('bz-swapper-container');
+      const gridContainer = document.getElementById('bz-grid-container');
+      const sliderBtn = document.getElementById('bz-view-slider-btn');
+      const gridBtn = document.getElementById('bz-view-grid-btn');
+      const arrows = document.getElementById('bz-swapper-arrows');
+
+      if (view === 'grid') {
+        if (swapperContainer) swapperContainer.classList.add('hidden');
+        if (gridContainer) gridContainer.classList.remove('hidden');
+        if (arrows) arrows.classList.add('hidden');
+
+        if (gridBtn) {
+          gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm';
+        }
+        if (sliderBtn) {
+          sliderBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]';
+        }
+      } else {
+        if (swapperContainer) swapperContainer.classList.remove('hidden');
+        if (gridContainer) gridContainer.classList.add('hidden');
+        if (arrows) arrows.classList.remove('hidden');
+
+        if (sliderBtn) {
+          sliderBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm';
+        }
+        if (gridBtn) {
+          gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]';
+        }
+        updateSwapper(false);
+      }
+    }
+
+    // Touch swipe support
+    const viewport = document.getElementById('bz-swapper-viewport');
+    if (viewport) {
+      viewport.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        const endX = e.changedTouches[0].clientX;
+        const diff = endX - startX;
+        if (Math.abs(diff) > 40) {
+          if (isRtl) {
+            if (diff > 0) nextSlide();
+            else prevSlide();
+          } else {
+            if (diff < 0) nextSlide();
+            else prevSlide();
+          }
+        }
+      }, { passive: true });
+    }
+
+    window.addEventListener('resize', () => {
+      if (currentView === 'slider') updateSwapper(false);
+    });
+
+    // Global export
+    window.BLUEZONE_MED_SWAPPER = {
+      next: nextSlide,
+      prev: prevSlide,
+      goTo: goToSlide,
+      setView: setView,
+      refresh: () => updateSwapper(false)
+    };
+
+    // Initialize swapper positioning
+    setTimeout(() => updateSwapper(false), 50);
+  })();
+</script> --}}

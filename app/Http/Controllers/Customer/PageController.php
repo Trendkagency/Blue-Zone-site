@@ -17,14 +17,25 @@ class PageController extends Controller
     public function science(): View
     {
         try {
-            $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->get();
+            $products = \App\Models\Product::with('category')->where('is_active', true)->orderBy('sort_order')->paginate(10);
             if ($products->isEmpty()) {
                 $products = collect(\App\View\ViewModels\ProductViewModel::all());
+                $products = \App\Models\Product::query()
+                    ->with(['category', 'media'])
+                    ->latest()
+                    ->paginate(10)
+                    ->withQueryString();
             }
+
+
         } catch (\Throwable) {
             $products = collect(\App\View\ViewModels\ProductViewModel::all());
+            $products = \App\Models\Product::query()
+                ->with(['category', 'media'])
+                ->latest()
+                ->paginate(10)
+                ->withQueryString();
         }
-
         return view('customer.pages.science', [
             'products' => $products,
         ]);

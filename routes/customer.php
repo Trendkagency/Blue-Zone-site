@@ -50,7 +50,7 @@ Route::prefix('account')->name('customer.account.')->middleware('auth.customer')
     Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::put('/password', [AccountController::class, 'updatePassword'])->name('password.update');
-    
+
     Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [AccountController::class, 'showOrder'])->name('orders.show');
     Route::post('/orders/{order}/reorder', [AccountController::class, 'reorder'])->name('orders.reorder');

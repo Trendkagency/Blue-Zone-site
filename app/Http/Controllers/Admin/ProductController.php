@@ -14,6 +14,7 @@ use App\View\ViewModels\CategoryViewModel;
 use App\View\ViewModels\ProductViewModel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -46,8 +47,8 @@ class ProductController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name_en', 'like', "%{$search}%")
-                  ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('name_ar', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 
@@ -138,7 +139,7 @@ class ProductController extends Controller
 
         // Attach Spatie Media if uploaded
         if ($request->hasFile('primary_image')) {
-            $product->addMediaFromRequest('primary_image')->toMediaCollection('primary_image');
+            $product->registerMediaCollections('primary_image')->toMediaCollection('primary_image');
             $product->image = $product->getFirstMediaUrl('primary_image');
             $product->save();
         }
@@ -201,8 +202,8 @@ class ProductController extends Controller
         ]);
 
         return redirect()->route('admin.products.index')
-            ->with('success', app()->getLocale() === 'ar' 
-                ? "تم تسجيل وإدراج التركيبة الحيوية [{$product->name_ar}] في الكتالوج بنجاح!" 
+            ->with('success', app()->getLocale() === 'ar'
+                ? "تم تسجيل وإدراج التركيبة الحيوية [{$product->name_ar}] في الكتالوج بنجاح!"
                 : "Bioceutical formulation [{$product->name_en}] successfully registered in catalog!");
     }
 
@@ -333,50 +334,151 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, int $id): RedirectResponse
     {
         $product = Product::findOrFail($id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Request
+        |--------------------------------------------------------------------------
+        */
         $data = $request->validated();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Generate Slug
+        |--------------------------------------------------------------------------
+        */
         if (empty($data['slug'])) {
             $data['slug'] = Str::slug($data['name_en']);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Boolean Fields
+        |--------------------------------------------------------------------------
+        */
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Format Science Inputs
+        |--------------------------------------------------------------------------
+        */
         $this->formatScienceInputs($data);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Update Product Data
+        |--------------------------------------------------------------------------
+        */
         $product->update($data);
 
-        // Attach Spatie Media if uploaded
+        /*
+        |--------------------------------------------------------------------------
+        | Primary Image
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        | The form field is "primary_image", so we must use
+        | "primary_image" everywhere.
+        |
+        */
         if ($request->hasFile('primary_image')) {
-            $product->clearMediaCollection('primary_image');
-            $product->addMediaFromRequest('primary_image')->toMediaCollection('primary_image');
-            $product->image = $product->getFirstMediaUrl('primary_image');
+            if ($product->image) {
+                $oldImage = str_replace('/storage/', '', $product->image);
+
+                if (Storage::disk('public')->exists($oldImage)) {
+                    Storage::disk('public')->delete($oldImage);
+                }
+            }
+
+            $extension = $request->file('primary_image')->getClientOriginalExtension();
+
+            $filename = Str::slug($product->name_en)
+                . '-' . $product->id
+                . '.' . $extension;
+
+            $path = $request->file('primary_image')
+                ->storeAs('products', $filename, 'public');
+
+            $product->image = Storage::url($path);
             $product->save();
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Gallery Images
+        |--------------------------------------------------------------------------
+        */
         if ($request->hasFile('gallery')) {
-            foreach ($request->file('gallery') as $file) {
-                $product->addMedia($file)->toMediaCollection('gallery');
+
+            $gallery = is_array($request->file('gallery'))
+                ? $request->file('gallery')
+                : [$request->file('gallery')];
+
+            foreach ($gallery as $index => $file) {
+
+                if (!$file || !$file->isValid()) {
+                    continue;
+                }
+
+                $extension = $file->getClientOriginalExtension();
+
+                $filename = Str::slug($product->name_en)
+                    . '-' . $product->id
+                    . '-gallery-' . ($index + 1)
+                    . '.' . $extension;
+
+                $file->storeAs(
+                    'products',
+                    $filename,
+                    'public'
+                );
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Documents
+        |--------------------------------------------------------------------------
+        */
         if ($request->hasFile('documents')) {
+
             foreach ($request->file('documents') as $file) {
-                $product->addMedia($file)->toMediaCollection('documents');
+
+                $product
+                    ->addMedia($file)
+                    ->toMediaCollection('documents');
             }
         }
 
-        // Sync inventory threshold adjustments
-        InventoryItem::where('product_id', $product->id)->update([
-            'low_stock_threshold' => $product->low_stock_threshold,
-        ]);
+        /*
+        |--------------------------------------------------------------------------
+        | Sync Inventory Threshold
+        |--------------------------------------------------------------------------
+        */
+        InventoryItem::where('product_id', $product->id)
+            ->update([
+                'low_stock_threshold' => $product->low_stock_threshold,
+            ]);
 
-        return redirect()->route('admin.products.index')
-            ->with('success', app()->getLocale() === 'ar' 
-                ? "تم تحديث بيانات التركيبة [{$product->name_ar}] بنجاح!" 
-                : "Bioceutical formulation [{$product->name_en}] updated successfully!");
+        /*
+        |--------------------------------------------------------------------------
+        | Success Response
+        |--------------------------------------------------------------------------
+        */
+        return redirect()
+            ->route('admin.products.index')
+            ->with(
+                'success',
+                app()->getLocale() === 'ar'
+                ? "تم تحديث بيانات التركيبة [{$product->name_ar}] بنجاح!"
+                : "Bioceutical formulation [{$product->name_en}] updated successfully!"
+            );
     }
+
 
     public function destroy(int $id): RedirectResponse
     {
@@ -385,8 +487,8 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products.index')
-            ->with('success', app()->getLocale() === 'ar' 
-                ? "تم نقل التركيبة [{$name}] إلى سلة المحذوفات بنجاح." 
+            ->with('success', app()->getLocale() === 'ar'
+                ? "تم نقل التركيبة [{$name}] إلى سلة المحذوفات بنجاح."
                 : "Formulation [{$name}] moved to trash successfully.");
     }
 
@@ -397,8 +499,8 @@ class ProductController extends Controller
         $product->restore();
 
         return redirect()->route('admin.products.index', ['status' => 'trashed'])
-            ->with('success', app()->getLocale() === 'ar' 
-                ? "تم استعادة التركيبة [{$name}] وإعادتها للكتالوج بنجاح!" 
+            ->with('success', app()->getLocale() === 'ar'
+                ? "تم استعادة التركيبة [{$name}] وإعادتها للكتالوج بنجاح!"
                 : "Formulation [{$name}] restored to active catalog successfully!");
     }
 
@@ -414,8 +516,8 @@ class ProductController extends Controller
         $product->forceDelete();
 
         return redirect()->route('admin.products.index', ['status' => 'trashed'])
-            ->with('success', app()->getLocale() === 'ar' 
-                ? "تم الحذف النهائي للتركيبة [{$name}] وجميع سجلاتها المرتبطة نهائياً!" 
+            ->with('success', app()->getLocale() === 'ar'
+                ? "تم الحذف النهائي للتركيبة [{$name}] وجميع سجلاتها المرتبطة نهائياً!"
                 : "Formulation [{$name}] and all associated records permanently erased!");
     }
 
@@ -427,7 +529,7 @@ class ProductController extends Controller
         if (isset($data['benefits_en'])) {
             if (is_string($data['benefits_en'])) {
                 $lines = preg_split('/\r\n|\r|\n/', trim($data['benefits_en']));
-                $data['benefits_en'] = array_values(array_filter(array_map('trim', $lines), fn ($line) => $line !== ''));
+                $data['benefits_en'] = array_values(array_filter(array_map('trim', $lines), fn($line) => $line !== ''));
             } elseif (is_array($data['benefits_en'])) {
                 $data['benefits_en'] = array_values(array_filter($data['benefits_en']));
             }
@@ -436,7 +538,7 @@ class ProductController extends Controller
         if (isset($data['benefits_ar'])) {
             if (is_string($data['benefits_ar'])) {
                 $lines = preg_split('/\r\n|\r|\n/', trim($data['benefits_ar']));
-                $data['benefits_ar'] = array_values(array_filter(array_map('trim', $lines), fn ($line) => $line !== ''));
+                $data['benefits_ar'] = array_values(array_filter(array_map('trim', $lines), fn($line) => $line !== ''));
             } elseif (is_array($data['benefits_ar'])) {
                 $data['benefits_ar'] = array_values(array_filter($data['benefits_ar']));
             }
@@ -444,11 +546,11 @@ class ProductController extends Controller
 
         if (isset($data['ingredients']) && is_array($data['ingredients'])) {
             $data['ingredients'] = array_values(array_filter($data['ingredients'], function ($row) {
-                if (! is_array($row)) {
+                if (!is_array($row)) {
                     return false;
                 }
 
-                return ! empty($row['name_en']) || ! empty($row['name_ar']) || ! empty($row['dose']);
+                return !empty($row['name_en']) || !empty($row['name_ar']) || !empty($row['dose']);
             }));
         }
     }

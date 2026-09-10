@@ -61,16 +61,14 @@ class ShopController extends Controller
                     $query->orderBy('sort_order', 'asc');
                     break;
             }
-
-            $products = $query->get();
-        } catch (\Throwable) {
+            $products = $query->orderBy('sort_order', 'desc')->paginate(12);
+        } catch (\Throwable $e) {
+            dd($e);
             $products = collect();
         }
 
         // Fallback to ViewModel if database records are empty
-        if ($products->isEmpty() && !$search && !$categorySlug) {
-            $products = collect(ProductViewModel::all());
-        }
+      
 
         try {
             $categories = Category::where('is_active', true)->orderBy('sort_order')->get();

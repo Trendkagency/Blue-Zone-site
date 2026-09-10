@@ -1,4 +1,4 @@
-    <!-- 08. THE FIVE BLUE ZONES SHOWCASE -->
+    {{-- <!-- 08. THE FIVE BLUE ZONES SHOWCASE -->
     <section id="five-blue-zones" class="py-20 bg-[#F6F5EF] dark:bg-[#031827] border-b border-[#0A4F78]/10 transition-colors">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div class="text-center max-w-2xl mx-auto space-y-3">
@@ -284,4 +284,4 @@
 
         window.BLUEZONE_REGIONS = { select: selectRegion };
       })();
-    </script>
+    </script> --}}

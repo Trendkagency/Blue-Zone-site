@@ -18,21 +18,25 @@
             <span class="badge badge-success product-card-badge">New Formula</span>
         @endif
 
-        <a href="{{ route('customer.product.show', $product['slug']) }}" style="display: block; width: 100%; height: 100%;">
-            <img src="{{ asset($product['image']) }}" alt="{{ $name }}" class="product-card-img" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+        <a href="{{ route('customer.product.show', $product['slug']) }}"
+            style="display: block; width: 100%; height: 100%;">
+            <img src="{{ asset($product['image']) }}" alt="{{ $name }}" class="product-card-img"
+                onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
         </a>
     </div>
 
     <div class="product-card-content">
         <span class="product-category-tag">{{ $category }}</span>
-        
+
         <h3 class="product-title">
-            <a href="{{ route('customer.product.show', $product['slug']) }}" style="color: inherit; text-decoration: none;">
+            <a href="{{ route('customer.product.show', $product['slug']) }}"
+                style="color: inherit; text-decoration: none;">
                 {{ $name }}
             </a>
         </h3>
 
-        <p class="text-sm text-muted" style="margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <p class="text-sm text-muted"
+            style="margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
             {{ $tagline }}
         </p>
 

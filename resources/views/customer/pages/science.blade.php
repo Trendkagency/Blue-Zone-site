@@ -1,590 +1,1046 @@
-<x-layouts.customer :title="'OUR SCIENCE — ' . __('app.brand_name')" :description="'Discover the clinical research, bio-identical extraction, and formulation science behind BLUE ZONE dietary supplements.'">
+<x-layouts.customer :title="__('app.our_science') . ' — ' . __('app.brand_name')" :description="__('app.science_page_description')">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16 sm:space-y-24">
-      
-      <!-- 1. EDITORIAL HERO SECTION -->
-      <section class="max-w-3xl mx-auto text-center space-y-4">
-        <span class="inline-block text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">
-          OUR SCIENCE
-        </span>
-        <h1 class="text-3xl sm:text-5xl md:text-6xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight leading-tight">
-          WHERE LONGEVITY MEETS <span class="font-bold text-[#67B34A]">FORMULATION</span>.
-        </h1>
-        <p class="text-xs sm:text-base text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed max-w-2xl mx-auto">
-          BLUE ZONE explores the dietary patterns, botanical polyphenols, and lifestyle habits observed in the world's longest-lived communities.
-        </p>
-      </section>
 
-      <!-- 2. THE 4-STAGE INTERACTIVE JOURNEY -->
-      <section class="space-y-10" id="bz-science-journey-section">
-        
-        <div class="text-center max-w-xl mx-auto space-y-2">
-          <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#0A4F78] dark:text-[#2A8FC2]">THE PROCESS</span>
-          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#031827] dark:text-[#F6F5EF]">THE 4 STAGES</h2>
-        </div>
 
-        <!-- Desktop Horizontal Timeline -->
-        <div class="hidden md:block relative py-6 max-w-3xl mx-auto" id="bz-science-desktop-timeline">
-          <div class="absolute top-1/2 left-[12%] right-[12%] h-0.5 bg-[#0A4F78]/15 dark:bg-[#0A4F78]/30 -translate-y-1/2 z-0"></div>
-          <div id="bz-timeline-progress" class="absolute top-1/2 left-[12%] h-0.5 bg-[#67B34A] -translate-y-1/2 z-0 transition-all duration-500" style="width: 0%;"></div>
+        {{-- =========================================================
+    3. CLINICAL FORMULATIONS
+    ========================================================== --}}
+        <section class="space-y-8 pt-4" id="bz-clinical-formulations-section"
+            aria-labelledby="bz-clinical-formulations-title">
 
-          <div class="grid grid-cols-4 gap-4 relative z-10 text-center">
-            <!-- Node 01: SOURCE -->
-            <button onclick="BLUEZONE_SCIENCE.select(0)" onmouseenter="BLUEZONE_SCIENCE.select(0)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="0">
-              <div class="node-circle w-11 h-11 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-black shadow-[0_0_15px_rgba(103,179,74,0.4)] scale-110 border-2 border-[#67B34A] transition-all">
-                01
-              </div>
-              <span class="node-title text-xs font-extrabold uppercase tracking-widest text-[#67B34A]">SOURCE</span>
-            </button>
+            {{-- Section Header --}}
+            <div class="text-center max-w-3xl mx-auto space-y-3">
 
-            <!-- Node 02: FORMULATION -->
-            <button onclick="BLUEZONE_SCIENCE.select(1)" onmouseenter="BLUEZONE_SCIENCE.select(1)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="1">
-              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
-                02
-              </div>
-              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">FORMULATION</span>
-            </button>
+                <span
+                    class="text-[10px] font-extrabold
+                           uppercase tracking-[0.3em]
+                           text-[#0A4F78]
+                           dark:text-[#2A8FC2]">
+                    {{ __('app.clinical_pharmacology_formulations') }}
+                </span>
 
-            <!-- Node 03: VALIDATION -->
-            <button onclick="BLUEZONE_SCIENCE.select(2)" onmouseenter="BLUEZONE_SCIENCE.select(2)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="2">
-              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
-                03
-              </div>
-              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">VALIDATION</span>
-            </button>
+                <h2 id="bz-clinical-formulations-title"
+                    class="text-3xl sm:text-4xl lg:text-5xl
+                           font-light
+                           text-[#031827]
+                           dark:text-[#F6F5EF]
+                           tracking-tight">
+                    {{ __('app.all_longevity_formulations') }}
+                    <span class="font-bold text-[#67B34A]">
+                        {{ __('app.medical_data') }}
+                    </span>
+                </h2>
 
-            <!-- Node 04: WELLNESS -->
-            <button onclick="BLUEZONE_SCIENCE.select(3)" onmouseenter="BLUEZONE_SCIENCE.select(3)" class="bz-timeline-node group cursor-pointer flex flex-col items-center gap-2 transition-transform duration-300" data-index="3">
-              <div class="node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]">
-                04
-              </div>
-              <span class="node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors">WELLNESS</span>
-            </button>
-          </div>
-        </div>
+                <p
+                    class="text-xs sm:text-sm
+                           text-[#031827]/75
+                           dark:text-[#F6F5EF]/75
+                           font-medium
+                           leading-relaxed
+                           max-w-2xl mx-auto">
+                    {{ __('app.clinical_formulations_description') }}
+                </p>
 
-        <!-- Mobile Vertical Timeline Selector -->
-        <div class="md:hidden space-y-2 border-l-2 border-[#0A4F78]/20 pl-4 py-2" id="bz-science-mobile-timeline">
-          <button onclick="BLUEZONE_SCIENCE.select(0)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-bold text-[#67B34A]" data-index="0">
-            <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center text-[10px]">01</span>
-            <span>SOURCE — FROM NATURE</span>
-          </button>
-          <button onclick="BLUEZONE_SCIENCE.select(1)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="1">
-            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">02</span>
-            <span>FORMULATION — PRECISION</span>
-          </button>
-          <button onclick="BLUEZONE_SCIENCE.select(2)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="2">
-            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">03</span>
-            <span>VALIDATION — QUALITY FOCUS</span>
-          </button>
-          <button onclick="BLUEZONE_SCIENCE.select(3)" class="bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60" data-index="3">
-            <span class="w-6 h-6 rounded-full bg-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] flex items-center justify-center text-[10px]">04</span>
-            <span>WELLNESS — DAILY LIFE</span>
-          </button>
-        </div>
+            </div>
 
-        <!-- Two-Column Editorial Display Panel -->
-        <div class="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 shadow-xl transition-all duration-500 min-h-[380px]" id="bz-science-panel">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <!-- Left Column: Editorial Visual -->
-            <div class="lg:col-span-6 relative">
-              <div class="w-full h-72 sm:h-96 rounded-2xl overflow-hidden relative shadow-md border border-[#0A4F78]/20 bg-[#031827] group">
-                <img
-                  id="bz-science-active-img"
-                  src="{{ asset('assets/images/hero_longevity.jpg') }}"
-                  alt="Nature Sourcing"
-                  onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';"
-                  class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
-                />
-                
-                <div class="absolute inset-0 bg-gradient-to-t from-[#031827]/90 via-[#031827]/30 to-transparent"></div>
-                
-                <!-- Biological System Flow -->
-                <div class="absolute inset-x-4 bottom-4 p-4 rounded-xl bg-[#031827]/85 border border-[#2A8FC2]/30 backdrop-blur-md text-white space-y-2">
-                  <span class="block text-[9px] font-mono font-bold tracking-widest text-[#2A8FC2] uppercase">
-                    BIOLOGICAL SYSTEM FLOW:
-                  </span>
-                  <div class="flex items-center justify-between text-[10px] font-mono font-bold text-white/90">
-                    <span id="bz-flow-step-1" class="text-[#67B34A]">INGREDIENT</span>
-                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
-                    <span id="bz-flow-step-2" class="text-white/40">FUNCTION</span>
-                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
-                    <span id="bz-flow-step-3" class="text-white/40">BODY</span>
-                    <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#2A8FC2]"></i>
-                    <span id="bz-flow-step-4" class="text-white/40">WELLNESS</span>
-                  </div>
+
+            {{-- =====================================================
+      Product List
+      Product 1 = Details Left / Image Right
+      Product 2 = Image Left / Details Right
+      Product 3 = Details Left / Image Right
+      ...
+      ====================================================== --}}
+            <div id="bz-clinical-products-list" class="space-y-8">
+
+                @forelse($products as $product)
+                    @php
+                        $image =
+                            $product->getPrimaryImageUrlAttribute() ?:
+                            asset('assets/images/products/blue-mind.jpg.png');
+
+                        $pSlug = is_array($product) ? $product['slug'] ?? '' : $product->slug ?? '';
+
+                        $isRtl = app()->getLocale() === 'ar';
+
+                        /*
+                         * Presentation-only layout state.
+                         *
+                         * Odd:
+                         * Details = left
+                         * Image   = right
+                         *
+                         * Even:
+                         * Image   = left
+                         * Details = right
+                         */
+                        $detailsOrder = $loop->even ? 'lg:order-2' : 'lg:order-1';
+
+                        $imageOrder = $loop->even ? 'lg:order-1' : 'lg:order-2';
+                    @endphp
+
+
+                    <article
+                        class="bz-clinical-product
+                                                                   group relative overflow-hidden
+                                                                   rounded-[28px]
+                                                                   bg-white dark:bg-[#062B49]
+                                                                   border border-[#0A4F78]/15
+                                                                   dark:border-[#0A4F78]/30
+                                                                   shadow-sm
+                                                                   hover:shadow-2xl
+                                                                   transition-all duration-500
+                                                                   hover:-translate-y-1">
+
+                        {{-- Accent --}}
+                        <div class="absolute inset-x-0 top-0 h-[3px]
+                                                                       bg-gradient-to-r
+                                                                       from-[#0A4F78]
+                                                                       via-[#2A8FC2]
+                                                                       to-[#67B34A]"
+                            aria-hidden="true"></div>
+
+
+                        <div
+                            class="grid grid-cols-1 lg:grid-cols-2
+                                                                       min-h-[430px]">
+
+                            {{-- =================================================
+                  DETAILS
+                  Mobile: order 2
+                  Desktop: alternating
+                  ================================================== --}}
+                            <div
+                                class="bz-details
+                                                                           order-2 {{ $detailsOrder }}
+                                                                           flex flex-col justify-between
+                                                                           p-6 sm:p-8 lg:p-12 xl:p-14">
+
+                                <div>
+
+                                    {{-- Clinical Label --}}
+                                    <div
+                                        class="flex items-center gap-2 mb-3
+                                                                                   text-[10px] font-black
+                                                                                   uppercase tracking-[0.22em]
+                                                                                   text-[#67B34A]">
+                                        <span
+                                            class="w-2 h-2 rounded-full
+                                                                                       bg-[#67B34A]
+                                                                                       shadow-[0_0_0_4px_rgba(103,179,74,0.12)]"
+                                            aria-hidden="true"></span>
+
+                                        {{ $isRtl ? __('app.clinical_formulation') : __('app.clinical_formulation') }}
+                                    </div>
+
+
+                                    {{-- Product Name --}}
+                                    <h3
+                                        class="text-2xl sm:text-3xl lg:text-[36px]
+                                                                                   leading-tight
+                                                                                   font-black tracking-tight
+                                                                                   text-[#031827]
+                                                                                   dark:text-[#F6F5EF]">
+                                        {{ $product->name }}
+                                    </h3>
+
+
+                                    {{-- Description --}}
+                                    @if ($product->description)
+                                        <p
+                                            class="mt-5 max-w-2xl
+                                                                                                   text-sm leading-7
+                                                                                                   text-[#031827]/65
+                                                                                                   dark:text-[#F6F5EF]/65">
+                                            {{ Str::limit(strip_tags($product->description), 260) }}
+                                        </p>
+                                    @endif
+
+
+                                    {{-- Clinical Data --}}
+                                    <div
+                                        class="grid grid-cols-1 sm:grid-cols-2
+                                                                                   gap-3 mt-7">
+
+                                        {{-- Active Ingredients --}}
+                                        <div
+                                            class="rounded-2xl p-4
+                                                                                       bg-[#F6F5EF]/70
+                                                                                       dark:bg-[#031827]/60
+                                                                                       border border-[#0A4F78]/10
+                                                                                       dark:border-[#2A8FC2]/15">
+
+                                            <div class="flex items-center gap-2 mb-2">
+
+                                                <i class="fa-solid fa-flask text-sm
+                                                                                               text-[#0A4F78]
+                                                                                               dark:text-[#2A8FC2]"
+                                                    aria-hidden="true"></i>
+
+                                                <span
+                                                    class="text-[9px] font-black
+                                                                                               uppercase tracking-wider
+                                                                                               text-[#031827]/50
+                                                                                               dark:text-[#F6F5EF]/50">
+                                                    {{ __('app.active_ingredients') }}
+                                                </span>
+
+                                            </div>
+
+                                            <p
+                                                class="text-xs font-bold leading-5
+                                                                                           text-[#031827]
+                                                                                           dark:text-[#F6F5EF]">
+                                                {{ $product->active_ingredients ?? __('app.standardized_formula') }}
+                                            </p>
+
+                                        </div>
+
+
+                                        {{-- Biomarkers --}}
+                                        <div
+                                            class="rounded-2xl p-4
+                                                                                       bg-[#F6F5EF]/70
+                                                                                       dark:bg-[#031827]/60
+                                                                                       border border-[#0A4F78]/10
+                                                                                       dark:border-[#2A8FC2]/15">
+
+                                            <div class="flex items-center gap-2 mb-2">
+
+                                                <i class="fa-solid fa-dna text-sm
+                                                                                               text-[#0A4F78]
+                                                                                               dark:text-[#2A8FC2]"
+                                                    aria-hidden="true"></i>
+
+                                                <span
+                                                    class="text-[9px] font-black
+                                                                                               uppercase tracking-wider
+                                                                                               text-[#031827]/50
+                                                                                               dark:text-[#F6F5EF]/50">
+                                                    {{ __('app.target_biomarkers') }}
+                                                </span>
+
+                                            </div>
+
+                                            <p
+                                                class="text-xs font-bold leading-5
+                                                                                           text-[#031827]
+                                                                                           dark:text-[#F6F5EF]">
+                                                {{ $product->target_biomarkers ?? __('app.clinical_biomarker_profile') }}
+                                            </p>
+
+                                        </div>
+
+
+                                        {{-- Dosage --}}
+                                        <div
+                                            class="sm:col-span-2
+                                                                                       rounded-2xl p-4
+                                                                                       bg-[#F6F5EF]/70
+                                                                                       dark:bg-[#031827]/60
+                                                                                       border border-[#0A4F78]/10
+                                                                                       dark:border-[#2A8FC2]/15">
+
+                                            <div class="flex items-center gap-2 mb-2">
+
+                                                <i class="fa-solid fa-prescription-bottle-medical
+                                                                                               text-sm
+                                                                                               text-[#0A4F78]
+                                                                                               dark:text-[#2A8FC2]"
+                                                    aria-hidden="true"></i>
+
+                                                <span
+                                                    class="text-[9px] font-black
+                                                                                               uppercase tracking-wider
+                                                                                               text-[#031827]/50
+                                                                                               dark:text-[#F6F5EF]/50">
+                                                    {{ __('app.dosage_protocol') }}
+                                                </span>
+
+                                            </div>
+
+                                            <p
+                                                class="text-xs font-bold leading-5
+                                                                                           text-[#031827]
+                                                                                           dark:text-[#F6F5EF]">
+                                                {{ $product->dosage_protocol ?? __('app.clinical_protocol') }}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                {{-- Product Footer --}}
+                                <div
+                                    class="mt-8 pt-6
+                                                                               border-t border-[#0A4F78]/10
+                                                                               dark:border-[#2A8FC2]/15">
+
+                                    <div
+                                        class="flex flex-col
+                                                                                   sm:flex-row
+                                                                                   sm:items-end
+                                                                                   sm:justify-between
+                                                                                   gap-5">
+
+                                        {{-- Price --}}
+                                        <div>
+
+                                            <span
+                                                class="block mb-1
+                                                                                           text-[9px] font-black
+                                                                                           uppercase tracking-[0.16em]
+                                                                                           text-[#031827]/45
+                                                                                           dark:text-[#F6F5EF]/45">
+                                                {{ __('app.formulation_price') }}
+                                            </span>
+
+                                            <div
+                                                class="text-sm font-black
+                                                                                           text-[#031827]
+                                                                                           dark:text-[#F6F5EF]">
+                                                @currency($product['price'])
+                                            </div>
+
+                                        </div>
+
+
+                                        {{-- Actions --}}
+                                        <div
+                                            class="flex flex-col sm:flex-row
+                                                                                       gap-2 w-full sm:w-auto">
+
+                                            {{-- Science Details --}}
+                                            <a href="{{ route('customer.science.product', $pSlug) }}"
+                                                class="inline-flex items-center
+                                                                                           justify-center gap-2
+                                                                                           min-h-[46px]
+                                                                                           px-5 py-3
+                                                                                           rounded-xl
+                                                                                           bg-[#0A4F78]/10
+                                                                                           hover:bg-[#0A4F78]
+                                                                                           dark:bg-[#2A8FC2]/15
+                                                                                           dark:hover:bg-[#2A8FC2]
+                                                                                           text-[#0A4F78]
+                                                                                           hover:text-white
+                                                                                           dark:text-[#2A8FC2]
+                                                                                           dark:hover:text-white
+                                                                                           border border-[#0A4F78]/20
+                                                                                           dark:border-[#2A8FC2]/25
+                                                                                           text-[10px] font-black
+                                                                                           uppercase tracking-wider
+                                                                                           transition-all
+                                                                                           whitespace-nowrap">
+                                                <i class="fa-solid fa-flask-vial" aria-hidden="true"></i>
+
+                                                <span>
+                                                    {{ __('app.our_science_details') }}
+                                                </span>
+                                            </a>
+
+
+                                            {{-- Product --}}
+                                            <a href="{{ route('customer.products', $product) }}"
+                                                class="inline-flex items-center
+                                                                                           justify-center gap-2
+                                                                                           min-h-[46px]
+                                                                                           px-5 py-3
+                                                                                           rounded-xl
+                                                                                           bg-[#0A4F78]
+                                                                                           hover:bg-[#083D5D]
+                                                                                           dark:bg-[#2A8FC2]
+                                                                                           dark:hover:bg-[#67B34A]
+                                                                                           text-white
+                                                                                           text-[10px] font-black
+                                                                                           uppercase tracking-wider
+                                                                                           transition-all
+                                                                                           shadow-sm hover:shadow-lg
+                                                                                           whitespace-nowrap">
+                                                <span>
+                                                    {{ __('app.view_product') }}
+                                                </span>
+
+                                                <i class="fa-solid {{ $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' }}"
+                                                    aria-hidden="true"></i>
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- =================================================
+                  IMAGE
+                  Mobile: order 1
+                  Desktop: alternating
+                  ================================================== --}}
+                            <div
+                                class="bz-image
+                                                                           order-1 {{ $imageOrder }}
+                                                                           relative
+                                                                           min-h-[320px] lg:min-h-[430px]
+                                                                           overflow-hidden
+                                                                           bg-[#F6F5EF]
+                                                                           dark:bg-[#031827]">
+
+                                {{-- Decorative Background --}}
+                                <div class="absolute -top-24 -right-24
+                                                                               w-72 h-72 rounded-full
+                                                                               bg-[#0A4F78]/5
+                                                                               dark:bg-[#2A8FC2]/5
+                                                                               blur-3xl pointer-events-none"
+                                    aria-hidden="true">
+                                </div>
+
+                                <div class="absolute -bottom-24 -left-24
+                                                                               w-72 h-72 rounded-full
+                                                                               bg-[#67B34A]/5
+                                                                               blur-3xl pointer-events-none"
+                                    aria-hidden="true">
+                                </div>
+
+
+                                {{-- Category --}}
+                                @if ($product->category)
+                                    <div class="absolute top-6 right-6 z-10">
+                                        <span
+                                            class="inline-flex items-center gap-2
+                                                                                                   px-3.5 py-2 rounded-xl
+                                                                                                   bg-white/90
+                                                                                                   dark:bg-[#062B49]/90
+                                                                                                   backdrop-blur-md
+                                                                                                   border border-[#0A4F78]/10
+                                                                                                   dark:border-[#2A8FC2]/20
+                                                                                                   shadow-sm
+                                                                                                   text-[10px] font-black
+                                                                                                   uppercase tracking-wider
+                                                                                                   text-[#0A4F78]
+                                                                                                   dark:text-[#2A8FC2]">
+                                            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+
+                                            {{ $product->category->name }}
+                                        </span>
+                                    </div>
+                                @endif
+
+
+                                {{-- Product Number --}}
+                                <div class="absolute top-6 left-6 z-10
+                                                                               w-9 h-9 rounded-full
+                                                                               flex items-center justify-center
+                                                                               bg-white/80
+                                                                               dark:bg-[#062B49]/80
+                                                                               backdrop-blur-md
+                                                                               border border-[#0A4F78]/10
+                                                                               dark:border-[#2A8FC2]/20
+                                                                               text-[10px] font-black
+                                                                               text-[#0A4F78]
+                                                                               dark:text-[#2A8FC2]"
+                                    aria-label="{{ __('app.product_number') }} {{ $loop->iteration }}">
+                                    {{ sprintf('%02d', $loop->iteration) }}
+                                </div>
+
+
+                                {{-- Product Image --}}
+                                <a href="{{ route('customer.products', $product) }}"
+                                    class="relative z-[1]
+                                                                               flex items-center justify-center
+                                                                               w-full h-full
+                                                                               min-h-[320px] lg:min-h-[430px]
+                                                                               p-8 sm:p-12 lg:p-16
+                                                                               focus:outline-none
+                                                                               focus-visible:ring-2
+                                                                               focus-visible:ring-inset
+                                                                               focus-visible:ring-[#67B34A]"
+                                    aria-label="{{ __('app.view_product') }}: {{ $product->name }}">
+
+                                    <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy"
+                                        decoding="async"
+                                        class="max-w-full
+                                                                                   max-h-[340px]
+                                                                                   sm:max-h-[370px]
+                                                                                   lg:max-h-[400px]
+                                                                                   w-auto h-auto
+                                                                                   object-contain
+                                                                                   transition-transform
+                                                                                   duration-700
+                                                                                   ease-out
+                                                                                   group-hover:scale-[1.06]" />
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                @empty
+
+                    {{-- Empty State --}}
+                    <div
+                        class="rounded-[28px]
+                                           bg-white dark:bg-[#062B49]
+                                           border border-[#0A4F78]/15
+                                           dark:border-[#0A8FC2]/20
+                                           p-10 sm:p-14
+                                           text-center">
+                        <div
+                            class="w-14 h-14 mx-auto mb-5
+                                               rounded-2xl
+                                               bg-[#0A4F78]/10
+                                               dark:bg-[#2A8FC2]/15
+                                               flex items-center justify-center">
+                            <i class="fa-solid fa-flask-vial
+                                                   text-xl
+                                                   text-[#0A4F78]
+                                                   dark:text-[#2A8FC2]"
+                                aria-hidden="true"></i>
+                        </div>
+
+                        <h3
+                            class="text-xl font-bold
+                                               text-[#031827]
+                                               dark:text-[#F6F5EF]">
+                            {{ __('app.no_formulations_available') }}
+                        </h3>
+
+                        <p
+                            class="mt-2 text-sm
+                                               text-[#031827]/60
+                                               dark:text-[#F6F5EF]/60">
+                            {{ __('app.no_formulations_description') }}
+                        </p>
+                    </div>
+                @endforelse
+
+            </div>
+
+
+            {{-- =====================================================
+      Pagination
+      ====================================================== --}}
+            @if (method_exists($products, 'hasPages') && $products->hasPages())
+                <div class="pt-6">
+                    {{ $products->onEachSide(1)->links() }}
+                </div>
+            @endif
+
+        </section>
+
+
+        {{-- =========================================================
+    4. FORMULATED WITH PURPOSE
+    ========================================================== --}}
+        <section class="space-y-8 pt-4" aria-labelledby="bz-philosophy-title">
+
+            <div class="text-center max-w-2xl mx-auto space-y-3">
+
+                <span
+                    class="text-[11px] font-extrabold
+                           uppercase tracking-[0.3em]
+                           text-[#0A4F78]
+                           dark:text-[#2A8FC2]">
+                    {{ __('app.our_philosophy') }}
+                </span>
+
+                <h2 id="bz-philosophy-title"
+                    class="text-3xl sm:text-4xl
+                           font-light
+                           text-[#031827]
+                           dark:text-[#F6F5EF]
+                           tracking-tight">
+                    {{ __('app.formulated_with') }}
+                    <span class="font-bold text-[#67B34A]">
+                        {{ __('app.purpose') }}
+                    </span>.
+                </h2>
+
+                <p
+                    class="text-xs sm:text-sm
+                           text-[#031827]/75
+                           dark:text-[#F6F5EF]/75
+                           font-medium">
+                    {{ __('app.philosophy_description') }}
+                </p>
+
+            </div>
+
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                {{-- Point 01 --}}
+                <div class="space-y-3 p-2">
+
+                    <div class="flex items-center gap-3">
+
+                        <span
+                            class="w-8 h-8 rounded-full
+                                   bg-[#67B34A]/15
+                                   text-[#67B34A]
+                                   flex items-center justify-center
+                                   font-mono font-bold text-xs">
+                            01
+                        </span>
+
+                        <h3
+                            class="text-sm font-bold
+                                   uppercase tracking-wider
+                                   text-[#031827]
+                                   dark:text-[#F6F5EF]">
+                            {{ __('app.ingredient_selection') }}
+                        </h3>
+
+                    </div>
+
+                    <p
+                        class="text-xs
+                               text-[#031827]/70
+                               dark:text-[#F6F5EF]/70
+                               font-medium leading-relaxed">
+                        {{ __('app.ingredient_selection_description') }}
+                    </p>
+
                 </div>
 
-                <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-[#031827]/80 text-[#67B34A] text-[10px] font-mono font-bold border border-[#67B34A]/40 backdrop-blur-sm">
-                  STAGE <span id="bz-science-stage-code">01/04</span>
+
+                {{-- Point 02 --}}
+                <div class="space-y-3 p-2">
+
+                    <div class="flex items-center gap-3">
+
+                        <span
+                            class="w-8 h-8 rounded-full
+                                   bg-[#0A4F78]/15
+                                   dark:bg-[#0A4F78]/40
+                                   text-[#0A4F78]
+                                   dark:text-[#2A8FC2]
+                                   flex items-center justify-center
+                                   font-mono font-bold text-xs">
+                            02
+                        </span>
+
+                        <h3
+                            class="text-sm font-bold
+                                   uppercase tracking-wider
+                                   text-[#031827]
+                                   dark:text-[#F6F5EF]">
+                            {{ __('app.formulation_thinking') }}
+                        </h3>
+
+                    </div>
+
+                    <p
+                        class="text-xs
+                               text-[#031827]/70
+                               dark:text-[#F6F5EF]/70
+                               font-medium leading-relaxed">
+                        {{ __('app.formulation_thinking_description') }}
+                    </p>
+
                 </div>
-              </div>
-            </div>
 
-            <!-- Right Column: Stage Details -->
-            <div class="lg:col-span-6 space-y-6">
-              <div class="space-y-2">
-                <div class="flex items-center gap-3">
-                  <span id="bz-science-active-num" class="text-4xl font-light font-mono text-[#67B34A]">01</span>
-                  <span class="text-xs font-bold text-[#67B34A]">—</span>
-                  <span id="bz-science-active-stage" class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">SOURCE</span>
+
+                {{-- Point 03 --}}
+                <div class="space-y-3 p-2">
+
+                    <div class="flex items-center gap-3">
+
+                        <span
+                            class="w-8 h-8 rounded-full
+                                   bg-[#2A8FC2]/15
+                                   text-[#2A8FC2]
+                                   flex items-center justify-center
+                                   font-mono font-bold text-xs">
+                            03
+                        </span>
+
+                        <h3
+                            class="text-sm font-bold
+                                   uppercase tracking-wider
+                                   text-[#031827]
+                                   dark:text-[#F6F5EF]">
+                            {{ __('app.everyday_wellness') }}
+                        </h3>
+
+                    </div>
+
+                    <p
+                        class="text-xs
+                               text-[#031827]/70
+                               dark:text-[#F6F5EF]/70
+                               font-medium leading-relaxed">
+                        {{ __('app.everyday_wellness_description') }}
+                    </p>
+
                 </div>
 
-                <h3 id="bz-science-active-title" class="text-2xl sm:text-4xl font-bold text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-                  FROM NATURE
-                </h3>
-              </div>
-
-              <p id="bz-science-active-desc" class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed">
-                Selected botanical and nutritional ingredients inspired by the natural foundations of longevity.
-              </p>
-
-              <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 space-y-2">
-                <span class="block text-[10px] font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">KEY HIGHLIGHTS</span>
-                <div id="bz-science-active-chips" class="flex flex-wrap gap-2">
-                  <span class="px-3 py-1.5 rounded-lg bg-[#67B34A]/15 text-[#67B34A] text-xs font-bold">Standardized Botanical Extraction</span>
-                  <span class="px-3 py-1.5 rounded-lg bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF] text-xs font-bold">Peak Potency Sourcing</span>
-                </div>
-              </div>
             </div>
 
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- 3. CLINICAL FORMULATIONS & MEDICAL DOSSIERS (SLIDER SWAPPER & CARD GRADE) -->
-      <section class="space-y-8 pt-4" id="bz-clinical-formulations-section">
-        <!-- Section Header with View Mode Switcher and Swapper Arrows -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
-          <div class="space-y-2 max-w-2xl">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#67B34A] animate-pulse"></span>
-              <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#0A4F78] dark:text-[#2A8FC2]">
-                {{ app()->getLocale() === 'ar' ? 'علم الصيدلة الإكلينيكية والتركيبات' : 'CLINICAL PHARMACOLOGY & FORMULATIONS' }}
-              </span>
+
+        {{-- =========================================================
+    5. SCIENCE IN PRACTICE
+    ========================================================== --}}
+        <section
+            class="bg-white dark:bg-[#062B49]
+                   text-[#031827] dark:text-white
+                   rounded-3xl
+                   p-8 sm:p-12
+                   border border-[#0A4F78]/20
+                   dark:border-[#0A4F78]/40
+                   shadow-xl
+                   flex flex-col sm:flex-row
+                   items-center justify-between
+                   gap-6
+                   transition-colors">
+
+            <div class="space-y-2 text-center sm:text-left">
+
+                <span
+                    class="text-[10px] font-extrabold
+                           uppercase tracking-[0.25em]
+                           text-[#67B34A]">
+                    {{ __('app.science_in_practice') }}
+                </span>
+
+                <h2
+                    class="text-2xl sm:text-3xl
+                           font-bold tracking-tight
+                           text-[#031827]
+                           dark:text-white">
+                    {{ __('app.see_the_science_in_blue_mind') }}
+                </h2>
+
+                <p
+                    class="text-xs sm:text-sm
+                           text-[#031827]/75
+                           dark:text-[#F6F5EF]/75
+                           font-medium max-w-xl">
+                    {{ __('app.blue_mind_science_description') }}
+                </p>
+
             </div>
-            <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-[#031827] dark:text-[#F6F5EF]">
-              {{ app()->getLocale() === 'ar' ? 'جميع التركيبات الطبية والملفات السريرية' : 'ALL LONGEVITY FORMULATIONS & MEDICAL DATA' }}
-            </h2>
-            <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed">
-              {{ app()->getLocale() === 'ar' 
-                  ? 'ملف طبي إكلينيكي مفصل لكل منتج: المسار الحيوي الخلوي، المكونات المعايرة، المؤشرات الحيوية، وبروتوكول الاستخدام الطبي.' 
-                  : 'Complete clinical dossiers for all formulations: biochemical pathways of action, standardized active ingredients, target biomarkers, and dosage protocols.' }}
-            </p>
-          </div>
 
-          <!-- Controls: Swapper Navigation Arrows & Card Grade / Slider Toggle -->
-          <div class="flex items-center gap-3 shrink-0 self-start md:self-end">
-            <!-- View Mode Switcher -->
-            <div class="inline-flex p-1 rounded-xl bg-[#0A4F78]/10 dark:bg-[#062B49] border border-[#0A4F78]/20">
-              <button type="button" 
-                      id="bz-view-slider-btn"
-                      onclick="BLUEZONE_MED_SWAPPER.setView('slider')" 
-                      class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm"
-                      title="{{ app()->getLocale() === 'ar' ? 'سلايدر العرض التفاعلي' : 'Slider Swapper View' }}">
-                <i class="fa-solid fa-sliders"></i>
-                <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'سلايدر تفاعلي' : 'Slider Swapper' }}</span>
-              </button>
-              <button type="button" 
-                      id="bz-view-grid-btn"
-                      onclick="BLUEZONE_MED_SWAPPER.setView('grid')" 
-                      class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]"
-                      title="{{ app()->getLocale() === 'ar' ? 'شبكة البطاقات' : 'Card Grade View' }}">
-                <i class="fa-solid fa-table-cells-large"></i>
-                <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'شبكة البطاقات' : 'Card Grade' }}</span>
-              </button>
-            </div>
 
-            <!-- Swapper Navigation Arrows -->
-            <div id="bz-swapper-arrows" class="flex items-center gap-2">
-              <button type="button"
-                      onclick="BLUEZONE_MED_SWAPPER.prev()" 
-                      aria-label="{{ app()->getLocale() === 'ar' ? 'السابق' : 'Previous' }}"
-                      class="w-10 h-10 rounded-xl bg-white dark:bg-[#062B49] hover:bg-[#0A4F78] hover:text-white dark:hover:bg-[#2A8FC2] dark:hover:text-[#031827] text-[#031827] dark:text-white border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 shadow-sm transition-all flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95">
-                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-chevron-right' : 'fa-chevron-left' }} text-sm"></i>
-              </button>
-              <button type="button"
-                      onclick="BLUEZONE_MED_SWAPPER.next()" 
-                      aria-label="{{ app()->getLocale() === 'ar' ? 'التالي' : 'Next' }}"
-                      class="w-10 h-10 rounded-xl bg-white dark:bg-[#062B49] hover:bg-[#0A4F78] hover:text-white dark:hover:bg-[#2A8FC2] dark:hover:text-[#031827] text-[#031827] dark:text-white border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 shadow-sm transition-all flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95">
-                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-chevron-left' : 'fa-chevron-right' }} text-sm"></i>
-              </button>
-            </div>
-          </div>
-        </div>
+            <a href="{{ route('customer.product.show', 'blue-mind') }}"
+                class="px-7 py-3.5
+                       bg-[#67B34A]
+                       hover:bg-[#589c3e]
+                       text-white
+                       text-xs font-extrabold
+                       uppercase tracking-widest
+                       rounded-xl
+                       transition-all
+                       shadow-md
+                       shrink-0
+                       whitespace-nowrap
+                       hover:scale-105">
+                {{ __('app.explore_blue_mind') }}
 
-        <!-- 1. SLIDER SWAPPER VIEW (Default Active) -->
-        <div id="bz-swapper-container" class="relative w-full space-y-6">
-          <div id="bz-swapper-viewport" class="overflow-hidden relative w-full py-2 -my-2 select-none">
-            <div id="bz-swapper-track" class="flex transition-transform duration-500 ease-out gap-6" style="transform: translateX(0px);">
-              @foreach($products as $product)
-                <div class="bz-swapper-slide w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0">
-                  @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'slider'])
-                </div>
-              @endforeach
-            </div>
-          </div>
+                <i class="fa-solid fa-arrow-right
+                           rtl:rotate-180 ml-1.5"
+                    aria-hidden="true"></i>
+            </a>
 
-          <!-- Swapper Pagination Dots -->
-          <div id="bz-swapper-dots" class="flex items-center justify-center gap-2 pt-2">
-            @foreach($products as $idx => $p)
-              <button type="button" 
-                      onclick="BLUEZONE_MED_SWAPPER.goTo({{ $idx }})" 
-                      aria-label="Go to product {{ $idx + 1 }}"
-                      class="bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer {{ $idx === 0 ? 'w-8 bg-[#67B34A]' : 'w-2.5 bg-[#0A4F78]/20 dark:bg-white/20' }}" 
-                      data-index="{{ $idx }}">
-              </button>
-            @endforeach
-          </div>
-        </div>
-
-        <!-- 2. CARD GRADE (GRID) VIEW (Toggleable) -->
-        <div id="bz-grid-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          @foreach($products as $product)
-            <div class="h-full">
-              @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'grid'])
-            </div>
-          @endforeach
-        </div>
-      </section>
-
-      <!-- 4. FORMULATED WITH PURPOSE -->
-      <section class="space-y-8 pt-4">
-        <div class="text-center max-w-2xl mx-auto space-y-3">
-          <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">
-            OUR PHILOSOPHY
-          </span>
-          <h2 class="text-3xl sm:text-4xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-            FORMULATED WITH <span class="font-bold text-[#67B34A]">PURPOSE</span>.
-          </h2>
-          <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium">
-            A clear focus on ingredient selection, formulation balance, and practical daily wellness.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <!-- Point 01 -->
-          <div class="space-y-3 p-2">
-            <div class="flex items-center gap-3">
-              <span class="w-8 h-8 rounded-full bg-[#67B34A]/15 text-[#67B34A] flex items-center justify-center font-mono font-bold text-xs">01</span>
-              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">INGREDIENT SELECTION</h3>
-            </div>
-            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
-              Identifying key dietary botanicals and polyphenols observed across long-lived communities worldwide.
-            </p>
-          </div>
-
-          <!-- Point 02 -->
-          <div class="space-y-3 p-2">
-            <div class="flex items-center gap-3">
-              <span class="w-8 h-8 rounded-full bg-[#0A4F78]/15 dark:bg-[#0A4F78]/40 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center justify-center font-mono font-bold text-xs">02</span>
-              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">FORMULATION THINKING</h3>
-            </div>
-            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
-              Thoughtfully selected ingredients brought together into focused wellness formulations.
-            </p>
-          </div>
-
-          <!-- Point 03 -->
-          <div class="space-y-3 p-2">
-            <div class="flex items-center gap-3">
-              <span class="w-8 h-8 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] flex items-center justify-center font-mono font-bold text-xs">03</span>
-              <h3 class="text-sm font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">EVERYDAY WELLNESS</h3>
-            </div>
-            <p class="text-xs text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium leading-relaxed">
-              Creating clean, practical dietary support designed to fit effortlessly into your daily morning routine.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. SCIENCE IN PRACTICE -->
-      <section class="bg-white dark:bg-[#062B49] text-[#031827] dark:text-white rounded-3xl p-8 sm:p-12 border border-[#0A4F78]/20 dark:border-[#0A4F78]/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 transition-colors">
-        <div class="space-y-2 text-center sm:text-left">
-          <span class="text-[10px] font-extrabold uppercase tracking-[0.25em] text-[#67B34A]">SCIENCE IN PRACTICE</span>
-          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#031827] dark:text-white">SEE THE SCIENCE IN BLUE MIND</h2>
-          <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium max-w-xl">
-            Discover how the BLUE ZONE formulation philosophy comes to life in our flagship cognitive complex.
-          </p>
-        </div>
-        <a href="{{ route('customer.product.show', 'blue-mind') }}" class="px-7 py-3.5 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md shrink-0 whitespace-nowrap hover:scale-105">
-          EXPLORE BLUE MIND <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
-        </a>
-      </section>
+        </section>
 
     </div>
 
-    <!-- Science Controller Script -->
+
+    {{-- =============================================================
+  SCIENCE CONTROLLER
+  ============================================================= --}}
     <script>
-      (function() {
-        const SCIENCE_DATA = [
-          {
-            num: "01",
-            code: "01/04",
-            stage: "SOURCE",
-            title: "FROM NATURE",
-            desc: "Selected botanical and nutritional ingredients inspired by the natural foundations of longevity.",
-            img: "{{ asset('assets/images/hero_longevity.jpg') }}",
-            chips: ["Standardized Botanical Extraction", "Peak Potency Sourcing"],
-            flowStep: 1
-          },
-          {
-            num: "02",
-            code: "02/04",
-            stage: "FORMULATION",
-            title: "PRECISION IN EVERY FORMULA.",
-            desc: "Thoughtfully selected ingredients brought together into focused wellness formulations.",
-            img: "{{ asset('assets/products/blue-mind.webp') }}",
-            chips: ["Bio-Identical Nutrient Ratios", "Cellular Absorption Focus"],
-            flowStep: 2
-          },
-          {
-            num: "03",
-            code: "03/04",
-            stage: "VALIDATION",
-            title: "QUALITY YOU CAN TRUST.",
-            desc: "A clear focus on ingredient quality, consistency, and responsible formulation.",
-            img: "{{ asset('assets/images/blog-1.jpg') }}",
-            chips: ["Third-Party Quality Verified", "Zero Synthetic Additives"],
-            flowStep: 3
-          },
-          {
-            num: "04",
-            code: "04/04",
-            stage: "WELLNESS",
-            title: "DESIGNED FOR DAILY LIFE.",
-            desc: "Bringing longevity-inspired principles into modern everyday wellness.",
-            img: "{{ asset('assets/images/blog-2.jpg') }}",
-            chips: ["Cognitive Resilience", "Daily Vitality Support"],
-            flowStep: 4
-          }
-        ];
+        (() => {
+            'use strict';
 
-        function selectScience(idx) {
-          if (idx < 0 || idx >= SCIENCE_DATA.length) return;
-          const s = SCIENCE_DATA[idx];
+            const SCIENCE_DATA = [{
+                    num: "01",
+                    code: "01/04",
+                    stage: @json(__('app.source')),
+                    title: @json(__('app.from_nature')),
+                    desc: @json(__('app.source_stage_description')),
+                    img: @json(asset('assets/images/hero_longevity.jpg')),
+                    chips: [
+                        @json(__('app.standardized_botanical_extraction')),
+                        @json(__('app.peak_potency_sourcing'))
+                    ],
+                    flowStep: 1
+                },
+                {
+                    num: "02",
+                    code: "02/04",
+                    stage: @json(__('app.formulation')),
+                    title: @json(__('app.precision_in_every_formula')),
+                    desc: @json(__('app.formulation_stage_description')),
+                    img: @json(asset('assets/products/blue-mind.webp')),
+                    chips: [
+                        @json(__('app.bio_identical_nutrient_ratios')),
+                        @json(__('app.cellular_absorption_focus'))
+                    ],
+                    flowStep: 2
+                },
+                {
+                    num: "03",
+                    code: "03/04",
+                    stage: @json(__('app.validation')),
+                    title: @json(__('app.quality_you_can_trust')),
+                    desc: @json(__('app.validation_stage_description')),
+                    img: @json(asset('assets/images/blog-1.jpg')),
+                    chips: [
+                        @json(__('app.third_party_quality_verified')),
+                        @json(__('app.zero_synthetic_additives'))
+                    ],
+                    flowStep: 3
+                },
+                {
+                    num: "04",
+                    code: "04/04",
+                    stage: @json(__('app.wellness')),
+                    title: @json(__('app.designed_for_daily_life')),
+                    desc: @json(__('app.wellness_stage_description')),
+                    img: @json(asset('assets/images/blog-2.jpg')),
+                    chips: [
+                        @json(__('app.cognitive_resilience')),
+                        @json(__('app.daily_vitality_support'))
+                    ],
+                    flowStep: 4
+                }
+            ];
 
-          const progressLine = document.getElementById('bz-timeline-progress');
-          if (progressLine) {
-            const percents = [0, 33.3, 66.6, 100];
-            progressLine.style.width = percents[idx] + '%';
-          }
 
-          const desktopNodes = document.querySelectorAll('#bz-science-desktop-timeline .bz-timeline-node');
-          desktopNodes.forEach((node, i) => {
-            const circle = node.querySelector('.node-circle');
-            const title = node.querySelector('.node-title');
-            if (i === idx) {
-              if (circle) circle.className = 'node-circle w-11 h-11 rounded-full bg-[#67B34A] text-white flex items-center justify-center font-mono text-xs font-black shadow-[0_0_15px_rgba(103,179,74,0.4)] scale-110 border-2 border-[#67B34A] transition-all';
-              if (title) title.className = 'node-title text-xs font-extrabold uppercase tracking-widest text-[#67B34A]';
+            const SELECTORS = {
+                progress: '#bz-timeline-progress',
+                desktopNodes: '#bz-science-desktop-timeline .bz-timeline-node',
+                mobileNodes: '#bz-science-mobile-timeline .bz-mobile-node',
+                panel: '#bz-science-panel',
+                image: '#bz-science-active-img',
+                code: '#bz-science-stage-code',
+                number: '#bz-science-active-num',
+                stage: '#bz-science-active-stage',
+                title: '#bz-science-active-title',
+                description: '#bz-science-active-desc',
+                chips: '#bz-science-active-chips'
+            };
+
+
+            const getElement = (selector) => {
+                return document.querySelector(selector);
+            };
+
+
+            const getElements = (selector) => {
+                return document.querySelectorAll(selector);
+            };
+
+
+            function updateTimeline(index) {
+                const progress = getElement(SELECTORS.progress);
+
+                if (progress) {
+                    const progressValues = [0, 33.3, 66.6, 100];
+                    progress.style.width = `${progressValues[index]}%`;
+                }
+
+
+                getElements(SELECTORS.desktopNodes).forEach((node, nodeIndex) => {
+                    const circle = node.querySelector('.node-circle');
+                    const title = node.querySelector('.node-title');
+
+                    if (nodeIndex === index) {
+                        if (circle) {
+                            circle.className =
+                                'node-circle w-11 h-11 rounded-full ' +
+                                'bg-[#67B34A] text-white flex items-center justify-center ' +
+                                'font-mono text-xs font-black ' +
+                                'shadow-[0_0_15px_rgba(103,179,74,0.4)] ' +
+                                'scale-110 border-2 border-[#67B34A] transition-all';
+                        }
+
+                        if (title) {
+                            title.className =
+                                'node-title text-xs font-extrabold ' +
+                                'uppercase tracking-widest text-[#67B34A]';
+                        }
+
+                    } else {
+
+                        if (circle) {
+                            circle.className =
+                                'node-circle w-9 h-9 rounded-full ' +
+                                'bg-[#F6F5EF] dark:bg-[#031827] ' +
+                                'border-2 border-[#0A4F78]/30 ' +
+                                'flex items-center justify-center ' +
+                                'font-mono text-xs font-bold ' +
+                                'text-[#031827]/50 dark:text-[#F6F5EF]/50 ' +
+                                'transition-all group-hover:border-[#67B34A]';
+                        }
+
+                        if (title) {
+                            title.className =
+                                'node-title text-xs font-semibold ' +
+                                'uppercase tracking-widest ' +
+                                'text-[#031827]/50 dark:text-[#F6F5EF]/50 ' +
+                                'group-hover:text-[#67B34A] ' +
+                                'transition-colors';
+                        }
+                    }
+                });
+
+
+                getElements(SELECTORS.mobileNodes).forEach((node, nodeIndex) => {
+
+                    if (nodeIndex === index) {
+                        node.className =
+                            'bz-mobile-node flex items-center gap-3 ' +
+                            'py-2 text-xs font-bold text-[#67B34A]';
+                    } else {
+                        node.className =
+                            'bz-mobile-node flex items-center gap-3 ' +
+                            'py-2 text-xs font-medium ' +
+                            'text-[#031827]/60 dark:text-[#F6F5EF]/60';
+                    }
+                });
+            }
+
+
+            function updateFlow(flowStep) {
+                for (let step = 1; step <= 4; step++) {
+
+                    const element = document.getElementById(
+                        `bz-flow-step-${step}`
+                    );
+
+                    if (!element) continue;
+
+                    element.className =
+                        step <= flowStep ?
+                        'text-[#67B34A] font-bold' :
+                        'text-white/40 font-normal';
+                }
+            }
+
+
+            function updateChips(chips) {
+                const chipsContainer = getElement(SELECTORS.chips);
+
+                if (!chipsContainer) return;
+
+                const fragment = document.createDocumentFragment();
+
+                chips.forEach((chip, index) => {
+
+                    const span = document.createElement('span');
+
+                    span.className =
+                        index === 0 ?
+                        'px-3 py-1.5 rounded-lg bg-[#67B34A]/15 text-[#67B34A] text-xs font-bold' :
+                        'px-3 py-1.5 rounded-lg bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF] text-xs font-bold';
+
+                    span.textContent = chip;
+
+                    fragment.appendChild(span);
+                });
+
+                chipsContainer.replaceChildren(fragment);
+            }
+
+
+            function updatePanel(stage) {
+
+                const image = getElement(SELECTORS.image);
+                const code = getElement(SELECTORS.code);
+                const number = getElement(SELECTORS.number);
+                const stageElement = getElement(SELECTORS.stage);
+                const title = getElement(SELECTORS.title);
+                const description = getElement(SELECTORS.description);
+
+                if (image) {
+                    image.src = stage.img;
+                    image.alt = stage.title;
+                }
+
+                if (code) {
+                    code.textContent = stage.code;
+                }
+
+                if (number) {
+                    number.textContent = stage.num;
+                }
+
+                if (stageElement) {
+                    stageElement.textContent = stage.stage;
+                }
+
+                if (title) {
+                    title.textContent = stage.title;
+                }
+
+                if (description) {
+                    description.textContent = stage.desc;
+                }
+
+                updateChips(stage.chips);
+            }
+
+
+            function selectScience(index) {
+
+                if (
+                    !Number.isInteger(index) ||
+                    index < 0 ||
+                    index >= SCIENCE_DATA.length
+                ) {
+                    return;
+                }
+
+                const stage = SCIENCE_DATA[index];
+                const panel = getElement(SELECTORS.panel);
+
+                updateTimeline(index);
+                updateFlow(stage.flowStep);
+
+                if (!panel) {
+                    updatePanel(stage);
+                    return;
+                }
+
+                panel.style.opacity = '0.3';
+
+                window.setTimeout(() => {
+                    updatePanel(stage);
+                    panel.style.opacity = '1';
+                }, 180);
+            }
+
+
+            window.BLUEZONE_SCIENCE = {
+                select: selectScience
+            };
+
+
+            // Initialize first stage.
+            if (document.readyState === 'loading') {
+                document.addEventListener(
+                    'DOMContentLoaded',
+                    () => selectScience(0), {
+                        once: true
+                    }
+                );
             } else {
-              if (circle) circle.className = 'node-circle w-9 h-9 rounded-full bg-[#F6F5EF] dark:bg-[#031827] border-2 border-[#0A4F78]/30 flex items-center justify-center font-mono text-xs font-bold text-[#031827]/50 dark:text-[#F6F5EF]/50 transition-all group-hover:border-[#67B34A]';
-              if (title) title.className = 'node-title text-xs font-semibold uppercase tracking-widest text-[#031827]/50 dark:text-[#F6F5EF]/50 group-hover:text-[#67B34A] transition-colors';
+                selectScience(0);
             }
-          });
 
-          const mobileNodes = document.querySelectorAll('#bz-science-mobile-timeline .bz-mobile-node');
-          mobileNodes.forEach((btn, i) => {
-            if (i === idx) {
-              btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-bold text-[#67B34A]';
-            } else {
-              btn.className = 'bz-mobile-node flex items-center gap-3 py-2 text-xs font-medium text-[#031827]/60 dark:text-[#F6F5EF]/60';
-            }
-          });
-
-          for (let step = 1; step <= 4; step++) {
-            const flowEl = document.getElementById(`bz-flow-step-${step}`);
-            if (flowEl) {
-              if (step <= s.flowStep) {
-                flowEl.className = 'text-[#67B34A] font-bold';
-              } else {
-                flowEl.className = 'text-white/40 font-normal';
-              }
-            }
-          }
-
-          const panel = document.getElementById('bz-science-panel');
-          if (panel) {
-            panel.style.opacity = '0.3';
-            setTimeout(() => {
-              const imgEl = document.getElementById('bz-science-active-img');
-              const codeEl = document.getElementById('bz-science-stage-code');
-              const numEl = document.getElementById('bz-science-active-num');
-              const stageEl = document.getElementById('bz-science-active-stage');
-              const titleEl = document.getElementById('bz-science-active-title');
-              const descEl = document.getElementById('bz-science-active-desc');
-              const chipsEl = document.getElementById('bz-science-active-chips');
-
-              if (imgEl) {
-                imgEl.src = s.img;
-                imgEl.alt = s.title;
-              }
-              if (codeEl) codeEl.textContent = s.code;
-              if (numEl) numEl.textContent = s.num;
-              if (stageEl) stageEl.textContent = s.stage;
-              if (titleEl) titleEl.textContent = s.title;
-              if (descEl) descEl.textContent = s.desc;
-              if (chipsEl) {
-                chipsEl.innerHTML = s.chips.map((chip, cIdx) => 
-                  `<span class="px-3 py-1.5 rounded-lg ${cIdx === 0 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-[#0A4F78]/10 dark:bg-[#0A4F78]/40 text-[#031827] dark:text-[#F6F5EF]'} text-xs font-bold">${chip}</span>`
-                ).join('');
-              }
-
-              panel.style.opacity = '1';
-            }, 180);
-          }
-        }
-
-        window.BLUEZONE_SCIENCE = { select: selectScience };
-      })();
-
-      // Clinical Formulations Medical Swapper / Slider Controller
-      (function() {
-        let currentIdx = 0;
-        let currentView = 'slider';
-        let startX = 0;
-        let isDragging = false;
-        const isRtl = document.documentElement.getAttribute('dir') === 'rtl';
-
-        const track = document.getElementById('bz-swapper-track');
-        const slides = document.querySelectorAll('.bz-swapper-slide');
-        const dots = document.querySelectorAll('#bz-swapper-dots .bz-dot-indicator');
-        const totalSlides = slides.length;
-
-        function getVisibleCount() {
-          const w = window.innerWidth;
-          if (w < 640) return 1;
-          if (w < 1024) return 2;
-          return 3;
-        }
-
-        function getMaxIndex() {
-          const visible = getVisibleCount();
-          return Math.max(0, totalSlides - visible);
-        }
-
-        function updateSwapper(smooth = true) {
-          if (!track || slides.length === 0) return;
-          const maxIdx = getMaxIndex();
-          if (currentIdx > maxIdx) currentIdx = maxIdx;
-          if (currentIdx < 0) currentIdx = 0;
-
-          const slideWidth = slides[0].getBoundingClientRect().width;
-          const gap = 24; // 1.5rem (gap-6)
-          const offset = currentIdx * (slideWidth + gap);
-
-          track.style.transition = smooth ? 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1)' : 'none';
-          track.style.transform = isRtl ? `translateX(${offset}px)` : `translateX(-${offset}px)`;
-
-          dots.forEach((dot, i) => {
-            if (i === currentIdx) {
-              dot.className = 'bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer w-8 bg-[#67B34A]';
-            } else {
-              dot.className = 'bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer w-2.5 bg-[#0A4F78]/20 dark:bg-white/20';
-            }
-          });
-        }
-
-        function nextSlide() {
-          const maxIdx = getMaxIndex();
-          if (currentIdx < maxIdx) {
-            currentIdx++;
-          } else {
-            currentIdx = 0;
-          }
-          updateSwapper();
-        }
-
-        function prevSlide() {
-          const maxIdx = getMaxIndex();
-          if (currentIdx > 0) {
-            currentIdx--;
-          } else {
-            currentIdx = maxIdx;
-          }
-          updateSwapper();
-        }
-
-        function goToSlide(idx) {
-          const maxIdx = getMaxIndex();
-          currentIdx = Math.min(Math.max(0, idx), maxIdx);
-          updateSwapper();
-        }
-
-        function setView(view) {
-          currentView = view;
-          const swapperContainer = document.getElementById('bz-swapper-container');
-          const gridContainer = document.getElementById('bz-grid-container');
-          const sliderBtn = document.getElementById('bz-view-slider-btn');
-          const gridBtn = document.getElementById('bz-view-grid-btn');
-          const arrows = document.getElementById('bz-swapper-arrows');
-
-          if (view === 'grid') {
-            if (swapperContainer) swapperContainer.classList.add('hidden');
-            if (gridContainer) gridContainer.classList.remove('hidden');
-            if (arrows) arrows.classList.add('hidden');
-
-            if (gridBtn) {
-              gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm';
-            }
-            if (sliderBtn) {
-              sliderBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]';
-            }
-          } else {
-            if (swapperContainer) swapperContainer.classList.remove('hidden');
-            if (gridContainer) gridContainer.classList.add('hidden');
-            if (arrows) arrows.classList.remove('hidden');
-
-            if (sliderBtn) {
-              sliderBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-sm';
-            }
-            if (gridBtn) {
-              gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]';
-            }
-            updateSwapper(false);
-          }
-        }
-
-        // Touch swipe support
-        const viewport = document.getElementById('bz-swapper-viewport');
-        if (viewport) {
-          viewport.addEventListener('touchstart', (e) => {
-            startX = e.touches[0].clientX;
-            isDragging = true;
-          }, { passive: true });
-
-          viewport.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            const endX = e.changedTouches[0].clientX;
-            const diff = endX - startX;
-            if (Math.abs(diff) > 40) {
-              if (isRtl) {
-                if (diff > 0) nextSlide();
-                else prevSlide();
-              } else {
-                if (diff < 0) nextSlide();
-                else prevSlide();
-              }
-            }
-          }, { passive: true });
-        }
-
-        window.addEventListener('resize', () => {
-          if (currentView === 'slider') updateSwapper(false);
-        });
-
-        // Global export
-        window.BLUEZONE_MED_SWAPPER = {
-          next: nextSlide,
-          prev: prevSlide,
-          goTo: goToSlide,
-          setView: setView,
-          refresh: () => updateSwapper(false)
-        };
-
-        // Initialize swapper positioning
-        setTimeout(() => updateSwapper(false), 50);
-      })();
+        })();
     </script>
+
 </x-layouts.customer>

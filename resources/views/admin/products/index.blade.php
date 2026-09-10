@@ -98,7 +98,7 @@
                             $pOfflineStock = $product['stock_offline'] ?? $product->stock_offline ?? 0;
                             $pLowThreshold = $product['low_stock_threshold'] ?? $product->low_stock_threshold ?? 10;
                             $pStatus = $product['status'] ?? $product->status ?? 'active';
-                            $pImage = $product['image'] ?? $product->image ?? 'assets/products/blue-mind.webp';
+                            $pImage = $product['image'] ?? $product->primary_image_url ?? 'assets/products/blue-mind.webp';
                             $isItemTrashed = !empty($product['deleted_at']);
                         @endphp
                         <tr>

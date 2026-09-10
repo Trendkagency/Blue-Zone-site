@@ -16,7 +16,7 @@
   function renderProductCard(p) {
     return `
       <div class="product-slide-card flex-shrink-0 px-1 sm:px-3 transition-all duration-500 ease-out" style="width: ${100 / visibleCount}%;">
-        <div onclick="window.location.href='product.html?id=${p.id}'" class="group relative bg-white dark:bg-[#062B49] rounded-2xl border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm hover:shadow-2xl transition-all duration-300 p-2.5 sm:p-6 flex flex-col justify-between h-full card-hover-lift img-zoom-container cursor-pointer">
+        <div onclick="window.location.href='{{ route('customer.product.show') }}?id=${p.id}'" class="group relative bg-white dark:bg-[#062B49] rounded-2xl border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-sm hover:shadow-2xl transition-all duration-300 p-2.5 sm:p-6 flex flex-col justify-between h-full card-hover-lift img-zoom-container cursor-pointer">
           
           <div class="space-y-2 sm:space-y-4">
             <!-- Header Badges -->
