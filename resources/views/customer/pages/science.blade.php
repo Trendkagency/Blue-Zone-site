@@ -56,7 +56,7 @@
                 @forelse($products as $product)
                     @php
                         $image =
-                            $product->getPrimaryImageUrlAttribute() ?:
+                            $product->image ?:
                             asset('assets/images/products/blue-mind.jpg.png');
 
                         $pSlug = is_array($product) ? $product['slug'] ?? '' : $product->slug ?? '';
