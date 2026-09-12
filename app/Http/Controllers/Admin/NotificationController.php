@@ -123,49 +123,87 @@ class NotificationController extends Controller
     }
 
     /**
-     * Store or refresh the FCM device token for the authenticated user.
+     * Store or refresh the FCM device token for the authenticated user (Multi-device enabled).
      */
     public function updateFcmToken(Request $request): JsonResponse
     {
         $request->validate([
-            'fcm_token' => ['required', 'string'],
-            'device_info' => ['nullable'],
+            'fcm_token'    => ['required', 'string'],
+            'device_type'  => ['nullable', 'string', 'max:50'],
+            'browser'      => ['nullable', 'string', 'max:100'],
+            'os'           => ['nullable', 'string', 'max:100'],
+            'device_info'  => ['nullable'],
         ]);
 
         $user = $request->user() ?? auth()->user();
 
-        if ($user) {
-            $rawDeviceInfo = $request->input('device_info');
-            $deviceInfo = null;
-
-            if (is_array($rawDeviceInfo)) {
-                $deviceInfo = $rawDeviceInfo;
-            } elseif (is_string($rawDeviceInfo) && trim($rawDeviceInfo) !== '') {
-                $decoded = json_decode($rawDeviceInfo, true);
-                $deviceInfo = is_array($decoded) ? $decoded : ['user_agent' => $rawDeviceInfo];
-            } else {
-                $deviceInfo = [
-                    'user_agent' => $request->userAgent() ?: 'Unknown Browser',
-                    'ip'         => $request->ip(),
-                    'linked_at'  => now()->toIso8601String(),
-                ];
-            }
-
-            $user->update([
-                'fcm_token'       => $request->input('fcm_token'),
-                'fcm_device_info' => $deviceInfo,
-            ]);
-
+        if (!$user) {
             return response()->json([
-                'success' => true,
-                'message' => 'FCM token registered successfully.',
-            ]);
+                'success' => false,
+                'message' => 'Unauthenticated user.',
+            ], 401);
         }
 
+        $token = trim((string) $request->input('fcm_token'));
+        $userAgent = (string) ($request->userAgent() ?: 'Unknown Browser');
+
+        // Detect OS and Browser if not explicitly passed
+        $browser = $request->input('browser');
+        $os = $request->input('os');
+        $deviceType = $request->input('device_type') ?: 'desktop';
+
+        if (!$browser) {
+            if (str_contains($userAgent, 'Edg/')) $browser = 'Edge';
+            elseif (str_contains($userAgent, 'Chrome/')) $browser = 'Chrome';
+            elseif (str_contains($userAgent, 'Firefox/')) $browser = 'Firefox';
+            elseif (str_contains($userAgent, 'Safari/')) $browser = 'Safari';
+            else $browser = 'Browser';
+        }
+
+        if (!$os) {
+            if (str_contains($userAgent, 'Windows')) $os = 'Windows';
+            elseif (str_contains($userAgent, 'Macintosh') || str_contains($userAgent, 'Mac OS')) $os = 'macOS';
+            elseif (str_contains($userAgent, 'Android')) { $os = 'Android'; $deviceType = 'mobile'; }
+            elseif (str_contains($userAgent, 'iPhone') || str_contains($userAgent, 'iPad')) { $os = 'iOS'; $deviceType = 'mobile'; }
+            elseif (str_contains($userAgent, 'Linux')) $os = 'Linux';
+            else $os = 'OS';
+        }
+
+        // 1. Multi-Device Registry: Upsert device into user_devices table
+        $device = \App\Models\UserDevice::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'token'   => $token,
+            ],
+            [
+                'device_type'    => $deviceType,
+                'browser'        => $browser,
+                'os'             => $os,
+                'ip_address'     => $request->ip(),
+                'last_active_at' => now(),
+                'is_active'      => true,
+            ]
+        );
+
+        // 2. Backward-Compatibility Sync: Also update users table single token reference
+        $user->update([
+            'fcm_token'       => $token,
+            'fcm_device_info' => [
+                'device_id'   => $device->id,
+                'device_type' => $deviceType,
+                'browser'     => $browser,
+                'os'          => $os,
+                'ip'          => $request->ip(),
+                'user_agent'  => $userAgent,
+                'linked_at'   => now()->toIso8601String(),
+            ],
+        ]);
+
         return response()->json([
-            'success' => false,
-            'message' => 'Unauthenticated user.',
-        ], 401);
+            'success'   => true,
+            'message'   => 'FCM token and device registered successfully.',
+            'device_id' => $device->id,
+        ]);
     }
 
     /**

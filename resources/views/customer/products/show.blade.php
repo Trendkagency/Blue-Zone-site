@@ -38,17 +38,19 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           <!-- Image Gallery Container -->
-          <div class="lg:col-span-6 bg-white dark:bg-[#062B49] rounded-3xl p-8 border border-[#0A4F78]/20 shadow-2xl flex items-center justify-center relative img-zoom-container">
-            <span class="absolute top-6 left-6 text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
-              {{ $pCategory }}
-            </span>
+          <div class="lg:col-span-6 aspect-square rounded-3xl overflow-hidden border border-[#0A4F78]/20 shadow-2xl relative bg-[#031827] group">
             <img 
               id="product-main-img"
               src="{{ $pImage }}" 
               alt="{{ $pName }}" 
               onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" 
-              class="w-full max-h-[450px] object-contain filter drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" 
             />
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+            <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl"></div>
+            <span class="absolute top-6 left-6 z-10 text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-[#031827]/90 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-md border border-white/30 dark:border-[#2A8FC2]/30">
+              {{ $pCategory }}
+            </span>
           </div>
 
           <!-- Product Buy Box -->

@@ -189,7 +189,9 @@ return array(
   'cold_chain_shipping_offer' => 'Cold Chain Shipping Offer',
   'admin_portal' => 'Admin Portal',
   'featured_products' => 'Featured Products',
-  'clinical_formulations' => 'Clinical Formulations',
+  'clinical_formulations' => 'Blue Cells',
+  'clinical_formulation' => 'Blue Cells',
+  'sale' => 'Sale',
   'home' => 'Home',
   'about' => 'About',
   'OUR_SCIENCE' => 'OUR_SCIENCE',
@@ -281,8 +283,9 @@ return array(
 
   'function' => 'FUNCTION',
 
-  'body' => 'BODY',
-  'subscribe' => 'subscribe',
-  'email_address' => 'email address',
-  'email_address_for_longevity_updates' => 'email address for longevity updates',
+  'subscribe' => 'Subscribe',
+  'email_address' => 'Email address',
+  'email_address_for_longevity_updates' => 'Email address for longevity updates',
+  'enter_email_address' => 'Enter your email address...',
+  'newsletter_success' => 'Thank you for subscribing to our longevity research updates.',
 );

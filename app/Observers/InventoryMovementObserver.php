@@ -62,8 +62,8 @@ class InventoryMovementObserver
         if ($title !== null) {
             // 1. Record in Database Notification ledger for Admins
             $admins = User::whereHas('role', function ($q) {
-                $q->whereIn('name', ['Super Admin', 'Admin', 'Manager', 'Inventory Staff']);
-            })->orWhere('role_id', 1)->get();
+                $q->whereIn('name', ['Super Admin', 'super_admin', 'Admin', 'admin', 'Manager', 'Inventory Staff']);
+            })->get();
 
             foreach ($admins as $admin) {
                 $admin->notify(new AdminNotification(
@@ -75,16 +75,22 @@ class InventoryMovementObserver
                 ));
             }
 
-            // 2. Dispatch Real-time Push via Singleton FcmService
-            $fcm = FcmService::getInstance();
-            $fcm->sendToAdmins($title, $body, [
-                'type'             => $notifType,
-                'movement_type'    => $type,
-                'product_id'       => (string) $movement->product_id,
-                'quantity'         => (string) $qty,
-                'movement_number'  => $movement->movement_number,
-                'action_url'       => $actionUrl,
-            ]);
+            // 2. Dispatch Asynchronous Real-time Push via Queue with transaction safety (afterCommit)
+            \App\Jobs\SendBulkFcmPushJob::dispatch(
+                $title,
+                $body,
+                [
+                    'type'             => $notifType,
+                    'movement_type'    => $type,
+                    'product_id'       => (string) $movement->product_id,
+                    'quantity'         => (string) $qty,
+                    'movement_number'  => $movement->movement_number,
+                    'action_url'       => $actionUrl,
+                    'icon'             => $icon,
+                ],
+                'roles',
+                ['Super Admin', 'super_admin', 'Admin', 'admin', 'Manager', 'Inventory Staff']
+            )->afterCommit();
 
             Log::info("InventoryMovementObserver: Processed {$type} movement #{$movement->id} for {$productName}.");
         }

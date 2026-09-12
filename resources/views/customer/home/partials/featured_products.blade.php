@@ -130,37 +130,30 @@
                             PRODUCT IMAGE
                         ================================================== --}}
                                 <a href="{{ $productUrl }}"
-                                    class="relative block aspect-[4/3] overflow-hidden bg-white dark:bg-[#062B49]"
+                                    class="relative block aspect-[4/3] overflow-hidden bg-[#031827]"
                                     aria-label="{{ $productName }}">
 
-                                    {{-- Scientific grid --}}
-                                    <div aria-hidden="true" class="pointer-events-none absolute inset-0 opacity-20"
-                                        style="background-image: linear-gradient(rgba(42,143,194,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(42,143,194,.15) 1px, transparent 1px); background-size: 32px 32px;">
-                                    </div>
-
-
-                                    {{-- Product image --}}
+                                    {{-- Product image edge-to-edge --}}
                                     <img src="{{ $image }}" alt="{{ $productName }}" width="600"
                                         height="450" loading="lazy" decoding="async"
-                                        class="relative z-10 h-full w-full object-contain p-8 transition-transform duration-500 ease-out group-hover:scale-105"
+                                        class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
                                         onerror="this.onerror=null;this.src='{{ asset('assets/products/blue-mind.webp') }}';">
 
+                                    {{-- Ambient gradient & glass ring --}}
+                                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/60 via-transparent to-black/20"></div>
+                                    <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10"></div>
 
                                     {{-- Clinical formulation badge --}}
                                     <div
-                                        class="absolute left-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-lg border border-[#2A8FC2]/20 bg-white/95 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#0A4F78] shadow-sm backdrop-blur dark:border-[#2A8FC2]/40 dark:bg-[#031827]/90 dark:text-[#2A8FC2]">
-
+                                        class="absolute left-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/90 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#0A4F78] shadow-md backdrop-blur-md dark:border-[#2A8FC2]/40 dark:bg-[#031827]/90 dark:text-[#2A8FC2]">
                                         <i class="fa-solid fa-flask-vial" aria-hidden="true"></i>
-
                                         {{ __('app.clinical_formulation') }}
-
                                     </div>
-
 
                                     {{-- Sale badge --}}
                                     @if ($hasSale)
                                         <div
-                                            class="absolute right-4 top-4 z-20 rounded-lg bg-[#67B34A] px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-white">
+                                            class="absolute right-4 top-4 z-20 rounded-lg bg-[#67B34A] px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-md">
                                             {{ __('app.sale') }}
                                         </div>
                                     @endif

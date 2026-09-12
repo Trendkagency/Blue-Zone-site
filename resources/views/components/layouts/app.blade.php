@@ -79,6 +79,10 @@
 
     <!-- Global Dynamic Typography Engine -->
     @include('partials.fonts')
+
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="{{ asset('vendor/swiper/swiper-bundle.min.css') }}">
+    @stack('styles')
 </head>
 <body class="bg-[#F6F5EF] text-[#031827] dark:bg-[#031827] dark:text-[#F6F5EF] transition-colors duration-300 antialiased selection:bg-[#0A4F78] selection:text-white {{ $bodyClass ?? '' }}">
     {{ $slot }}
@@ -132,6 +136,9 @@
     <script defer src="{{ asset('js/app.js') }}"></script>
 
     <x-toast />
+
+    <!-- Swiper JS -->
+    <script src="{{ asset('vendor/swiper/swiper-bundle.min.js') }}"></script>
 
     @stack('scripts')
 </body>

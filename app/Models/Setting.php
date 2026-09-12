@@ -208,4 +208,108 @@ class Setting extends Model
 
         return 'string';
     }
+
+    /**
+     * Get configured social media links for the storefront.
+     * Returns only platforms that have non-empty URLs saved by the admin.
+     *
+     * @return array<string, array{name: string, icon: string, color: string, url: string}>
+     */
+    public static function getSocialLinks(): array
+    {
+        $definitions = [
+            'instagram' => [
+                'name' => 'Instagram',
+                'action' => 'Follow on Instagram',
+                'icon' => 'fa-brands fa-instagram',
+                'color' => '#E1306C',
+                'gradient' => 'linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #F77737 100%)',
+                'shadow' => 'rgba(225, 48, 108, 0.45)',
+            ],
+            'x' => [
+                'name' => 'X',
+                'action' => 'Follow on X',
+                'icon' => 'fa-brands fa-x-twitter',
+                'color' => '#111111',
+                'gradient' => 'linear-gradient(135deg, #2A2A2A 0%, #000000 100%)',
+                'shadow' => 'rgba(0, 0, 0, 0.4)',
+            ],
+            'facebook' => [
+                'name' => 'Facebook',
+                'action' => 'Follow on Facebook',
+                'icon' => 'fa-brands fa-facebook-f',
+                'color' => '#1877F2',
+                'gradient' => 'linear-gradient(135deg, #1877F2 0%, #0D65D9 100%)',
+                'shadow' => 'rgba(24, 119, 242, 0.45)',
+            ],
+            'linkedin' => [
+                'name' => 'LinkedIn',
+                'action' => 'Connect on LinkedIn',
+                'icon' => 'fa-brands fa-linkedin-in',
+                'color' => '#0A66C2',
+                'gradient' => 'linear-gradient(135deg, #0A66C2 0%, #004182 100%)',
+                'shadow' => 'rgba(10, 102, 194, 0.45)',
+            ],
+            'youtube' => [
+                'name' => 'YouTube',
+                'action' => 'Subscribe on YouTube',
+                'icon' => 'fa-brands fa-youtube',
+                'color' => '#FF0000',
+                'gradient' => 'linear-gradient(135deg, #FF0000 0%, #CC0000 100%)',
+                'shadow' => 'rgba(255, 0, 0, 0.45)',
+            ],
+            'tiktok' => [
+                'name' => 'TikTok',
+                'action' => 'Follow on TikTok',
+                'icon' => 'fa-brands fa-tiktok',
+                'color' => '#010101',
+                'gradient' => 'linear-gradient(135deg, #00F2FE 0%, #000000 50%, #FE2C55 100%)',
+                'shadow' => 'rgba(254, 44, 85, 0.45)',
+            ],
+            'snapchat' => [
+                'name' => 'Snapchat',
+                'action' => 'Add on Snapchat',
+                'icon' => 'fa-brands fa-snapchat',
+                'color' => '#EAA300',
+                'gradient' => 'linear-gradient(135deg, #FFFC00 0%, #EAA300 100%)',
+                'shadow' => 'rgba(234, 163, 0, 0.45)',
+            ],
+            'telegram' => [
+                'name' => 'Telegram',
+                'action' => 'Join on Telegram',
+                'icon' => 'fa-brands fa-telegram',
+                'color' => '#24A1DE',
+                'gradient' => 'linear-gradient(135deg, #24A1DE 0%, #1783B8 100%)',
+                'shadow' => 'rgba(36, 161, 222, 0.45)',
+            ],
+            'whatsapp' => [
+                'name' => 'WhatsApp',
+                'action' => 'Chat on WhatsApp',
+                'icon' => 'fa-brands fa-whatsapp',
+                'color' => '#25D366',
+                'gradient' => 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
+                'shadow' => 'rgba(37, 211, 102, 0.45)',
+            ],
+            'pinterest' => [
+                'name' => 'Pinterest',
+                'action' => 'Follow on Pinterest',
+                'icon' => 'fa-brands fa-pinterest-p',
+                'color' => '#BD081C',
+                'gradient' => 'linear-gradient(135deg, #BD081C 0%, #8C0010 100%)',
+                'shadow' => 'rgba(189, 8, 28, 0.45)',
+            ],
+        ];
+
+        $active = [];
+        foreach ($definitions as $key => $meta) {
+            $val = static::get("social_{$key}", '');
+            $url = is_string($val) ? trim($val) : '';
+            if ($url !== '') {
+                $meta['url'] = $url;
+                $active[$key] = $meta;
+            }
+        }
+
+        return $active;
+    }
 }

@@ -34,6 +34,18 @@ class HomeController extends Controller
         }
         $scienceProducts = $dbProducts->isNotEmpty() ? $dbProducts : collect(ProductViewModel::all());
 
+        if ($dbProducts->isNotEmpty()) {
+            $dbNew = $dbProducts->filter(fn($p) => ($p->is_new ?? false) || in_array($p->slug, ['blue-cell', 'blue-metabolic', 'blue-defense', 'blue-vitality', 'blue-mind', 'blue-gut']));
+            if ($dbNew->count() < 4) {
+                $dbNew = $dbProducts;
+            }
+            if ($dbNew->isNotEmpty()) {
+                $newArrivals = $dbNew->values()->all();
+            }
+        } elseif (count($newArrivals) < 6) {
+            $newArrivals = $allProducts;
+        }
+
         $defaults = \App\View\ViewModels\SettingViewModel::all();
         $saved = \App\Models\Setting::getAll();
         $settings = array_merge($defaults, $saved);

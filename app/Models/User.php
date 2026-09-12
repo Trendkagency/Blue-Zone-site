@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -27,6 +28,31 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    /**
+     * Get the registered FCM devices for this user.
+     */
+    public function devices(): HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Get all active FCM device tokens for this user.
+     * Combines user_devices tokens with fallback to users.fcm_token.
+     *
+     * @return array<string>
+     */
+    public function getActiveFcmTokens(): array
+    {
+        $tokens = $this->devices()->where('is_active', true)->pluck('token')->toArray();
+
+        if (!empty($this->fcm_token) && !in_array($this->fcm_token, $tokens, true)) {
+            $tokens[] = $this->fcm_token;
+        }
+
+        return array_unique(array_filter($tokens));
     }
 
     /**

@@ -698,9 +698,9 @@
 
     <!-- BLUE ZONE Footer Component -->
     <footer role="contentinfo"
-        class="bg-[#031827] text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/30 transition-colors duration-300">
+        class="bg-[#F6F5EF] dark:bg-[#031827] text-[#031827] dark:text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/20">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/20">
                 <!-- Brand Summary -->
                 <div class="lg:col-span-4 space-y-6">
                     <a href="{{ route('customer.home') }}" class="flex items-center gap-3">
@@ -713,80 +713,121 @@
                             </svg>
                         </div>
                         <div class="flex flex-col">
-                            <span class="text-2xl font-black tracking-[0.2em] text-white">BLUE ZONE</span>
+                            <span class="text-2xl font-black tracking-[0.2em] text-[#031827] dark:text-white">BLUE ZONE</span>
                             <span
-                                class="text-[10px] uppercase tracking-[0.3em] text-[#2A8FC2] font-semibold -mt-1">LONGEVITY
+                                class="text-[10px] uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2] font-semibold -mt-1">LONGEVITY
                                 SCIENCE</span>
                         </div>
                     </a>
 
-                    <p class="text-xs text-[#E8DCC4] leading-relaxed font-medium max-w-sm">
-                        BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and
-                        biological resilience of the world’s longest-lived communities.
+                    <p class="text-xs text-[#1E293B] dark:text-[#E2E8F0] leading-relaxed font-medium max-w-sm">
+                        {{ app()->getLocale() === 'ar' ? 'تبتكر بلو زون تركيبات غذائية مدعومة بالأبحاث السريرية مستوحاة من نمط الحياة والمرونة البيولوجية لأطول المجتمعات عمراً في العالم.' : 'BLUE ZONE formulates science-backed dietary supplements inspired by the lifestyle, diet, and biological resilience of the world’s longest-lived communities.' }}
                     </p>
 
                     <button onclick="if(window.BLUEZONE_MAP){window.BLUEZONE_MAP.replay();}"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#0A4F78] text-xs uppercase font-bold tracking-widest text-[#2A8FC2] hover:bg-[#0A4F78]/30 transition-colors cursor-pointer min-h-[44px]">
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-[#0A4F78]/30 dark:border-[#0A4F78] text-xs uppercase font-bold tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] bg-white/70 dark:bg-transparent hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer min-h-[44px]">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        REPLAY WORLD MAP INTRO
+                        {{ app()->getLocale() === 'ar' ? 'إعادة عرض خريطة العالم' : 'REPLAY WORLD MAP INTRO' }}
                     </button>
+
+                    <!-- Dynamic Admin-Controlled Social Media Channels -->
+                    @php
+                        $footerSocialLinks = \App\Models\Setting::getSocialLinks();
+                    @endphp
+                    @if(!empty($footerSocialLinks))
+                        <div class="pt-3">
+                            <h4 class="text-[10px] uppercase font-extrabold tracking-[0.25em] text-[#0A4F78] dark:text-[#2A8FC2] mb-3.5 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#67B34A] animate-pulse"></span>
+                                {{ app()->getLocale() == 'ar' ? 'تابعنا على وسائل التواصل' : 'CONNECT & FOLLOW' }}
+                            </h4>
+                            <div class="flex items-center flex-wrap gap-3">
+                                @foreach($footerSocialLinks as $sKey => $sItem)
+                                    <a href="{{ $sItem['url'] }}" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer" 
+                                       aria-label="{{ $sItem['name'] }}"
+                                       class="bz-footer-social-link group"
+                                       style="--bz-brand-color: {{ $sItem['color'] }}; --bz-brand-gradient: {{ $sItem['gradient'] }}; --bz-brand-shadow: {{ $sItem['shadow'] }};">
+                                        <i class="{{ $sItem['icon'] }}"></i>
+                                        <span class="bz-social-tooltip">{{ $sItem['action'] }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Quick Links -->
                 <div class="lg:col-span-2 space-y-4">
-                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">EXPLORE</h3>
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#0A4F78] dark:text-[#2A8FC2]">
+                        {{ app()->getLocale() === 'ar' ? 'استكشف' : 'EXPLORE' }}
+                    </h3>
                     <ul class="space-y-1 text-xs font-semibold">
                         <li><a href="{{ route('customer.home') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Home</a>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.home') ?? 'Home' }}
+                            </a>
                         </li>
                         <li><a href="{{ route('customer.pages.science') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Our
-                                Science</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.science') ?? 'Our Science' }}
+                            </a></li>
                         <li><a href="{{ route('customer.products') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Products
-                                Overview</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.products') ?? 'Products Overview' }}
+                            </a></li>
                         <li><a href="{{ route('customer.pages.team') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Meet
-                                the Team</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.team') ?? 'Meet the Team' }}
+                            </a></li>
                         <li><a href="{{ route('customer.shop') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Shop
-                                Catalog</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.shop') ?? 'Shop Catalog' }}
+                            </a></li>
                         <li><a href="{{ route('customer.pages.blog') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Longevity
-                                Journal</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.blog') ?? 'Longevity Journal' }}
+                            </a></li>
                         <li><a href="{{ route('customer.pages.contact') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Contact
-                                Us</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.contact') ?? 'Contact Us' }}
+                            </a></li>
                     </ul>
                 </div>
 
                 <!-- Support & Legal -->
                 <div class="lg:col-span-2 space-y-4">
-                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">SUPPORT & LEGAL</h3>
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#0A4F78] dark:text-[#2A8FC2]">
+                        {{ app()->getLocale() === 'ar' ? 'الدعم والشروط' : 'SUPPORT & LEGAL' }}
+                    </h3>
                     <ul class="space-y-1 text-xs font-semibold">
                         <li><a href="{{ route('customer.pages.faqs') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Frequently
-                                Asked Questions</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ __('app.nav.faqs') ?? 'Frequently Asked Questions' }}
+                            </a></li>
                         <li><a href="{{ route('customer.pages.privacy') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Privacy
-                                Policy</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ app()->getLocale() === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy' }}
+                            </a></li>
                         <li><a href="{{ route('customer.pages.terms') }}"
-                                class="text-[#F6F5EF] hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">Terms
-                                of Service</a></li>
+                                class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
+                                {{ app()->getLocale() === 'ar' ? 'شروط الخدمة' : 'Terms of Service' }}
+                            </a></li>
                     </ul>
                 </div>
 
                 <!-- Newsletter Box -->
                 <div class="lg:col-span-4 space-y-4">
-                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#2A8FC2]">JOIN THE BLUE ZONE</h3>
-                    <p class="text-xs text-[#E8DCC4] leading-relaxed font-medium">
-                        Subscribe to receive longevity research whitepapers, clinical updates, and priority product
-                        access.
+                    <h3 class="text-xs uppercase font-bold tracking-[0.2em] text-[#0A4F78] dark:text-[#2A8FC2]">
+                        {{ app()->getLocale() === 'ar' ? 'انضم إلى مجتمع بلو زون' : 'JOIN THE BLUE ZONE' }}
+                    </h3>
+                    <p class="text-xs text-[#1E293B] dark:text-[#E2E8F0] leading-relaxed font-medium">
+                        {{ app()->getLocale() === 'ar' ? 'اشترك لتصلك أحدث أبحاث طول العمر والتحديثات السريرية وأولوية الوصول للتركيبات الجديدة.' : 'Subscribe to receive longevity research whitepapers, clinical updates, and priority product access.' }}
                     </p>
 
                     <form
@@ -801,42 +842,40 @@
                             inputmode="email" dir="ltr" placeholder="{{ __('app.enter_email_address') }}"
                             required
                             class="w-full min-h-[44px]
-               bg-[#062B49]
-               border border-[#0A4F78]
-               text-white
-               placeholder-[#E8DCC4]
-               py-3 px-4
-               text-xs
-               rounded-xl
-               sm:ltr:rounded-r-none
-               sm:rtl:rounded-l-none
-               focus:outline-none
-               focus:ring-2
-               focus:ring-[#2A8FC2]/40
-               focus:border-[#2A8FC2]
-               transition-colors" />
+                bg-white dark:bg-[#062B49]
+                border border-[#0A4F78]/30 dark:border-[#0A4F78]
+                text-[#031827] dark:text-white
+                placeholder-[#64748B] dark:placeholder-[#94A3B8]
+                py-3 px-4
+                text-xs font-medium
+                rounded-xl
+                sm:ltr:rounded-r-none
+                sm:rtl:rounded-l-none
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#0A4F78]/30 dark:focus:ring-[#2A8FC2]/40
+                focus:border-[#0A4F78] dark:focus:border-[#2A8FC2]
+                transition-colors" />
 
                         <button type="submit"
                             class="bg-[#0A4F78]
-               hover:bg-[#2A8FC2]
-               text-white
-               px-6 py-3
-               rounded-xl
-               sm:ltr:rounded-l-none
-               sm:rtl:rounded-r-none
-               text-xs
-               font-extrabold
-               uppercase
-               tracking-widest
-               transition-colors
-               cursor-pointer
-               whitespace-nowrap
-               min-h-[44px]
-               focus:outline-none
-               focus:ring-2
-               focus:ring-[#2A8FC2]/50
-               focus:ring-offset-2
-               focus:ring-offset-[#062B49]">
+                hover:bg-[#062B49] dark:hover:bg-[#2A8FC2]
+                text-white
+                px-6 py-3
+                rounded-xl
+                sm:ltr:rounded-l-none
+                sm:rtl:rounded-r-none
+                text-xs
+                font-extrabold
+                uppercase
+                tracking-widest
+                transition-colors
+                cursor-pointer
+                whitespace-nowrap
+                min-h-[44px]
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#0A4F78]/50">
                             {{ __('app.subscribe') }}
                         </button>
                     </form>
@@ -844,13 +883,15 @@
                 </div>
             </div>
 
-            <!-- Bottom Legal Disclaimer -->
+            <!-- Bottom Legal Disclaimer Bar -->
             <div
-                class="pt-8 flex flex-col sm:flex-row justify-between items-center text-[11px] text-[#E8DCC4] space-y-4 sm:space-y-0">
-                <p>© 2026 BLUE ZONE Longevity Inc. All rights reserved.</p>
-                <p class="max-w-md text-center sm:text-right text-[#E8DCC4]">
-                    *These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat,
-                    cure, or prevent any disease.
+                class="pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-[#475569] dark:text-[#94A3B8] gap-4">
+                <p class="font-medium">© {{ date('Y') }} BLUE ZONE Longevity Inc. {{ app()->getLocale() === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.' }}</p>
+
+                <p class="max-w-xl text-center md:text-right rtl:md:text-left text-[11px] leading-relaxed text-[#64748B] dark:text-[#94A3B8]">
+                    {{ app()->getLocale() === 'ar' 
+                        ? '*هذه البيانات لم تخضع لتقييم إدارة الغذاء والدواء الأمريكية (FDA). المنتجات غير مخصصة لتشخيص أو علاج أو شفاء أو منع أي مرض.' 
+                        : '*These statements have not been evaluated by the FDA. Products are not intended to diagnose, treat, cure, or prevent any disease.' }}
                 </p>
             </div>
         </div>
@@ -913,7 +954,7 @@
                 <div id="free-shipping-text"
                     class="flex items-center gap-2 text-xs font-bold text-[#031827] dark:text-[#F6F5EF]">
                     <i class="fa-solid fa-truck-fast text-[#0A4F78] dark:text-[#2A8FC2]"></i>
-                    <span>Add .00 more for FREE EXPRESS SHIPPING</span>
+                    <span>Add $75.00 more for FREE EXPRESS SHIPPING</span>
                 </div>
                 <div class="w-full h-1.5 bg-[#031827]/10 dark:bg-black/30 rounded-full overflow-hidden">
                     <div id="free-shipping-bar"
@@ -947,71 +988,7 @@
                     class="flex justify-between items-baseline text-base sm:text-lg font-black text-[#031827] dark:text-white">
                     <span>{{ app()->getLocale() === 'ar' ? 'المجموع الفرعي' : 'SUBTOTAL' }}</span>
                     <span id="cart-subtotal"
-                        class="text-[#0A4F78] dark:text-[#2A8FC2] tracking-tight text-xl"><!-- Cart Drawer -->
-                        <div id="cart-drawer"
-                            class="hidden fixed inset-0 z-[9995] justify-end bg-black/60 backdrop-blur-sm"
-                            role="dialog" aria-modal="true" aria-label="Shopping Cart">
-                            <div class="absolute inset-0" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}">
-                            </div>
-                            <div
-                                class="relative w-full max-w-md bg-[#F6F5EF] dark:bg-[#031827] h-full shadow-2xl flex flex-col justify-between z-10 border-l border-[#0A4F78]/20">
-                                <div
-                                    class="p-6 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <svg class="w-5 h-5 text-[#0A4F78] dark:text-[#2A8FC2]" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                        </svg>
-                                        <h2
-                                            class="text-lg font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF]">
-                                            YOUR CART</h2>
-                                    </div>
-                                    <button onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}"
-                                        aria-label="Close cart drawer"
-                                        class="p-2 rounded-full hover:bg-[#0A4F78]/10 text-[#031827] dark:text-white cursor-pointer"><i
-                                            class="fa-solid fa-xmark"></i></button>
-                                </div>
-
-                                <div
-                                    class="px-6 py-3 bg-[#E8DCC4]/50 dark:bg-[#062B49] border-b border-[#0A4F78]/10 space-y-2">
-                                    <div id="free-shipping-text"
-                                        class="flex items-center gap-2 text-xs font-bold text-[#031827] dark:text-[#F6F5EF]">
-                                        Add $75.00 more for FREE EXPRESS SHIPPING
-                                    </div>
-                                    <div
-                                        class="w-full h-1.5 bg-[#031827]/10 dark:bg-black/30 rounded-full overflow-hidden">
-                                        <div id="free-shipping-bar"
-                                            class="h-full bg-gradient-to-r from-[#0A4F78] to-[#67B34A] transition-all duration-500"
-                                            style="width: 0%;"></div>
-                                    </div>
-                                </div>
-
-                                <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-
-                                <div class="p-6 bg-white dark:bg-[#062B49] border-t border-[#0A4F78]/20 space-y-3">
-                                    <div
-                                        class="flex justify-between text-base font-black text-[#031827] dark:text-white">
-                                        <span>SUBTOTAL</span>
-                                        <span id="cart-subtotal"
-                                            class="text-[#0A4F78] dark:text-[#2A8FC2]">$0.00</span>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <a href="{{ route('customer.cart') }}"
-                                            class="flex-1 py-3.5 rounded-xl border border-[#0A4F78]/30 hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-xs uppercase font-black tracking-wider flex items-center justify-center gap-1.5 transition-all">
-                                            <i class="fa-solid fa-cart-shopping"></i> VIEW CART
-                                        </a>
-                                        <a href="{{ route('customer.checkout') }}"
-                                            class="flex-1 py-3.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-black tracking-wider shadow-lg flex items-center justify-center gap-1.5 transition-all btn-sheen">
-                                            CHECKOUT <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Wishlist Drawer -->.00
-                    </span>
+                        class="text-[#0A4F78] dark:text-[#2A8FC2] tracking-tight text-xl">$0.00</span>
                 </div>
 
                 <!-- Action CTAs -->

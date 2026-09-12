@@ -222,6 +222,213 @@
                         />
                     </div>
                 </div>
+
+                <!-- Storefront Footer Social Media Channels & Links -->
+                <div id="section-setting-social" style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div>
+                            <h4 style="font-size: 1rem; font-weight: 800; margin: 0; color: var(--color-text); display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="width: 28px; height: 28px; border-radius: 8px; background: rgba(10,79,120,0.12); color: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; font-size: 0.875rem;">
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                </span>
+                                {{ app()->getLocale() == 'ar' ? 'روابط مواقع التواصل الاجتماعي في الفوتر (Storefront Footer Social Links)' : 'Storefront Footer Social Media Links' }}
+                            </h4>
+                            <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0.35rem 0 0 0;">
+                                {{ app()->getLocale() == 'ar' ? 'تحكم كامل بروابط التواصل في فوتر المتجر. أي منصة تضع رابطها ستظهر تلقائياً بأيقونتها الرسمية، والحقول المتروكة فارغة لن تظهر نهائياً.' : 'Full control over footer social channels. Any platform with a URL will dynamically appear in the footer with its brand icon. Blank fields remain hidden.' }}
+                            </p>
+                        </div>
+                        <span class="badge badge-primary font-mono text-xs px-2.5 py-1" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-bolt text-warning"></i>
+                            {{ app()->getLocale() == 'ar' ? 'تحكم ديناميكي 100%' : '100% Dynamic' }}
+                        </span>
+                    </div>
+
+                    <!-- Interactive Live Preview Strip -->
+                    <div style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--color-surface-hover, rgba(10, 79, 120, 0.04)); border: 1px dashed var(--color-border); border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 34px; height: 34px; border-radius: 50%; background: rgba(103,179,74,0.15); color: #67B34A; display: flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">
+                                    {{ app()->getLocale() == 'ar' ? 'معاينة حية لأيقونات الفوتر النشطة' : 'Live Footer Icons Preview' }}
+                                </div>
+                                <div style="font-size: 0.75rem; color: var(--color-text-muted);">
+                                    {{ app()->getLocale() == 'ar' ? 'الأيقونات المضاءة هي ما سيظهر لزوار المتجر' : 'Highlighted icons are currently active on the storefront' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="social-live-preview" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                            @php
+                                $previewList = [
+                                    'social_instagram' => ['icon' => 'fa-brands fa-instagram', 'name' => 'Instagram', 'color' => '#E1306C'],
+                                    'social_x' => ['icon' => 'fa-brands fa-x-twitter', 'name' => 'X', 'color' => '#111111'],
+                                    'social_facebook' => ['icon' => 'fa-brands fa-facebook-f', 'name' => 'Facebook', 'color' => '#1877F2'],
+                                    'social_linkedin' => ['icon' => 'fa-brands fa-linkedin-in', 'name' => 'LinkedIn', 'color' => '#0A66C2'],
+                                    'social_youtube' => ['icon' => 'fa-brands fa-youtube', 'name' => 'YouTube', 'color' => '#FF0000'],
+                                    'social_tiktok' => ['icon' => 'fa-brands fa-tiktok', 'name' => 'TikTok', 'color' => '#111111'],
+                                    'social_snapchat' => ['icon' => 'fa-brands fa-snapchat', 'name' => 'Snapchat', 'color' => '#EAA300'],
+                                    'social_telegram' => ['icon' => 'fa-brands fa-telegram', 'name' => 'Telegram', 'color' => '#24A1DE'],
+                                    'social_whatsapp' => ['icon' => 'fa-brands fa-whatsapp', 'name' => 'WhatsApp', 'color' => '#25D366'],
+                                    'social_pinterest' => ['icon' => 'fa-brands fa-pinterest-p', 'name' => 'Pinterest', 'color' => '#BD081C'],
+                                ];
+                            @endphp
+                            @foreach($previewList as $sKey => $sMeta)
+                                @php $hasVal = !empty(trim($settings[$sKey] ?? '')); @endphp
+                                <span id="badge_{{ $sKey }}" 
+                                      title="{{ $sMeta['name'] }}"
+                                      data-active-color="{{ $sMeta['color'] }}"
+                                      style="width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.25s; {{ $hasVal ? 'background: #031827; color: '.$sMeta['color'].'; border: 1px solid rgba(10,79,120,0.5); opacity: 1; transform: scale(1);' : 'background: rgba(0,0,0,0.05); color: #94A3B8; border: 1px dashed rgba(0,0,0,0.15); opacity: 0.45;' }}">
+                                    <i class="{{ $sMeta['icon'] }}"></i>
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Social Inputs Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                        <!-- Instagram -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-instagram" style="color: #E1306C; font-size: 1.15rem;"></i>
+                                <span>Instagram</span>
+                            </label>
+                            <input type="url" name="social_instagram" id="input_social_instagram"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_instagram"
+                                   value="{{ $settings['social_instagram'] ?? '' }}"
+                                   placeholder="https://instagram.com/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- X / Twitter -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-x-twitter" style="color: #111111; font-size: 1.15rem;"></i>
+                                <span>X (Twitter)</span>
+                            </label>
+                            <input type="url" name="social_x" id="input_social_x"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_x"
+                                   value="{{ $settings['social_x'] ?? '' }}"
+                                   placeholder="https://x.com/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- Facebook -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-facebook-f" style="color: #1877F2; font-size: 1.15rem;"></i>
+                                <span>Facebook</span>
+                            </label>
+                            <input type="url" name="social_facebook" id="input_social_facebook"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_facebook"
+                                   value="{{ $settings['social_facebook'] ?? '' }}"
+                                   placeholder="https://facebook.com/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- LinkedIn -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-linkedin-in" style="color: #0A66C2; font-size: 1.15rem;"></i>
+                                <span>LinkedIn</span>
+                            </label>
+                            <input type="url" name="social_linkedin" id="input_social_linkedin"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_linkedin"
+                                   value="{{ $settings['social_linkedin'] ?? '' }}"
+                                   placeholder="https://linkedin.com/company/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- YouTube -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-youtube" style="color: #FF0000; font-size: 1.15rem;"></i>
+                                <span>YouTube</span>
+                            </label>
+                            <input type="url" name="social_youtube" id="input_social_youtube"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_youtube"
+                                   value="{{ $settings['social_youtube'] ?? '' }}"
+                                   placeholder="https://youtube.com/@bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- TikTok -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-tiktok" style="color: #111111; font-size: 1.15rem;"></i>
+                                <span>TikTok</span>
+                            </label>
+                            <input type="url" name="social_tiktok" id="input_social_tiktok"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_tiktok"
+                                   value="{{ $settings['social_tiktok'] ?? '' }}"
+                                   placeholder="https://tiktok.com/@bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- Snapchat -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-snapchat" style="color: #EAA300; font-size: 1.15rem;"></i>
+                                <span>Snapchat</span>
+                            </label>
+                            <input type="url" name="social_snapchat" id="input_social_snapchat"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_snapchat"
+                                   value="{{ $settings['social_snapchat'] ?? '' }}"
+                                   placeholder="https://snapchat.com/add/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- Telegram -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-telegram" style="color: #24A1DE; font-size: 1.15rem;"></i>
+                                <span>Telegram</span>
+                            </label>
+                            <input type="url" name="social_telegram" id="input_social_telegram"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_telegram"
+                                   value="{{ $settings['social_telegram'] ?? '' }}"
+                                   placeholder="https://t.me/bluezone"
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- WhatsApp Channel / Group -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-whatsapp" style="color: #25D366; font-size: 1.15rem;"></i>
+                                <span>WhatsApp Channel / Group</span>
+                            </label>
+                            <input type="url" name="social_whatsapp" id="input_social_whatsapp"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_whatsapp"
+                                   value="{{ $settings['social_whatsapp'] ?? '' }}"
+                                   placeholder="https://whatsapp.com/channel/... or https://wa.me/..."
+                                   dir="ltr" />
+                        </div>
+
+                        <!-- Pinterest -->
+                        <div>
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                                <i class="fa-brands fa-pinterest-p" style="color: #BD081C; font-size: 1.15rem;"></i>
+                                <span>Pinterest</span>
+                            </label>
+                            <input type="url" name="social_pinterest" id="input_social_pinterest"
+                                   class="form-control social-setting-input"
+                                   data-target="badge_social_pinterest"
+                                   value="{{ $settings['social_pinterest'] ?? '' }}"
+                                   placeholder="https://pinterest.com/bluezone"
+                                   dir="ltr" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2952,6 +3159,32 @@
                 el.addEventListener('change', updateCurrencyPreview);
                 el.addEventListener('input', updateCurrencyPreview);
             }
+        });
+
+        // Dynamic Social Media Preview in Admin
+        document.querySelectorAll('.social-setting-input').forEach(input => {
+            const updateBadge = () => {
+                const targetId = input.getAttribute('data-target');
+                const badge = document.getElementById(targetId);
+                if (!badge) return;
+                const val = input.value.trim();
+                const activeColor = badge.getAttribute('data-active-color') || '#0A4F78';
+                if (val.length > 0) {
+                    badge.style.background = '#031827';
+                    badge.style.color = activeColor;
+                    badge.style.border = '1px solid rgba(10,79,120,0.5)';
+                    badge.style.opacity = '1';
+                    badge.style.transform = 'scale(1.05)';
+                } else {
+                    badge.style.background = 'rgba(0,0,0,0.05)';
+                    badge.style.color = '#94A3B8';
+                    badge.style.border = '1px dashed rgba(0,0,0,0.15)';
+                    badge.style.opacity = '0.45';
+                    badge.style.transform = 'scale(1)';
+                }
+            };
+            input.addEventListener('input', updateBadge);
+            input.addEventListener('change', updateBadge);
         });
 
         // Open specific tab from URL hash if provided (e.g. #tab-fcm)

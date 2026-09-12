@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
+use App\Jobs\SendBulkFcmPushJob;
 use App\Models\InventoryItem;
 use App\Models\User;
 use App\Notifications\AdminNotification;
-use App\Services\FcmService;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -25,10 +25,6 @@ class InventoryItemObserver
         if (!$item->wasChanged('current_stock') && !$item->wasChanged('low_stock_threshold') && !$item->wasRecentlyCreated) {
             return;
         }
-
-
-
-
 
         $product = $item->product;
         $productName = $product ? $product->name_en : 'Product #' . $item->product_id;
@@ -55,8 +51,8 @@ class InventoryItemObserver
 
             // 1. Dispatch in-app Database Notification to Admin Operators
             $admins = User::whereHas('role', function ($q) {
-                $q->whereIn('name', ['Super Admin', 'Admin', 'Manager', 'Inventory Staff']);
-            })->orWhere('role_id', 1)->get();
+                $q->whereIn('name', ['Super Admin', 'super_admin', 'Admin', 'admin', 'Manager', 'Inventory Staff']);
+            })->get();
 
             foreach ($admins as $admin) {
                 $admin->notify(new AdminNotification(
@@ -68,15 +64,21 @@ class InventoryItemObserver
                 ));
             }
 
-            // 2. Dispatch Realtime FCM Push via Singleton FcmService
-            $fcm = FcmService::getInstance();
-            $fcm->sendToAdmins($title, $body, [
-                'type'       => 'stock',
-                'product_id' => (string) $item->product_id,
-                'stock'      => (string) $stock,
-                'threshold'  => (string) $threshold,
-                'action_url' => $actionUrl,
-            ]);
+            // 2. Dispatch Realtime FCM Push via Asynchronous Background Job with transaction safety (afterCommit)
+            SendBulkFcmPushJob::dispatch(
+                $title,
+                $body,
+                [
+                    'type'       => 'stock',
+                    'product_id' => (string) $item->product_id,
+                    'stock'      => (string) $stock,
+                    'threshold'  => (string) $threshold,
+                    'action_url' => $actionUrl,
+                    'icon'       => $icon,
+                ],
+                'roles',
+                ['Super Admin', 'super_admin', 'Admin', 'admin', 'Manager', 'Inventory Staff']
+            )->afterCommit();
 
             Log::info("InventoryItemObserver: Triggered stock alert for Product #{$item->product_id} at {$locationName}. Stock: {$stock}");
         }

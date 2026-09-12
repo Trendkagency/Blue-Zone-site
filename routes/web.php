@@ -19,6 +19,11 @@ Route::get('/captcha/refresh', [CaptchaController::class, 'refresh'])->middlewar
 Route::post('/webhooks/payment/{gateway}', [PaymentWebhookController::class, 'handle'])->name('payment.webhook');
 Route::post('/webhooks/simulate', [PaymentWebhookController::class, 'simulate'])->name('payment.webhook.simulate');
 
+// FCM Device Token Registration Endpoint
+Route::post('/api/fcm/register-token', [\App\Http\Controllers\Admin\NotificationController::class, 'updateFcmToken'])
+    ->middleware(['web', 'throttle:polling'])
+    ->name('api.fcm.register');
+
 // Load Customer and Admin Routes
 require __DIR__.'/customer.php';
 require __DIR__.'/admin.php';

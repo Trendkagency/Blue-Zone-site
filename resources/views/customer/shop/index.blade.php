@@ -76,17 +76,19 @@
                         class="bg-white dark:bg-[#062B49] rounded-3xl p-6 border border-[#0A4F78]/15 shadow-xl flex flex-col justify-between card-hover-lift">
                         <div class="space-y-4">
                             <div
-                                class="aspect-square rounded-2xl overflow-hidden bg-[#031827]/5 flex items-center justify-center relative p-6">
-                                <span
-                                    class="absolute top-3 left-3 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
-                                    {{ $pCategory }}
-                                </span>
+                                class="aspect-square rounded-2xl overflow-hidden bg-[#031827] relative shadow-md">
                                 <a href="{{ route('customer.product.show', $pSlug) }}"
-                                    class="w-full h-full flex items-center justify-center">
+                                    class="block w-full h-full overflow-hidden">
                                     <img src="{{ $pImage }}" alt="{{ $pName }}"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
-                                        class="max-h-56 object-contain hover:scale-105 transition-transform" />
+                                        class="w-full h-full object-cover object-center hover:scale-108 transition-transform duration-700 ease-out" />
+                                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/50 via-transparent to-transparent"></div>
+                                    <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
                                 </a>
+                                <span
+                                    class="absolute top-3 left-3 z-10 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/90 dark:bg-[#031827]/90 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-sm border border-white/30 dark:border-[#2A8FC2]/30">
+                                    {{ $pCategory }}
+                                </span>
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-xs font-bold text-[#67B34A] mb-1">

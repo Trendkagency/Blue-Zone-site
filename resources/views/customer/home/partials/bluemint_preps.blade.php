@@ -33,15 +33,17 @@
                 <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.9</span>
               </div>
 
-              <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#2A8FC2]/20">
+              <div class="aspect-square bg-[#031827] rounded-2xl relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#2A8FC2]/20 shadow-md">
                 <img
                   src="{{ asset('assets/products/blue-mind.webp') }}"
                   alt="Bluemint Focus Prep"
                   onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
-                  width="200" height="200"
+                  width="300" height="300"
                   loading="lazy" decoding="async"
-                  class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
               </div>
 
               <div>
@@ -92,15 +94,17 @@
                 <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.95</span>
               </div>
 
-              <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#67B34A]/20">
+              <div class="aspect-square bg-[#031827] rounded-2xl relative overflow-hidden border border-[#0A4F78]/10 dark:border-[#67B34A]/20 shadow-md">
                 <img
                   src="{{ asset('assets/products/blue-cell.webp') }}"
                   alt="Bluemint Cell Prep"
                   onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-cell.webp') }}';"
-                  width="200" height="200"
+                  width="300" height="300"
                   loading="lazy" decoding="async"
-                  class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
               </div>
 
               <div>
@@ -151,15 +155,17 @@
                 <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.92</span>
               </div>
 
-              <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-indigo-500/20">
+              <div class="aspect-square bg-[#031827] rounded-2xl relative overflow-hidden border border-[#0A4F78]/10 dark:border-indigo-500/20 shadow-md">
                 <img
                   src="{{ asset('assets/products/blue-sleep.webp') }}"
                   alt="Bluemint Rest Prep"
                   onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-sleep.webp') }}';"
-                  width="200" height="200"
+                  width="300" height="300"
                   loading="lazy" decoding="async"
-                  class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
               </div>
 
               <div>
@@ -210,15 +216,17 @@
                 <span class="text-[10px] font-bold text-[#67B34A] flex items-center gap-1"><i class="fa-solid fa-star text-amber-400"></i> 4.9</span>
               </div>
 
-              <div class="aspect-square bg-[#F6F5EF] dark:bg-[#031827]/60 rounded-2xl p-4 flex items-center justify-center relative overflow-hidden border border-[#0A4F78]/10 dark:border-amber-500/20">
+              <div class="aspect-square bg-[#031827] rounded-2xl relative overflow-hidden border border-[#0A4F78]/10 dark:border-amber-500/20 shadow-md">
                 <img
                   src="{{ asset('assets/products/blue-metabolic.webp') }}"
                   alt="Bluemint Metabolic Prep"
                   onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-metabolic.webp') }}';"
-                  width="200" height="200"
+                  width="300" height="300"
                   loading="lazy" decoding="async"
-                  class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
+                  class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
               </div>
 
               <div>

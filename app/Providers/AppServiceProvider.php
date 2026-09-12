@@ -53,7 +53,8 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \App\Services\CurrencyService::code(); ?>";
         });
 
-        // Observer pattern: Inventory item and movement observers
+        // Observer pattern: Orders, Inventory items, and movements observers
+        \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\InventoryItem::observe(\App\Observers\InventoryItemObserver::class);
         \App\Models\InventoryMovement::observe(\App\Observers\InventoryMovementObserver::class);
 

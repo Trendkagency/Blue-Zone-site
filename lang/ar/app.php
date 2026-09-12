@@ -197,6 +197,8 @@ return array(
   'admin_portal' => 'بوابة المدير',
   'featured_products' => 'المنتجات المميزة',
   'clinical_formulations' => 'التركيبات السريرية',
+  'sale' => 'مبيعات',
+  'clinical_formulation' => 'بلو سيلز',
   'home' => 'الرئيسية',
   'about' => 'من نحن',
   'OUR_SCIENCE' => 'علمنا',
@@ -298,5 +300,6 @@ return array(
   'subscribe' => 'اشترك',
   'email_address' => 'البريد الإلكتروني',
   'email_address_for_longevity_updates' => 'البريد الإلكتروني لتحديثات طول العمر',
-
+  'enter_email_address' => 'أدخل بريدك الإلكتروني...',
+  'newsletter_success' => 'شكراً لاشتراكك في تحديثات أبحاث طول العمر.',
 );

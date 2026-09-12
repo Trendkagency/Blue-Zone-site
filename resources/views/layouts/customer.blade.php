@@ -116,6 +116,24 @@
                         <span class="badge badge-accent">ISO 17025 Tested</span>
                         <span class="badge badge-primary">cGMP Certified</span>
                     </div>
+                    @php
+                        $footerSocialLinks = \App\Models\Setting::getSocialLinks();
+                    @endphp
+                    @if(!empty($footerSocialLinks))
+                        <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; align-items: center;">
+                            @foreach($footerSocialLinks as $sItem)
+                                <a href="{{ $sItem['url'] }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   aria-label="{{ $sItem['name'] }}"
+                                   class="bz-footer-social-link"
+                                   style="--bz-brand-color: {{ $sItem['color'] }}; --bz-brand-gradient: {{ $sItem['gradient'] }}; --bz-brand-shadow: {{ $sItem['shadow'] }};">
+                                    <i class="{{ $sItem['icon'] }}"></i>
+                                    <span class="bz-social-tooltip">{{ $sItem['action'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
 
                 <div>

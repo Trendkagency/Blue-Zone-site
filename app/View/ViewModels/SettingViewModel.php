@@ -35,6 +35,18 @@ class SettingViewModel
             'whatsapp_default_message' => 'Hello BLUE ZONE, I would like clinical guidance on longevity formulations.',
             'whatsapp_position' => 'auto',
 
+            // Social Media & External Channels (Storefront Footer)
+            'social_instagram' => '',
+            'social_x' => '',
+            'social_facebook' => '',
+            'social_linkedin' => '',
+            'social_youtube' => '',
+            'social_tiktok' => '',
+            'social_snapchat' => '',
+            'social_telegram' => '',
+            'social_whatsapp' => '',
+            'social_pinterest' => '',
+
             // Store & Inventory
             'low_stock_threshold' => 10,
             'inventory_low_stock_global_threshold' => 10,

@@ -77,6 +77,18 @@ class SettingController extends Controller
             'whatsapp_default_message' => ['nullable', 'string', 'max:255'],
             'whatsapp_position' => ['nullable', 'string', 'in:auto,bottom_right,bottom_left'],
 
+            // Social Media Links (Dynamic Storefront Footer)
+            'social_instagram' => ['nullable', 'string', 'max:500'],
+            'social_x' => ['nullable', 'string', 'max:500'],
+            'social_facebook' => ['nullable', 'string', 'max:500'],
+            'social_linkedin' => ['nullable', 'string', 'max:500'],
+            'social_youtube' => ['nullable', 'string', 'max:500'],
+            'social_tiktok' => ['nullable', 'string', 'max:500'],
+            'social_snapchat' => ['nullable', 'string', 'max:500'],
+            'social_telegram' => ['nullable', 'string', 'max:500'],
+            'social_whatsapp' => ['nullable', 'string', 'max:500'],
+            'social_pinterest' => ['nullable', 'string', 'max:500'],
+
             // Typography & Fonts
             'font_family' => ['nullable', 'string', 'max:100'],
             'font_heading_family' => ['nullable', 'string', 'max:100'],
@@ -267,6 +279,25 @@ class SettingController extends Controller
         Setting::set('enable_whatsapp', $request->boolean('enable_whatsapp'), 'general', 'boolean');
         if (isset($validated['whatsapp_number'])) Setting::set('whatsapp_number', $validated['whatsapp_number'], 'general');
         if (isset($validated['whatsapp_default_message'])) Setting::set('whatsapp_default_message', $validated['whatsapp_default_message'], 'general');
+
+        // Social Media Links (Dynamic Storefront Footer)
+        $socialFields = [
+            'social_instagram',
+            'social_x',
+            'social_facebook',
+            'social_linkedin',
+            'social_youtube',
+            'social_tiktok',
+            'social_snapchat',
+            'social_telegram',
+            'social_whatsapp',
+            'social_pinterest',
+        ];
+        foreach ($socialFields as $socialField) {
+            if ($request->exists($socialField)) {
+                Setting::set($socialField, trim((string) $request->input($socialField, '')), 'social');
+            }
+        }
         if (isset($validated['font_family'])) Setting::set('font_family', $validated['font_family'], 'general');
         if (isset($validated['font_heading_family'])) Setting::set('font_heading_family', $validated['font_heading_family'], 'general');
         if (isset($validated['font_size_base'])) Setting::set('font_size_base', $validated['font_size_base'], 'general');

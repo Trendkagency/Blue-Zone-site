@@ -71,19 +71,22 @@
         </div>
 
         <!-- Product Image Box -->
-        <a href="{{ route('customer.product.show', $slug) }}" class="block aspect-square sm:aspect-[4/3] rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] p-4 relative overflow-hidden group/img transition-all border border-[#0A4F78]/10 dark:border-[#0A4F78]/25">
+        <a href="{{ route('customer.product.show', $slug) }}" class="block aspect-square sm:aspect-[4/3] rounded-2xl bg-[#031827] relative overflow-hidden group/img transition-all border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md">
             <img src="{{ $imagePath }}" 
                  alt="{{ $name }}" 
                  onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';" 
                  loading="lazy" 
                  decoding="async" 
-                 class="w-full h-full object-contain group-hover/img:scale-108 transition-transform duration-500" />
+                 class="w-full h-full object-cover object-center group-hover/img:scale-108 transition-transform duration-700 ease-out" />
             
-            <div class="absolute bottom-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none">
-                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/90 dark:bg-[#031827]/90 text-[#031827] dark:text-[#F6F5EF] border border-[#0A4F78]/15 shadow-sm backdrop-blur-sm">
+            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/70 via-[#031827]/15 to-transparent"></div>
+            <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
+
+            <div class="absolute bottom-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none z-10">
+                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/90 dark:bg-[#031827]/90 text-[#031827] dark:text-[#F6F5EF] border border-white/20 shadow-sm backdrop-blur-md">
                     {{ $sku }}
                 </span>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-md bg-[#67B34A]/15 text-[#67B34A] border border-[#67B34A]/30 backdrop-blur-sm">
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-md bg-[#67B34A] text-white border border-[#67B34A]/50 shadow-sm backdrop-blur-md">
                     {{ $size }}
                 </span>
             </div>

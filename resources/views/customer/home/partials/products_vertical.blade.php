@@ -20,21 +20,23 @@
                   
                 <!-- Left: Product Image & Badges (Col 1-3) -->
                 <div class="lg:col-span-3 flex flex-col items-center">
-                  <div class="w-full aspect-square max-w-[220px] p-4 bg-[#F6F5EF] dark:bg-[#031827] rounded-2xl border border-[#0A4F78]/15 relative overflow-hidden flex items-center justify-center group-hover:border-[#67B34A]/50 transition-colors">
+                  <div class="w-full aspect-square max-w-[220px] rounded-2xl border border-[#0A4F78]/15 relative overflow-hidden bg-[#031827] shadow-md group-hover:border-[#67B34A]/50 transition-all duration-500">
                     <img
-                      src="{{ asset('assets/products/' . $product->getPrimaryImageUrlAttribute() ?? '') }}"
-                      alt="{{ $product['name_en'] }}"
-                      onerror="this.onerror=null; this.src='{{ asset('assets/products/' . $product['slug'] . '.jpg') }}';"
-                      width="200" height="200"
+                      src="{{ asset('assets/products/' . ($product['slug'] ?? ($product->slug ?? 'blue-mind')) . '.webp') }}"
+                      alt="{{ $product['name_en'] ?? ($product->name_en ?? '') }}"
+                      onerror="this.onerror=null; this.src='{{ asset('assets/products/' . ($product['slug'] ?? ($product->slug ?? 'blue-mind')) . '.jpg') }}';"
+                      width="300" height="300"
                       loading="lazy" decoding="async"
-                      class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                      class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
+                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
+                    <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
                     @if($product['is_new'] ?? false)
-                      <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#67B34A] text-white text-[9px] font-black uppercase tracking-wider">
+                      <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-[#67B34A] text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
                         NEW
                       </span>
                     @elseif($product['is_best_seller'] ?? false)
-                      <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-[#0A4F78] text-white text-[9px] font-black uppercase tracking-wider">
+                      <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-[#0A4F78] text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
                         BESTSELLER
                       </span>
                     @endif

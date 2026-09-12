@@ -6,6 +6,20 @@
     <x-slot name="actions">
         <div class="flex items-center gap-2">
             <button type="button" 
+                    onclick="openFcmPermissionModal()" 
+                    class="btn btn-outline btn-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-sliders text-sky-500"></i>
+                <span>{{ app()->getLocale() == 'ar' ? 'تخصيص الإشعارات والصوت' : 'Notification & Sound Settings' }}</span>
+            </button>
+
+            <button type="button" 
+                    onclick="playNotificationChime(true)" 
+                    class="btn btn-outline btn-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-volume-high text-emerald-500"></i>
+                <span>{{ app()->getLocale() == 'ar' ? 'تجربة الرنة' : 'Test Sound' }}</span>
+            </button>
+
+            <button type="button" 
                     id="btnTestFcmPush" 
                     onclick="triggerFcmTestPush()" 
                     class="btn btn-outline btn-sm font-semibold flex items-center gap-1.5 cursor-pointer">

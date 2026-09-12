@@ -1004,8 +1004,8 @@
             position: fixed;
             inset: 0;
             background: rgba(10, 25, 45, 0.78);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 999999;
             display: none;
             align-items: center;
@@ -1019,7 +1019,7 @@
             color: var(--color-text, #1E293B);
             border: 1px solid rgba(10, 79, 120, 0.2);
             border-radius: 1.5rem;
-            max-width: 520px;
+            max-width: 540px;
             width: 100%;
             box-shadow: 0 25px 50px -12px rgba(10, 79, 120, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
             overflow: hidden;
@@ -1032,16 +1032,102 @@
             color: #F8FAFC;
             border-color: rgba(255, 255, 255, 0.1);
         }
+
+        .bz-config-card {
+            border: 1.5px solid var(--color-border, #E2E8F0);
+            border-radius: 1rem;
+            padding: 1rem 1.15rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            background: var(--color-bg-subtle, rgba(0,0,0,0.02));
+        }
+
+        .dark .bz-config-card {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .bz-config-card:hover {
+            border-color: #0284C7;
+            transform: translateY(-1px);
+        }
+
+        .bz-config-card.selected-allow {
+            border-color: #0284C7;
+            background: rgba(2, 132, 199, 0.06);
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+        }
+
+        .dark .bz-config-card.selected-allow {
+            background: rgba(2, 132, 199, 0.15);
+            border-color: #38BDF8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+        }
+
+        .bz-config-card.selected-deny {
+            border-color: #94A3B8;
+            background: rgba(148, 163, 184, 0.08);
+            box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2);
+        }
+
+        .dark .bz-config-card.selected-deny {
+            border-color: #64748B;
+            background: rgba(100, 116, 139, 0.15);
+        }
+
+        .bz-sound-toggle-track {
+            width: 48px;
+            height: 26px;
+            border-radius: 9999px;
+            background: #CBD5E1;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+        .dark .bz-sound-toggle-track {
+            background: #334155;
+        }
+
+        .bz-sound-toggle-track.active {
+            background: linear-gradient(135deg, #0A4F78, #0284C7);
+        }
+
+        .bz-sound-toggle-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        [dir="rtl"] .bz-sound-toggle-thumb {
+            left: auto;
+            right: 3px;
+        }
+
+        .bz-sound-toggle-track.active .bz-sound-toggle-thumb {
+            transform: translateX(22px);
+        }
+
+        [dir="rtl"] .bz-sound-toggle-track.active .bz-sound-toggle-thumb {
+            transform: translateX(-22px);
+        }
     </style>
 
     <div id="fcmPermissionModal" class="bz-fcm-modal-backdrop"
         onclick="if(event.target === this) closeFcmPermissionModal(3)">
         <div class="bz-fcm-modal-dialog" role="dialog" aria-modal="true">
 
-            <!-- Top Brand Gradient Accent -->
-            <div
-                style="height: 6px; background: linear-gradient(90deg, #0A4F78 0%, #0284C7 50%, #B8D98A 100%); width: 100%;">
-            </div>
+            <!-- Top Brand Gradient Bar -->
+            <div style="height: 6px; background: linear-gradient(90deg, #0A4F78 0%, #0284C7 50%, #10B981 100%); width: 100%;"></div>
 
             <!-- Close Cross Button -->
             <button type="button" onclick="closeFcmPermissionModal(3)"
@@ -1051,89 +1137,131 @@
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
-            <!-- STATE 1: Branded Permission Prompt & Value Proposition -->
-            <div id="fcmModalStatePrompt" style="padding: 2.25rem 2rem 2rem 2rem; text-align: center;">
-                <!-- Floating Animated Bell -->
-                <div
-                    style="width: 76px; height: 76px; margin: 0 auto 1.25rem auto; border-radius: 1.25rem; background: linear-gradient(135deg, rgba(10, 79, 120, 0.12), rgba(2, 132, 199, 0.2)); border: 2px solid rgba(2, 132, 199, 0.3); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 12px 24px -6px rgba(2, 132, 199, 0.25);">
-                    <i class="fa-solid fa-bell text-3xl"
-                        style="color: #0A4F78; animation: bzBellRing 3s infinite ease-in-out;"></i>
-                    <span
-                        style="position: absolute; top: 14px; right: 16px; width: 12px; height: 12px; background: #10B981; border: 2px solid #FFFFFF; border-radius: 50%;"></span>
+            <!-- STATE 1: Professional Notification & Sound Configurator -->
+            <div id="fcmModalStatePrompt" style="padding: 2rem 2rem 1.75rem 2rem; text-align: start;">
+                <!-- Header with Animated Aura Icon -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="width: 54px; height: 54px; border-radius: 1rem; background: linear-gradient(135deg, rgba(10, 79, 120, 0.15), rgba(2, 132, 199, 0.25)); border: 1.5px solid rgba(2, 132, 199, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.3);">
+                        <i class="fa-solid fa-sliders text-2xl text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 900; color: var(--color-text); margin: 0;">
+                                {{ app()->getLocale() == 'ar' ? 'إعدادات وتخصيص إشعارات النظام' : 'Notification & Sound Preferences' }}
+                            </h3>
+                        </div>
+                        <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0; line-height: 1.4;">
+                            {{ app()->getLocale() == 'ar'
+                                ? 'حدد خيارك لاستلام الإشعارات المنبثقة وتشغيل النغمة الصوتية للأوامر والمخزون.'
+                                : 'Configure push alert permissions and audio chime feedback for live store events.' }}
+                        </p>
+                    </div>
                 </div>
 
-                <h3 style="font-size: 1.35rem; font-weight: 900; color: var(--color-text); margin: 0 0 0.5rem 0;">
-                    {{ app()->getLocale() == 'ar' ? 'تفعيل إشعارات بلو زون الفورية' : 'Enable Real-Time BlueZone Alerts' }}
-                </h3>
-                <p style="font-size: 0.875rem; color: var(--color-text-muted); margin: 0 0 1.5rem 0; line-height: 1.5;">
-                    {{ app()->getLocale() == 'ar'
-    ? 'ابقَ على اتصال فوري ومستمر بجميع أحداث المتجر والمخزون وحركات المنتجات دون الحاجة لتحديث الصفحة.'
-    : 'Stay instantly updated on incoming orders, stock thresholds, and inventory transfers without refreshing.' }}
-                </p>
+                <!-- Interactive Choices Container -->
+                <div style="display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 1.5rem;">
 
-                <!-- Value Propositions -->
-                <div
-                    style="display: flex; flex-direction: column; gap: 0.75rem; text-align: start; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 1rem 1.25rem; border-radius: 1rem; border: 1px solid var(--color-border); margin-bottom: 1.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div
-                            style="width: 34px; height: 34px; border-radius: 0.6rem; background: rgba(2, 132, 199, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fa-solid fa-boxes-stacked text-sky-600 text-sm"></i>
+                    <!-- CHOICE 1: Allow Push Notifications (YES) -->
+                    <div id="choiceCardAllow" class="bz-config-card selected-allow" onclick="selectNotificationChoice('allow')">
+                        <div style="margin-top: 2px;">
+                            <div id="radioIndicatorAllow" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #0284C7; display: flex; align-items: center; justify-content: center; background: #0284C7;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: #FFFFFF;"></div>
+                            </div>
                         </div>
-                        <div style="font-size: 0.8125rem;">
-                            <strong
-                                style="color: var(--color-text); display: block;">{{ app()->getLocale() == 'ar' ? 'تنبيهات المخزون والحدود الحرجة' : 'Live Inventory Warnings' }}</strong>
-                            <span
-                                style="color: var(--color-text-muted); font-size: 0.75rem;">{{ app()->getLocale() == 'ar' ? 'إشعار مباشر عند هبوط المخزون تحت الحد الأدنى أو نفاد أي منتج' : 'Instant alert when stock drops below threshold or depletes' }}</span>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
+                                <strong style="font-size: 0.9375rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-bell text-emerald-500"></i>
+                                    <span>{{ app()->getLocale() == 'ar' ? 'نعم، السماح بالإشعارات الفورية (موصى به)' : 'Yes, Allow Real-Time Notifications' }}</span>
+                                </strong>
+                                <span class="badge badge-success text-[10px] font-bold" style="padding: 0.2rem 0.5rem;">
+                                    {{ app()->getLocale() == 'ar' ? 'موصى به' : 'Recommended' }}
+                                </span>
+                            </div>
+                            <div style="font-size: 0.775rem; color: var(--color-text-muted); line-height: 1.4;">
+                                {{ app()->getLocale() == 'ar'
+                                    ? 'استلام تنبيهات سطح المكتب اللحظية للطلبات الجديدة، وتنبيهات نفاد المخزون والتحويلات.'
+                                    : 'Receive live desktop alerts for new orders, critical inventory warnings, and transfers.' }}
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div
-                            style="width: 34px; height: 34px; border-radius: 0.6rem; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fa-solid fa-cart-shopping text-emerald-600 text-sm"></i>
+                    <!-- CHOICE 2: Do Not Allow / Mute (NOT ALLOW) -->
+                    <div id="choiceCardDeny" class="bz-config-card" onclick="selectNotificationChoice('deny')">
+                        <div style="margin-top: 2px;">
+                            <div id="radioIndicatorDeny" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #94A3B8; display: flex; align-items: center; justify-content: center; background: transparent;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: transparent;"></div>
+                            </div>
                         </div>
-                        <div style="font-size: 0.8125rem;">
-                            <strong
-                                style="color: var(--color-text); display: block;">{{ app()->getLocale() == 'ar' ? 'الطلبات والمبيعات الجديدة' : 'Real-time Customer Orders' }}</strong>
-                            <span
-                                style="color: var(--color-text-muted); font-size: 0.75rem;">{{ app()->getLocale() == 'ar' ? 'تنبيه صوتي وبصري فوري عند إتمام عمليات شراء جديدة بالمتجر' : 'Audio chime and instant alert on incoming storefront purchases' }}</span>
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 0.25rem;">
+                                <strong style="font-size: 0.9375rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-bell-slash text-slate-400"></i>
+                                    <span>{{ app()->getLocale() == 'ar' ? 'عدم السماح / كتم الإشعارات المنبثقة' : 'Do Not Allow / Mute Push Alerts' }}</span>
+                                </strong>
+                            </div>
+                            <div style="font-size: 0.775rem; color: var(--color-text-muted); line-height: 1.4;">
+                                {{ app()->getLocale() == 'ar'
+                                    ? 'تعطيل الإشعارات المنبثقة على هذا الجهاز. يمكنك مراجعة الإشعارات دائماً داخل جرس التنبيهات.'
+                                    : 'Disable desktop popups on this browser. Notifications will still be visible in your top bell ledger.' }}
+                            </div>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div
-                            style="width: 34px; height: 34px; border-radius: 0.6rem; background: rgba(99, 102, 241, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <i class="fa-solid fa-arrow-right-arrow-left text-indigo-600 text-sm"></i>
+                    <!-- SOUND CONFIGURATION & TEST CHIME ROW -->
+                    <div style="background: var(--color-bg-subtle, rgba(0,0,0,0.03)); border: 1.5px solid var(--color-border, #E2E8F0); border-radius: 1rem; padding: 0.95rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.875rem;">
+                            <div style="width: 38px; height: 38px; border-radius: 0.75rem; background: rgba(2, 132, 199, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i id="soundIconState" class="fa-solid fa-volume-high text-sky-600 dark:text-sky-400"></i>
+                            </div>
+                            <div>
+                                <strong style="font-size: 0.875rem; color: var(--color-text); font-weight: 800; display: block;">
+                                    {{ app()->getLocale() == 'ar' ? 'النغمة والتنبيه الصوتي (Sound Chime)' : 'Notification Audio Chime' }}
+                                </strong>
+                                <span style="font-size: 0.75rem; color: var(--color-text-muted);">
+                                    {{ app()->getLocale() == 'ar' ? 'تشغيل رنة نقية عند حدوث أحداث جديدة' : 'Play an acoustic chime on incoming events' }}
+                                </span>
+                            </div>
                         </div>
-                        <div style="font-size: 0.8125rem;">
-                            <strong
-                                style="color: var(--color-text); display: block;">{{ app()->getLocale() == 'ar' ? 'حركات التحويل بين الفروع' : 'Stock Transfer Movements' }}</strong>
-                            <span
-                                style="color: var(--color-text-muted); font-size: 0.75rem;">{{ app()->getLocale() == 'ar' ? 'متابعة مباشرة لعمليات النقل بين المستودعات ومنافذ البيع' : 'Live tracking for inventory relocation and multi-branch movements' }}</span>
+
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <!-- Test Sound Button -->
+                            <button type="button" onclick="playNotificationChime(true)"
+                                style="padding: 0.35rem 0.75rem; border-radius: 0.6rem; font-size: 0.75rem; font-weight: 700; background: rgba(2, 132, 199, 0.1); color: #0284C7; border: 1px solid rgba(2, 132, 199, 0.25); cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.2s;"
+                                onmouseover="this.style.background='rgba(2, 132, 199, 0.2)'"
+                                onmouseout="this.style.background='rgba(2, 132, 199, 0.1)'">
+                                <i class="fa-solid fa-play text-[10px]"></i>
+                                <span>{{ app()->getLocale() == 'ar' ? 'تجربة الصوت' : 'Test Chime' }}</span>
+                            </button>
+
+                            <!-- Sound Toggle Switch -->
+                            <div id="soundToggleTrack" class="bz-sound-toggle-track active" onclick="toggleSoundPreference()" title="Toggle Sound">
+                                <div class="bz-sound-toggle-thumb"></div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- Actions -->
-                <div style="display: flex; flex-direction: column; gap: 0.625rem;">
-                    <button type="button" id="btnActivateFcmModal" onclick="triggerBrowserFcmPermission()"
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button type="button" id="btnApplyNotificationConfig" onclick="applyNotificationConfiguration()"
                         class="btn btn-primary"
-                        style="width: 100%; padding: 0.85rem; font-size: 0.9375rem; font-weight: 800; border-radius: 0.75rem; background: linear-gradient(135deg, #0A4F78, #0284C7); border: none; box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer;">
-                        <i class="fa-solid fa-bell"></i>
-                        <span>{{ app()->getLocale() == 'ar' ? 'تفعيل الإشعارات الآن' : 'Enable Notifications Now' }}</span>
+                        style="width: 100%; padding: 0.9rem; font-size: 0.9375rem; font-weight: 800; border-radius: 0.75rem; background: linear-gradient(135deg, #0A4F78, #0284C7); border: none; box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span id="btnApplyNotificationText">{{ app()->getLocale() == 'ar' ? 'حفظ وتطبيق الإعدادات' : 'Save & Apply Preferences' }}</span>
                     </button>
 
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.25rem;">
                         <button type="button" onclick="showBrowserConfigGuide()"
                             style="color: #0284C7; font-weight: 700; font-size: 0.775rem; text-decoration: none; padding: 0; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
                             <i class="fa-solid fa-circle-question"></i>
-                            <span>{{ app()->getLocale() == 'ar' ? 'كيفية ضبط إعدادات المتصفح' : 'Browser setup guide' }}</span>
+                            <span>{{ app()->getLocale() == 'ar' ? 'دليل إعدادات المتصفح' : 'Browser setup guide' }}</span>
                         </button>
 
                         <button type="button" onclick="closeFcmPermissionModal(7)"
                             style="color: var(--color-text-muted); font-size: 0.775rem; text-decoration: none; padding: 0; background: none; border: none; cursor: pointer;">
-                            {{ app()->getLocale() == 'ar' ? 'ربما لاحقاً' : 'Maybe later' }}
+                            {{ app()->getLocale() == 'ar' ? 'إغلاق' : 'Close' }}
                         </button>
                     </div>
                 </div>
@@ -1143,8 +1271,7 @@
             <div id="fcmModalStateGuide" style="display: none; padding: 2.25rem 2rem 2rem 2rem; text-align: start;">
                 <!-- Header -->
                 <div style="display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.25rem;">
-                    <div
-                        style="width: 48px; height: 48px; border-radius: 0.875rem; background: rgba(234, 88, 12, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(234, 88, 12, 0.25);">
+                    <div style="width: 48px; height: 48px; border-radius: 0.875rem; background: rgba(234, 88, 12, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(234, 88, 12, 0.25);">
                         <i class="fa-solid fa-shield-halved text-amber-600 text-xl"></i>
                     </div>
                     <div>
@@ -1159,12 +1286,9 @@
 
                 <!-- 3 Steps Visual Guide -->
                 <div style="display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 1.75rem;">
-
                     <!-- Step 1 -->
-                    <div
-                        style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
-                        <div
-                            style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                    <div style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
                             1
                         </div>
                         <div style="flex: 1; font-size: 0.8125rem;">
@@ -1173,21 +1297,18 @@
                             </strong>
                             <div style="color: var(--color-text-muted); line-height: 1.4; font-size: 0.75rem;">
                                 {{ app()->getLocale() == 'ar'
-    ? 'في أعلى المتصفح، اضغط على أيقونة عناصر التحكم بجوار رابط الموقع في شريط العناوين (أيقونة القفل أو أشرطة الإعدادات).'
-    : 'In the address bar at the top, click the Lock icon or site controls button beside the URL.' }}
+                                    ? 'في أعلى المتصفح، اضغط على أيقونة عناصر التحكم بجوار رابط الموقع في شريط العناوين (أيقونة القفل أو أشرطة الإعدادات).'
+                                    : 'In the address bar at the top, click the Lock icon or site controls button beside the URL.' }}
                             </div>
                         </div>
-                        <div
-                            style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(10, 79, 120, 0.1); color: #0A4F78; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(10, 79, 120, 0.1); color: #0A4F78; flex-shrink: 0;">
                             <i class="fa-solid fa-sliders"></i>
                         </div>
                     </div>
 
                     <!-- Step 2 -->
-                    <div
-                        style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
-                        <div
-                            style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                    <div style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
                             2
                         </div>
                         <div style="flex: 1; font-size: 0.8125rem;">
@@ -1196,21 +1317,18 @@
                             </strong>
                             <div style="color: var(--color-text-muted); line-height: 1.4; font-size: 0.75rem;">
                                 {{ app()->getLocale() == 'ar'
-    ? 'ابحث عن خيار "الإشعارات" (Notifications) وقم بتحويله من "حظر" إلى "سماح" (Allow).'
-    : 'Find "Notifications" in site permissions and switch toggle from "Block" to "Allow".' }}
+                                    ? 'ابحث عن خيار "الإشعارات" (Notifications) وقم بتحويله من "حظر" إلى "سماح" (Allow).'
+                                    : 'Find "Notifications" in site permissions and switch toggle from "Block" to "Allow".' }}
                             </div>
                         </div>
-                        <div
-                            style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(16, 185, 129, 0.1); color: #10B981; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(16, 185, 129, 0.1); color: #10B981; flex-shrink: 0;">
                             <i class="fa-solid fa-toggle-on text-lg"></i>
                         </div>
                     </div>
 
                     <!-- Step 3 -->
-                    <div
-                        style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
-                        <div
-                            style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                    <div style="display: flex; gap: 0.875rem; background: var(--color-bg-subtle, rgba(0,0,0,0.03)); padding: 0.875rem 1rem; border-radius: 0.875rem; border: 1px solid var(--color-border); align-items: flex-start;">
+                        <div style="width: 26px; height: 26px; border-radius: 50%; background: #0A4F78; color: #FFFFFF; font-weight: 800; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
                             3
                         </div>
                         <div style="flex: 1; font-size: 0.8125rem;">
@@ -1219,16 +1337,14 @@
                             </strong>
                             <div style="color: var(--color-text-muted); line-height: 1.4; font-size: 0.75rem;">
                                 {{ app()->getLocale() == 'ar'
-    ? 'اضغط على زر إعادة التحميل بالأسفل لتطبيق الإعداد الجديد والبدء في استلام الإشعارات.'
-    : 'Click reload page below to apply new browser permissions and connect FCM.' }}
+                                    ? 'اضغط على زر إعادة التحميل بالأسفل لتطبيق الإعداد الجديد والبدء في استلام الإشعارات.'
+                                    : 'Click reload page below to apply new browser permissions and connect FCM.' }}
                             </div>
                         </div>
-                        <div
-                            style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(2, 132, 199, 0.1); color: #0284C7; flex-shrink: 0;">
+                        <div style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 0.5rem; background: rgba(2, 132, 199, 0.1); color: #0284C7; flex-shrink: 0;">
                             <i class="fa-solid fa-rotate-right"></i>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Guide Actions -->
@@ -1250,11 +1366,148 @@
 
     <script>
         /* =========================================================================
-           FCM Permission & Browser Settings UI Management
+           FCM Notification & Sound Preferences Manager (Web Audio Synthesizer)
            ========================================================================= */
+        window.currentNotificationChoice = localStorage.getItem('bz_notifications_allowed') || 'allow';
+        window.currentSoundEnabled = localStorage.getItem('bz_sound_enabled') !== '0';
+
+        // Native High-Fidelity Web Audio Polyphonic Chime (D5 -> A5 -> D6)
+        window.playNotificationChime = function (force = false) {
+            if (!force && !window.isNotificationSoundEnabled()) {
+                return;
+            }
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const ctx = new AudioContext();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                const now = ctx.currentTime;
+                // Harmonic triad frequencies: D5 (587.33Hz), A5 (880.00Hz), D6 (1174.66Hz)
+                const notes = [
+                    { freq: 587.33, start: now, duration: 0.35, gain: 0.15 },
+                    { freq: 880.00, start: now + 0.08, duration: 0.40, gain: 0.18 },
+                    { freq: 1174.66, start: now + 0.16, duration: 0.60, gain: 0.22 }
+                ];
+
+                notes.forEach(n => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(n.freq, n.start);
+
+                    gain.gain.setValueAtTime(0, n.start);
+                    gain.gain.linearRampToValueAtTime(n.gain, n.start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, n.start + n.duration);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(n.start);
+                    osc.stop(n.start + n.duration);
+                });
+            } catch (e) {
+                console.warn('Audio chime note:', e);
+            }
+        };
+
+        window.isNotificationSoundEnabled = function () {
+            return localStorage.getItem('bz_sound_enabled') !== '0';
+        };
+
+        window.selectNotificationChoice = function (choice) {
+            window.currentNotificationChoice = choice;
+            const allowCard = document.getElementById('choiceCardAllow');
+            const denyCard = document.getElementById('choiceCardDeny');
+            const radioAllow = document.getElementById('radioIndicatorAllow');
+            const radioDeny = document.getElementById('radioIndicatorDeny');
+            const btnText = document.getElementById('btnApplyNotificationText');
+
+            if (choice === 'allow') {
+                if (allowCard) {
+                    allowCard.className = 'bz-config-card selected-allow';
+                }
+                if (denyCard) {
+                    denyCard.className = 'bz-config-card';
+                }
+                if (radioAllow) {
+                    radioAllow.style.background = '#0284C7';
+                    radioAllow.style.borderColor = '#0284C7';
+                    radioAllow.firstElementChild.style.background = '#FFFFFF';
+                }
+                if (radioDeny) {
+                    radioDeny.style.background = 'transparent';
+                    radioDeny.style.borderColor = '#94A3B8';
+                    radioDeny.firstElementChild.style.background = 'transparent';
+                }
+                if (btnText) {
+                    btnText.textContent = '{{ app()->getLocale() == "ar" ? "نعم، تفعيل وحفظ الإعدادات" : "Allow & Save Preferences" }}';
+                }
+            } else {
+                if (allowCard) {
+                    allowCard.className = 'bz-config-card';
+                }
+                if (denyCard) {
+                    denyCard.className = 'bz-config-card selected-deny';
+                }
+                if (radioAllow) {
+                    radioAllow.style.background = 'transparent';
+                    radioAllow.style.borderColor = '#94A3B8';
+                    radioAllow.firstElementChild.style.background = 'transparent';
+                }
+                if (radioDeny) {
+                    radioDeny.style.background = '#64748B';
+                    radioDeny.style.borderColor = '#64748B';
+                    radioDeny.firstElementChild.style.background = '#FFFFFF';
+                }
+                if (btnText) {
+                    btnText.textContent = '{{ app()->getLocale() == "ar" ? "حفظ التفضيلات (كتم الإشعارات)" : "Save as Muted (Do Not Allow)" }}';
+                }
+            }
+        };
+
+        window.toggleSoundPreference = function () {
+            window.currentSoundEnabled = !window.currentSoundEnabled;
+            localStorage.setItem('bz_sound_enabled', window.currentSoundEnabled ? '1' : '0');
+            updateSoundToggleUI();
+
+            if (window.currentSoundEnabled) {
+                window.playNotificationChime(true);
+            }
+        };
+
+        function updateSoundToggleUI() {
+            const track = document.getElementById('soundToggleTrack');
+            const icon = document.getElementById('soundIconState');
+            if (track) {
+                if (window.currentSoundEnabled) {
+                    track.classList.add('active');
+                } else {
+                    track.classList.remove('active');
+                }
+            }
+            if (icon) {
+                if (window.currentSoundEnabled) {
+                    icon.className = 'fa-solid fa-volume-high text-sky-600 dark:text-sky-400';
+                } else {
+                    icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+                }
+            }
+        }
+
         window.openFcmPermissionModal = function () {
             const modal = document.getElementById('fcmPermissionModal');
             if (!modal) return;
+
+            // Sync current stored choices into UI
+            window.currentSoundEnabled = localStorage.getItem('bz_sound_enabled') !== '0';
+            updateSoundToggleUI();
+            selectNotificationChoice(localStorage.getItem('bz_notifications_allowed') === 'deny' ? 'deny' : 'allow');
 
             if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
                 window.showBrowserConfigGuide();
@@ -1292,13 +1545,34 @@
             if (guideEl) guideEl.style.display = 'block';
         };
 
-        window.triggerBrowserFcmPermission = function () {
-            const btn = document.getElementById('btnActivateFcmModal');
+        window.applyNotificationConfiguration = function () {
+            const btn = document.getElementById('btnApplyNotificationConfig');
+            const originalHtml = btn ? btn.innerHTML : '';
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>{{ app()->getLocale() == "ar" ? "جاري التطبيق..." : "Applying..." }}</span>';
             }
 
+            localStorage.setItem('bz_notifications_allowed', window.currentNotificationChoice);
+            localStorage.setItem('bz_sound_enabled', window.currentSoundEnabled ? '1' : '0');
+
+            if (window.currentNotificationChoice === 'deny') {
+                setTimeout(function () {
+                    window.closeFcmPermissionModal(30);
+                    showAdminToast(
+                        '{{ app()->getLocale() == "ar" ? "تم حفظ التفضيلات" : "Preferences Saved" }}',
+                        '{{ app()->getLocale() == "ar" ? "تم كتم الإشعارات المنبثقة على هذا الجهاز بنجاح." : "Desktop push popups muted for this device." }}',
+                        'fa-solid fa-bell-slash text-slate-500'
+                    );
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                }, 300);
+                return;
+            }
+
+            // If user selected "Allow (Yes)"
             if (!('Notification' in window)) {
                 alert('{{ app()->getLocale() == "ar" ? "متصفحك لا يدعم خاصية الإشعارات المكتبية." : "Your browser does not support desktop notifications." }}');
                 window.closeFcmPermissionModal();
@@ -1306,34 +1580,36 @@
             }
 
             Notification.requestPermission().then(permission => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+
                 if (permission === 'granted') {
                     window.closeFcmPermissionModal();
+                    if (window.currentSoundEnabled) {
+                        window.playNotificationChime(true);
+                    }
                     showAdminToast(
                         '{{ app()->getLocale() == "ar" ? "تم تفعيل الإشعارات بنجاح" : "Notifications Activated Successfully" }}',
-                        '{{ app()->getLocale() == "ar" ? "أنت الآن متصل بنظام إشعارات بلو زون الفورية (FCM)." : "You are now connected to BlueZone Realtime FCM Alerts." }}',
-                        'fa-solid fa-bell text-emerald-500'
+                        '{{ app()->getLocale() == "ar" ? "أنت الآن متصل بنظام إشعارات بلو زون الفورية والصوتية." : "You are connected to BlueZone Realtime Audio & Push Alerts." }}',
+                        'fa-solid fa-circle-check text-emerald-500'
                     );
                     if (window.initializeBluezoneFcm) {
                         window.initializeBluezoneFcm();
                     }
                 } else if (permission === 'denied') {
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-bell"></i> <span>{{ app()->getLocale() == "ar" ? "تفعيل الإشعارات الآن" : "Enable Notifications Now" }}</span>';
-                    }
                     window.showBrowserConfigGuide();
                 } else {
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fa-solid fa-bell"></i> <span>{{ app()->getLocale() == "ar" ? "تفعيل الإشعارات الآن" : "Enable Notifications Now" }}</span>';
-                    }
+                    window.closeFcmPermissionModal(3);
                 }
             }).catch(err => {
                 console.error('Permission request error:', err);
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-bell"></i> <span>{{ app()->getLocale() == "ar" ? "تفعيل الإشعارات الآن" : "Enable Notifications Now" }}</span>';
+                    btn.innerHTML = originalHtml;
                 }
+                window.closeFcmPermissionModal();
             });
         };
 
@@ -1428,6 +1704,21 @@
                             messaging.getToken(tokenOpts).then(token => {
                                 if (token) {
                                     window.currentAdminFcmToken = token;
+                                    
+                                    const ua = navigator.userAgent || '';
+                                    let detectedBrowser = 'Chrome';
+                                    if (ua.indexOf('Edg/') !== -1) detectedBrowser = 'Edge';
+                                    else if (ua.indexOf('Firefox/') !== -1) detectedBrowser = 'Firefox';
+                                    else if (ua.indexOf('Safari/') !== -1 && ua.indexOf('Chrome/') === -1) detectedBrowser = 'Safari';
+
+                                    let detectedOs = 'Windows';
+                                    if (ua.indexOf('Mac') !== -1) detectedOs = 'macOS';
+                                    else if (ua.indexOf('Android') !== -1) detectedOs = 'Android';
+                                    else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) detectedOs = 'iOS';
+                                    else if (ua.indexOf('Linux') !== -1) detectedOs = 'Linux';
+
+                                    const detectedType = (window.innerWidth <= 768 || /Android|iPhone|iPad/i.test(ua)) ? 'mobile' : 'desktop';
+
                                     fetch('/admin/notifications/fcm-token', {
                                         method: 'POST',
                                         headers: {
@@ -1435,7 +1726,12 @@
                                             'Accept': 'application/json',
                                             'Content-Type': 'application/json'
                                         },
-                                        body: JSON.stringify({ fcm_token: token })
+                                        body: JSON.stringify({
+                                            fcm_token: token,
+                                            device_type: detectedType,
+                                            browser: detectedBrowser,
+                                            os: detectedOs
+                                        })
                                     }).then(res => res.json()).then(data => {
                                         const tokenContainer = document.getElementById('fcmTokenBadgeContainer');
                                         if (tokenContainer) {
@@ -1480,6 +1776,10 @@
                         const actionUrl = (payload.data && payload.data.action_url) || '/admin';
                         const icon = (payload.data && payload.data.icon) || 'fa-solid fa-bell text-sky-500';
 
+                        if (typeof window.isNotificationSoundEnabled === 'function' && window.isNotificationSoundEnabled()) {
+                            window.playNotificationChime();
+                        }
+
                         showAdminToast(title, body, icon, actionUrl);
                         prependNotificationToDropdown(title, body, icon, actionUrl);
                     });
@@ -1495,9 +1795,10 @@
 
             // Auto-prompt permission modal if default and not dismissed recently
             if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+                const userPref = localStorage.getItem('bz_notifications_allowed');
                 const dismissedUntil = localStorage.getItem('bz_fcm_dismissed_until');
                 const now = Date.now();
-                if (!dismissedUntil || now > parseInt(dismissedUntil)) {
+                if (userPref !== 'deny' && (!dismissedUntil || now > parseInt(dismissedUntil))) {
                     setTimeout(function () {
                         window.openFcmPermissionModal();
                     }, 1200);
@@ -1516,6 +1817,9 @@
                             if (data.unread_count > lastCheckedCount) {
                                 const newest = (data.notifications && data.notifications.length > 0) ? data.notifications[0] : null;
                                 if (newest) {
+                                    if (typeof window.isNotificationSoundEnabled === 'function' && window.isNotificationSoundEnabled()) {
+                                        window.playNotificationChime();
+                                    }
                                     showAdminToast(newest.title, newest.message, newest.icon, newest.action_url);
                                     prependNotificationToDropdown(newest.title, newest.message, newest.icon, newest.action_url, newest.id);
                                 }

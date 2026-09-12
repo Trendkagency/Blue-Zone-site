@@ -45,6 +45,7 @@ class SettingResource extends Resource
                                 'tax' => 'Taxes & VAT (ZATCA)',
                                 'font' => '🔤 Typography & Design',
                                 'general' => '🏢 General & Brand',
+                                'social' => '📱 Social Media & Links',
                                 'store' => '🏬 Store & Inventory',
                                 'commerce' => '💰 Payments & Gateways',
                                 'shipping' => 'Logistics & Shipping',
