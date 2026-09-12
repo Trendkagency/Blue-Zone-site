@@ -70,9 +70,9 @@
     <!-- FontAwesome 6 Local Asset -->
     <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
 
-    <!-- Custom CSS & Map Loader CSS from lazy_html -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/map-loader.css') }}">
+    <!-- Custom CSS & Map Loader CSS from lazy_html (Cache-Busted) -->
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ file_exists(public_path('css/custom.css')) ? filemtime(public_path('css/custom.css')) : time() }}">
+    <link rel="stylesheet" href="{{ asset('css/map-loader.css') }}?v={{ file_exists(public_path('css/map-loader.css')) ? filemtime(public_path('css/map-loader.css')) : time() }}">
 
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

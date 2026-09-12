@@ -699,6 +699,52 @@
     <!-- BLUE ZONE Footer Component -->
     <footer role="contentinfo"
         class="bg-[#F6F5EF] dark:bg-[#031827] text-[#031827] dark:text-[#F6F5EF] pt-16 pb-12 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 transition-colors duration-300">
+        <style>
+            /* Bulletproof High-Contrast Footer Typography (Immune to External/Stale CSS Caches) */
+            footer[role="contentinfo"] p {
+                color: #1E293B !important;
+                opacity: 1 !important;
+            }
+            footer[role="contentinfo"] h3,
+            footer[role="contentinfo"] h4 {
+                color: #0A4F78 !important;
+                opacity: 1 !important;
+            }
+            footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn) {
+                color: #031827 !important;
+                opacity: 0.95 !important;
+                display: inline-block !important;
+                transition: all 0.2s ease !important;
+            }
+            footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn):hover {
+                color: #0A4F78 !important;
+                opacity: 1 !important;
+                transform: translateX(3px) !important;
+            }
+            [dir="rtl"] footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn):hover {
+                transform: translateX(-3px) !important;
+            }
+            .dark footer[role="contentinfo"] p,
+            html.dark footer[role="contentinfo"] p {
+                color: #E2E8F0 !important;
+            }
+            .dark footer[role="contentinfo"] h3,
+            .dark footer[role="contentinfo"] h4,
+            html.dark footer[role="contentinfo"] h3,
+            html.dark footer[role="contentinfo"] h4 {
+                color: #2A8FC2 !important;
+            }
+            .dark footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn),
+            html.dark footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn) {
+                color: #F6F5EF !important;
+                opacity: 0.9 !important;
+            }
+            .dark footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn):hover,
+            html.dark footer[role="contentinfo"] a:not(.bz-footer-social-link):not(.btn):hover {
+                color: #38BDF8 !important;
+                opacity: 1 !important;
+            }
+        </style>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/20">
                 <!-- Brand Summary -->
