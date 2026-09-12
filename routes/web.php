@@ -25,5 +25,29 @@ Route::post('/api/fcm/register-token', [\App\Http\Controllers\Admin\Notification
     ->name('api.fcm.register');
 
 // Load Customer and Admin Routes
-require __DIR__.'/customer.php';
-require __DIR__.'/admin.php';
+require __DIR__ . '/customer.php';
+require __DIR__ . '/admin.php';
+
+
+//  Make Route To Migrate 
+
+
+Route::get('/migrate-database', function () {
+    try {
+        Artisan::call('migrate', [
+            '--force' => true,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Database migrated successfully.',
+            'output' => Artisan::output(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Migration failed.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+});
