@@ -366,5 +366,3 @@
 
     window.BLUEZONE_PRODUCTS = {{ Illuminate\Support\Js::from($featuredProducts) }};
 </script>
-
-<script src="{{ asset('assets/js/bluezone-product-slider.js') }}"></script>
