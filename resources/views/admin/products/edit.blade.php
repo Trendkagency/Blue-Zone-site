@@ -79,6 +79,9 @@
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
                 {{ __('app.actions.cancel') }}
             </a>
+            <button type="button" class="btn btn-outline-primary" onclick="openLiveProductPreview()" style="font-weight: 700;">
+                <i class="fa-solid fa-eye mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'معاينة المنتج الحية' : 'Live Product Preview' }}
+            </button>
             <button type="button" class="btn btn-secondary" id="btnPrevStep" onclick="navigateStep(-1)" style="display: none;">
                 <i class="fa-solid fa-arrow-left mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'الخطوة السابقة' : 'Previous Step' }}
             </button>
@@ -404,7 +407,7 @@
                         name="primary_image" 
                         :label="app()->getLocale() === 'ar' ? 'الصورة الرئيسية للمنتج (Primary Hero Render)' : 'Primary Product Hero Image'"
                         :helper="app()->getLocale() === 'ar' ? 'ارفع صورة رئيسية جديدة (WebP, PNG, JPG حتى 10MB)' : 'Upload new high-resolution clinical hero render'"
-                        :existingFiles="!empty($product['image']) ? [asset($product['image'])] : []"
+                        :existingFiles="!empty($product['image']) ? [\App\Models\Product::normalizeUrl($product['image'])] : []"
                         accept="image/*"
                         :maxSize="10"
                     />
@@ -414,6 +417,7 @@
                         name="gallery" 
                         :label="app()->getLocale() === 'ar' ? 'معرض صور العبوة والتفاصيل (Gallery Assets)' : 'Product Gallery & Packaging Shots'"
                         :helper="app()->getLocale() === 'ar' ? 'يمكنك رفع عدة صور لزوايا مختلفة والمكونات (WebP, PNG, JPG)' : 'You can upload multiple high-res product angles and ingredients shots'"
+                        :existingFiles="!empty($product['images']) && is_array($product['images']) ? array_map(fn($img) => \App\Models\Product::normalizeUrl($img), $product['images']) : []"
                         accept="image/*"
                         :multiple="true"
                         :maxSize="10"
@@ -590,39 +594,134 @@
         <!-- STEP 6: Inventory & Controls & Summary Review -->
         <div class="wizard-step-pane" id="step-pane-6" style="display: none;">
             <div style="display: flex; flex-direction: column; gap: 2rem;">
-                <!-- Inventory Limits Card -->
+                <!-- Audited Live Inventory Multi-Warehouse Control Hub -->
                 <div class="card" style="padding: 2.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
                         <div>
-                            <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0;">
-                                {{ __('admin.products.sections.inventory_control') }}
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-boxes-stacked text-primary"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الرقابة على المخزون والأرصدة الحية' : 'Audited Inventory & Multi-Hub Balances' }}</span>
                             </h3>
                             <p class="text-xs text-muted" style="margin: 0;">
-                                {{ app()->getLocale() === 'ar' ? 'الخطوة 6 من 6: تحديد كميات المخزون والتنبيهات' : 'Step 6 of 6: Inventory buffer allocation and replenishment thresholds' }}
+                                {{ app()->getLocale() === 'ar' ? 'الخطوة 6 من 6: الرصيد الفعلي المعتمد عبر المستودعات وضوابط التنبيهات' : 'Step 6 of 6: Live multi-location inventory ledger and replenishment controls' }}
                             </p>
                         </div>
-                        <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 6 / 6' : 'Step 6 / 6' }}</span>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <a href="{{ route('admin.inventory.history', ['product_id' => $product['id']]) }}" target="_blank" class="btn btn-secondary btn-sm" style="font-weight: 700;">
+                                <i class="fa-solid fa-clock-rotate-left mr-1 ml-1 text-primary"></i> {{ app()->getLocale() === 'ar' ? 'سجل حركات التركيبة' : 'Stock Audit Trail' }}
+                            </a>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openProductStockInModal()" style="font-weight: 800;">
+                                <i class="fa-solid fa-plus-circle mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'توريد / إضافة كميات' : 'Add Stock / Intake' }}
+                            </button>
+                        </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
-                        <x-forms.input 
-                            name="stock_online" 
-                            type="number" 
-                            min="0"
-                            :label="__('admin.products.fields.online_stock')" 
-                            :value="old('stock_online', $product['stock_online'])" 
-                            required 
-                        />
+                    <!-- Regulatory & Audit Notification Banner -->
+                    <div class="alert alert-info" style="margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.85rem; border-radius: var(--radius-md); background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.25);">
+                        <i class="fa-solid fa-shield-halved text-info" style="font-size: 1.25rem; margin-top: 0.15rem;"></i>
+                        <div style="font-size: 0.8125rem; line-height: 1.5;">
+                            <strong style="color: var(--color-primary); display: block; margin-bottom: 0.15rem;">
+                                {{ app()->getLocale() === 'ar' ? 'حماية سلامة وسجل تدقيق المخزون (Audited Ledger Integrity):' : 'Audited Inventory Ledger Protection:' }}
+                            </strong>
+                            <span>
+                                {{ app()->getLocale() === 'ar' 
+                                    ? 'لحماية دقة السجلات المحاسبية والرقابية، تتم إضافة وتعديل الكميات حصرياً عبر أوامر التوريد والتسويات الموثقة لتسجيل السبب والمستخدم وتاريخ الحركة في سجل التدقيق المركزي.' 
+                                    : 'To maintain supply chain integrity and financial audit trails, stock quantities are modified exclusively through auditable stock intakes and adjustment vouchers.' }}
+                            </span>
+                        </div>
+                    </div>
 
-                        <x-forms.input 
-                            name="stock_offline" 
-                            type="number" 
-                            min="0"
-                            :label="__('admin.products.fields.offline_stock')" 
-                            :value="old('stock_offline', $product['stock_offline'])" 
-                            required 
-                        />
+                    <!-- Multi-Hub Live Stock Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem;">
+                        
+                        <!-- 1. Online Fulfillment Hub -->
+                        <div class="card" style="padding: 1.25rem; border: 1px solid rgba(37, 99, 235, 0.2); background: linear-gradient(135deg, rgba(37, 99, 235, 0.03), rgba(255,255,255,0.9)); position: relative; border-radius: var(--radius-lg);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
+                                    🌐 {{ app()->getLocale() === 'ar' ? 'مستودع المتجر الإلكتروني' : 'Online Store Hub' }}
+                                </span>
+                                <span class="badge badge-primary font-mono text-xs" id="badgeOnlineStatus">Online</span>
+                            </div>
+                            <div class="font-black text-2xl font-mono text-primary" style="margin: 0.35rem 0;" id="liveStockOnlineDisplay">
+                                {{ number_format($inventoryBreakdown['online'] ?? $product['stock_online']) }}
+                                <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border);">
+                                <span class="text-xs text-muted">{{ app()->getLocale() === 'ar' ? 'مخصص للطلبات أونلاين' : 'E-comm buffer' }}</span>
+                                <button type="button" class="btn btn-xs btn-outline" onclick="openProductStockInModal('online')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                                    + {{ app()->getLocale() === 'ar' ? 'توريد' : 'Intake' }}
+                                </button>
+                            </div>
+                        </div>
 
+                        <!-- 2. POS Warehouse -->
+                        <div class="card" style="padding: 1.25rem; border: 1px solid rgba(16, 185, 129, 0.2); background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(255,255,255,0.9)); position: relative; border-radius: var(--radius-lg);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
+                                    🏬 {{ app()->getLocale() === 'ar' ? 'مستودع المبيعات المباشرة' : 'POS Sales Warehouse' }}
+                                </span>
+                                <span class="badge badge-success font-mono text-xs" id="badgeOfflineStatus">POS</span>
+                            </div>
+                            <div class="font-black text-2xl font-mono text-success" style="margin: 0.35rem 0;" id="liveStockOfflineDisplay">
+                                {{ number_format($inventoryBreakdown['offline'] ?? $product['stock_offline']) }}
+                                <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border);">
+                                <span class="text-xs text-muted">{{ app()->getLocale() === 'ar' ? 'متاح لكاشير الصندوق' : 'Direct POS sales' }}</span>
+                                <button type="button" class="btn btn-xs btn-outline" onclick="openProductStockInModal('offline')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                                    + {{ app()->getLocale() === 'ar' ? 'توريد' : 'Intake' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Central Warehouse Buffer -->
+                        <div class="card" style="padding: 1.25rem; border: 1px solid rgba(139, 92, 246, 0.2); background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(255,255,255,0.9)); position: relative; border-radius: var(--radius-lg);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
+                                    🏭 {{ app()->getLocale() === 'ar' ? 'المستودع المركزي الرئيسي' : 'Central Depot Buffer' }}
+                                </span>
+                                <span class="badge badge-accent font-mono text-xs">Depot</span>
+                            </div>
+                            <div class="font-black text-2xl font-mono text-accent" style="margin: 0.35rem 0;" id="liveStockCentralDisplay">
+                                {{ number_format($inventoryBreakdown['central'] ?? 0) }}
+                                <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border);">
+                                <span class="text-xs text-muted">{{ app()->getLocale() === 'ar' ? 'المخزون الاحتياطي' : 'Reserve storage' }}</span>
+                                <button type="button" class="btn btn-xs btn-outline" onclick="openProductStockInModal('central_wh')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                                    + {{ app()->getLocale() === 'ar' ? 'توريد' : 'Intake' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4. Total Physical Stock & Valuation -->
+                        <div class="card" style="padding: 1.25rem; border: 1px solid rgba(15, 23, 42, 0.15); background: var(--color-bg-subtle); border-radius: var(--radius-lg);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
+                                    📦 {{ app()->getLocale() === 'ar' ? 'إجمالي الرصيد الفعلي' : 'Total Audited Inventory' }}
+                                </span>
+                                <span class="badge badge-neutral font-mono text-xs">{{ app()->getLocale() === 'ar' ? 'شامل' : 'Global' }}</span>
+                            </div>
+                            <div class="font-black text-2xl font-mono" style="margin: 0.35rem 0; color: var(--color-text-emphasis);" id="liveStockTotalDisplay">
+                                {{ number_format($inventoryBreakdown['total'] ?? ($product['stock_online'] + $product['stock_offline'])) }}
+                                <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border); font-size: 0.75rem;" class="text-muted">
+                                <span>{{ app()->getLocale() === 'ar' ? 'القيمة التقديرية:' : 'Asset Valuation:' }}</span>
+                                <strong class="font-mono text-primary" id="liveStockValuationDisplay">
+                                    @currency($inventoryBreakdown['valuation'] ?? (($product['stock_online'] + $product['stock_offline']) * $product['price']))
+                                </strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Hidden inputs preserving values for client review step without manual overwriting -->
+                    <input type="hidden" name="stock_online" id="stock_online" value="{{ $product['stock_online'] }}">
+                    <input type="hidden" name="stock_offline" id="stock_offline" value="{{ $product['stock_offline'] }}">
+
+                    <!-- Threshold & Controls Section -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
                         <x-forms.input 
                             name="low_stock_threshold" 
                             type="number" 
@@ -630,10 +729,9 @@
                             :label="__('admin.products.fields.low_stock_threshold')" 
                             :value="old('low_stock_threshold', $product['low_stock_threshold'])" 
                             required 
+                            hint="يطلق إشعاراً عاجلاً للمدراء ومسؤولي الإمداد عند انخفاض الرصيد عن هذا الحد."
                         />
-                    </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
                         <x-forms.select 
                             name="status" 
                             label="Publication Status" 
@@ -645,7 +743,9 @@
                             :selected="old('status', $product['status'] ?? 'active')"
                             required 
                         />
+                    </div>
 
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.5rem; border-top: 1px dashed var(--color-border); padding-top: 1rem;">
                         <x-forms.toggle 
                             name="is_featured" 
                             :label="__('admin.products.fields.is_featured')" 
@@ -874,17 +974,27 @@
             return true;
         }
 
+        function getNumericInput(names) {
+            for (const name of names) {
+                const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
+                if (el && el.value !== '' && el.value !== undefined && !isNaN(el.value)) {
+                    return parseFloat(el.value) || 0;
+                }
+            }
+            return 0;
+        }
+
         function recalculateTaxAndMargin() {
-            const cost = parseFloat(document.getElementById('inputCostPrice')?.value) || 0;
-            const retail = parseFloat(document.getElementById('inputRetailPrice')?.value) || 0;
-            const sale = parseFloat(document.getElementById('inputSalePrice')?.value) || 0;
+            const cost = getNumericInput(['inputCostPrice', 'cost_price']);
+            const retail = getNumericInput(['inputRetailPrice', 'price']);
+            const sale = getNumericInput(['inputSalePrice', 'sale_price']);
 
             const effective = (sale > 0 && sale < retail) ? sale : retail;
 
             let netPrice, taxAmount, grossPrice;
 
             if (pricesIncludeTax) {
-                netPrice = effective / (1 + (taxRate / 100));
+                netPrice = (taxRate > 0) ? (effective / (1 + (taxRate / 100))) : effective;
                 taxAmount = effective - netPrice;
                 grossPrice = effective;
             } else {
@@ -894,14 +1004,34 @@
             }
 
             const margin = netPrice - cost;
-            const marginPct = (netPrice > 0) ? ((margin / netPrice) * 100).toFixed(1) : 0;
+            const marginPct = (netPrice > 0) ? ((margin / netPrice) * 100).toFixed(1) : '0.0';
 
             const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
-            document.getElementById('displayCostPrice').innerText = formatC(cost);
-            document.getElementById('displayNetPrice').innerText = formatC(netPrice);
-            document.getElementById('displayTaxAmount').innerText = formatC(taxAmount);
-            document.getElementById('displayGrossPrice').innerText = formatC(grossPrice);
-            document.getElementById('displayProfitMargin').innerText = formatC(margin) + ' (' + marginPct + '%)';
+
+            const elCost = document.getElementById('displayCostPrice');
+            const elNet = document.getElementById('displayNetPrice');
+            const elTax = document.getElementById('displayTaxAmount');
+            const elGross = document.getElementById('displayGrossPrice');
+            const elMargin = document.getElementById('displayProfitMargin');
+
+            if (elCost) elCost.innerText = formatC(cost);
+            if (elNet) elNet.innerText = formatC(netPrice);
+            if (elTax) elTax.innerText = formatC(taxAmount);
+            if (elGross) elGross.innerText = formatC(grossPrice);
+            if (elMargin) {
+                const sign = margin >= 0 ? '+' : '';
+                elMargin.innerText = `${formatC(margin)} (${sign}${marginPct}%)`;
+                if (margin > 0) {
+                    elMargin.style.color = 'var(--color-success, #10b981)';
+                } else if (margin < 0) {
+                    elMargin.style.color = 'var(--color-danger, #ef4444)';
+                } else {
+                    elMargin.style.color = 'var(--color-text-main, #0A4F78)';
+                }
+            }
+
+            // Sync with Live Preview if active
+            updateLivePreviewData();
         }
 
         function updateReviewSummary() {
@@ -919,7 +1049,7 @@
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
             if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
-            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Boutique)';
+            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Warehouse)';
         }
 
         // Dynamic Active Compounds Repeater
@@ -960,7 +1090,243 @@
             return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        // Live Interactive Product Preview Modal
+        let activePrevLang = '{{ app()->getLocale() }}';
+
+        function openLiveProductPreview() {
+            updateLivePreviewData();
+            document.getElementById('liveProductPreviewModal').style.display = 'flex';
+        }
+
+        function closeLiveProductPreview() {
+            document.getElementById('liveProductPreviewModal').style.display = 'none';
+        }
+
+        function switchPreviewLang(lang) {
+            activePrevLang = lang;
+            const btnEn = document.getElementById('prevLangEnBtn');
+            const btnAr = document.getElementById('prevLangArBtn');
+            if (lang === 'ar') {
+                btnAr.className = 'btn btn-xs btn-primary';
+                btnEn.className = 'btn btn-xs btn-ghost';
+            } else {
+                btnEn.className = 'btn btn-xs btn-primary';
+                btnAr.className = 'btn btn-xs btn-ghost';
+            }
+            updateLivePreviewData();
+        }
+
+        function updateLivePreviewData() {
+            const isAr = activePrevLang === 'ar';
+            const nameEn = document.querySelector('input[name="name_en"]')?.value || 'BLUE FORMULATION';
+            const nameAr = document.querySelector('input[name="name_ar"]')?.value || nameEn;
+            const sku = document.querySelector('input[name="sku"]')?.value || 'BZ-SKU-001';
+            const taglineEn = document.querySelector('input[name="tagline_en"]')?.value || 'Clinical Longevity Support';
+            const taglineAr = document.querySelector('input[name="tagline_ar"]')?.value || taglineEn;
+            const descEn = document.querySelector('textarea[name="short_description_en"]')?.value || document.querySelector('textarea[name="description_en"]')?.value || 'Bioceutical formulation engineered for optimal longevity and cellular energy.';
+            const descAr = document.querySelector('textarea[name="short_description_ar"]')?.value || document.querySelector('textarea[name="description_ar"]')?.value || descEn;
+            const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 68.00;
+            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 50;
+
+            const title = isAr ? nameAr : nameEn;
+            const tagline = isAr ? taglineAr : taglineEn;
+            const desc = isAr ? descAr : descEn;
+
+            const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
+
+            // Update Card Elements
+            document.getElementById('prevCardTitle').innerText = title;
+            document.getElementById('prevCardSku').innerText = sku;
+            document.getElementById('prevCardPrice').innerText = formatC(price);
+            document.getElementById('prevCardStock').innerText = stockOffline + (isAr ? ' وحدة' : ' units');
+
+            // Update Dossier Elements
+            document.getElementById('prevDossierTitle').innerText = title;
+            document.getElementById('prevDossierTagline').innerText = tagline;
+            document.getElementById('prevDossierPrice').innerHTML = formatC(price) + ' <span class="text-xs text-muted" style="font-weight: normal;">' + (isAr ? '(شامل 15% ضريبة)' : '(incl. 15% VAT)') + '</span>';
+            document.getElementById('prevDossierDesc').innerText = desc;
+
+            // Existing image URL
+            const existingImg = @json($product['image'] ?? 'assets/products/blue-mind.jpg');
+            if (existingImg) {
+                const fullUrl = existingImg.startsWith('http') ? existingImg : ('/' + existingImg.replace(/^\//, ''));
+                document.getElementById('prevCardImg').src = fullUrl;
+                document.getElementById('prevDossierImg').src = fullUrl;
+            }
+        }
+
+        // Stock Intake Modal Functions
+        window.openProductStockInModal = function(preselectedLoc = 'online') {
+            const modal = document.getElementById('productStockInModal');
+            if (modal) {
+                if (preselectedLoc) {
+                    const locSelect = document.getElementById('stockInLocation');
+                    if (locSelect) locSelect.value = preselectedLoc;
+                }
+                modal.style.display = 'flex';
+            }
+        };
+
+        window.closeProductStockInModal = function() {
+            const modal = document.getElementById('productStockInModal');
+            if (modal) modal.style.display = 'none';
+            const form = document.getElementById('productStockInForm');
+            if (form) form.reset();
+            const alertBox = document.getElementById('stockInAlertMsg');
+            if (alertBox) {
+                alertBox.style.display = 'none';
+                alertBox.innerText = '';
+            }
+        };
+
+        window.setStockInQty = function(qty) {
+            const input = document.getElementById('stockInQuantity');
+            if (input) {
+                input.value = qty;
+            }
+        };
+
+        window.submitProductStockIn = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitStockIn');
+            const spinner = document.getElementById('stockInSpinner');
+            const alertBox = document.getElementById('stockInAlertMsg');
+            
+            const productId = document.getElementById('stockInProductId').value;
+            const locationId = document.getElementById('stockInLocation').value;
+            const movementType = document.getElementById('stockInType').value;
+            const quantity = parseInt(document.getElementById('stockInQuantity').value);
+            const referenceNumber = document.getElementById('stockInReference').value;
+            const reason = document.getElementById('stockInReason').value;
+
+            if (!quantity || quantity <= 0) {
+                alert('{{ app()->getLocale() === 'ar' ? 'يرجى إدخال كمية صحيحة أكبر من الصفر' : 'Please enter a valid quantity greater than zero' }}');
+                return;
+            }
+
+            if (!reason.trim()) {
+                alert('{{ app()->getLocale() === 'ar' ? 'يرجى توضيح سبب الحركة أو البيان لضمان تدقيق السجل' : 'Please provide a reason or note for this movement' }}');
+                return;
+            }
+
+            btn.disabled = true;
+            if (spinner) spinner.style.display = 'inline-block';
+            if (alertBox) alertBox.style.display = 'none';
+
+            try {
+                const response = await fetch('{{ route('admin.inventory.adjustments.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        location_id: locationId,
+                        movement_type: movementType,
+                        quantity: quantity,
+                        reference_number: referenceNumber,
+                        reason: reason
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    if (data.stock_online !== undefined) {
+                        const elOnline = document.getElementById('liveStockOnlineDisplay');
+                        if (elOnline) elOnline.innerText = data.stock_online;
+                        const hiddenOnline = document.getElementById('stock_online');
+                        if (hiddenOnline) hiddenOnline.value = data.stock_online;
+                    }
+                    if (data.stock_offline !== undefined) {
+                        const elOffline = document.getElementById('liveStockOfflineDisplay');
+                        if (elOffline) elOffline.innerText = data.stock_offline;
+                        const hiddenOffline = document.getElementById('stock_offline');
+                        if (hiddenOffline) hiddenOffline.value = data.stock_offline;
+                    }
+                    if (data.stock_central !== undefined) {
+                        const elCentral = document.getElementById('liveStockCentralDisplay');
+                        if (elCentral) elCentral.innerText = data.stock_central;
+                    }
+                    if (data.total_stock !== undefined) {
+                        const elTotal = document.getElementById('liveStockTotalDisplay');
+                        if (elTotal) elTotal.innerText = data.total_stock;
+                        
+                        const cost = parseFloat(document.getElementById('cost_price')?.value) || 0;
+                        const elValuation = document.getElementById('liveStockValuationDisplay');
+                        if (elValuation && cost > 0) {
+                            const totalVal = data.total_stock * cost;
+                            const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
+                            elValuation.innerText = formatC(totalVal);
+                        }
+                    }
+
+                    if (typeof updateReviewSummary === 'function') updateReviewSummary();
+                    if (typeof updateLivePreviewData === 'function') updateLivePreviewData();
+
+                    closeProductStockInModal();
+                    showStockInToast(data.message || '{{ app()->getLocale() === 'ar' ? 'تم تسجيل حركة المخزون بنجاح!' : 'Inventory movement recorded successfully!' }}');
+                } else {
+                    if (alertBox) {
+                        alertBox.innerText = data.message || '{{ app()->getLocale() === 'ar' ? 'حدث خطأ أثناء تسجيل الحركة' : 'Error recording inventory adjustment' }}';
+                        alertBox.style.display = 'block';
+                    } else {
+                        alert(data.message || 'Error recording inventory adjustment');
+                    }
+                }
+            } catch (err) {
+                console.error('Stock adjustment error:', err);
+                if (alertBox) {
+                    alertBox.innerText = err.message || 'Network error occurred';
+                    alertBox.style.display = 'block';
+                }
+            } finally {
+                btn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+            }
+        };
+
+        function showStockInToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '2rem';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.background = 'var(--color-primary, #0A1128)';
+            toast.style.color = '#fff';
+            toast.style.padding = '0.85rem 1.75rem';
+            toast.style.borderRadius = '30px';
+            toast.style.boxShadow = '0 12px 35px rgba(0,0,0,0.25)';
+            toast.style.zIndex = '99999';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '0.65rem';
+            toast.style.fontWeight = '700';
+            toast.style.fontSize = '0.92rem';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.1rem;"></i> <span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(15px)';
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            ['cost_price', 'price', 'sale_price', 'inputCostPrice', 'inputRetailPrice', 'inputSalePrice'].forEach(name => {
+                const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
+                if (el) {
+                    el.addEventListener('input', recalculateTaxAndMargin);
+                    el.addEventListener('change', recalculateTaxAndMargin);
+                    el.addEventListener('keyup', recalculateTaxAndMargin);
+                    el.addEventListener('paste', () => setTimeout(recalculateTaxAndMargin, 50));
+                }
+            });
+
             recalculateTaxAndMargin();
 
             const initialIngredients = @json(old('ingredients', $product['ingredients'] ?? []));
@@ -974,6 +1340,223 @@
                 addIngredientRow('', '', '');
                 addIngredientRow('', '', '');
             }
+
+            // Sync Primary Image Input Preview
+            const primaryInput = document.querySelector('input[name="primary_image"]');
+            if (primaryInput) {
+                primaryInput.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            const dataUrl = evt.target.result;
+                            const cardImg = document.getElementById('prevCardImg');
+                            const dossierImg = document.getElementById('prevDossierImg');
+                            if (cardImg) cardImg.src = dataUrl;
+                            if (dossierImg) dossierImg.src = dataUrl;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         });
     </script>
+
+    <!-- Stock In / Quick Adjustment Modal -->
+    <div id="productStockInModal" class="pos-modal-backdrop" style="display: none; z-index: 10000; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card" style="max-width: 560px; width: 95%; max-height: 90vh; overflow-y: auto; padding: 1.75rem; border-radius: var(--radius-lg); background: #fff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.6rem;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success);">
+                        <i class="fa-solid fa-boxes-stacked" style="font-size: 1.1rem;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800;">
+                            {{ app()->getLocale() === 'ar' ? 'إدخال وتوريد كميات مخزنية' : 'Quick Stock Intake & Adjustment' }}
+                        </h3>
+                        <p class="text-xs text-muted" style="margin: 0;">
+                            {{ $product['name_' . app()->getLocale()] ?? $product['name_en'] }} (SKU: {{ $product['sku'] }})
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-ghost" onclick="closeProductStockInModal()" style="font-size: 1.1rem;">✕</button>
+            </div>
+
+            <div id="stockInAlertMsg" class="alert alert-danger" style="display: none; margin-bottom: 1rem; padding: 0.6rem 0.9rem; font-size: 0.85rem; border-radius: var(--radius-md); background: #fee2e2; color: #991b1b; border: 1px solid #f87171;"></div>
+
+            <form id="productStockInForm" onsubmit="submitProductStockIn(event)" style="display: flex; flex-direction: column; gap: 1.1rem;">
+                <input type="hidden" id="stockInProductId" value="{{ $product['id'] }}">
+
+                <!-- Destination Location -->
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-warehouse text-primary" style="margin-inline-end: 0.3rem;"></i>
+                        {{ app()->getLocale() === 'ar' ? 'المستودع / الوجهة المستهدفة *' : 'Target Hub / Location *' }}
+                    </label>
+                    <select id="stockInLocation" class="form-control" style="width: 100%; font-size: 0.9rem; padding: 0.55rem 0.75rem;" required>
+                        <option value="online">{{ app()->getLocale() === 'ar' ? 'مستودع المتجر الإلكتروني (Online Hub)' : 'E-Commerce Online Hub' }}</option>
+                        <option value="offline">{{ app()->getLocale() === 'ar' ? 'مستودع المعرض ونقطة البيع (POS Warehouse)' : 'POS Warehouse' }}</option>
+                        <option value="central_wh">{{ app()->getLocale() === 'ar' ? 'المستودع المركزي الرئيسي (Central Warehouse Buffer)' : 'Central Warehouse Buffer' }}</option>
+                    </select>
+                </div>
+
+                <!-- Movement Type -->
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-tag text-primary" style="margin-inline-end: 0.3rem;"></i>
+                        {{ app()->getLocale() === 'ar' ? 'نوع الحركة المحاسبية *' : 'Movement Ledger Type *' }}
+                    </label>
+                    <select id="stockInType" class="form-control" style="width: 100%; font-size: 0.9rem; padding: 0.55rem 0.75rem;" required>
+                        <option value="Stock In" selected>{{ app()->getLocale() === 'ar' ? 'إدخال مخزون جديد / توريد (Stock In)' : 'Stock In / Direct Intake (+)' }}</option>
+                        <option value="Return">{{ app()->getLocale() === 'ar' ? 'مرتجع عميل (Customer Return)' : 'Customer Return (+)' }}</option>
+                        <option value="Manual Adjustment">{{ app()->getLocale() === 'ar' ? 'تسوية جردية دورية (Manual Adjustment)' : 'Manual Adjustment (+)' }}</option>
+                        <option value="Damaged">{{ app()->getLocale() === 'ar' ? 'إهلاك بضاعة تالفة (Damaged Write-off)' : 'Damaged Write-off (-)' }}</option>
+                        <option value="Expired">{{ app()->getLocale() === 'ar' ? 'بضاعة منتهية الصلاحية (Expired Write-off)' : 'Expired Write-off (-)' }}</option>
+                    </select>
+                </div>
+
+                <!-- Quantity with Quick Pills -->
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-cubes text-primary" style="margin-inline-end: 0.3rem;"></i>
+                        {{ app()->getLocale() === 'ar' ? 'الكمية المراد إدخالها (بالوحدات) *' : 'Quantity to Add/Adjust (Units) *' }}
+                    </label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="number" id="stockInQuantity" class="form-control font-black" style="font-size: 1.15rem; width: 140px; text-align: center;" min="1" step="1" value="50" required>
+                        <!-- Quick Add Buttons -->
+                        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                            <button type="button" class="btn btn-xs btn-ghost" onclick="setStockInQty(10)" style="border: 1px solid var(--color-border); font-weight: 700;">+10</button>
+                            <button type="button" class="btn btn-xs btn-ghost" onclick="setStockInQty(25)" style="border: 1px solid var(--color-border); font-weight: 700;">+25</button>
+                            <button type="button" class="btn btn-xs btn-ghost" onclick="setStockInQty(50)" style="border: 1px solid var(--color-border); font-weight: 700;">+50</button>
+                            <button type="button" class="btn btn-xs btn-ghost" onclick="setStockInQty(100)" style="border: 1px solid var(--color-border); font-weight: 700;">+100</button>
+                            <button type="button" class="btn btn-xs btn-ghost" onclick="setStockInQty(500)" style="border: 1px solid var(--color-border); font-weight: 700;">+500</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reference / PO Number -->
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-receipt text-primary" style="margin-inline-end: 0.3rem;"></i>
+                        {{ app()->getLocale() === 'ar' ? 'رقم أمر الشراء / الفاتورة / التشغيلة (اختياري)' : 'PO / Batch Reference (Optional)' }}
+                    </label>
+                    <input type="text" id="stockInReference" class="form-control text-xs" placeholder="e.g. PO-2026-09-001 / BATCH-A4" style="width: 100%;">
+                </div>
+
+                <!-- Note / Reason -->
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                        <i class="fa-solid fa-comment-dots text-primary" style="margin-inline-end: 0.3rem;"></i>
+                        {{ app()->getLocale() === 'ar' ? 'بيان وسبب الحركة (إلزامي للتدقيق المالي) *' : 'Audit Note / Reason (Mandatory for ledger) *' }}
+                    </label>
+                    <input type="text" id="stockInReason" class="form-control text-xs" placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: توريد دفعة تشغيلية جديدة من المصنع' : 'e.g. Received new shipment batch from laboratory' }}" value="{{ app()->getLocale() === 'ar' ? 'توريد كميات جديدة للمنتج' : 'Procured new product inventory batch' }}" required style="width: 100%;">
+                </div>
+
+                <!-- Audit Notice -->
+                <div style="background: rgba(30, 58, 138, 0.05); border: 1px dashed var(--color-primary); padding: 0.75rem 1rem; border-radius: var(--radius-md); display: flex; gap: 0.6rem; align-items: center;">
+                    <i class="fa-solid fa-shield-halved text-primary" style="font-size: 1.1rem; flex-shrink: 0;"></i>
+                    <p class="text-xs text-muted" style="margin: 0; line-height: 1.4;">
+                        {{ app()->getLocale() === 'ar' ? 'يتم قيد هذه العملية فوراً في سجل حركات المخزون المركزي Inventory Movement Ledger باسم المستخدم وتاريخ اللحظة.' : 'This intake will immediately generate an unalterable movement entry in the central audit ledger.' }}
+                    </p>
+                </div>
+
+                <!-- Modal Actions -->
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="closeProductStockInModal()">
+                        {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
+                    </button>
+                    <button type="submit" id="btnSubmitStockIn" class="btn btn-sm btn-primary font-bold" style="padding: 0.55rem 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span id="stockInSpinner" style="display: none;"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                        <i class="fa-solid fa-check"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'تأكيد وإيداع المخزون' : 'Confirm & Post Intake' }}</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Live Product Interactive Preview Modal -->
+    <div id="liveProductPreviewModal" class="pos-modal-backdrop" style="display: none; z-index: 10000; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card" style="max-width: 620px; width: 92%; max-height: 90vh; overflow-y: auto; padding: 1.75rem; border-radius: var(--radius-lg); background: #fff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-primary" style="font-size: 1.15rem;"></i>
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800;">
+                        {{ app()->getLocale() === 'ar' ? 'معاينة بطاقة المنتج الحية' : 'Live Product Card & Dossier Preview' }}
+                    </h3>
+                </div>
+                <!-- EN / AR Toggle -->
+                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                    <div style="display: flex; background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: 20px; padding: 2px;">
+                        <button type="button" class="btn btn-xs {{ app()->getLocale() === 'en' ? 'btn-primary' : 'btn-ghost' }}" id="prevLangEnBtn" onclick="switchPreviewLang('en')" style="border-radius: 18px; font-weight: bold; padding: 0.2rem 0.6rem;">EN</button>
+                        <button type="button" class="btn btn-xs {{ app()->getLocale() === 'ar' ? 'btn-primary' : 'btn-ghost' }}" id="prevLangArBtn" onclick="switchPreviewLang('ar')" style="border-radius: 18px; font-weight: bold; padding: 0.2rem 0.6rem;">العربية</button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="closeLiveProductPreview()">✕</button>
+                </div>
+            </div>
+
+            <!-- Preview Card (Warehouse & E-commerce dual view) -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;" id="livePreviewContainer">
+                
+                <!-- Warehouse POS Card Preview -->
+                <div style="background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <div class="text-xs font-bold text-muted" style="margin-bottom: 0.75rem; text-transform: uppercase;">
+                        {{ app()->getLocale() === 'ar' ? 'مظهر المنتج في شاشة الكاشير ونقطة البيع (POS Card):' : 'Warehouse POS Counter Card Appearance:' }}
+                    </div>
+
+                    <div class="card" style="max-width: 220px; margin: 0 auto; padding: 1rem; text-align: center; border-radius: var(--radius-lg); border: 2px solid var(--color-primary); box-shadow: 0 10px 25px rgba(10,17,40,0.08); background: #fff;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 0.5rem auto;">
+                            <img id="prevCardImg" src="{{ asset($product['image'] ?? 'assets/products/blue-mind.jpg') }}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                        </div>
+                        <div class="font-bold text-xs" id="prevCardTitle" style="margin-bottom: 0.25rem; height: 32px; overflow: hidden; color: var(--color-text-main);">
+                            {{ $product['name_' . app()->getLocale()] ?? $product['name_en'] }}
+                        </div>
+                        <div class="text-xs text-muted" id="prevCardSku" style="font-family: monospace; font-size: 0.7rem; margin-bottom: 0.4rem;">
+                            {{ $product['sku'] ?? 'BZ-SKU' }}
+                        </div>
+                        <div class="font-black text-sm text-primary" id="prevCardPrice" style="font-weight: 800; border-top: 1px solid var(--color-border); padding-top: 0.4rem;">
+                            @currency($product['price'] ?? 68)
+                        </div>
+                        <div class="text-xs text-muted" style="margin-top: 0.25rem; font-size: 0.68rem;">
+                            {{ app()->getLocale() === 'ar' ? 'مخزون المستودع: ' : 'Warehouse Stock: ' }} <strong id="prevCardStock" style="color: var(--color-success);">{{ $product['stock_offline'] ?? 50 }} units</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storefront Product Dossier Preview -->
+                <div style="background: #fff; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <div class="text-xs font-bold text-muted" style="margin-bottom: 0.75rem; text-transform: uppercase;">
+                        {{ app()->getLocale() === 'ar' ? 'مظهر تفاصيل المنتج في المتجر والكتالوج (Storefront Dossier):' : 'Storefront Clinical Details Appearance:' }}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 110px 1fr; gap: 1rem; align-items: start;">
+                        <img id="prevDossierImg" src="{{ asset($product['image'] ?? 'assets/products/blue-mind.jpg') }}" alt="Preview" style="width: 110px; height: 110px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                        <div>
+                            <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem; flex-wrap: wrap;" id="prevBadges">
+                                <span class="badge badge-accent" id="prevCategoryBadge">{{ $product['category_name_en'] ?? 'Cellular Longevity' }}</span>
+                                @if(!empty($product['is_featured']))
+                                    <span class="badge badge-success" id="prevFeaturedBadge">Featured</span>
+                                @endif
+                            </div>
+                            <h4 id="prevDossierTitle" style="margin: 0 0 0.25rem 0; font-size: 1.05rem; font-weight: 800; color: var(--color-primary);">{{ $product['name_' . app()->getLocale()] ?? $product['name_en'] }}</h4>
+                            <p id="prevDossierTagline" class="text-xs text-muted" style="margin: 0 0 0.4rem 0; font-style: italic;">{{ $product['tagline_' . app()->getLocale()] ?? ($product['tagline_en'] ?? '') }}</p>
+                            <div class="font-black text-lg text-primary" id="prevDossierPrice">@currency($product['price'] ?? 68) <span class="text-xs text-muted" style="font-weight: normal;">(incl. 15% VAT)</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Short Description -->
+                    <div style="margin-top: 1rem; border-top: 1px dashed var(--color-border); padding-top: 0.75rem;">
+                        <div class="text-xs font-bold text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'الوصف السريع:' : 'Short Description:' }}</div>
+                        <p id="prevDossierDesc" class="text-xs text-muted" style="margin: 0; line-height: 1.5;">{{ $product['short_description_' . app()->getLocale()] ?? ($product['short_description_en'] ?? 'Clinical bioceutical formulation engineered for optimal cellular bio-energetics...') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.25rem; text-align: center;">
+                <button type="button" class="btn btn-sm btn-primary" onclick="closeLiveProductPreview()" style="width: 100%;">
+                    {{ app()->getLocale() === 'ar' ? 'إغلاق المعاينة ومتابعة التعديل' : 'Close Preview & Continue Editing' }}
+                </button>
+            </div>
+        </div>
+    </div>
 </x-layouts.admin>

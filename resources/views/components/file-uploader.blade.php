@@ -21,7 +21,7 @@
     // Normalize accepted types for FilePond
     $acceptedTypesList = [];
     if (str_contains($accept, 'image/*')) {
-        $acceptedTypesList = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml'];
+        $acceptedTypesList = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'image/gif', 'image/*'];
     } elseif ($accept) {
         $acceptedTypesList = array_map('trim', explode(',', $accept));
     }
@@ -204,6 +204,7 @@
         }
 
         const pondOptions = {
+            name: '{{ $multiple ? $name . "[]" : $name }}',
             storeAsFile: true,
             allowMultiple: {{ $multiple ? 'true' : 'false' }},
             maxFileSize: '{{ $maxSize }}MB',
@@ -222,8 +223,8 @@
                             load(blob);
                         })
                         .catch(err => {
-                            console.warn('FilePond load preview error:', err);
-                            error(err.message);
+                            console.warn('FilePond local preview load skipped:', source);
+                            abort();
                         });
                 }
             },
@@ -276,13 +277,37 @@
 
         const pond = FilePond.create(inputElement, pondOptions);
 
-        // Feedback toast integration if available
-        pond.on('addfile', (error, file) => {
+        // Feedback and Live Preview sync
+        pond.on('addfile', (error, fileItem) => {
             if (error) {
+                // If it's an initial local load, don't show user alert
+                if (fileItem && fileItem.origin === 3) return;
                 if (window.toast) {
-                    window.toast.error(error.main || error.sub || (isAr ? 'تعذر رفع الملف المحدد' : 'Failed to add file'));
+                    const msg = (error.main || error.sub || (isAr ? 'نوع الملف غير مدعوم أو حجمه يتجاوز الحد المسموح' : 'Invalid file type or size exceeds limit'));
+                    window.toast.error(msg, isAr ? 'خطأ في الملف' : 'File Upload');
+                }
+            } else if (fileItem && fileItem.file) {
+                if ('{{ $name }}' === 'primary_image') {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const cardImg = document.getElementById('prevCardImg');
+                        const dossierImg = document.getElementById('prevDossierImg');
+                        if (cardImg) cardImg.src = evt.target.result;
+                        if (dossierImg) dossierImg.src = evt.target.result;
+                    };
+                    reader.readAsDataURL(fileItem.file);
                 }
             }
         });
+
+        pond.on('removefile', (error, fileItem) => {
+            if ('{{ $name }}' === 'primary_image') {
+                const cardImg = document.getElementById('prevCardImg');
+                const dossierImg = document.getElementById('prevDossierImg');
+                if (cardImg) cardImg.src = '{{ asset("assets/products/blue-mind.jpg") }}';
+                if (dossierImg) dossierImg.src = '{{ asset("assets/products/blue-mind.jpg") }}';
+            }
+        });
     });
+</script>
 </script>

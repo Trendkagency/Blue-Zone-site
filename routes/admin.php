@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfflineSaleController;
 use App\Http\Controllers\Admin\OrderController;
@@ -16,6 +19,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -73,14 +77,54 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}/force-delete', [CategoryController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');
         });
 
-        // Inventory & Stock Management
+        // Inventory & Stock Management (including Drag & Drop Allocator & Control Hub)
         Route::prefix('inventory')->name('inventory.')->group(function () {
             Route::get('/', [InventoryController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+            Route::get('/control', [InventoryController::class, 'control'])->middleware('permission:inventory.view')->name('control');
+            Route::post('/quick-adjust', [InventoryController::class, 'ajaxQuickAdjust'])->middleware('permission:inventory.create')->name('quick-adjust');
+            Route::post('/batch-adjust', [InventoryController::class, 'ajaxBatchAdjust'])->middleware('permission:inventory.create')->name('batch-adjust');
+            Route::get('/allocator', [InventoryController::class, 'allocator'])->middleware('permission:inventory.view')->name('allocator');
+            Route::post('/allocator/transfer', [InventoryController::class, 'ajaxTransfer'])->middleware('permission:inventory.create')->name('allocator.transfer');
+            Route::post('/allocator/batch-split', [InventoryController::class, 'ajaxBatchSplit'])->middleware('permission:inventory.create')->name('allocator.batch_split');
             Route::post('/adjustments', [InventoryController::class, 'storeAdjustment'])->middleware('permission:inventory.create')->name('adjustments.store');
+            Route::prefix('warehouses')->name('warehouses.')->group(function () {
+                Route::get('/', [WarehouseController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+                Route::get('/create', [WarehouseController::class, 'create'])->middleware('permission:inventory.create')->name('create');
+                Route::post('/', [WarehouseController::class, 'store'])->middleware('permission:inventory.create')->name('store');
+                Route::get('/{id}', [WarehouseController::class, 'show'])->middleware('permission:inventory.view')->name('show');
+                Route::get('/{id}/edit', [WarehouseController::class, 'edit'])->middleware('permission:inventory.edit')->name('edit');
+                Route::put('/{id}', [WarehouseController::class, 'update'])->middleware('permission:inventory.edit')->name('update');
+                Route::post('/{id}/toggle-status', [WarehouseController::class, 'toggleStatus'])->middleware('permission:inventory.edit')->name('toggle-status');
+                Route::delete('/{id}', [WarehouseController::class, 'destroy'])->middleware('permission:inventory.delete')->name('destroy');
+            });
             Route::get('/transfers', [InventoryController::class, 'transfers'])->middleware('permission:inventory.view')->name('transfers');
             Route::post('/transfers', [InventoryController::class, 'storeTransfer'])->middleware('permission:inventory.create')->name('transfers.store');
             Route::get('/history', [InventoryController::class, 'history'])->middleware('permission:inventory.view')->name('history');
             Route::get('/{id}', [InventoryController::class, 'show'])->middleware('permission:inventory.view')->name('show');
+        });
+
+        // System Locations & Facilities Control Center
+        Route::prefix('locations')->name('locations.')->group(function () {
+            Route::get('/', [LocationController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+            Route::get('/create', [LocationController::class, 'create'])->middleware('permission:inventory.create')->name('create');
+            Route::post('/', [LocationController::class, 'store'])->middleware('permission:inventory.create')->name('store');
+            Route::get('/{id}', [LocationController::class, 'show'])->middleware('permission:inventory.view')->name('show');
+            Route::get('/{id}/edit', [LocationController::class, 'edit'])->middleware('permission:inventory.edit')->name('edit');
+            Route::put('/{id}', [LocationController::class, 'update'])->middleware('permission:inventory.edit')->name('update');
+            Route::post('/{id}/toggle-status', [LocationController::class, 'toggleStatus'])->middleware('permission:inventory.edit')->name('toggle-status');
+            Route::delete('/{id}', [LocationController::class, 'destroy'])->middleware('permission:inventory.delete')->name('destroy');
+        });
+
+        // Warehouses Top-Level Alias
+        Route::prefix('warehouses')->name('warehouses.')->group(function () {
+            Route::get('/', [WarehouseController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+            Route::get('/create', [WarehouseController::class, 'create'])->middleware('permission:inventory.create')->name('create');
+            Route::post('/', [WarehouseController::class, 'store'])->middleware('permission:inventory.create')->name('store');
+            Route::get('/{id}', [WarehouseController::class, 'show'])->middleware('permission:inventory.view')->name('show');
+            Route::get('/{id}/edit', [WarehouseController::class, 'edit'])->middleware('permission:inventory.edit')->name('edit');
+            Route::put('/{id}', [WarehouseController::class, 'update'])->middleware('permission:inventory.edit')->name('update');
+            Route::post('/{id}/toggle-status', [WarehouseController::class, 'toggleStatus'])->middleware('permission:inventory.edit')->name('toggle-status');
+            Route::delete('/{id}', [WarehouseController::class, 'destroy'])->middleware('permission:inventory.delete')->name('destroy');
         });
 
         // Order Management & Invoices
@@ -168,10 +212,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}/force-delete', [RoleController::class, 'forceDelete'])->middleware('permission:roles.delete')->name('force-delete');
         });
 
-        // Settings
+        // Settings & Geographic Hierarchy (Countries & Cities)
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [SettingController::class, 'index'])->middleware('permission:settings.view')->name('index');
             Route::post('/', [SettingController::class, 'update'])->middleware('permission:settings.edit')->name('update');
+            Route::get('/geo', [CountryController::class, 'index'])->middleware('permission:settings.view')->name('geo.index');
         });
+
+        // Countries Management
+        Route::prefix('countries')->name('countries.')->group(function () {
+            Route::get('/', [CountryController::class, 'index'])->middleware('permission:settings.view')->name('index');
+            Route::post('/', [CountryController::class, 'store'])->middleware('permission:settings.edit')->name('store');
+            Route::put('/{id}', [CountryController::class, 'update'])->middleware('permission:settings.edit')->name('update');
+            Route::post('/{id}/toggle-status', [CountryController::class, 'toggleStatus'])->middleware('permission:settings.edit')->name('toggle-status');
+            Route::delete('/{id}', [CountryController::class, 'destroy'])->middleware('permission:settings.edit')->name('destroy');
+        });
+
+        // Cities Management
+        Route::prefix('cities')->name('cities.')->group(function () {
+            Route::post('/', [CityController::class, 'store'])->middleware('permission:settings.edit')->name('store');
+            Route::put('/{id}', [CityController::class, 'update'])->middleware('permission:settings.edit')->name('update');
+            Route::post('/{id}/toggle-status', [CityController::class, 'toggleStatus'])->middleware('permission:settings.edit')->name('toggle-status');
+            Route::delete('/{id}', [CityController::class, 'destroy'])->middleware('permission:settings.edit')->name('destroy');
+        });
+
+        // Dynamic Cascading Geo API Endpoint
+        Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
     });
 });

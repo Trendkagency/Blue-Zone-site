@@ -1,7 +1,7 @@
 @php
     $isRtl = app()->getLocale() === 'ar';
     $name = $isRtl ? (data_get($product, 'name_ar') ?: data_get($product, 'name_en')) : data_get($product, 'name_en');
-    $tagline = $isRtl ? (data_get($product, 'tagline_ar') ?: data_get($product, 'tagline_en')) : (data_get($product, 'tagline_en') ?: data_get($product, 'short_description_en'));
+    $tagline = $isRtl ? (data_get($product, 'tagline_ar') ?: (data_get($product, 'science_ar') ?: (data_get($product, 'tagline_en') ?: data_get($product, 'science_en')))) : (data_get($product, 'tagline_en') ?: (data_get($product, 'science_en') ?: data_get($product, 'short_description_en')));
     $slug = data_get($product, 'slug');
     $sku = data_get($product, 'sku', 'BZ-PROT-001');
     $price = (float) data_get($product, 'price', 0);

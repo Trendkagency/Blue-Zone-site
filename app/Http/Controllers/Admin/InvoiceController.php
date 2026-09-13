@@ -37,6 +37,7 @@ class InvoiceController extends Controller
             'search' => $search,
             'currentPage' => is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class) ? $orders->currentPage() : 1,
             'totalPages' => is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class) ? $orders->lastPage() : 1,
+            'totalCount' => is_a($orders, \Illuminate\Pagination\LengthAwarePaginator::class) ? $orders->total() : count($orders),
         ]);
     }
 

@@ -28,7 +28,7 @@ class OfflineSaleController extends Controller
                     'id' => $order->id,
                     'sale_number' => $order->order_number,
                     'invoice_number' => $order->invoice_number,
-                    'store_location' => 'Riyadh Flagship Boutique',
+                    'store_location' => 'Riyadh Central Warehouse',
                     'cashier' => ($order->notes && Str::contains($order->notes, 'Cashier: ')) ? Str::after($order->notes, 'Cashier: ') : 'Senior Longevity Specialist',
                     'customer_name' => $order->customer_name,
                     'payment_method' => $order->payment_method,
@@ -52,22 +52,161 @@ class OfflineSaleController extends Controller
             'sales' => $sales,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $dbSales->isNotEmpty() ? $dbSales->total() : count($sales),
         ]);
     }
 
     public function create(): View
     {
-        $products = Product::where('is_active', true)->orderBy('name_en')->get();
+        $products = Product::where('is_active', true)->with('category')->orderBy('name_en')->get();
         $customers = Customer::orderBy('name')->get();
+        $categories = \App\Models\Category::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('admin.offline-sales.create', [
             'products' => $products,
             'customers' => $customers,
+            'categories' => $categories,
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
+        $cartItemsRaw = $request->input('cart_items');
+        $cartItems = null;
+
+        if (!empty($cartItemsRaw)) {
+            $cartItems = is_string($cartItemsRaw) ? json_decode($cartItemsRaw, true) : $cartItemsRaw;
+        }
+
+        if (!empty($cartItems) && is_array($cartItems)) {
+            // Multi-item cart checkout
+            $validated = $request->validate([
+                'customer_name' => 'nullable|string',
+                'customer_phone' => 'nullable|string',
+                'customer_email' => 'nullable|email',
+                'discount' => 'nullable|numeric|min:0',
+                'payment_method' => 'required|string',
+                'amount_tendered' => 'nullable|numeric|min:0',
+            ]);
+
+            $userName = auth()->user()?->name ?? 'POS Cashier';
+            $orderNum = 'POS-' . date('Ymd') . '-' . rand(100, 999);
+            $invNum = 'INV-POS-' . date('Ymd') . '-' . rand(100, 999);
+            $discount = isset($validated['discount']) ? (float) $validated['discount'] : 0.00;
+
+            try {
+                $order = \Illuminate\Support\Facades\DB::transaction(function () use ($cartItems, $validated, $orderNum, $invNum, $discount, $userName) {
+                    $subtotal = 0;
+                    $processedItems = [];
+
+                    foreach ($cartItems as $item) {
+                        $productId = $item['product_id'] ?? null;
+                        $qty = (int) ($item['quantity'] ?? 1);
+                        if (!$productId || $qty <= 0) continue;
+
+                        $product = Product::findOrFail($productId);
+                        $unitPrice = isset($item['unit_price']) && (float) $item['unit_price'] > 0
+                            ? (float) $item['unit_price']
+                            : (float) $product->price;
+
+                        $itemSubtotal = $unitPrice * $qty;
+                        $subtotal += $itemSubtotal;
+
+                        $variant = $item['variant'] ?? 'Standard Pack (60 Caps)';
+
+                        // Process offline sale deduction
+                        InventoryService::processOfflineSale(
+                            product: $product,
+                            quantity: $qty,
+                            orderNumber: $orderNum,
+                            userName: $userName,
+                            variant: $variant
+                        );
+
+                        $processedItems[] = [
+                            'product' => $product,
+                            'variant' => $variant,
+                            'unit_price' => $unitPrice,
+                            'quantity' => $qty,
+                            'total' => $itemSubtotal,
+                        ];
+                    }
+
+                    if (empty($processedItems)) {
+                        throw new InvalidArgumentException(app()->getLocale() === 'ar' ? 'سلة المشتريات فارغة.' : 'Cart is empty.');
+                    }
+
+                    $discountedSubtotal = max(0, $subtotal - $discount);
+                    $tax = round($discountedSubtotal * 0.15, 2);
+                    $total = $discountedSubtotal + $tax;
+
+                    $order = Order::create([
+                        'order_number' => $orderNum,
+                        'invoice_number' => $invNum,
+                        'channel' => 'offline',
+                        'customer_name' => !empty($validated['customer_name']) ? $validated['customer_name'] : 'Walk-In Warehouse VIP',
+                        'customer_phone' => !empty($validated['customer_phone']) ? $validated['customer_phone'] : '+966 50 000 0000',
+                        'customer_email' => !empty($validated['customer_email']) ? $validated['customer_email'] : 'walkin@bluezone.com',
+                        'date' => now()->toDateString(),
+                        'status' => 'delivered',
+                        'payment_method' => $validated['payment_method'],
+                        'payment_status' => 'paid',
+                        'subtotal' => $subtotal,
+                        'discount' => $discount,
+                        'shipping' => 0.00,
+                        'tax' => $tax,
+                        'total' => $total,
+                        'notes' => "Direct POS counter sale at POS Warehouse. Cashier: {$userName}",
+                    ]);
+
+                    foreach ($processedItems as $pItem) {
+                        OrderItem::create([
+                            'order_id' => $order->id,
+                            'product_id' => $pItem['product']->id,
+                            'product_name_en' => $pItem['product']->name_en,
+                            'product_name_ar' => $pItem['product']->name_ar,
+                            'variant_en' => $pItem['variant'],
+                            'sku' => $pItem['product']->sku,
+                            'unit_price' => $pItem['unit_price'],
+                            'quantity' => $pItem['quantity'],
+                            'total' => $pItem['total'],
+                            'image' => $pItem['product']->image ?? 'assets/products/blue-mind.jpg',
+                        ]);
+                    }
+
+                    return $order;
+                });
+
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                        'invoice_number' => $order->invoice_number,
+                        'total' => $order->total,
+                        'tax' => $order->tax,
+                        'subtotal' => $order->subtotal,
+                        'discount' => $order->discount,
+                        'print_url' => route('admin.invoices.print', $order->id),
+                        'message' => app()->getLocale() === 'ar'
+                            ? "تم تسجيل البيع بنجاح للطلب #{$order->order_number}."
+                            : "Offline sale #{$order->order_number} recorded successfully.",
+                    ]);
+                }
+
+                return redirect()->route('admin.invoices.print', $order->id)
+                    ->with('status', app()->getLocale() === 'ar'
+                        ? "تم تسجيل البيع بنجاح للطلب #{$order->order_number}."
+                        : "Offline sale #{$order->order_number} recorded successfully.");
+            } catch (InvalidArgumentException $e) {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+                }
+                return back()->withInput()->withErrors(['sale_error' => $e->getMessage()]);
+            }
+        }
+
+        // Single item fallback (backwards compatibility)
         $validated = $request->validate([
             'customer_name' => 'nullable|string',
             'customer_phone' => 'nullable|string',
@@ -112,7 +251,7 @@ class OfflineSaleController extends Controller
                 'order_number' => $orderNum,
                 'invoice_number' => $invNum,
                 'channel' => 'offline',
-                'customer_name' => !empty($validated['customer_name']) ? $validated['customer_name'] : 'Walk-In Boutique VIP',
+                'customer_name' => !empty($validated['customer_name']) ? $validated['customer_name'] : 'Walk-In Warehouse VIP',
                 'customer_phone' => !empty($validated['customer_phone']) ? $validated['customer_phone'] : '+966 50 000 0000',
                 'customer_email' => !empty($validated['customer_email']) ? $validated['customer_email'] : 'walkin@bluezone.com',
                 'date' => now()->toDateString(),
@@ -124,7 +263,7 @@ class OfflineSaleController extends Controller
                 'shipping' => 0.00,
                 'tax' => $tax,
                 'total' => $total,
-                'notes' => "Direct POS counter sale at Flagship Boutique. Cashier: {$userName}",
+                'notes' => "Direct POS counter sale at POS Warehouse. Cashier: {$userName}",
             ]);
 
             // Create Order Item
@@ -141,11 +280,28 @@ class OfflineSaleController extends Controller
                 'image' => $product->image ?? 'assets/products/blue-mind.jpg',
             ]);
 
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'invoice_number' => $order->invoice_number,
+                    'total' => $order->total,
+                    'print_url' => route('admin.invoices.print', $order->id),
+                    'message' => app()->getLocale() === 'ar'
+                        ? "تم تسجيل البيع بنجاح وخصم {$qty} وحدة من مخزون المستودع."
+                        : "Offline sale #{$orderNum} recorded and {$qty} units deducted from warehouse stock.",
+                ]);
+            }
+
             return redirect()->route('admin.invoices.print', $order->id)
                 ->with('status', app()->getLocale() === 'ar'
-                    ? "تم تسجيل البيع بنجاح وخصم {$qty} وحدة من مخزون المعرض."
-                    : "Offline sale #{$orderNum} recorded and {$qty} units deducted from boutique stock.");
+                    ? "تم تسجيل البيع بنجاح وخصم {$qty} وحدة من مخزون المستودع."
+                    : "Offline sale #{$orderNum} recorded and {$qty} units deducted from warehouse stock.");
         } catch (InvalidArgumentException $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+            }
             return back()->withInput()->withErrors(['sale_error' => $e->getMessage()]);
         }
     }
@@ -159,7 +315,7 @@ class OfflineSaleController extends Controller
                 'id' => $dbOrder->id,
                 'sale_number' => $dbOrder->order_number,
                 'invoice_number' => $dbOrder->invoice_number,
-                'store_location' => 'Riyadh Flagship Boutique',
+                'store_location' => 'Riyadh Central Warehouse',
                 'cashier' => ($dbOrder->notes && Str::contains($dbOrder->notes, 'Cashier: ')) ? Str::after($dbOrder->notes, 'Cashier: ') : 'Senior Longevity Specialist',
                 'customer_name' => $dbOrder->customer_name,
                 'payment_method' => $dbOrder->payment_method,

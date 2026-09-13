@@ -179,7 +179,7 @@
             </table>
         </div>
 
-        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($users)" />
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($users)" />
     </div>
 
     @push('scripts')

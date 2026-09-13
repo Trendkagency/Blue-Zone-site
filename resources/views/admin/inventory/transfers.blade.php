@@ -14,7 +14,7 @@
 
 <x-layouts.admin 
     :pageTitle="__('admin.inventory.transfer_title')" 
-    :pageSubtitle="app()->getLocale() == 'ar' ? 'تنفيذ تحويلات المخزون الموثقة بين مستودع الأونلاين ومعرض البوتيك والمستودع المركزي.' : 'Execute auditable stock relocations between fulfillment hubs, flagship boutiques, and quarantine warehouses.'"
+    :pageSubtitle="app()->getLocale() == 'ar' ? 'تنفيذ تحويلات المخزون الموثقة بين مستودع الأونلاين ومستودع المبيعات والمستودع المركزي.' : 'Execute auditable stock relocations between fulfillment hubs, POS warehouses, and quarantine warehouses.'"
     :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.index'), __('admin.inventory.transfer_title') => route('admin.inventory.transfers')]"
 >
     @if(session('status'))
@@ -168,6 +168,12 @@
         </div>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#inventoryTransfersTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل عمليات وتدقيق النقل بين المستودعات' : 'Inter-Warehouse Stock Transfers Log'" 
+    />
+
     <!-- Recent Transfer Audit Log Table -->
     <div class="card">
         <div class="card-header" style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border);">
@@ -177,15 +183,15 @@
             </h3>
         </div>
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="inventoryTransfersTable">
                 <thead>
                     <tr>
-                        <th>{{ __('admin.inventory.movement_id') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'التركيبة' : 'Product' }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'مسار التحويل (من إلى)' : 'Routing (From / To)' }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'الكمية المحولة' : 'Transferred Qty' }}</th>
-                        <th>{{ __('admin.inventory.logged_user') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'التاريخ والسبب' : 'Date & Note' }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.movement_id') }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'التركيبة' : 'Product' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'مسار التحويل (من إلى)' : 'Routing (From / To)' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() == 'ar' ? 'الكمية المحولة' : 'Transferred Qty' }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.logged_user') }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'التاريخ والسبب' : 'Date & Note' }}</th>
                     </tr>
                 </thead>
                 <tbody>

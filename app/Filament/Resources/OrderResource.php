@@ -38,7 +38,7 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('order_number')->required()->unique(ignoreRecord: true),
                         Forms\Components\TextInput::make('invoice_number'),
                         Forms\Components\Select::make('channel')
-                            ->options(['online' => 'Online', 'offline' => 'Boutique POS'])
+                            ->options(['online' => 'Online', 'offline' => 'Warehouse POS'])
                             ->default('online'),
                     ]),
                     Grid::make(3)->schema([
@@ -160,7 +160,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('channel')
                     ->badge()
                     ->color(fn (string $state): string => $state === 'online' ? 'primary' : 'warning')
-                    ->formatStateUsing(fn (string $state) => $state === 'online' ? 'Online' : 'Boutique POS'),
+                    ->formatStateUsing(fn (string $state) => $state === 'online' ? 'Online' : 'Warehouse POS'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -186,7 +186,7 @@ class OrderResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('channel')
-                    ->options(['online' => 'Online', 'offline' => 'Boutique POS']),
+                    ->options(['online' => 'Online', 'offline' => 'Warehouse POS']),
                 Tables\Filters\SelectFilter::make('status')
                     ->options([
                         'Pending' => 'Pending', 'Confirmed' => 'Confirmed',

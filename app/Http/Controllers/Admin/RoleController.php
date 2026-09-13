@@ -59,6 +59,7 @@ class RoleController extends Controller
             'roles' => $roles,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $totalDbCount > 0 ? $dbRoles->total() : count($roles),
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,

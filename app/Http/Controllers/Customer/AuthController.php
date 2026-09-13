@@ -79,7 +79,14 @@ class AuthController extends Controller
             return redirect()->route('customer.account.dashboard');
         }
 
-        return view('customer.auth.register');
+        $countries = \App\Models\Country::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name_en')
+            ->get();
+
+        $defaultCountry = $countries->firstWhere('iso2', 'SA') ?? $countries->first();
+
+        return view('customer.auth.register', compact('countries', 'defaultCountry'));
     }
 
     /**
@@ -92,9 +99,12 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
             'phone' => ['nullable', 'string', 'max:30'],
+            'phone_code' => ['nullable', 'string', 'max:10'],
             'address' => ['nullable', 'string', 'max:500'],
             'city' => ['nullable', 'string', 'max:100'],
+            'city_id' => ['nullable', 'integer'],
             'country' => ['nullable', 'string', 'max:100'],
+            'country_id' => ['nullable', 'integer'],
         ]);
 
         if (CaptchaService::isEnabled('register')) {
@@ -107,15 +117,43 @@ class AuthController extends Controller
             }
         }
 
+        // Resolve Country Details
+        $countryName = $validated['country'] ?? 'Saudi Arabia';
+        $countryPhoneCode = $validated['phone_code'] ?? '+966';
+        if (!empty($validated['country_id'])) {
+            $countryObj = \App\Models\Country::find($validated['country_id']);
+            if ($countryObj) {
+                $countryName = $countryObj->name_en;
+                $countryPhoneCode = $countryObj->phone_code;
+            }
+        }
+
+        // Resolve City Details
+        $cityName = $validated['city'] ?? 'Riyadh';
+        if (!empty($validated['city_id'])) {
+            $cityObj = \App\Models\City::find($validated['city_id']);
+            if ($cityObj) {
+                $cityName = $cityObj->name_en;
+            }
+        }
+
+        // Format phone with dial code if needed
+        $phone = trim($validated['phone']);
+        if (!str_starts_with($phone, '+')) {
+            $cleanDial = rtrim($countryPhoneCode, ' ');
+            $cleanPhone = ltrim($phone, '0');
+            $phone = $cleanDial . ' ' . $cleanPhone;
+        }
+
         $defaultAddress = [
             [
                 'id' => 1,
                 'title' => app()->getLocale() === 'ar' ? 'المقر السكني الرئيسي' : 'Primary Residence',
                 'recipient' => $validated['name'],
-                'phone' => $validated['phone'] ?? '+966 50 000 0000',
+                'phone' => $phone,
                 'street' => $validated['address'] ?? 'Primary Delivery Address',
-                'city' => $validated['city'] ?? 'Riyadh',
-                'country' => $validated['country'] ?? 'Saudi Arabia',
+                'city' => $cityName,
+                'country' => $countryName,
                 'postal_code' => '12271',
                 'is_default' => true,
             ],
@@ -125,10 +163,10 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'phone' => $validated['phone'] ?? null,
+            'phone' => $phone,
             'address' => $validated['address'] ?? null,
-            'city' => $validated['city'] ?? null,
-            'country' => $validated['country'] ?? 'Saudi Arabia',
+            'city' => $cityName,
+            'country' => $countryName,
             'saved_addresses' => $defaultAddress,
             'loyalty_points' => 100, // 100 welcome points
             'status' => 'active',

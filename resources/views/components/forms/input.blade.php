@@ -9,9 +9,13 @@
     'error' => null,
 ])
 
+@php
+    $inputId = $attributes->get('id', $name);
+@endphp
+
 <div class="form-group">
     @if($label)
-        <label for="{{ $name }}" class="form-label">
+        <label for="{{ $inputId }}" class="form-label">
             <span>{{ $label }}</span>
             @if($required)
                 <span class="required-mark">*</span>
@@ -22,7 +26,7 @@
     <input 
         type="{{ $type }}" 
         name="{{ $name }}" 
-        id="{{ $name }}" 
+        id="{{ $inputId }}" 
         value="{{ $value }}"
         placeholder="{{ $placeholder }}"
         {{ $required ? 'required' : '' }}

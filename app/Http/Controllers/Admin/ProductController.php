@@ -81,7 +81,7 @@ class ProductController extends Controller
                     'stock_offline' => $p->stock_offline,
                     'low_stock_threshold' => $p->low_stock_threshold ?? 10,
                     'status' => $p->status ?? 'active',
-                    'image' => $p->image ?? 'assets/products/blue-mind.jpg',
+                    'image' => $p->primary_image_url,
                     'deleted_at' => $p->deleted_at,
                 ];
             })->toArray();
@@ -101,6 +101,7 @@ class ProductController extends Controller
             'categories' => $categories,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $totalDbCount > 0 ? $dbProducts->total() : count($products),
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
@@ -135,24 +136,46 @@ class ProductController extends Controller
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
         $this->formatScienceInputs($data);
+        $fallbackImage = $data['image'] ?? null;
+        unset($data['image'], $data['images']);
         $product = Product::create($data);
 
-        // Attach Spatie Media if uploaded
-        if ($request->hasFile('primary_image')) {
-            $product->registerMediaCollections('primary_image')->toMediaCollection('primary_image');
-            $product->image = $product->getFirstMediaUrl('primary_image');
+        // Attach Spatie Media if uploaded (supports primary_image and image)
+        $primaryFile = $request->file('primary_image') ?? ($request->hasFile('image') ? $request->file('image') : null);
+        if (is_array($primaryFile)) {
+            $primaryFile = reset($primaryFile);
+        }
+
+        if ($primaryFile && $primaryFile->isValid()) {
+            $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
+            $product->image = $media->getUrl();
+            $product->save();
+        } elseif (!empty($fallbackImage) && is_string($fallbackImage)) {
+            $product->image = $fallbackImage;
             $product->save();
         }
 
         if ($request->hasFile('gallery')) {
-            foreach ($request->file('gallery') as $file) {
-                $product->addMedia($file)->toMediaCollection('gallery');
+            $galleryUrls = [];
+            $galleryFiles = is_array($request->file('gallery')) ? $request->file('gallery') : [$request->file('gallery')];
+            foreach ($galleryFiles as $file) {
+                if ($file && $file->isValid()) {
+                    $media = $product->addMedia($file)->toMediaCollection('gallery');
+                    $galleryUrls[] = $media->getUrl();
+                }
+            }
+            if (!empty($galleryUrls)) {
+                $product->images = $galleryUrls;
+                $product->save();
             }
         }
 
         if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $file) {
-                $product->addMedia($file)->toMediaCollection('documents');
+            $docFiles = is_array($request->file('documents')) ? $request->file('documents') : [$request->file('documents')];
+            foreach ($docFiles as $file) {
+                if ($file && $file->isValid()) {
+                    $product->addMedia($file)->toMediaCollection('documents');
+                }
             }
         }
 
@@ -173,8 +196,8 @@ class ProductController extends Controller
         InventoryItem::create([
             'product_id' => $product->id,
             'location_id' => 'offline',
-            'location_name_en' => 'Flagship Boutique POS',
-            'location_name_ar' => 'معرض البوتيك المباشر',
+            'location_name_en' => 'Warehouse POS',
+            'location_name_ar' => 'مستودع المبيعات المباشرة',
             'current_stock' => $product->stock_offline,
             'available_stock' => $product->stock_offline,
             'reserved_stock' => 0,
@@ -229,7 +252,7 @@ class ProductController extends Controller
                 'stock_offline' => $dbProduct->stock_offline,
                 'low_stock_threshold' => $dbProduct->low_stock_threshold ?? 10,
                 'status' => $dbProduct->status ?? 'active',
-                'image' => $dbProduct->image ?? 'assets/products/blue-mind.jpg',
+                'image' => $dbProduct->primary_image_url,
                 'short_description_en' => $dbProduct->short_description_en,
                 'description_en' => $dbProduct->description_en,
             ];
@@ -248,7 +271,7 @@ class ProductController extends Controller
 
     public function edit(int $id): View
     {
-        $dbProduct = Product::find($id);
+        $dbProduct = Product::with(['category', 'inventoryItems'])->find($id);
 
         if ($dbProduct) {
             $product = [
@@ -275,7 +298,7 @@ class ProductController extends Controller
                 'stock_offline' => $dbProduct->stock_offline,
                 'low_stock_threshold' => $dbProduct->low_stock_threshold ?? 10,
                 'status' => $dbProduct->status ?? 'active',
-                'image' => $dbProduct->image ?? 'assets/products/blue-mind.jpg',
+                'image' => $dbProduct->primary_image_url,
                 'short_description_en' => $dbProduct->short_description_en,
                 'short_description_ar' => $dbProduct->short_description_ar,
                 'description_en' => $dbProduct->description_en,
@@ -324,10 +347,34 @@ class ProductController extends Controller
             isset($product['sale_price']) && $product['sale_price'] ? (float) $product['sale_price'] : null
         );
 
+        $onlineStock = (int) ($dbProduct->stock_online ?? ($product['stock_online'] ?? 0));
+        $offlineStock = (int) ($dbProduct->stock_offline ?? ($product['stock_offline'] ?? 0));
+        $centralStock = (int) ($dbProduct?->inventoryItems?->where('location_id', 'central_wh')->sum('current_stock') ?? 0);
+        $totalStock = $onlineStock + $offlineStock + $centralStock;
+
+        $inventoryBreakdown = [
+            'online' => $onlineStock,
+            'offline' => $offlineStock,
+            'central' => $centralStock,
+            'total' => $totalStock,
+            'valuation' => $totalStock * (float) ($product['price'] ?? 68.00),
+        ];
+
+        $locations = \App\Models\Location::where('is_active', true)->get();
+        if ($locations->isEmpty()) {
+            $locations = collect([
+                (object)['id' => 'online', 'name_en' => 'Online Fulfillment Hub', 'name_ar' => 'مستودع المتجر الإلكتروني', 'code' => 'LOC-ONL'],
+                (object)['id' => 'offline', 'name_en' => 'POS Sales Warehouse', 'name_ar' => 'مستودع المبيعات المباشرة', 'code' => 'LOC-POS'],
+                (object)['id' => 'central_wh', 'name_en' => 'Central Quarantine Warehouse', 'name_ar' => 'المستودع المركزي الرئيسي', 'code' => 'LOC-CWH'],
+            ]);
+        }
+
         return view('admin.products.edit', [
             'product' => $product,
             'categories' => $categories,
             'taxInfo' => $taxInfo,
+            'inventoryBreakdown' => $inventoryBreakdown,
+            'locations' => $locations,
         ]);
     }
 
@@ -367,6 +414,8 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         $this->formatScienceInputs($data);
+        $fallbackImage = $data['image'] ?? null;
+        unset($data['image'], $data['images'], $data['stock_online'], $data['stock_offline']);
 
         /*
         |--------------------------------------------------------------------------
@@ -379,31 +428,19 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         | Primary Image
         |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        | The form field is "primary_image", so we must use
-        | "primary_image" everywhere.
-        |
         */
-        if ($request->hasFile('primary_image')) {
-            if ($product->image) {
-                $oldImage = str_replace('/storage/', '', $product->image);
+        $primaryFile = $request->file('primary_image') ?? ($request->hasFile('image') ? $request->file('image') : null);
+        if (is_array($primaryFile)) {
+            $primaryFile = reset($primaryFile);
+        }
 
-                if (Storage::disk('public')->exists($oldImage)) {
-                    Storage::disk('public')->delete($oldImage);
-                }
-            }
-
-            $extension = $request->file('primary_image')->getClientOriginalExtension();
-
-            $filename = Str::slug($product->name_en)
-                . '-' . $product->id
-                . '.' . $extension;
-
-            $path = $request->file('primary_image')
-                ->storeAs('products', $filename, 'public');
-
-            $product->image = Storage::url($path);
+        if ($primaryFile && $primaryFile->isValid()) {
+            $product->clearMediaCollection('primary_image');
+            $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
+            $product->image = $media->getUrl();
+            $product->save();
+        } elseif (!empty($fallbackImage) && is_string($fallbackImage) && !$product->hasMedia('primary_image')) {
+            $product->image = $fallbackImage;
             $product->save();
         }
 
@@ -413,30 +450,21 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         if ($request->hasFile('gallery')) {
-
             $gallery = is_array($request->file('gallery'))
                 ? $request->file('gallery')
                 : [$request->file('gallery')];
+            $existingGallery = is_array($product->images) ? $product->images : [];
 
             foreach ($gallery as $index => $file) {
-
                 if (!$file || !$file->isValid()) {
                     continue;
                 }
-
-                $extension = $file->getClientOriginalExtension();
-
-                $filename = Str::slug($product->name_en)
-                    . '-' . $product->id
-                    . '-gallery-' . ($index + 1)
-                    . '.' . $extension;
-
-                $file->storeAs(
-                    'products',
-                    $filename,
-                    'public'
-                );
+                $media = $product->addMedia($file)->toMediaCollection('gallery');
+                $existingGallery[] = $media->getUrl();
             }
+
+            $product->images = array_values(array_unique($existingGallery));
+            $product->save();
         }
 
         /*
@@ -445,12 +473,14 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         if ($request->hasFile('documents')) {
+            $documents = is_array($request->file('documents'))
+                ? $request->file('documents')
+                : [$request->file('documents')];
 
-            foreach ($request->file('documents') as $file) {
-
-                $product
-                    ->addMedia($file)
-                    ->toMediaCollection('documents');
+            foreach ($documents as $file) {
+                if ($file && $file->isValid()) {
+                    $product->addMedia($file)->toMediaCollection('documents');
+                }
             }
         }
 

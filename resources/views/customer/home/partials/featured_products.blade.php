@@ -334,19 +334,22 @@
      ============================================================ --}}
 
 @php
-    $featuredProducts = [];
+    $featuredProductsData = [];
 
-    foreach ($products as $product) {
-        $featuredProducts[] = [
-            'id' => $product->id,
-            'name' => $product->name,
-            'category' => $product->category?->name ?? '',
-            'rating' => $product->rating ?? 0,
-            'image' => $product->image ?? asset('assets/images/products/blue-mind.jpg.png'),
-            'shortDesc' => $product->description ?? '',
-            'price' => $product->price,
-            'url' => route('customer.product.show', $product->slug),
-        ];
+    if (!empty($products)) {
+        foreach ($products as $product) {
+            $isObj = is_object($product);
+            $featuredProductsData[] = [
+                'id' => $isObj ? $product->id : ($product['id'] ?? null),
+                'name' => $isObj ? ($product->name ?? $product->name_en ?? '') : ($product['name'] ?? $product['name_en'] ?? ''),
+                'category' => $isObj ? ($product->category?->name ?? '') : ($product['category'] ?? ''),
+                'rating' => $isObj ? ($product->rating ?? 0) : ($product['rating'] ?? 0),
+                'image' => $isObj ? ($product->image ?? asset('assets/images/products/blue-mind.jpg.png')) : ($product['image'] ?? asset('assets/images/products/blue-mind.jpg.png')),
+                'shortDesc' => $isObj ? ($product->description ?? '') : ($product['description'] ?? ''),
+                'price' => $isObj ? $product->price : ($product['price'] ?? 0),
+                'url' => route('customer.product.show', $isObj ? $product->slug : ($product['slug'] ?? '')),
+            ];
+        }
     }
 @endphp
 
@@ -364,5 +367,5 @@
             'noProducts' => __('app.no_products_available'),
         ]) }};
 
-    window.BLUEZONE_PRODUCTS = {{ Illuminate\Support\Js::from($featuredProducts) }};
+    window.BLUEZONE_PRODUCTS = {{ Illuminate\Support\Js::from($featuredProductsData) }};
 </script>

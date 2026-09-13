@@ -161,7 +161,7 @@ class AdminTablesAndPrintTest extends TestCase
             'from_location' => 'online',
             'to_location' => 'offline',
             'quantity' => 5,
-            'reason' => 'Boutique Weekend Restock Event',
+            'reason' => 'Warehouse Restock Event',
         ]);
 
         $postRes->assertRedirect(route('admin.inventory.transfers'));

@@ -29,9 +29,9 @@ class InventoryService
                 if (!$item->exists) {
                     $initialStock = 0;
                     if ($loc->id === 'online') {
-                        $initialStock = $product->stock_online;
+                        $initialStock = $product->stock_online ?? 0;
                     } elseif ($loc->id === 'offline') {
-                        $initialStock = $product->stock_offline;
+                        $initialStock = $product->stock_offline ?? 0;
                     } elseif ($loc->id === 'central_wh') {
                         $initialStock = 50; // default central logistics buffer
                     }
@@ -46,19 +46,77 @@ class InventoryService
                     $item->low_stock_threshold = $product->low_stock_threshold ?? 15;
                     $item->unit_cost = $product->cost_price ?? ($product->price * 0.4);
                     $item->retail_price = $product->price;
+                    $item->save();
                     $item->refreshStatus();
                 } else {
-                    // If online/offline item exists, ensure product columns remain aligned
-                    if ($loc->id === 'online' && $item->current_stock !== $product->stock_online) {
-                        $item->current_stock = $product->stock_online;
-                        $item->refreshStatus();
-                    } elseif ($loc->id === 'offline' && $item->current_stock !== $product->stock_offline) {
-                        $item->current_stock = $product->stock_offline;
-                        $item->refreshStatus();
+                    $item->location_name_en = $loc->name_en;
+                    $item->location_name_ar = $loc->name_ar;
+                    $item->save();
+
+                    // Ensure Product model columns reflect the InventoryItem balances
+                    if ($loc->id === 'online' && $product->stock_online !== $item->current_stock) {
+                        $product->stock_online = $item->current_stock;
+                        $product->save();
+                    } elseif ($loc->id === 'offline' && $product->stock_offline !== $item->current_stock) {
+                        $product->stock_offline = $item->current_stock;
+                        $product->save();
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Provision inventory items for a newly created or activated location across all products.
+     */
+    public static function provisionLocationForProducts(Location $location, int $initialStock = 0): void
+    {
+        $products = Product::all();
+        foreach ($products as $product) {
+            $item = InventoryItem::firstOrNew([
+                'product_id' => $product->id,
+                'location_id' => $location->id,
+            ]);
+
+            if (!$item->exists) {
+                $stock = $initialStock;
+                if ($location->id === 'online') {
+                    $stock = $product->stock_online ?? $initialStock;
+                } elseif ($location->id === 'offline') {
+                    $stock = $product->stock_offline ?? $initialStock;
+                } elseif ($location->id === 'central_wh') {
+                    $stock = 50;
+                }
+
+                $item->location_name_en = $location->name_en;
+                $item->location_name_ar = $location->name_ar;
+                $item->variant_en = 'Standard Pack';
+                $item->variant_ar = 'العبوة القياسية';
+                $item->current_stock = $stock;
+                $item->available_stock = $stock;
+                $item->reserved_stock = 0;
+                $item->low_stock_threshold = $product->low_stock_threshold ?? 15;
+                $item->unit_cost = $product->cost_price ?? ($product->price * 0.4);
+                $item->retail_price = $product->price;
+                $item->save();
+                $item->refreshStatus();
+            } else {
+                $item->location_name_en = $location->name_en;
+                $item->location_name_ar = $location->name_ar;
+                $item->save();
+            }
+        }
+    }
+
+    /**
+     * Update cached location names on all associated inventory items.
+     */
+    public static function syncLocationNames(Location $location): void
+    {
+        InventoryItem::where('location_id', $location->id)->update([
+            'location_name_en' => $location->name_en,
+            'location_name_ar' => $location->name_ar,
+        ]);
     }
 
     /**
@@ -240,8 +298,8 @@ class InventoryService
     ): InventoryMovement {
         if ($product->stock_offline < $quantity) {
             throw new InvalidArgumentException(app()->getLocale() === 'ar'
-                ? "الرصيد المتوفر في مخزون المعرض ({$product->stock_offline} وحدة) غير كافٍ لإتمام عملية البيع."
-                : "Insufficient offline boutique stock ({$product->stock_offline} units) for this sale.");
+                ? "الرصيد المتوفر في مخزون المستودع ({$product->stock_offline} وحدة) غير كافٍ لإتمام عملية البيع."
+                : "Insufficient offline warehouse stock ({$product->stock_offline} units) for this sale.");
         }
 
         return DB::transaction(function () use ($product, $quantity, $orderNumber, $userName, $variant) {
@@ -262,7 +320,7 @@ class InventoryService
                 'sku' => $product->sku,
                 'variant' => $variant ?? $offlineItem->variant_en ?? 'Standard Pack',
                 'movement_type' => 'Offline Sale',
-                'from_location' => 'Flagship Boutique / POS',
+                'from_location' => 'Warehouse / POS',
                 'to_location' => 'Customer Handover',
                 'quantity' => -$quantity,
                 'previous_qty' => $prevQty,
@@ -270,7 +328,7 @@ class InventoryService
                 'date' => now()->toDateString(),
                 'time' => now()->format('H:i:s'),
                 'user' => $userName ?? auth()->user()?->name ?? 'POS Cashier',
-                'note' => "Offline Boutique POS Sale #{$orderNumber}",
+                'note' => "Offline POS Sale #{$orderNumber}",
             ]);
         });
     }

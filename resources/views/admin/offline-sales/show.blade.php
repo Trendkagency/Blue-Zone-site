@@ -11,8 +11,8 @@
 
     <div class="card" style="padding: 2.5rem; max-width: 600px; margin: 0 auto; font-family: monospace;">
         <div style="text-align: center; border-bottom: 2px dashed var(--color-border); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-            <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0 0 0.25rem 0;">BLUE ZONE BOUTIQUE</h2>
-            <div class="text-xs text-muted">Flagship Wellness Center • POS Register #01</div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0 0 0.25rem 0;">BLUE ZONE WAREHOUSE</h2>
+            <div class="text-xs text-muted">Central Wellness POS • Register #01</div>
             <div class="text-xs text-muted">{{ $sale['date'] }} {{ $sale['time'] }}</div>
             <div class="text-xs font-bold" style="margin-top: 0.5rem;">SALE #{{ $sale['sale_number'] }} • Cashier: {{ $sale['cashier'] }}</div>
         </div>

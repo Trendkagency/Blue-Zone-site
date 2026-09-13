@@ -172,16 +172,70 @@ class Product extends Model implements HasMedia
     }
 
     /**
+     * Normalize any product image URL to prevent Mixed Content, port 8000 mismatch, or broken faker strings.
+     */
+    public static function normalizeUrl(?string $url): string
+    {
+        if (empty($url) || !is_string($url)) {
+            return asset('assets/products/blue-mind.jpg');
+        }
+
+        $trimmed = trim($url);
+
+        // If it contains /storage/ path (e.g. from Spatie or local uploads on any domain/port)
+        if (str_contains($trimmed, '/storage/')) {
+            $parsedPath = parse_url($trimmed, PHP_URL_PATH);
+            if (!empty($parsedPath)) {
+                return asset(ltrim($parsedPath, '/'));
+            }
+        }
+
+        // If it starts with http:// or https://
+        if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
+            // If it's pointing to localhost/127.0.0.1 or contains a local port mismatch
+            if (str_contains($trimmed, 'localhost') || str_contains($trimmed, '127.0.0.1')) {
+                $parsedPath = parse_url($trimmed, PHP_URL_PATH);
+                return asset(ltrim($parsedPath ?? '', '/'));
+            }
+            // If current page is HTTPS and URL is insecure HTTP, upgrade to HTTPS
+            if (function_exists('request') && request()?->isSecure() && str_starts_with($trimmed, 'http://')) {
+                return 'https://' . substr($trimmed, 7);
+            }
+            return $trimmed;
+        }
+
+        // If it's a known valid asset or starts with assets/ or storage/
+        if (str_starts_with($trimmed, 'assets/') || str_starts_with($trimmed, 'storage/')) {
+            return asset($trimmed);
+        }
+
+        // If it's a local public file
+        if (function_exists('public_path') && file_exists(public_path($trimmed))) {
+            return asset(ltrim($trimmed, '/'));
+        }
+
+        // If it's a random faker text or broken placeholder without file extension
+        if (!str_contains($trimmed, '/') && !str_contains($trimmed, '.')) {
+            return asset('assets/products/blue-mind.jpg');
+        }
+
+        return asset(ltrim($trimmed, '/'));
+    }
+
+    /**
      * Primary image URL accessor.
      */
     public function getPrimaryImageUrlAttribute(): string
     {
         if (method_exists($this, 'hasMedia') && $this->hasMedia('primary_image')) {
-            return $this->getFirstMediaUrl('primary_image');
+            $url = $this->getFirstMediaUrl('primary_image');
+            if (!empty($url)) {
+                return self::normalizeUrl($url);
+            }
         }
 
         if (!empty($this->image)) {
-            return str_starts_with($this->image, 'http') ? $this->image : asset($this->image);
+            return self::normalizeUrl($this->image);
         }
 
         return asset('assets/products/blue-mind.jpg');
@@ -198,13 +252,13 @@ class Product extends Model implements HasMedia
 
         if (method_exists($this, 'hasMedia') && $this->hasMedia('gallery')) {
             foreach ($this->getMedia('gallery') as $media) {
-                $urls[] = $media->getUrl();
+                $urls[] = self::normalizeUrl($media->getUrl());
             }
         }
 
         if (empty($urls) && !empty($this->images) && is_array($this->images)) {
             foreach ($this->images as $img) {
-                $urls[] = str_starts_with($img, 'http') ? $img : asset($img);
+                $urls[] = self::normalizeUrl($img);
             }
         }
 
@@ -212,7 +266,7 @@ class Product extends Model implements HasMedia
             $urls[] = $this->primary_image_url;
         }
 
-        return $urls;
+        return array_values(array_unique($urls));
     }
 
     /**

@@ -71,20 +71,26 @@
         </form>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#inventoryHistoryTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل حركات المخزون والتدقيق المركزي' : 'Inventory Audit & Movement Ledger'" 
+    />
+
     <!-- Movement Ledger Table -->
     <div class="card">
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="inventoryHistoryTable">
                 <thead>
                     <tr>
-                        <th>{{ __('admin.inventory.movement_id') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'التركيبة والمواصفة' : 'Product & Variant' }}</th>
-                        <th>{{ __('admin.inventory.movement_type') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'مسار الحركة (من إلى)' : 'Routing (From / To)' }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'فرق الكمية' : 'Qty Delta' }}</th>
-                        <th>{{ __('admin.inventory.prev_qty') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs"></i> {{ __('admin.inventory.new_qty') }}</th>
-                        <th>{{ __('admin.inventory.logged_user') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'الوقت والتبرير' : 'Timestamp & Justification' }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.movement_id') }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'التركيبة والمواصفة' : 'Product & Variant' }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.movement_type') }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'مسار الحركة (من إلى)' : 'Routing (From / To)' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() == 'ar' ? 'فرق الكمية' : 'Qty Delta' }}</th>
+                        <th data-sort-type="number">{{ __('admin.inventory.prev_qty') }} <i class="fa-solid fa-arrow-right rtl:rotate-180 text-xs"></i> {{ __('admin.inventory.new_qty') }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.logged_user') }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'الوقت والتبرير' : 'Timestamp & Justification' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -96,7 +102,7 @@
                             $mVariant = $m->variant ?? 'Standard Pack';
                             $mType = $m->movement_type ?? 'Transfer';
                             $mFrom = $m->from_location ?? 'Central Warehouse';
-                            $mTo = $m->to_location ?? 'Boutique POS';
+                            $mTo = $m->to_location ?? 'Warehouse POS';
                             $mQty = (int) $m->quantity;
                             $mPrev = $m->previous_qty ?? 0;
                             $mNew = $m->new_qty ?? 0;

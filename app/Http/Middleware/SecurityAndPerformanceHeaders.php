@@ -45,7 +45,18 @@ class SecurityAndPerformanceHeaders
 
         // Content Security Policy (Report-Only safe baseline)
         if (!$response->headers->has('Content-Security-Policy') && !$response->headers->has('Content-Security-Policy-Report-Only')) {
-            $response->headers->set('Content-Security-Policy-Report-Only', "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; frame-ancestors 'self';");
+            $csp = [
+                "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'",
+                "img-src 'self' https: data: blob: http:",
+                "worker-src 'self' blob:",
+                "child-src 'self' blob:",
+                "connect-src 'self' https: data: blob: http:",
+                "font-src 'self' https: data:",
+                "style-src 'self' https: 'unsafe-inline'",
+                "script-src 'self' https: 'unsafe-inline' 'unsafe-eval' blob:",
+                "frame-ancestors 'self'",
+            ];
+            $response->headers->set('Content-Security-Policy-Report-Only', implode('; ', $csp) . ';');
         }
 
         // Performance: Gzip Compression for text/html/json responses

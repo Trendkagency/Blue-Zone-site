@@ -480,7 +480,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- TAB 3: CHANNELS & POS BOUTIQUE PERFORMANCE                               -->
+    <!-- TAB 3: CHANNELS & POS WAREHOUSE PERFORMANCE                               -->
     <!-- ========================================================================= -->
     <div id="tab-channels" class="report-tab-content" style="display: none;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
@@ -521,7 +521,7 @@
                 </div>
             </div>
 
-            <!-- POS Flagship Boutique Card -->
+            <!-- POS Warehouse Card -->
             <div class="card" style="padding: 1.75rem;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
                     <div>
@@ -529,7 +529,7 @@
                             <i class="fa-solid fa-cash-register text-warning mr-1 ml-1"></i> {{ __('admin.reports.pos_only') }}
                         </h3>
                         <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0.2rem 0 0 0;">
-                            Flagship Physical Wellness Boutique
+                            Physical Wellness POS Warehouse
                         </p>
                     </div>
                     <span class="badge badge-warning font-bold text-sm">{{ $channels['pos']['percentage'] }}% {{ __('admin.reports.share_pct') }}</span>

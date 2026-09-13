@@ -66,20 +66,26 @@
         </form>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#customersTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل وقاعدة بيانات العملاء' : 'Customer Registry & CRM'" 
+    />
+
     <!-- Customers Table -->
     <div class="card shadow-sm border border-gray-100 dark:border-gray-800">
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="customersTable">
                 <thead>
                     <tr>
-                        <th>{{ __('admin.orders.customer') }}</th>
-                        <th>{{ __('admin.customers.contact') }}</th>
-                        <th>{{ __('admin.customers.location') }}</th>
-                        <th>{{ __('admin.customers.member_tier') }}</th>
-                        <th>{{ __('admin.customers.orders_count') }}</th>
-                        <th>{{ __('admin.customers.total_spent') }}</th>
-                        <th>{{ __('admin.customers.status') }}</th>
-                        <th style="text-align: center;">{{ __('admin.customers.actions') }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.customer') }}</th>
+                        <th data-sort-type="text">{{ __('admin.customers.contact') }}</th>
+                        <th data-sort-type="text">{{ __('admin.customers.location') }}</th>
+                        <th data-sort-type="text">{{ __('admin.customers.member_tier') }}</th>
+                        <th data-sort-type="number">{{ __('admin.customers.orders_count') }}</th>
+                        <th data-sort-type="number">{{ __('admin.customers.total_spent') }}</th>
+                        <th data-sort-type="date">{{ __('admin.customers.joined_date') }}</th>
+                        <th style="text-align: center;" data-no-sort data-no-export>{{ __('admin.customers.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,10 +171,6 @@
             </table>
         </div>
 
-        @if($customers instanceof \Illuminate\Pagination\LengthAwarePaginator && $customers->hasPages())
-            <div class="card-footer border-t border-gray-100 dark:border-gray-800 p-4">
-                {{ $customers->links() }}
-            </div>
-        @endif
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($customers)" />
     </div>
 </x-layouts.admin>

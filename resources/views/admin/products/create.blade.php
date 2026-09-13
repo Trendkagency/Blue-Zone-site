@@ -78,6 +78,9 @@
             <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
                 {{ __('app.actions.cancel') }}
             </a>
+            <button type="button" class="btn btn-outline-primary" onclick="openLiveProductPreview()" style="font-weight: 700;">
+                <i class="fa-solid fa-eye mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'معاينة المنتج الحية' : 'Live Product Preview' }}
+            </button>
             <button type="button" class="btn btn-secondary" id="btnPrevStep" onclick="navigateStep(-1)" style="display: none;">
                 <i class="fa-solid fa-arrow-left mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'الخطوة السابقة' : 'Previous Step' }}
             </button>
@@ -884,17 +887,27 @@
             return true;
         }
 
+        function getNumericInput(names) {
+            for (const name of names) {
+                const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
+                if (el && el.value !== '' && el.value !== undefined && !isNaN(el.value)) {
+                    return parseFloat(el.value) || 0;
+                }
+            }
+            return 0;
+        }
+
         function recalculateTaxAndMargin() {
-            const cost = parseFloat(document.getElementById('inputCostPrice')?.value) || 0;
-            const retail = parseFloat(document.getElementById('inputRetailPrice')?.value) || 0;
-            const sale = parseFloat(document.getElementById('inputSalePrice')?.value) || 0;
+            const cost = getNumericInput(['inputCostPrice', 'cost_price']);
+            const retail = getNumericInput(['inputRetailPrice', 'price']);
+            const sale = getNumericInput(['inputSalePrice', 'sale_price']);
 
             const effective = (sale > 0 && sale < retail) ? sale : retail;
 
             let netPrice, taxAmount, grossPrice;
 
             if (pricesIncludeTax) {
-                netPrice = effective / (1 + (taxRate / 100));
+                netPrice = (taxRate > 0) ? (effective / (1 + (taxRate / 100))) : effective;
                 taxAmount = effective - netPrice;
                 grossPrice = effective;
             } else {
@@ -904,14 +917,34 @@
             }
 
             const margin = netPrice - cost;
-            const marginPct = (netPrice > 0) ? ((margin / netPrice) * 100).toFixed(1) : 0;
+            const marginPct = (netPrice > 0) ? ((margin / netPrice) * 100).toFixed(1) : '0.0';
 
             const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
-            document.getElementById('displayCostPrice').innerText = formatC(cost);
-            document.getElementById('displayNetPrice').innerText = formatC(netPrice);
-            document.getElementById('displayTaxAmount').innerText = formatC(taxAmount);
-            document.getElementById('displayGrossPrice').innerText = formatC(grossPrice);
-            document.getElementById('displayProfitMargin').innerText = formatC(margin) + ' (' + marginPct + '%)';
+
+            const elCost = document.getElementById('displayCostPrice');
+            const elNet = document.getElementById('displayNetPrice');
+            const elTax = document.getElementById('displayTaxAmount');
+            const elGross = document.getElementById('displayGrossPrice');
+            const elMargin = document.getElementById('displayProfitMargin');
+
+            if (elCost) elCost.innerText = formatC(cost);
+            if (elNet) elNet.innerText = formatC(netPrice);
+            if (elTax) elTax.innerText = formatC(taxAmount);
+            if (elGross) elGross.innerText = formatC(grossPrice);
+            if (elMargin) {
+                const sign = margin >= 0 ? '+' : '';
+                elMargin.innerText = `${formatC(margin)} (${sign}${marginPct}%)`;
+                if (margin > 0) {
+                    elMargin.style.color = 'var(--color-success, #10b981)';
+                } else if (margin < 0) {
+                    elMargin.style.color = 'var(--color-danger, #ef4444)';
+                } else {
+                    elMargin.style.color = 'var(--color-text-main, #0A4F78)';
+                }
+            }
+
+            // Sync with Live Preview if active
+            updateLivePreviewData();
         }
 
         function updateReviewSummary() {
@@ -929,7 +962,7 @@
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
             if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
-            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Boutique)';
+            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Warehouse)';
         }
 
         // Dynamic Active Compounds Repeater
@@ -970,7 +1003,82 @@
             return String(text).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#039;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        // Live Interactive Product Preview Modal
+        let activePrevLang = '{{ app()->getLocale() }}';
+
+        function openLiveProductPreview() {
+            updateLivePreviewData();
+            document.getElementById('liveProductPreviewModal').style.display = 'flex';
+        }
+
+        function closeLiveProductPreview() {
+            document.getElementById('liveProductPreviewModal').style.display = 'none';
+        }
+
+        function switchPreviewLang(lang) {
+            activePrevLang = lang;
+            const btnEn = document.getElementById('prevLangEnBtn');
+            const btnAr = document.getElementById('prevLangArBtn');
+            if (lang === 'ar') {
+                btnAr.className = 'btn btn-xs btn-primary';
+                btnEn.className = 'btn btn-xs btn-ghost';
+            } else {
+                btnEn.className = 'btn btn-xs btn-primary';
+                btnAr.className = 'btn btn-xs btn-ghost';
+            }
+            updateLivePreviewData();
+        }
+
+        function updateLivePreviewData() {
+            const isAr = activePrevLang === 'ar';
+            const nameEn = document.querySelector('input[name="name_en"]')?.value || 'BLUE FORMULATION';
+            const nameAr = document.querySelector('input[name="name_ar"]')?.value || nameEn;
+            const sku = document.querySelector('input[name="sku"]')?.value || 'BZ-SKU-001';
+            const taglineEn = document.querySelector('input[name="tagline_en"]')?.value || 'Clinical Longevity Support';
+            const taglineAr = document.querySelector('input[name="tagline_ar"]')?.value || taglineEn;
+            const descEn = document.querySelector('textarea[name="short_description_en"]')?.value || document.querySelector('textarea[name="description_en"]')?.value || 'Bioceutical formulation engineered for optimal longevity and cellular energy.';
+            const descAr = document.querySelector('textarea[name="short_description_ar"]')?.value || document.querySelector('textarea[name="description_ar"]')?.value || descEn;
+            const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 68.00;
+            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 50;
+
+            const title = isAr ? nameAr : nameEn;
+            const tagline = isAr ? taglineAr : taglineEn;
+            const desc = isAr ? descAr : descEn;
+
+            const formatC = (val) => (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(val) : ('$' + Number(val).toFixed(2)));
+
+            // Update Card Elements
+            document.getElementById('prevCardTitle').innerText = title;
+            document.getElementById('prevCardSku').innerText = sku;
+            document.getElementById('prevCardPrice').innerText = formatC(price);
+            document.getElementById('prevCardStock').innerText = stockOffline + (isAr ? ' وحدة' : ' units');
+
+            // Update Dossier Elements
+            document.getElementById('prevDossierTitle').innerText = title;
+            document.getElementById('prevDossierTagline').innerText = tagline;
+            document.getElementById('prevDossierPrice').innerHTML = formatC(price) + ' <span class="text-xs text-muted" style="font-weight: normal;">' + (isAr ? '(شامل 15% ضريبة)' : '(incl. 15% VAT)') + '</span>';
+            document.getElementById('prevDossierDesc').innerText = desc;
+
+            // Direct Fallback Image sync
+            const fallbackPath = document.querySelector('input[name="image"]')?.value;
+            if (fallbackPath) {
+                const fullUrl = fallbackPath.startsWith('http') ? fallbackPath : ('/' + fallbackPath.replace(/^\//, ''));
+                document.getElementById('prevCardImg').src = fullUrl;
+                document.getElementById('prevDossierImg').src = fullUrl;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            ['cost_price', 'price', 'sale_price', 'inputCostPrice', 'inputRetailPrice', 'inputSalePrice'].forEach(name => {
+                const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
+                if (el) {
+                    el.addEventListener('input', recalculateTaxAndMargin);
+                    el.addEventListener('change', recalculateTaxAndMargin);
+                    el.addEventListener('keyup', recalculateTaxAndMargin);
+                    el.addEventListener('paste', () => setTimeout(recalculateTaxAndMargin, 50));
+                }
+            });
+
             recalculateTaxAndMargin();
 
             const initialIngredients = @json(old('ingredients', []));
@@ -983,6 +1091,108 @@
             } else {
                 addIngredientRow('', '', '');
             }
+
+            // Sync Primary Image Input Preview
+            const primaryInput = document.querySelector('input[name="primary_image"]');
+            if (primaryInput) {
+                primaryInput.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            const dataUrl = evt.target.result;
+                            const cardImg = document.getElementById('prevCardImg');
+                            const dossierImg = document.getElementById('prevDossierImg');
+                            if (cardImg) cardImg.src = dataUrl;
+                            if (dossierImg) dossierImg.src = dataUrl;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         });
     </script>
+
+    <!-- Live Product Interactive Preview Modal -->
+    <div id="liveProductPreviewModal" class="pos-modal-backdrop" style="display: none; z-index: 10000; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card" style="max-width: 620px; width: 92%; max-height: 90vh; overflow-y: auto; padding: 1.75rem; border-radius: var(--radius-lg); background: #fff; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-primary" style="font-size: 1.15rem;"></i>
+                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 800;">
+                        {{ app()->getLocale() === 'ar' ? 'معاينة بطاقة المنتج الحية' : 'Live Product Card & Dossier Preview' }}
+                    </h3>
+                </div>
+                <!-- EN / AR Toggle -->
+                <div style="display: flex; gap: 0.35rem; align-items: center;">
+                    <div style="display: flex; background: var(--color-bg-subtle); border: 1px solid var(--color-border); border-radius: 20px; padding: 2px;">
+                        <button type="button" class="btn btn-xs {{ app()->getLocale() === 'en' ? 'btn-primary' : 'btn-ghost' }}" id="prevLangEnBtn" onclick="switchPreviewLang('en')" style="border-radius: 18px; font-weight: bold; padding: 0.2rem 0.6rem;">EN</button>
+                        <button type="button" class="btn btn-xs {{ app()->getLocale() === 'ar' ? 'btn-primary' : 'btn-ghost' }}" id="prevLangArBtn" onclick="switchPreviewLang('ar')" style="border-radius: 18px; font-weight: bold; padding: 0.2rem 0.6rem;">العربية</button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-ghost" onclick="closeLiveProductPreview()">✕</button>
+                </div>
+            </div>
+
+            <!-- Preview Card (Warehouse & E-commerce dual view) -->
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;" id="livePreviewContainer">
+                
+                <!-- Warehouse POS Card Preview -->
+                <div style="background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <div class="text-xs font-bold text-muted" style="margin-bottom: 0.75rem; text-transform: uppercase;">
+                        {{ app()->getLocale() === 'ar' ? 'مظهر المنتج في شاشة الكاشير ونقطة البيع (POS Card):' : 'Warehouse POS Counter Card Appearance:' }}
+                    </div>
+
+                    <div class="card" style="max-width: 220px; margin: 0 auto; padding: 1rem; text-align: center; border-radius: var(--radius-lg); border: 2px solid var(--color-primary); box-shadow: 0 10px 25px rgba(10,17,40,0.08); background: #fff;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 0.5rem auto;">
+                            <img id="prevCardImg" src="{{ asset('assets/products/blue-mind.jpg') }}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                        </div>
+                        <div class="font-bold text-xs" id="prevCardTitle" style="margin-bottom: 0.25rem; height: 32px; overflow: hidden; color: var(--color-text-main);">
+                            BLUE MIND Precision Nootropic
+                        </div>
+                        <div class="text-xs text-muted" id="prevCardSku" style="font-family: monospace; font-size: 0.7rem; margin-bottom: 0.4rem;">
+                            BZ-MND-001
+                        </div>
+                        <div class="font-black text-sm text-primary" id="prevCardPrice" style="font-weight: 800; border-top: 1px solid var(--color-border); padding-top: 0.4rem;">
+                            $68.00
+                        </div>
+                        <div class="text-xs text-muted" style="margin-top: 0.25rem; font-size: 0.68rem;">
+                            {{ app()->getLocale() === 'ar' ? 'مخزون المستودع: ' : 'Warehouse Stock: ' }} <strong id="prevCardStock" style="color: var(--color-success);">50 units</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storefront Product Dossier Preview -->
+                <div style="background: #fff; padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                    <div class="text-xs font-bold text-muted" style="margin-bottom: 0.75rem; text-transform: uppercase;">
+                        {{ app()->getLocale() === 'ar' ? 'مظهر تفاصيل المنتج في المتجر والكتالوج (Storefront Dossier):' : 'Storefront Clinical Details Appearance:' }}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 110px 1fr; gap: 1rem; align-items: start;">
+                        <img id="prevDossierImg" src="{{ asset('assets/products/blue-mind.jpg') }}" alt="Preview" style="width: 110px; height: 110px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                        <div>
+                            <div style="display: flex; gap: 0.35rem; margin-bottom: 0.35rem; flex-wrap: wrap;" id="prevBadges">
+                                <span class="badge badge-accent" id="prevCategoryBadge">Cellular Longevity</span>
+                                <span class="badge badge-success" id="prevFeaturedBadge">Featured</span>
+                            </div>
+                            <h4 id="prevDossierTitle" style="margin: 0 0 0.25rem 0; font-size: 1.05rem; font-weight: 800; color: var(--color-primary);">BLUE MIND</h4>
+                            <p id="prevDossierTagline" class="text-xs text-muted" style="margin: 0 0 0.4rem 0; font-style: italic;">Daily Cognitive & Neurogenesis Support</p>
+                            <div class="font-black text-lg text-primary" id="prevDossierPrice">$68.00 <span class="text-xs text-muted" style="font-weight: normal;">(incl. 15% VAT)</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Short Description -->
+                    <div style="margin-top: 1rem; border-top: 1px dashed var(--color-border); padding-top: 0.75rem;">
+                        <div class="text-xs font-bold text-muted" style="margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'الوصف السريع:' : 'Short Description:' }}</div>
+                        <p id="prevDossierDesc" class="text-xs text-muted" style="margin: 0; line-height: 1.5;">Clinical bioceutical formulation engineered for optimal cellular bio-energetics...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.25rem; text-align: center;">
+                <button type="button" class="btn btn-sm btn-primary" onclick="closeLiveProductPreview()" style="width: 100%;">
+                    {{ app()->getLocale() === 'ar' ? 'إغلاق المعاينة ومتابعة التعديل' : 'Close Preview & Continue Editing' }}
+                </button>
+            </div>
+        </div>
+    </div>
 </x-layouts.admin>

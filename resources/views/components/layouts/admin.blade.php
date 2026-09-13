@@ -27,140 +27,263 @@
                 </button>
             </div>
 
-            <nav class="sidebar-menu">
+            <nav class="sidebar-menu" id="adminSidebarMenu">
                 <!-- Dashboard -->
                 <a href="{{ route('admin.dashboard') }}"
-                    class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                    <i class="fa-solid fa-chart-line sidebar-link-icon"></i>
+                    class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                    title="{{ __('admin.menu.dashboard') }}">
+                    <i class="fa-solid fa-chart-line sidebar-link-icon text-sky-400"></i>
                     <span>{{ __('admin.menu.dashboard') }}</span>
                 </a>
 
                 @php
                     $u = auth()->user();
+                    $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
+                    $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*');
+                    $isSalesActive = request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
+                    $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
+                    $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
+                    $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
                 @endphp
 
-                <!-- Catalog -->
-                @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products')))
-                    <div class="menu-category">{{ __('admin.menu.catalog') }}</div>
-                    <a href="{{ route('admin.products.index') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-boxes-stacked sidebar-link-icon"></i>
-                        <span>{{ __('admin.menu.products') }}</span>
-                    </a>
-                    <a href="{{ route('admin.categories.index') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-layer-group sidebar-link-icon"></i>
-                        <span>{{ __('admin.menu.categories') }}</span>
-                    </a>
+                <!-- 1. Catalog & Formulations Dropdown -->
+                @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products') || $u->hasPermission('products.create') || $u->hasPermission('products.edit')))
+                    <div class="sidebar-dropdown-group {{ $isCatalogActive ? 'is-open' : '' }}" id="group-catalog">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isCatalogActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-catalog')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-boxes-stacked sidebar-link-icon text-emerald-400"></i>
+                                <span>{{ __('admin.menu.catalog') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.products.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.show') ? 'active' : '' }}">
+                                <i class="fa-solid fa-pills text-xs"></i>
+                                <span>{{ __('admin.menu.products') }}</span>
+                            </a>
+                            @if($u->hasPermission('products.create') || $u->hasPermission('products'))
+                                <a href="{{ route('admin.products.create') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.products.create') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                    <span>{{ __('admin.menu.add_product') }}</span>
+                                </a>
+                            @endif
+                            <a href="{{ route('admin.categories.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-layer-group text-xs"></i>
+                                <span>{{ __('admin.menu.categories') }}</span>
+                            </a>
+                        </div>
+                    </div>
                 @endif
 
-                <!-- Inventory -->
-                @if($u && ($u->hasPermission('inventory.view') || $u->hasPermission('inventory')))
-                    <div class="menu-category">{{ __('admin.menu.inventory') }}</div>
-                    <a href="{{ route('admin.inventory.index') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.inventory.index') || request()->routeIs('admin.inventory.show') ? 'active' : '' }}">
-                        <i class="fa-solid fa-warehouse sidebar-link-icon"></i>
-                        <span>{{ __('admin.menu.stock_levels') }}</span>
-                    </a>
-                    <a href="{{ route('admin.inventory.transfers') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
-                        <i class="fa-solid fa-arrow-right-arrow-left sidebar-link-icon"></i>
-                        <span>{{ __('admin.menu.stock_transfers') }}</span>
-                    </a>
-                    <a href="{{ route('admin.inventory.history') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
-                        <i class="fa-solid fa-clock-rotate-left sidebar-link-icon"></i>
-                        <span>{{ __('admin.menu.stock_history') }}</span>
-                    </a>
+                <!-- 2. Inventory & Multi-Hubs Dropdown -->
+                @if($u && ($u->hasPermission('inventory.view') || $u->hasPermission('inventory') || $u->hasPermission('inventory.create')))
+                    <div class="sidebar-dropdown-group {{ $isInventoryActive ? 'is-open' : '' }}" id="group-inventory">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isInventoryActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-inventory')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-warehouse sidebar-link-icon text-indigo-400"></i>
+                                <span>{{ __('admin.menu.inventory') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.inventory.control') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.control') ? 'active' : '' }}"
+                                title="{{ app()->getLocale() === 'ar' ? 'مركز التحكم السريع وإدارة كميات المنتجات' : 'Quick Stock Control Hub' }}">
+                                <i class="fa-solid fa-sliders text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مركز التحكم بالمخزون' : 'Inventory Control Hub' }}</span>
+                            </a>
+                            <a href="{{ route('admin.inventory.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}">
+                                <i class="fa-solid fa-boxes-packing text-xs"></i>
+                                <span>{{ __('admin.menu.stock_levels') }}</span>
+                            </a>
+                            <a href="{{ route('admin.locations.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-building-columns text-xs text-indigo-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمواقع' : 'Locations & Hubs' }}</span>
+                            </a>
+                            <a href="{{ route('admin.inventory.allocator') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.allocator') ? 'active' : '' }}">
+                                <i class="fa-solid fa-network-wired text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون (Live)' : 'Stock Allocator (Live)' }}</span>
+                            </a>
+                            <a href="{{ route('admin.inventory.transfers') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
+                                <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
+                                <span>{{ __('admin.menu.stock_transfers') }}</span>
+                            </a>
+                            <a href="{{ route('admin.inventory.history') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
+                                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                                <span>{{ __('admin.menu.stock_history') }}</span>
+                            </a>
+                        </div>
+                    </div>
                 @endif
 
-                <!-- Sales -->
+                <!-- 3. Sales, Orders & POS Dropdown -->
                 @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('offline_sales.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('offline_sales') || $u->hasPermission('invoices')))
-                    <div class="menu-category">{{ __('admin.menu.sales') }}</div>
-                    @if($u->hasPermission('orders.view') || $u->hasPermission('orders'))
-                        <a href="{{ route('admin.orders.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-bag-shopping sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.online_orders') }}</span>
-                        </a>
-                    @endif
-                    @if($u->hasPermission('offline_sales.view') || $u->hasPermission('offline_sales'))
-                        <a href="{{ route('admin.offline-sales.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.offline-sales.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-cash-register sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.offline_sales') }}</span>
-                        </a>
-                    @endif
-                    @if($u->hasPermission('invoices.view') || $u->hasPermission('invoices'))
-                        <a href="{{ route('admin.invoices.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-file-invoice-dollar sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.invoices') }}</span>
-                        </a>
-                    @endif
+                    <div class="sidebar-dropdown-group {{ $isSalesActive ? 'is-open' : '' }}" id="group-sales">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isSalesActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-cash-register sidebar-link-icon text-amber-400"></i>
+                                <span>{{ __('admin.menu.sales') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            @if($u->hasPermission('orders.view') || $u->hasPermission('orders'))
+                                <a href="{{ route('admin.orders.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-bag-shopping text-xs"></i>
+                                    <span>{{ __('admin.menu.online_orders') }}</span>
+                                </a>
+                            @endif
+                            @if($u->hasPermission('offline_sales.view') || $u->hasPermission('offline_sales'))
+                                <a href="{{ route('admin.offline-sales.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.offline-sales.index') || request()->routeIs('admin.offline-sales.show') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-store text-xs"></i>
+                                    <span>{{ __('admin.menu.offline_sales') }}</span>
+                                </a>
+                                <a href="{{ route('admin.offline-sales.create') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.offline-sales.create') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-calculator text-xs"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نقطة بيع جديدة (POS)' : 'New POS Sale' }}</span>
+                                </a>
+                            @endif
+                            @if($u->hasPermission('invoices.view') || $u->hasPermission('invoices'))
+                                <a href="{{ route('admin.invoices.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
+                                    <span>{{ __('admin.menu.invoices') }}</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 @endif
 
-                <!-- Customers & Analytics -->
+                <!-- 4. Customers & Reports Dropdown -->
                 @if($u && ($u->hasPermission('customers.view') || $u->hasPermission('reports.view') || $u->hasPermission('customers') || $u->hasPermission('reports')))
-                    <div class="menu-category">{{ __('admin.menu.customers') }} & {{ __('admin.menu.reports') }}</div>
-                    @if($u->hasPermission('customers.view') || $u->hasPermission('customers'))
-                        <a href="{{ route('admin.customers.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-users-gear sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.customers') }}</span>
-                        </a>
-                    @endif
-                    @if($u->hasPermission('reports.view') || $u->hasPermission('reports'))
-                        <a href="{{ route('admin.reports.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-chart-pie sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.reports') }}</span>
-                        </a>
-                    @endif
+                    <div class="sidebar-dropdown-group {{ $isCustomersActive ? 'is-open' : '' }}" id="group-customers">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isCustomersActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-customers')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-users-gear sidebar-link-icon text-cyan-400"></i>
+                                <span>{{ __('admin.menu.customers') }} & {{ __('admin.menu.reports') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            @if($u->hasPermission('customers.view') || $u->hasPermission('customers'))
+                                <a href="{{ route('admin.customers.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.customers.index') || request()->routeIs('admin.customers.show') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-users text-xs"></i>
+                                    <span>{{ __('admin.menu.customers') }}</span>
+                                </a>
+                                @if($u->hasPermission('customers.create') || $u->hasPermission('customers'))
+                                    <a href="{{ route('admin.customers.create') }}"
+                                        class="sidebar-sublink {{ request()->routeIs('admin.customers.create') ? 'active' : '' }}">
+                                        <i class="fa-solid fa-user-plus text-xs"></i>
+                                        <span>{{ app()->getLocale() === 'ar' ? 'إضافة عميل' : 'Add Customer' }}</span>
+                                    </a>
+                                @endif
+                            @endif
+                            @if($u->hasPermission('reports.view') || $u->hasPermission('reports'))
+                                <a href="{{ route('admin.reports.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-chart-pie text-xs"></i>
+                                    <span>{{ __('admin.menu.reports') }}</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 @endif
 
-                <!-- Content & Access -->
-                @if($u && ($u->hasPermission('content.view') || $u->hasPermission('users.view') || $u->hasPermission('roles.view') || $u->hasPermission('settings.view') || $u->hasPermission('content') || $u->hasPermission('users') || $u->hasPermission('roles') || $u->hasPermission('settings')))
-                    <div class="menu-category">{{ __('admin.menu.content') }} & {{ __('admin.menu.access_control') }}</div>
-                    @if($u->hasPermission('content.view') || $u->hasPermission('content'))
-                        <a href="{{ route('admin.content.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-newspaper sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.content') }}</span>
-                        </a>
-                    @endif
-                    @if($u->hasPermission('users.view') || $u->hasPermission('users'))
-                        <a href="{{ route('admin.users.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-user-shield sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.users') }}</span>
-                        </a>
-                    @endif
-                    @if($u->hasPermission('roles.view') || $u->hasPermission('roles'))
-                        <a href="{{ route('admin.roles.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-id-badge sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.roles') }}</span>
-                        </a>
-                    @endif
-                    <a href="{{ route('admin.profile.index') }}"
-                        class="sidebar-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-user-gear sidebar-link-icon"></i>
-                        <span>{{ __('admin.profile.title') }}</span>
-                    </a>
-                    @if($u->hasPermission('settings.view') || $u->hasPermission('settings'))
-                        <a href="{{ route('admin.settings.index') }}"
-                            class="sidebar-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-sliders sidebar-link-icon"></i>
-                            <span>{{ __('admin.menu.settings') }}</span>
-                        </a>
-                        <a href="{{ route('admin.settings.index') }}#tab-typography" class="sidebar-link"
-                            title="{{ app()->getLocale() == 'ar' ? 'المعاينة الحية والتحكم في خطوط النظام' : 'Live Interactive Typography Control' }}">
-                            <i class="fa-solid fa-font sidebar-link-icon text-sky-400"></i>
-                            <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة (Live)' : 'Typography & Fonts (Live)' }}</span>
-                        </a>
-                    @endif
+                <!-- 5. Content & System Access Dropdown -->
+                @if($u && ($u->hasPermission('content.view') || $u->hasPermission('users.view') || $u->hasPermission('roles.view') || $u->hasPermission('content') || $u->hasPermission('users') || $u->hasPermission('roles')))
+                    <div class="sidebar-dropdown-group {{ $isContentAccessActive ? 'is-open' : '' }}" id="group-access">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isContentAccessActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-access')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-user-shield sidebar-link-icon text-rose-400"></i>
+                                <span>{{ __('admin.menu.content') }} & {{ __('admin.menu.access_control') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            @if($u->hasPermission('content.view') || $u->hasPermission('content'))
+                                <a href="{{ route('admin.content.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-newspaper text-xs"></i>
+                                    <span>{{ __('admin.menu.content') }}</span>
+                                </a>
+                            @endif
+                            @if($u->hasPermission('users.view') || $u->hasPermission('users'))
+                                <a href="{{ route('admin.users.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-user text-xs"></i>
+                                    <span>{{ __('admin.menu.users') }}</span>
+                                </a>
+                            @endif
+                            @if($u->hasPermission('roles.view') || $u->hasPermission('roles'))
+                                <a href="{{ route('admin.roles.index') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-id-badge text-xs"></i>
+                                    <span>{{ __('admin.menu.roles') }}</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
                 @endif
+
+                <!-- 6. Settings & System Control Dropdown -->
+                <div class="sidebar-dropdown-group {{ $isSettingsActive ? 'is-open' : '' }}" id="group-settings">
+                    <button type="button" class="sidebar-dropdown-btn {{ $isSettingsActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-settings')">
+                        <div class="sidebar-dropdown-label">
+                            <i class="fa-solid fa-sliders sidebar-link-icon text-violet-400"></i>
+                            <span>{{ __('admin.menu.settings') }}</span>
+                        </div>
+                        <div class="sidebar-dropdown-meta">
+                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                        </div>
+                    </button>
+                    <div class="sidebar-submenu">
+                        @if($u && ($u->hasPermission('settings.view') || $u->hasPermission('settings')))
+                            <a href="{{ route('admin.settings.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.settings.index') && !str_contains(request()->fullUrl(), '#tab-typography') ? 'active' : '' }}">
+                                <i class="fa-solid fa-gear text-xs"></i>
+                                <span>{{ __('admin.menu.settings') }}</span>
+                            </a>
+                            <a href="{{ route('admin.settings.geo.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.settings.geo.*') || request()->routeIs('admin.countries.*') ? 'active' : '' }}"
+                                title="{{ app()->getLocale() == 'ar' ? 'إدارة النطاقات الجغرافية والدول والمدن' : 'Countries, Cities & Geographic Hub' }}">
+                                <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() == 'ar' ? 'الدول والمدن (Geo)' : 'Countries & Cities' }}</span>
+                            </a>
+                            <a href="{{ route('admin.settings.index') }}#tab-typography" class="sidebar-sublink"
+                                title="{{ app()->getLocale() == 'ar' ? 'المعاينة الحية والتحكم في خطوط النظام' : 'Live Interactive Typography Control' }}">
+                                <i class="fa-solid fa-font text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة (Live)' : 'Typography & Fonts (Live)' }}</span>
+                            </a>
+                        @endif
+                        <a href="{{ route('admin.profile.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-gear text-xs"></i>
+                            <span>{{ __('admin.profile.title') }}</span>
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 
@@ -169,9 +292,12 @@
             <!-- Header -->
             <header class="admin-header">
                 <div class="header-left">
-                    <button type="button" class="btn btn-ghost btn-icon cursor-pointer admin-mobile-toggle lg:hidden"
-                        onclick="toggleAdminSidebar()" title="Toggle Sidebar" aria-label="Toggle Sidebar">
-                        <i class="fa-solid fa-bars text-lg"></i>
+                    <!-- Sidebar Collapse/Expand & Off-Canvas Toggle Button -->
+                    <button type="button" class="btn btn-ghost btn-icon cursor-pointer admin-sidebar-toggle"
+                        onclick="toggleAdminSidebar()" 
+                        title="{{ app()->getLocale() === 'ar' ? 'طي / توسيع القائمة الجانبية' : 'Toggle Sidebar' }}" 
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'طي / توسيع القائمة الجانبية' : 'Toggle Sidebar' }}">
+                        <i class="fa-solid fa-bars-staggered text-lg"></i>
                     </button>
 
                     <div class="breadcrumbs hidden sm:flex">
@@ -593,23 +719,60 @@
             }
         }
 
-        /* Sidebar Toggle Logic */
+        /* Sidebar Dropdown Accordion Toggle */
+        function toggleSidebarDropdown(groupId) {
+            const group = document.getElementById(groupId);
+            if (!group) return;
+
+            // If desktop layout is collapsed, expand it when clicking a group
+            const layout = document.querySelector('.admin-layout');
+            if (layout && layout.classList.contains('sidebar-collapsed') && window.innerWidth >= 1024) {
+                toggleAdminSidebar();
+            }
+
+            group.classList.toggle('is-open');
+        }
+
+        /* Sidebar Toggle Logic (Desktop Rail Collapse / Expand & Mobile Drawer) */
         function toggleAdminSidebar() {
             const sidebar = document.getElementById('adminSidebar');
             const backdrop = document.getElementById('adminSidebarBackdrop');
-            if (sidebar) {
-                const isOpen = sidebar.classList.toggle('is-open');
-                if (backdrop) {
-                    if (isOpen) {
-                        backdrop.classList.add('active');
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        backdrop.classList.remove('active');
-                        document.body.style.overflow = '';
+            const layout = document.querySelector('.admin-layout');
+
+            if (window.innerWidth < 1024) {
+                // Mobile Drawer
+                if (sidebar) {
+                    const isOpen = sidebar.classList.toggle('is-open');
+                    if (backdrop) {
+                        if (isOpen) {
+                            backdrop.classList.add('active');
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            backdrop.classList.remove('active');
+                            document.body.style.overflow = '';
+                        }
                     }
+                }
+            } else {
+                // Desktop Collapse / Expand
+                if (layout) {
+                    const isCollapsed = layout.classList.toggle('sidebar-collapsed');
+                    try {
+                        localStorage.setItem('bz_admin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+                    } catch(e) {}
                 }
             }
         }
+
+        // Restore desktop collapsed state on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                if (window.innerWidth >= 1024 && localStorage.getItem('bz_admin_sidebar_collapsed') === 'true') {
+                    const layout = document.querySelector('.admin-layout');
+                    if (layout) layout.classList.add('sidebar-collapsed');
+                }
+            } catch(e) {}
+        });
 
         /* Profile Dropdown Logic */
         function toggleAdminProfileDropdown(event) {
@@ -966,6 +1129,159 @@
          BlueZone Branded FCM Notification Permission & Browser Settings Modal
          ========================================================================= -->
     <style>
+        /* =========================================================================
+           Sidebar Dropdown Accordions & Responsive Desktop Collapse
+           ========================================================================= */
+        .sidebar-dropdown-group {
+            margin-bottom: 0.25rem;
+            border-radius: 0.625rem;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-dropdown-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6875rem 0.875rem;
+            border-radius: 0.5rem;
+            color: #94A3B8;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: start;
+            user-select: none;
+        }
+
+        .sidebar-dropdown-btn:hover {
+            background-color: rgba(255, 255, 255, 0.07);
+            color: #FFFFFF;
+        }
+
+        .sidebar-dropdown-group.is-open .sidebar-dropdown-btn {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .sidebar-dropdown-btn.active-parent {
+            color: #38BDF8;
+            font-weight: 700;
+        }
+
+        .sidebar-dropdown-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .sidebar-dropdown-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-dropdown-chevron {
+            font-size: 0.75rem;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #64748B;
+        }
+
+        .sidebar-dropdown-group.is-open .sidebar-dropdown-chevron {
+            transform: rotate(180deg);
+            color: #38BDF8;
+        }
+
+        [dir="rtl"] .sidebar-dropdown-group.is-open .sidebar-dropdown-chevron {
+            transform: rotate(-180deg);
+        }
+
+        /* Submenu Container */
+        .sidebar-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.2s ease;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            padding-inline-start: 1.25rem;
+            margin-top: 0.1rem;
+            border-inline-start: 2px solid rgba(255, 255, 255, 0.08);
+            margin-inline-start: 1.25rem;
+        }
+
+        .sidebar-dropdown-group.is-open .sidebar-submenu {
+            max-height: 600px;
+            opacity: 1;
+            padding-top: 0.25rem;
+            padding-bottom: 0.35rem;
+        }
+
+        .sidebar-sublink {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.4rem;
+            color: #94A3B8;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .sidebar-sublink:hover {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.06);
+            transform: translateX(3px);
+        }
+
+        [dir="rtl"] .sidebar-sublink:hover {
+            transform: translateX(-3px);
+        }
+
+        .sidebar-sublink.active {
+            color: #38BDF8;
+            background: rgba(56, 189, 248, 0.12);
+            font-weight: 700;
+        }
+
+        /* Desktop Collapsible Rail Mode */
+        @media (min-width: 1024px) {
+            .admin-layout.sidebar-collapsed .admin-sidebar {
+                width: 78px;
+            }
+            
+            .admin-layout.sidebar-collapsed .sidebar-header {
+                padding: 0 0.75rem;
+                justify-content: center;
+            }
+
+            .admin-layout.sidebar-collapsed .sidebar-brand-title,
+            .admin-layout.sidebar-collapsed .sidebar-link span,
+            .admin-layout.sidebar-collapsed .sidebar-dropdown-btn span,
+            .admin-layout.sidebar-collapsed .sidebar-dropdown-meta,
+            .admin-layout.sidebar-collapsed .sidebar-submenu {
+                display: none !important;
+            }
+
+            .admin-layout.sidebar-collapsed .sidebar-link,
+            .admin-layout.sidebar-collapsed .sidebar-dropdown-btn {
+                justify-content: center;
+                padding: 0.75rem 0.5rem;
+            }
+
+            .admin-layout.sidebar-collapsed .sidebar-link-icon {
+                margin: 0;
+                font-size: 1.25rem;
+            }
+        }
+
         @keyframes bzModalPop {
             0% {
                 transform: scale(0.93) translateY(10px);
@@ -1832,4 +2148,35 @@
             }, 40000);
         });
     </script>
+
+    <!-- Global Admin Table Engine & Tools -->
+    <script src="{{ asset('js/admin-table-tools.js') }}"></script>
+    <style>
+        /* Table Sorting & Enhancements */
+        table.table th[data-sort-dir="asc"],
+        table.table th[data-sort-dir="desc"],
+        table.table th.sorted-asc,
+        table.table th.sorted-desc {
+            background-color: rgba(10, 79, 120, 0.08) !important;
+            color: #0284C7 !important;
+        }
+        .dark table.table th[data-sort-dir="asc"],
+        .dark table.table th[data-sort-dir="desc"],
+        .dark table.table th.sorted-asc,
+        .dark table.table th.sorted-desc {
+            background-color: rgba(2, 132, 199, 0.15) !important;
+            color: #38BDF8 !important;
+        }
+        table.table th:hover .sort-indicator {
+            opacity: 0.9 !important;
+        }
+        .bz-table-toolbar {
+            transition: all 0.2s ease;
+        }
+        .btn-table-action {
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+        }
+    </style>
 </x-layouts.app>

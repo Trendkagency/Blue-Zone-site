@@ -238,4 +238,173 @@ class ProductCreateAndTaxLogicTest extends TestCase
         $this->assertEquals('BLUE ZONE International', Setting::get('site_name'));
         $this->assertTrue(Setting::get('toast_sound_enabled'));
     }
+
+    public function test_product_store_with_primary_image_and_gallery_uploads(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $primaryImage = \Illuminate\Http\UploadedFile::fake()->image('primary.jpg', 600, 600);
+        $galleryImage1 = \Illuminate\Http\UploadedFile::fake()->image('gallery1.jpg', 800, 800);
+        $galleryImage2 = \Illuminate\Http\UploadedFile::fake()->image('gallery2.jpg', 800, 800);
+
+        $payload = [
+            'sku' => 'BZ-IMG-999',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone Lab',
+            'name_en' => 'Image Test Product',
+            'name_ar' => 'منتج اختبار الصور',
+            'price' => 99.00,
+            'cost_price' => 30.00,
+            'stock_online' => 20,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+            'primary_image' => $primaryImage,
+            'gallery' => [$galleryImage1, $galleryImage2],
+        ];
+
+        $response = $this->actingAs($this->admin, 'web')->post(route('admin.products.store'), $payload);
+        $response->assertSessionDoesntHaveErrors();
+        $response->assertRedirect(route('admin.products.index'));
+
+        $product = Product::where('sku', 'BZ-IMG-999')->first();
+        $this->assertNotNull($product);
+        $this->assertNotNull($product->image);
+        $this->assertCount(1, $product->getMedia('primary_image'));
+        $this->assertCount(2, $product->getMedia('gallery'));
+    }
+
+    public function test_product_update_with_new_primary_image_and_gallery_uploads(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $product = Product::create([
+            'sku' => 'BZ-IMG-UPD-001',
+            'slug' => 'img-upd-product',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Update Img Product',
+            'name_ar' => 'منتج تحديث الصور',
+            'price' => 70.00,
+            'cost_price' => 25.00,
+            'stock_online' => 15,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+        ]);
+
+        $newPrimary = \Illuminate\Http\UploadedFile::fake()->image('new_primary.jpg', 600, 600);
+        $newGallery = \Illuminate\Http\UploadedFile::fake()->image('new_gallery.jpg', 800, 800);
+
+        $updatePayload = [
+            'sku' => 'BZ-IMG-UPD-001',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Update Img Product (Updated)',
+            'name_ar' => 'منتج تحديث الصور معدل',
+            'price' => 75.00,
+            'cost_price' => 25.00,
+            'stock_online' => 15,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+            'primary_image' => $newPrimary,
+            'gallery' => [$newGallery],
+        ];
+
+        $response = $this->actingAs($this->admin, 'web')->put(route('admin.products.update', $product->id), $updatePayload);
+        $response->assertSessionDoesntHaveErrors();
+        $response->assertRedirect(route('admin.products.index'));
+
+        $product->refresh();
+        $this->assertNotNull($product->image);
+        $this->assertCount(1, $product->getMedia('primary_image'));
+        $this->assertCount(1, $product->getMedia('gallery'));
+    }
+
+    public function test_product_update_with_array_primary_image_and_retaining_existing(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $product = Product::create([
+            'sku' => 'BZ-IMG-ARR-001',
+            'slug' => 'img-arr-product',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Array Img Product',
+            'name_ar' => 'منتج مصفوفة الصور',
+            'price' => 70.00,
+            'cost_price' => 25.00,
+            'stock_online' => 15,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+        ]);
+
+        $newPrimary = \Illuminate\Http\UploadedFile::fake()->image('array_primary.jpg', 600, 600);
+
+        // 1. Update with array of UploadedFile (FilePond multi-format)
+        $updatePayload = [
+            'sku' => 'BZ-IMG-ARR-001',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Array Img Product Updated',
+            'name_ar' => 'منتج مصفوفة الصور معدل',
+            'price' => 80.00,
+            'cost_price' => 25.00,
+            'stock_online' => 15,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+            'primary_image' => [$newPrimary],
+        ];
+
+        $response = $this->actingAs($this->admin, 'web')->put(route('admin.products.update', $product->id), $updatePayload);
+        $response->assertSessionDoesntHaveErrors();
+        $response->assertRedirect(route('admin.products.index'));
+
+        $product->refresh();
+        $this->assertCount(1, $product->getMedia('primary_image'));
+        $firstMediaUrl = $product->primary_image_url;
+        $this->assertNotEmpty($firstMediaUrl);
+
+        // 2. Subsequent update without uploading new file retains the existing Spatie media
+        $updatePayload2 = [
+            'sku' => 'BZ-IMG-ARR-001',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Array Img Product Renamed',
+            'name_ar' => 'منتج مصفوفة الصور معاد تسميته',
+            'price' => 85.00,
+            'cost_price' => 25.00,
+            'stock_online' => 15,
+            'stock_offline' => 10,
+            'low_stock_threshold' => 5,
+            'status' => 'active',
+            'image' => 'assets/products/old-fallback.jpg', // string fallback should NOT override Spatie media
+        ];
+
+        $response2 = $this->actingAs($this->admin, 'web')->put(route('admin.products.update', $product->id), $updatePayload2);
+        $response2->assertSessionDoesntHaveErrors();
+
+        $product->refresh();
+        $this->assertCount(1, $product->getMedia('primary_image'));
+        $this->assertEquals($firstMediaUrl, $product->primary_image_url);
+    }
+
+    public function test_product_normalize_url_handles_mixed_content_and_faker_strings(): void
+    {
+        // 1. Storage URL with localhost:8000
+        $normalizedStorage = Product::normalizeUrl('http://localhost:8000/storage/11/OUR-STORY-BLUE-ZONE.png');
+        $this->assertStringNotContainsString('localhost:8000', $normalizedStorage);
+        $this->assertStringContainsString('/storage/11/OUR-STORY-BLUE-ZONE.png', $normalizedStorage);
+
+        // 2. Broken faker string without slashes or extensions
+        $normalizedFaker = Product::normalizeUrl('Deserunt atque quo s');
+        $this->assertStringContainsString('assets/products/blue-mind.jpg', $normalizedFaker);
+
+        // 3. Valid asset path
+        $normalizedAsset = Product::normalizeUrl('assets/products/blue-cell.jpg');
+        $this->assertStringContainsString('assets/products/blue-cell.jpg', $normalizedAsset);
+    }
 }

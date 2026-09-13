@@ -77,6 +77,7 @@ class CustomerController extends Controller
             'customers' => $customers,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $totalDbCount > 0 ? $dbCustomers->total() : count($customers),
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,

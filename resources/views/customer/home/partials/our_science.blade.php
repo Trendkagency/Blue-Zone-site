@@ -1,4 +1,4 @@
-{{-- <section class="space-y-8 py-6 -my-2 container pt-4" id="bz-clinical-formulations-section">
+<section class="space-y-8 py-6 -my-2 container pt-4" id="bz-clinical-formulations-section">
   <!-- Section Header with View Mode Switcher and Swapper Arrows -->
   <div
     class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
@@ -53,12 +53,16 @@
     </div>
   </div>
 
+@php
+  $scienceList = (!empty($scienceProducts) && count($scienceProducts)) ? $scienceProducts : ($products ?? []);
+@endphp
+
   <!-- 1. SLIDER SWAPPER VIEW (Default Active) -->
   <div id="bz-swapper-container" class="relative w-full space-y-6">
     <div id="bz-swapper-viewport" class="overflow-hidden relative w-full py-2 -my-2 select-none">
       <div id="bz-swapper-track" class="flex transition-transform duration-500 ease-out gap-6"
         style="transform: translateX(0px);">
-        @foreach($products as $product)
+        @foreach($scienceList as $product)
           <div class="bz-swapper-slide w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] shrink-0">
             @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'slider'])
           </div>
@@ -68,7 +72,7 @@
 
     <!-- Swapper Pagination Dots -->
     <div id="bz-swapper-dots" class="flex items-center justify-center gap-2 pt-2">
-      @foreach($products as $idx => $p)
+      @foreach($scienceList as $idx => $p)
         <button type="button" onclick="BLUEZONE_MED_SWAPPER.goTo({{ $idx }})" aria-label="Go to product {{ $idx + 1 }}"
           class="bz-dot-indicator h-2.5 rounded-full transition-all duration-300 cursor-pointer {{ $idx === 0 ? 'w-8 bg-[#67B34A]' : 'w-2.5 bg-[#0A4F78]/20 dark:bg-white/20' }}"
           data-index="{{ $idx }}">
@@ -79,7 +83,7 @@
 
   <!-- 2. CARD GRADE (GRID) VIEW (Toggleable) -->
   <div id="bz-grid-container" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-    @foreach($products as $product)
+    @foreach($scienceList as $product)
       <div class="h-full">
         @include('customer.pages.partials.medical-product-card', ['product' => $product, 'mode' => 'grid'])
       </div>

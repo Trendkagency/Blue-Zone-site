@@ -24,6 +24,10 @@ Route::post('/api/fcm/register-token', [\App\Http\Controllers\Admin\Notification
     ->middleware(['web', 'throttle:polling'])
     ->name('api.fcm.register');
 
+// Dynamic Public Geo Cascading API for Storefront & Registration
+Route::get('/api/geo/countries/{id}/cities', [\App\Http\Controllers\Admin\CityController::class, 'getCitiesByCountry'])
+    ->name('api.geo.cities');
+
 // Load Customer and Admin Routes
 require __DIR__ . '/customer.php';
 require __DIR__ . '/admin.php';

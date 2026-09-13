@@ -52,6 +52,6 @@
             </table>
         </div>
 
-        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($orders)" />
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($orders)" />
     </div>
 </x-layouts.admin>

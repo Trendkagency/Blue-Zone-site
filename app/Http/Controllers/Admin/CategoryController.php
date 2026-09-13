@@ -69,6 +69,7 @@ class CategoryController extends Controller
             'categories' => $categories,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $totalDbCount > 0 ? $dbCategories->total() : count($categories),
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,

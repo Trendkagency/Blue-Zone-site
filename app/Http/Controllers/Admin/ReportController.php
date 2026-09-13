@@ -451,7 +451,7 @@ class ReportController extends Controller
         echo '   <Row><Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'متوسط قيمة الطلب (Average Order Value)' : 'Average Order Value (AOV)') . '</Data></Cell><Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $kpi['average_order_value'] . '</Data></Cell><Cell><Data ss:Type="String">Global Average</Data></Cell><Cell><Data ss:Type="String">Across Online &amp; POS</Data></Cell></Row>' . "\n";
         echo '   <Row ss:StyleID="Zebra"><Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'إجمالي المعاملات والطلبات' : 'Total Transactions') . '</Data></Cell><Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $kpi['total_orders'] . '</Data></Cell><Cell><Data ss:Type="String">' . $analytics['channels']['online']['orders_count'] . ' Online / ' . $analytics['channels']['pos']['orders_count'] . ' POS</Data></Cell><Cell><Data ss:Type="String">Confirmed Paid Orders</Data></Cell></Row>' . "\n";
         echo '   <Row><Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'معدل تكرار الشراء للعملاء' : 'Customer Repeat Purchase Rate') . '</Data></Cell><Cell ss:StyleID="Bold"><Data ss:Type="String">' . $kpi['repeat_rate'] . '%</Data></Cell><Cell><Data ss:Type="String">Patient Loyalty</Data></Cell><Cell><Data ss:Type="String">' . $kpi['total_customers'] . ' Registered Clientele</Data></Cell></Row>' . "\n";
-        echo '   <Row ss:StyleID="Zebra"><Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'تقييم المخزون المتاح (Inventory Asset)' : 'Total Inventory Valuation') . '</Data></Cell><Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $analytics['inventory']['total_valuation'] . '</Data></Cell><Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $analytics['inventory']['total_units'] . '</Data></Cell><Cell><Data ss:Type="String">Warehouse + Boutique POS</Data></Cell></Row>' . "\n";
+        echo '   <Row ss:StyleID="Zebra"><Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'تقييم المخزون المتاح (Inventory Asset)' : 'Total Inventory Valuation') . '</Data></Cell><Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $analytics['inventory']['total_valuation'] . '</Data></Cell><Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $analytics['inventory']['total_units'] . '</Data></Cell><Cell><Data ss:Type="String">Warehouse + POS</Data></Cell></Row>' . "\n";
 
         echo '  </Table>' . "\n";
         echo ' </Worksheet>' . "\n";
@@ -543,7 +543,7 @@ class ReportController extends Controller
         echo '   </Row>' . "\n";
 
         echo '   <Row ss:StyleID="Zebra">' . "\n";
-        echo '    <Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'المعرض المباشر (Flagship POS)' : 'Flagship Boutique POS') . '</Data></Cell>' . "\n";
+        echo '    <Cell ss:StyleID="Bold"><Data ss:Type="String">' . ($isAr ? 'مستودع المبيعات (POS)' : 'Warehouse POS') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $ch['pos']['revenue'] . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $ch['pos']['orders_count'] . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $ch['pos']['avg_ticket'] . '</Data></Cell>' . "\n";
@@ -572,7 +572,7 @@ class ReportController extends Controller
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SKU</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'المستحضر' : 'Product') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'مستودع رئيسي' : 'Warehouse') . '</Data></Cell>' . "\n";
-        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'صالة البوتيك' : 'Boutique POS') . '</Data></Cell>' . "\n";
+        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'مستودع المبيعات' : 'Warehouse POS') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'إجمالي الوحدات' : 'Total Units') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'سعر الوحدة' : 'Retail Price') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'إجمالي التقييم' : 'Total Valuation') . '</Data></Cell>' . "\n";

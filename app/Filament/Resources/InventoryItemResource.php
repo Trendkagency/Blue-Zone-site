@@ -41,7 +41,7 @@ class InventoryItemResource extends Resource
                         Forms\Components\Select::make('location_id')
                             ->options([
                                 'online' => 'Online Fulfillment Hub',
-                                'offline' => 'Flagship Boutique / POS',
+                                'offline' => 'Warehouse / POS',
                                 'central_wh' => 'Central Quarantine Warehouse',
                             ])->required(),
                         Forms\Components\TextInput::make('location_name_en')->required(),
@@ -137,7 +137,7 @@ class InventoryItemResource extends Resource
                     ->label('Location')
                     ->options([
                         'online' => 'Online Hub',
-                        'offline' => 'Flagship Boutique',
+                        'offline' => 'POS Warehouse',
                         'central_wh' => 'Central Warehouse',
                     ]),
                 Tables\Filters\SelectFilter::make('status')

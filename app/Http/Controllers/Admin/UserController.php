@@ -78,6 +78,7 @@ class UserController extends Controller
             'roles' => $roles,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
+            'totalCount' => $totalDbCount > 0 ? $dbUsers->total() : count($users),
             'trashedCount' => $trashedCount,
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,

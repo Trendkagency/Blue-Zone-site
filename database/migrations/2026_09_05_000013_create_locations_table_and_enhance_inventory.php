@@ -37,7 +37,7 @@ return new class extends Migration
                 ],
                 [
                     'id' => 'offline',
-                    'name_en' => 'Flagship Boutique / POS',
+                    'name_en' => 'Warehouse / POS',
                     'name_ar' => 'المتجر الرئيسي / المبيعات المباشرة',
                     'code' => 'LOC-POS',
                     'type' => 'offline',

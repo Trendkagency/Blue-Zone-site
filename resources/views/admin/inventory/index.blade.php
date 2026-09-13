@@ -4,10 +4,16 @@
     :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.index')]"
 >
     <x-slot name="actions">
+        <a href="{{ route('admin.warehouses.index') }}" class="btn btn-secondary">
+            <i class="fa-solid fa-warehouse mr-1.5 ml-1.5 text-indigo-400"></i> {{ app()->getLocale() === 'ar' ? 'المستودعات والمخازن' : 'Warehouses & Hubs' }}
+        </a>
+        <a href="{{ route('admin.inventory.allocator') }}" class="btn btn-primary" style="font-weight: 800;">
+            <i class="fa-solid fa-network-wired mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'موزع المخزون (Live)' : 'Stock Allocator (Live)' }}
+        </a>
         <button type="button" class="btn btn-secondary" onclick="openQuickAdjustModal()">
             <i class="fa-solid fa-sliders mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'تسوية جردية سريعة' : 'Quick Adjustment' }}
         </button>
-        <a href="{{ route('admin.inventory.transfers') }}" class="btn btn-primary">
+        <a href="{{ route('admin.inventory.transfers') }}" class="btn btn-secondary">
             <i class="fa-solid fa-arrow-right-arrow-left mr-1.5 ml-1.5"></i> {{ __('admin.inventory.transfer_title') }}
         </a>
         <a href="{{ route('admin.inventory.history') }}" class="btn btn-secondary">
@@ -55,7 +61,7 @@
 
         <div class="card" style="padding: 1.25rem;">
             <div class="text-xs text-muted font-bold" style="text-transform: uppercase;">
-                {{ app()->getLocale() == 'ar' ? 'مخزون المعرض (POS)' : 'Flagship Boutique' }}
+                {{ app()->getLocale() == 'ar' ? 'مخزون المستودع (POS)' : 'Warehouse (POS)' }}
             </div>
             <div class="font-black text-2xl" style="margin-top: 0.35rem; color: #10B981;">
                 {{ number_format($kpis['offline_units']) }} <span class="text-xs text-muted font-normal">{{ app()->getLocale() == 'ar' ? 'وحدة' : 'units' }}</span>
@@ -170,21 +176,26 @@
         </form>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#inventoryStockTable" 
+        :title="app()->getLocale() === 'ar' ? 'تقرير أرصدة ومستودعات المخزون' : 'Inventory Stock Balances Report'" 
+    />
+
     <!-- Inventory Table -->
     <div class="card" style="overflow-x: auto;">
         <div class="table-responsive" style="border: none; border-radius: 0; width: 100%; max-width: 100%; overflow-x: auto; display: block;">
-            <table class="table" style="min-width: 980px; width: 100%;">
+            <table class="table" id="inventoryStockTable" style="min-width: 980px; width: 100%;">
                 <thead>
-
                     <tr>
-                        <th>{{ app()->getLocale() == 'ar' ? 'التركيبة / رمز SKU' : 'Formulation / SKU' }}</th>
-                        <th>{{ __('admin.inventory.location') }}</th>
-                        <th>{{ __('admin.inventory.current_stock') }}</th>
-                        <th>{{ __('admin.inventory.available') }}</th>
-                        <th>{{ __('admin.inventory.reserved') }}</th>
-                        <th>{{ __('admin.inventory.threshold') }}</th>
-                        <th>{{ __('admin.inventory.status') }}</th>
-                        <th>{{ app()->getLocale() == 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() == 'ar' ? 'التركيبة / رمز SKU' : 'Formulation / SKU' }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.location') }}</th>
+                        <th data-sort-type="number">{{ __('admin.inventory.current_stock') }}</th>
+                        <th data-sort-type="number">{{ __('admin.inventory.available') }}</th>
+                        <th data-sort-type="number">{{ __('admin.inventory.reserved') }}</th>
+                        <th data-sort-type="number">{{ __('admin.inventory.threshold') }}</th>
+                        <th data-sort-type="text">{{ __('admin.inventory.status') }}</th>
+                        <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() == 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>

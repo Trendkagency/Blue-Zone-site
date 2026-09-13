@@ -53,13 +53,13 @@ class StoreProductRequest extends FormRequest
             'cost_price' => ['required', 'numeric', 'min:0'],
 
             // Step 4: Media & Imagery
-            'image' => ['nullable', 'string', 'max:500'],
+            'image' => ['nullable'],
             'images' => ['nullable', 'array'],
-            'primary_image' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
-            'gallery' => ['nullable', 'array'],
-            'gallery.*' => ['nullable', 'file', 'mimes:jpeg,png,jpg,webp,svg', 'max:10240'],
-            'documents' => ['nullable', 'array'],
-            'documents.*' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:20480'],
+            'primary_image' => ['nullable'],
+            'gallery' => ['nullable'],
+            'gallery.*' => ['nullable'],
+            'documents' => ['nullable'],
+            'documents.*' => ['nullable'],
 
             // Step 5: Clinical Section & Our Science
             'science_en' => ['nullable', 'string'],

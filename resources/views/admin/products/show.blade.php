@@ -17,7 +17,10 @@
             <!-- Overview Card -->
             <div class="card" style="padding: 2rem; margin-bottom: 2rem;">
                 <div style="display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem;">
-                    <img src="{{ asset($product['image']) }}" alt="{{ $product['name_en'] }}" style="width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                    @php
+                        $showImg = \App\Models\Product::normalizeUrl($product['image'] ?? null);
+                    @endphp
+                    <img src="{{ $showImg }}" alt="{{ $product['name_en'] }}" style="width: 100px; height: 100px; border-radius: var(--radius-lg); object-fit: cover; background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
                     <div>
                         <span class="product-category-tag">{{ $product['category_en'] }}</span>
                         <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0.25rem 0;">{{ $product['name_en'] }}</h2>

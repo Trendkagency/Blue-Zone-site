@@ -66,21 +66,27 @@
         </form>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#productsTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل المنتجات والتركيبات' : 'Products & Formulations Catalog'" 
+    />
+
     <!-- Products Data Table -->
     <div class="card shadow-sm border border-gray-100 dark:border-gray-800">
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="productsTable">
                 <thead>
                     <tr>
-                        <th style="width: 40px;"><input type="checkbox" class="form-check-input"></th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'التركيبة' : 'Product Formulation' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'الرمز والباركود' : 'SKU / Barcode' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'التصنيف' : 'Category' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'سعر البيع' : 'Retail Price' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'مخزون الأونلاين' : 'Online Stock' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'مخزون البوتيك' : 'Offline Stock' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
-                        <th style="text-align: center;">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                        <th style="width: 40px;" data-no-sort data-no-export><input type="checkbox" class="form-check-input"></th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'التركيبة' : 'Product Formulation' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الرمز والباركود' : 'SKU / Barcode' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'التصنيف' : 'Category' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'سعر البيع' : 'Retail Price' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون الأونلاين' : 'Online Stock' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون المستودع' : 'Warehouse Stock' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
+                        <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,14 +104,15 @@
                             $pOfflineStock = $product['stock_offline'] ?? $product->stock_offline ?? 0;
                             $pLowThreshold = $product['low_stock_threshold'] ?? $product->low_stock_threshold ?? 10;
                             $pStatus = $product['status'] ?? $product->status ?? 'active';
-                            $pImage = $product['image'] ?? $product->primary_image_url ?? 'assets/products/blue-mind.webp';
+                            $rawImage = $product['image'] ?? ($product->primary_image_url ?? 'assets/products/blue-mind.jpg');
+                            $pImage = \App\Models\Product::normalizeUrl($rawImage);
                             $isItemTrashed = !empty($product['deleted_at']);
                         @endphp
                         <tr>
                             <td><input type="checkbox" class="form-check-input"></td>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <img src="{{ asset($pImage) }}" alt="{{ $pNameEn }}" style="width: 44px; height: 44px; border-radius: var(--radius-sm); object-fit: cover; background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                                    <img src="{{ $pImage }}" alt="{{ $pNameEn }}" style="width: 44px; height: 44px; border-radius: var(--radius-sm); object-fit: cover; background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
                                     <div>
                                         <div class="font-bold text-sm">
                                             @if(!$isItemTrashed)
@@ -194,6 +201,6 @@
             </table>
         </div>
 
-        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($products)" />
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($products)" />
     </div>
 </x-layouts.admin>

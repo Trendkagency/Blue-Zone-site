@@ -130,7 +130,7 @@
                 <div>
                     <h1 style="font-size: 1.6rem; font-weight: 900; color: #031827; margin: 0; letter-spacing: -0.5px;">BLUE ZONE BIOCEUTICALS</h1>
                     <p style="font-size: 0.875rem; font-weight: 700; color: #0A4F78; margin: 0.15rem 0 0 0;">ADVANCED CELLULAR LONGEVITY & CLINICAL NUTRACEUTICALS</p>
-                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.15rem 0 0 0;">Riyadh Flagship Boutique & Central Laboratory — Kingdom of Saudi Arabia</p>
+                    <p style="font-size: 0.75rem; color: #64748B; margin: 0.15rem 0 0 0;">Riyadh Central Warehouse & Laboratory — Kingdom of Saudi Arabia</p>
                 </div>
             </div>
 
@@ -237,7 +237,7 @@
             </table>
         </div>
 
-        <!-- 5. Omnichannel Breakdown (Online Store vs Boutique POS) -->
+        <!-- 5. Omnichannel Breakdown (Online Store vs POS Warehouse) -->
         <div style="margin-bottom: 2.25rem;">
             <h3 style="font-size: 1rem; font-weight: 800; color: #0A4F78; border-bottom: 1.5px solid #E2E8F0; padding-bottom: 0.5rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">
                 3. Omnichannel Distribution & Sales Velocity
@@ -259,7 +259,7 @@
 
                 <div style="border: 1px solid #CBD5E1; border-radius: 8px; padding: 1.25rem; background: #F8FAFC;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <span style="font-weight: 800; font-size: 0.9375rem; color: #D97706;">FLAGSHIP PHYSICAL BOUTIQUE (POS)</span>
+                        <span style="font-weight: 800; font-size: 0.9375rem; color: #D97706;">PHYSICAL POS WAREHOUSE</span>
                         <span style="font-size: 0.75rem; font-weight: 700; background: #FEF3C7; color: #B45309; padding: 0.2rem 0.5rem; border-radius: 4px;">{{ $channels['pos']['percentage'] }}% Gross Share</span>
                     </div>
                     <div style="font-size: 1.35rem; font-weight: 900; color: #031827; margin-bottom: 0.25rem;">

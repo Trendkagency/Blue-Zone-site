@@ -45,17 +45,23 @@
         </form>
     </div>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#categoriesTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل أنظمة وتصنيفات المنتجات' : 'Category Systems & Classifications'" 
+    />
+
     <div class="card shadow-sm border border-gray-100 dark:border-gray-800">
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="categoriesTable">
                 <thead>
                     <tr>
-                        <th style="width: 60px;">Sort</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'نظام التصنيف' : 'Category System' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'المسمى العربي' : 'Arabic Designation' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'التركيبات المرتبطة' : 'Formulations' }}</th>
-                        <th>{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
-                        <th style="text-align: center;">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                        <th style="width: 60px;" data-sort-type="number">Sort</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'نظام التصنيف' : 'Category System' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'المسمى العربي' : 'Arabic Designation' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'التركيبات المرتبطة' : 'Formulations' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
+                        <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,6 +146,6 @@
             </table>
         </div>
 
-        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($categories)" />
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($categories)" />
     </div>
 </x-layouts.admin>

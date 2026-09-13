@@ -45,6 +45,9 @@
             <button type="button" class="tab-btn" data-tab-target="tab-fcm">
                 <i class="fa-solid fa-satellite-dish mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.fcm') }}</span>
             </button>
+            <a href="{{ route('admin.settings.geo.index') }}" class="tab-btn" style="text-decoration: none; color: inherit; background: rgba(99, 102, 241, 0.08); border-color: rgba(99, 102, 241, 0.3);">
+                <i class="fa-solid fa-earth-americas text-indigo-500 mr-1.5 ml-1.5"></i> <span>{{ app()->getLocale() === 'ar' ? 'الدول والمدن (Geo)' : 'Countries & Cities' }}</span>
+            </a>
         </div>
 
 
@@ -2655,7 +2658,7 @@
                     <x-forms.toggle 
                         name="fcm_notify_transfers" 
                         :label="app()->getLocale() == 'ar' ? 'حركات نقل وتوزيع المخزون (Stock Transfers)' : 'Stock Transfers & Distribution Movements'" 
-                        :description="app()->getLocale() == 'ar' ? 'تنبيه مباشر عند إنشاء أمر نقل بين المستودع المركزي والمعارض أو العيادات.' : 'Push notification when stock is transferred between warehouse depots and clinic boutiques.'" 
+                        :description="app()->getLocale() == 'ar' ? 'تنبيه مباشر عند إنشاء أمر نقل بين المستودع المركزي والفروع أو نقاط البيع.' : 'Push notification when stock is transferred between warehouse depots and points of sale.'" 
                         :checked="$settings['fcm_notify_transfers'] ?? true" 
                     />
 

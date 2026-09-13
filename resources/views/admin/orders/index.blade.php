@@ -44,7 +44,7 @@
             <select name="channel" onchange="this.form.submit()" class="form-select text-sm" style="width: auto;">
                 <option value="">{{ app()->getLocale() == 'ar' ? 'جميع القنوات' : 'All Channels' }}</option>
                 <option value="online" {{ request('channel') === 'online' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'المتجر الإلكتروني' : 'Online Hub' }}</option>
-                <option value="offline" {{ request('channel') === 'offline' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'معرض البوتيك' : 'Flagship POS' }}</option>
+                <option value="offline" {{ request('channel') === 'offline' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'مستودع المبيعات (POS)' : 'POS Warehouse' }}</option>
             </select>
 
             <button type="submit" class="btn btn-secondary btn-sm font-bold">
@@ -53,20 +53,26 @@
         </div>
     </form>
 
+    <!-- Table Action Toolbar (Search, Excel Export, CSV & Print) -->
+    <x-admin.table-toolbar 
+        table="#ordersTable" 
+        :title="app()->getLocale() === 'ar' ? 'سجل فواتير وطلبات المبيعات' : 'Sales Orders Ledger'" 
+    />
+
     <!-- Orders Table -->
     <div class="card shadow-sm border border-gray-100 dark:border-gray-800">
         <div class="table-responsive" style="border: none; border-radius: 0;">
-            <table class="table">
+            <table class="table" id="ordersTable">
                 <thead>
                     <tr>
-                        <th>{{ __('admin.orders.order_number') }}</th>
-                        <th>{{ __('admin.orders.customer') }}</th>
-                        <th>{{ __('admin.orders.channel') }}</th>
-                        <th>{{ __('admin.orders.status') }}</th>
-                        <th>{{ __('admin.orders.payment') }}</th>
-                        <th>{{ __('admin.orders.amount') }}</th>
-                        <th>{{ __('admin.orders.date') }}</th>
-                        <th style="text-align: center;">{{ app()->getLocale() == 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.order_number') }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.customer') }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.channel') }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.status') }}</th>
+                        <th data-sort-type="text">{{ __('admin.orders.payment') }}</th>
+                        <th data-sort-type="number">{{ __('admin.orders.amount') }}</th>
+                        <th data-sort-type="date">{{ __('admin.orders.date') }}</th>
+                        <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() == 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -161,6 +167,6 @@
             </table>
         </div>
 
-        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="count($orders)" />
+        <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($orders)" />
     </div>
 </x-layouts.admin>

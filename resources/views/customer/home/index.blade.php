@@ -22,6 +22,8 @@
                 'lSettings' => $lSettings,
                 'settings' => $lSettings,
                 'allProducts' => $allProducts ?? [],
+                'products' => $products ?? [],
+                'mainProduct' => $mainProduct ?? null,
                 'featuredProducts' => $featuredProducts ?? [],
                 'bestSellers' => $bestSellers ?? [],
                 'newArrivals' => $newArrivals ?? [],

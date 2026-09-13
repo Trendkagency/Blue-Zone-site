@@ -1379,6 +1379,124 @@ html.dark .bz-toast-info .bz-toast-icon {
   box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35);
 }
 
+.sidebar-dropdown-group {
+  margin-bottom: 0.25rem;
+  border-radius: 0.625rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-dropdown-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6875rem 0.875rem;
+  border-radius: 0.5rem;
+  color: #94A3B8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-align: start;
+  user-select: none;
+}
+
+.sidebar-dropdown-btn:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #FFFFFF;
+}
+
+.sidebar-dropdown-group.is-open .sidebar-dropdown-btn {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-dropdown-btn.active-parent {
+  color: #38BDF8;
+  font-weight: 700;
+}
+
+.sidebar-dropdown-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.sidebar-dropdown-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sidebar-dropdown-chevron {
+  font-size: 0.75rem;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #64748B;
+}
+
+.sidebar-dropdown-group.is-open .sidebar-dropdown-chevron {
+  transform: rotate(180deg);
+  color: #38BDF8;
+}
+
+[dir="rtl"] .sidebar-dropdown-group.is-open .sidebar-dropdown-chevron {
+  transform: rotate(-180deg);
+}
+
+.sidebar-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, padding 0.2s ease;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-inline-start: 1.25rem;
+  margin-top: 0.1rem;
+  border-inline-start: 2px solid rgba(255, 255, 255, 0.08);
+  margin-inline-start: 1.25rem;
+}
+
+.sidebar-dropdown-group.is-open .sidebar-submenu {
+  max-height: 600px;
+  opacity: 1;
+  padding-top: 0.25rem;
+  padding-bottom: 0.35rem;
+}
+
+.sidebar-sublink {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.4rem;
+  color: #94A3B8;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.sidebar-sublink:hover {
+  color: #FFFFFF;
+  background-color: rgba(255, 255, 255, 0.06);
+  transform: translateX(3px);
+}
+
+[dir="rtl"] .sidebar-sublink:hover {
+  transform: translateX(-3px);
+}
+
+.sidebar-sublink.active {
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.12);
+  font-weight: 700;
+}
+
 .admin-main {
   flex-grow: 1;
   display: flex;
@@ -1848,4 +1966,20 @@ footer a.bz-footer-social-link.bz-micro:hover {
   .admin-mobile-toggle {
     display: inline-flex !important;
   }
+}
+
+/* ==========================================================================
+   ADMIN MODAL OVERLAYS & BACKDROP ISOLATION (Above Sticky Headers & Sidebars)
+   ========================================================================== */
+#createWarehouseModal,
+.admin-modal-overlay,
+[id$="Modal"]:not(.inline-modal),
+[x-show*="Modal"] {
+  z-index: 99999 !important;
+}
+
+#createWarehouseModal > div,
+.admin-modal-overlay > div,
+[x-show*="Modal"] > div {
+  z-index: 100000 !important;
 }

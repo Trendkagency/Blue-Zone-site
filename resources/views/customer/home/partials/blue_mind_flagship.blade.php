@@ -4,6 +4,7 @@
     Expected variable: $mainProduct
 ================================================================ --}}
 
+@if(!empty($mainProduct))
 @php
     /*
     |--------------------------------------------------------------------------
@@ -11,28 +12,27 @@
     |--------------------------------------------------------------------------
     */
     $locale = app()->getLocale();
+    $isObj = is_object($mainProduct);
 
-    $mainProductName =
-        $locale === 'ar'
-            ? $mainProduct->name_ar ?? $mainProduct->name_en
-            : $mainProduct->name_en ?? $mainProduct->name_ar;
+    $mainProductName = $isObj
+        ? ($locale === 'ar' ? ($mainProduct->name_ar ?? $mainProduct->name_en) : ($mainProduct->name_en ?? $mainProduct->name_ar))
+        : ($locale === 'ar' ? ($mainProduct['name_ar'] ?? $mainProduct['name_en'] ?? '') : ($mainProduct['name_en'] ?? $mainProduct['name_ar'] ?? ''));
 
-    $tagline =
-        $locale === 'ar'
-            ? $mainProduct->tagline_ar ?? $mainProduct->tagline_en
-            : $mainProduct->tagline_en ?? $mainProduct->tagline_ar;
+    $tagline = $isObj
+        ? ($locale === 'ar' ? ($mainProduct->tagline_ar ?? $mainProduct->tagline_en) : ($mainProduct->tagline_en ?? $mainProduct->tagline_ar))
+        : ($locale === 'ar' ? ($mainProduct['tagline_ar'] ?? $mainProduct['tagline_en'] ?? '') : ($mainProduct['tagline_en'] ?? $mainProduct['tagline_ar'] ?? ''));
 
-    $shortDescription =
-        $locale === 'ar'
-            ? $mainProduct->short_description_ar ?? $mainProduct->short_description_en
-            : $mainProduct->short_description_en ?? $mainProduct->short_description_ar;
+    $shortDescription = $isObj
+        ? ($locale === 'ar' ? ($mainProduct->short_description_ar ?? $mainProduct->short_description_en) : ($mainProduct->short_description_en ?? $mainProduct->short_description_ar))
+        : ($locale === 'ar' ? ($mainProduct['short_description_ar'] ?? $mainProduct['short_description_en'] ?? '') : ($mainProduct['short_description_en'] ?? $mainProduct['short_description_ar'] ?? ''));
 
     /*
     |--------------------------------------------------------------------------
     | Product Image
     |--------------------------------------------------------------------------
     */
-    $mainProductImage = $mainProduct->image ?: asset('assets/products/blue-mind.webp');
+    $rawImg = $isObj ? $mainProduct->image : ($mainProduct['image'] ?? null);
+    $mainProductImage = $rawImg ?: asset('assets/products/blue-mind.webp');
 
     if (!str_starts_with($mainProductImage, 'http')) {
         $mainProductImage = asset(ltrim($mainProductImage, '/'));
@@ -43,36 +43,39 @@
     | Product Price
     |--------------------------------------------------------------------------
     */
-    $displayPrice = $mainProduct->sale_price ?? ($mainProduct->price ?? 0);
+    $mainPrice = $isObj ? $mainProduct->price : ($mainProduct['price'] ?? 0);
+    $mainSalePrice = $isObj ? $mainProduct->sale_price : ($mainProduct['sale_price'] ?? null);
+    $displayPrice = $mainSalePrice ?? ($mainPrice ?? 0);
 
     /*
     |--------------------------------------------------------------------------
     | Benefits / Ingredients
     |--------------------------------------------------------------------------
     */
-    $benefits = is_array($mainProduct->benefits ?? null)
-        ? $mainProduct->benefits
-        : (json_decode($mainProduct->benefits ?? '[]', true) ?:
-        []);
+    $rawBenefits = $isObj ? ($mainProduct->benefits ?? null) : ($mainProduct['benefits'] ?? null);
+    $benefits = is_array($rawBenefits)
+        ? $rawBenefits
+        : (json_decode($rawBenefits ?? '[]', true) ?: []);
 
-    $ingredients = is_array($mainProduct->ingredients ?? null)
-        ? $mainProduct->ingredients
-        : (json_decode($mainProduct->ingredients ?? '[]', true) ?:
-        []);
+    $rawIngredients = $isObj ? ($mainProduct->ingredients ?? null) : ($mainProduct['ingredients'] ?? null);
+    $ingredients = is_array($rawIngredients)
+        ? $rawIngredients
+        : (json_decode($rawIngredients ?? '[]', true) ?: []);
 
     /*
     |--------------------------------------------------------------------------
     | Main Product URL
     |--------------------------------------------------------------------------
     */
-    $mainProductUrl = route('customer.product.show', $mainProduct->slug);
+    $slug = $isObj ? $mainProduct->slug : ($mainProduct['slug'] ?? '');
+    $mainProductUrl = route('customer.product.show', $slug);
 
     /*
     |--------------------------------------------------------------------------
     | Cart Identifier
     |--------------------------------------------------------------------------
     */
-    $cartIdentifier = $mainProduct->slug;
+    $cartIdentifier = $slug;
 
     /*
     |--------------------------------------------------------------------------
@@ -386,3 +389,4 @@
         </div>
     </div>
 </section>
+@endif
