@@ -391,6 +391,7 @@ return array (
       'typography' => 'الخطوط والطباعة والتصميم',
       'alerts' => 'تنبيهات وإشعارات النظام',
       'fcm' => 'إشعارات FCM الفورية',
+      'six_pillars' => 'إدارة الركائز الست (6PILLARS)',
     ),
     'sections' => 
     array (

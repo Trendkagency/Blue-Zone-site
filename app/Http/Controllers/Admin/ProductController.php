@@ -363,9 +363,9 @@ class ProductController extends Controller
         $locations = \App\Models\Location::where('is_active', true)->get();
         if ($locations->isEmpty()) {
             $locations = collect([
-                (object)['id' => 'online', 'name_en' => 'Online Fulfillment Hub', 'name_ar' => 'مستودع المتجر الإلكتروني', 'code' => 'LOC-ONL'],
-                (object)['id' => 'offline', 'name_en' => 'POS Sales Warehouse', 'name_ar' => 'مستودع المبيعات المباشرة', 'code' => 'LOC-POS'],
-                (object)['id' => 'central_wh', 'name_en' => 'Central Quarantine Warehouse', 'name_ar' => 'المستودع المركزي الرئيسي', 'code' => 'LOC-CWH'],
+                (object) ['id' => 'online', 'name_en' => 'Online Fulfillment Hub', 'name_ar' => 'مستودع المتجر الإلكتروني', 'code' => 'LOC-ONL'],
+                (object) ['id' => 'offline', 'name_en' => 'POS Sales Warehouse', 'name_ar' => 'مستودع المبيعات المباشرة', 'code' => 'LOC-POS'],
+                (object) ['id' => 'central_wh', 'name_en' => 'Central Quarantine Warehouse', 'name_ar' => 'المستودع المركزي الرئيسي', 'code' => 'LOC-CWH'],
             ]);
         }
 

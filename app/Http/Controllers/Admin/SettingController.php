@@ -263,6 +263,94 @@ class SettingController extends Controller
             'landing_meta_desc_en' => ['nullable', 'string', 'max:1000'],
             'landing_meta_desc_ar' => ['nullable', 'string', 'max:1000'],
             'landing_meta_keywords' => ['nullable', 'string', 'max:500'],
+
+            // 6 Pillars Studio & Management
+            'pillars_layout_format' => ['nullable', 'string', 'in:orbital_matrix,showcase_grid,interactive_accordion'],
+            'pillars_accent_color' => ['nullable', 'string', 'in:green,cyan,navy,amber,purple'],
+            'pillars_card_style' => ['nullable', 'string', 'in:adaptive,glassmorphism,elevated_card'],
+            'pillars_show_orbital' => ['nullable', 'boolean'],
+            'pillars_show_tags' => ['nullable', 'boolean'],
+            'pillars_show_numbers' => ['nullable', 'boolean'],
+
+            'pillars_eyebrow_en' => ['nullable', 'string', 'max:255'],
+            'pillars_eyebrow_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_heading_prefix_en' => ['nullable', 'string', 'max:255'],
+            'pillars_heading_prefix_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_heading_highlight_en' => ['nullable', 'string', 'max:255'],
+            'pillars_heading_highlight_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_description_en' => ['nullable', 'string', 'max:2000'],
+            'pillars_description_ar' => ['nullable', 'string', 'max:2000'],
+            'pillars_center_title_en' => ['nullable', 'string', 'max:100'],
+            'pillars_center_title_ar' => ['nullable', 'string', 'max:100'],
+            'pillars_center_subtitle_en' => ['nullable', 'string', 'max:100'],
+            'pillars_center_subtitle_ar' => ['nullable', 'string', 'max:100'],
+
+            // Items 1 through 6
+            'pillars_item_1_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_1_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_1_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_1_desc_en' => ['nullable', 'string'],
+            'pillars_item_1_desc_ar' => ['nullable', 'string'],
+
+            'pillars_item_2_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_2_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_2_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_2_desc_en' => ['nullable', 'string'],
+            'pillars_item_2_desc_ar' => ['nullable', 'string'],
+
+            'pillars_item_3_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_3_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_3_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_3_desc_en' => ['nullable', 'string'],
+            'pillars_item_3_desc_ar' => ['nullable', 'string'],
+
+            'pillars_item_4_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_4_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_4_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_4_desc_en' => ['nullable', 'string'],
+            'pillars_item_4_desc_ar' => ['nullable', 'string'],
+
+            'pillars_item_5_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_5_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_5_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_5_desc_en' => ['nullable', 'string'],
+            'pillars_item_5_desc_ar' => ['nullable', 'string'],
+
+            'pillars_item_6_num' => ['nullable', 'string', 'max:20'],
+            'pillars_item_6_icon' => ['nullable', 'string', 'max:100'],
+            'pillars_item_6_menu_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_menu_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_title_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_title_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_tag_en' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_tag_ar' => ['nullable', 'string', 'max:255'],
+            'pillars_item_6_desc_en' => ['nullable', 'string'],
+            'pillars_item_6_desc_ar' => ['nullable', 'string'],
         ]);
 
         // General settings
@@ -495,6 +583,55 @@ class SettingController extends Controller
         if (isset($validated['landing_meta_desc_en'])) Setting::set('landing_meta_desc_en', $validated['landing_meta_desc_en'], 'landing');
         if (isset($validated['landing_meta_desc_ar'])) Setting::set('landing_meta_desc_ar', $validated['landing_meta_desc_ar'], 'landing');
         if (isset($validated['landing_meta_keywords'])) Setting::set('landing_meta_keywords', $validated['landing_meta_keywords'], 'landing');
+
+        // 6 Pillars Studio & Management Persistence
+        if ($request->has('pillars_layout_format')) {
+            Setting::set('pillars_layout_format', $request->input('pillars_layout_format', 'orbital_matrix'), 'pillars');
+        }
+        if ($request->has('pillars_accent_color')) {
+            Setting::set('pillars_accent_color', $request->input('pillars_accent_color', 'green'), 'pillars');
+        }
+        if ($request->has('pillars_card_style')) {
+            Setting::set('pillars_card_style', $request->input('pillars_card_style', 'adaptive'), 'pillars');
+        }
+        Setting::set('pillars_show_orbital', $request->boolean('pillars_show_orbital'), 'pillars', 'boolean');
+        Setting::set('pillars_show_tags', $request->boolean('pillars_show_tags'), 'pillars', 'boolean');
+        Setting::set('pillars_show_numbers', $request->boolean('pillars_show_numbers'), 'pillars', 'boolean');
+
+        $pillarsDirectFields = [
+            'pillars_eyebrow_en', 'pillars_eyebrow_ar',
+            'pillars_heading_prefix_en', 'pillars_heading_prefix_ar',
+            'pillars_heading_highlight_en', 'pillars_heading_highlight_ar',
+            'pillars_description_en', 'pillars_description_ar',
+            'pillars_center_title_en', 'pillars_center_title_ar',
+            'pillars_center_subtitle_en', 'pillars_center_subtitle_ar',
+        ];
+        foreach ($pillarsDirectFields as $field) {
+            if ($request->exists($field)) {
+                Setting::set($field, $request->input($field), 'pillars');
+            }
+        }
+
+        // 6 Pillars Items Persistence (1..6)
+        for ($i = 1; $i <= 6; $i++) {
+            $itemFields = [
+                "pillars_item_{$i}_num",
+                "pillars_item_{$i}_icon",
+                "pillars_item_{$i}_menu_en",
+                "pillars_item_{$i}_menu_ar",
+                "pillars_item_{$i}_title_en",
+                "pillars_item_{$i}_title_ar",
+                "pillars_item_{$i}_tag_en",
+                "pillars_item_{$i}_tag_ar",
+                "pillars_item_{$i}_desc_en",
+                "pillars_item_{$i}_desc_ar",
+            ];
+            foreach ($itemFields as $field) {
+                if ($request->exists($field)) {
+                    Setting::set($field, $request->input($field), 'pillars');
+                }
+            }
+        }
 
         \Illuminate\Support\Facades\Cache::flush();
 

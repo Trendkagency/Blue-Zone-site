@@ -1,4 +1,8 @@
 <x-layouts.customer :title="'MEET THE TEAM — ' . __('app.brand_name')" :description="'Meet the neurobiologists, longevity researchers, and clinical nutritionists behind BLUE ZONE science-driven dietary formulations.'">
+{{--
+    ======================================================================
+    MEET THE TEAM SECTION (Temporarily commented out as requested)
+    ======================================================================
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 space-y-16 sm:space-y-24">
       
       <!-- HERO -->
@@ -111,4 +115,5 @@
       </div>
 
     </div>
+--}}
 </x-layouts.customer>

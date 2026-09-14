@@ -391,6 +391,7 @@ return array (
       'typography' => 'Typography & Design',
       'alerts' => 'Notification Triggers',
       'fcm' => 'FCM & Push Notifications',
+      'six_pillars' => '6PILLARS Management',
     ),
     'sections' => 
     array (

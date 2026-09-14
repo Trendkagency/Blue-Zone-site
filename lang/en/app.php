@@ -125,43 +125,43 @@ return array(
     ),
   // lang/en/app.php
   'philosophy' => [
-    'eyebrow' => 'OUR WELLNESS PHILOSOPHY',
+    'eyebrow' => 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT',
     'heading_prefix' => 'THE 6 PILLARS OF',
-    'heading_highlight' => 'LONGEVITY',
-    'description' => "Every BLUE ZONE formulation is inspired by the core lifestyle principles shared by the world's longest-lived communities.",
+    'heading_highlight' => 'BLUE MIND',
+    'description' => 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.',
     'core_label' => 'CORE',
     'impact_label' => 'PHYSIOLOGICAL IMPACT',
   ],
   'pillars' => [
-    'movement' => [
-      'title' => 'MOVEMENT',
-      'desc' => 'Natural daily movement is one of the defining habits shared by centenarians, supporting joint stamina, circulation, and fluid mobility throughout life.',
-      'tag' => 'Joint Stamina & Fluid Articulation',
+    'science' => [
+      'menu' => 'THE SCIENCE',
+      'title' => 'The Science Behind Blue Mind',
+      'tag' => 'Cognitive Optimization & Safeguard',
     ],
-    'nutrition' => [
-      'title' => 'NUTRITION',
-      'desc' => 'Bio-engineered from polyphenol-rich plant botanicals and standardized cellular antioxidants to nourish cellular metabolic pathways.',
-      'tag' => 'Botanical Bio-Integrity',
+    'nootropics' => [
+      'menu' => 'TARGETED NOOTROPICS',
+      'title' => 'Targeted Nootropics for Mental Performance',
+      'tag' => 'Memory, Focus & Alertness',
     ],
-    'purpose' => [
-      'title' => 'PURPOSE',
-      'desc' => 'Cultivating Ikigai purpose—a clear sense of daily direction proven to promote neurological resilience and cognitive focus.',
-      'tag' => 'Neurological Resilience & Focus',
+    'vitamins' => [
+      'menu' => 'VITAMINS & COFACTORS',
+      'title' => 'Essential Vitamins & Neurological Cofactors',
+      'tag' => 'Metabolic Energy & Neuro-Balance',
     ],
-    'community' => [
-      'title' => 'COMMUNITY',
-      'desc' => 'Fostering deep social bonds and emotional harmony that reduce systemic cortisol levels and daily physiological stress.',
-      'tag' => 'Cortisol & Stress Reduction',
+    'foundation' => [
+      'menu' => 'DAILY FOUNDATION',
+      'title' => 'Your Complete Daily Foundation',
+      'tag' => 'Complete Multivitamin Base',
     ],
-    'rest' => [
-      'title' => 'REST',
-      'desc' => 'Sustaining restorative nighttime sleep and circadian rhythm alignment to allow cellular ATP regeneration without burnout.',
-      'tag' => 'Circadian ATP Regeneration',
+    'highlights' => [
+      'menu' => 'CORE HIGHLIGHTS',
+      'title' => 'High-Performance Formula Highlights',
+      'tag' => 'Clinical Synergy & Potency',
     ],
-    'wellness' => [
-      'title' => 'WELLNESS',
-      'desc' => 'Standardized botanical nutrition designed to preserve cellular energy, structural posture, and lifelong immune fortitude.',
-      'tag' => 'Systemic Immune Fortitude',
+    'faqs' => [
+      'menu' => 'INFO & FAQS',
+      'title' => 'Important Information & FAQs',
+      'tag' => 'Usage, Safety & Clinical Guidance',
     ],
   ],
   'formulation_price' => 'Formulation Price',

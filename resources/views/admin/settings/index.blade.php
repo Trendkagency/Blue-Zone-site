@@ -27,6 +27,9 @@
             <button type="button" class="tab-btn" data-tab-target="tab-landing">
                 <i class="fa-solid fa-globe mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.landing') }}</span>
             </button>
+            <button type="button" class="tab-btn" data-tab-target="tab-6pillars">
+                <i class="fa-solid fa-shapes mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.six_pillars') }}</span>
+            </button>
             <button type="button" class="tab-btn" data-tab-target="tab-commerce">
                 <i class="fa-solid fa-credit-card mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.commerce') }}</span>
             </button>
@@ -2786,6 +2789,332 @@
             </div>
         </div>
 
+        <!-- Tab: 6PILLARS Management & Redesign Studio -->
+        <div id="tab-6pillars" data-tab-content="admin-settings" style="display: none;">
+            <!-- Top Banner Header -->
+            <div class="card" style="padding: 1.75rem 2rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(10, 79, 120, 0.08), rgba(103, 179, 74, 0.08)); border-inline-start: 5px solid #67B34A;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                            <span class="badge" style="background: #67B34A; color: #fff; font-weight: 800; font-size: 0.7rem; padding: 0.35rem 0.65rem; border-radius: 9999px;">
+                                <i class="fa-solid fa-shapes mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'استوديو التصميم المتكامل' : 'STUDIO CMS' }}
+                            </span>
+                            <h3 style="font-size: 1.35rem; font-weight: 900; margin: 0; color: var(--color-text);">
+                                {{ app()->getLocale() === 'ar' ? 'إدارة وتصميم الركائز الست (6PILLARS Management)' : '6PILLARS Management & Redesign Studio' }}
+                            </h3>
+                        </div>
+                        <p style="font-size: 0.825rem; color: var(--color-text-muted); margin: 0; max-width: 800px; line-height: 1.5;">
+                            {{ app()->getLocale() === 'ar' 
+                                ? 'تحكم كامل وشامل في محتوى الركائز الست، وتنسيق العرض والتصميم (مصفوفة المدار، الشبكة الحديثة، القوائم التفاعلية)، مع تخصيص الألوان والترجمات العربية والإنجليزية.' 
+                                : 'Full control over the 6 Pillars content, layout format (Orbital Matrix, Showcase Grid, Stacked Accordion), accent colors, card styling, and bilingual copy.' }}
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="btn btn-outline" onclick="resetPillarsToDefault()" style="font-size: 0.75rem; font-weight: 700; padding: 0.5rem 1rem;">
+                            <i class="fa-solid fa-rotate-left mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'استعادة الافتراضي (Blue Mind)' : 'Reset Default (Blue Mind)' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 1: FORMAT & DESIGN CONTROLLER STUDIO -->
+            <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 
+                            <span>{{ app()->getLocale() === 'ar' ? 'نمط وتنسيق العرض المختار (Layout Format & Redesign)' : 'Layout Format & Visual Redesign Studio' }}</span>
+                        </h4>
+                        <p style="font-size: 0.775rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                            {{ app()->getLocale() === 'ar' ? 'اختر النمط المناسب لعرض الركائز الست عبر صفحة من نحن والمتجر.' : 'Select the architectural layout format for displaying the 6 Pillars on the storefront.' }}
+                        </p>
+                    </div>
+                    <span class="badge badge-primary font-mono text-xs px-2.5 py-1">
+                        {{ app()->getLocale() === 'ar' ? '3 أنماط تفاعلية' : '3 Interactive Formats' }}
+                    </span>
+                </div>
+
+                <!-- Format Selection Cards -->
+                <input type="hidden" name="pillars_layout_format" id="pillars_layout_format_input" value="{{ $settings['pillars_layout_format'] ?? 'orbital_matrix' }}">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.75rem;">
+                    <!-- Format 1: Orbital Matrix -->
+                    <div class="format-choice-card cursor-pointer" onclick="selectPillarFormat('orbital_matrix')" id="format_card_orbital_matrix"
+                        style="padding: 1.25rem; border-radius: var(--radius-lg); border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'orbital_matrix' ? '#67B34A' : 'var(--color-border)' }}; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'orbital_matrix' ? 'rgba(103, 179, 74, 0.06)' : 'var(--color-bg-card)' }}; transition: all 0.3s ease; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span class="badge" style="background: rgba(103, 179, 74, 0.15); color: #67B34A; font-weight: 800; font-size: 0.7rem;">
+                                FORMAT 1 · CLASSIC
+                            </span>
+                            <div class="format-check-circle" style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'orbital_matrix' ? '#67B34A' : '#94A3B8' }}; display: flex; align-items: center; justify-content: center; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'orbital_matrix' ? '#67B34A' : 'transparent' }}; color: #fff; font-size: 10px;">
+                                <i class="fa-solid fa-check" style="display: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'orbital_matrix' ? 'block' : 'none' }};"></i>
+                            </div>
+                        </div>
+                        <h5 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--color-text);">
+                            <i class="fa-solid fa-circle-nodes mr-1 ml-1 text-primary"></i> {{ app()->getLocale() === 'ar' ? 'مصفوفة المدار التفاعلية' : 'Interactive Orbital Matrix' }}
+                        </h5>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.45; margin: 0;">
+                            {{ app()->getLocale() === 'ar' ? 'أزرار تنقل جانبية + رسم مداري مركزي + بطاقة استعراض تفاعلية غنية بالنصوص.' : 'Side pill selectors + Central orbital diagram + Active rich text display panel.' }}
+                        </p>
+                    </div>
+
+                    <!-- Format 2: Showcase Grid -->
+                    <div class="format-choice-card cursor-pointer" onclick="selectPillarFormat('showcase_grid')" id="format_card_showcase_grid"
+                        style="padding: 1.25rem; border-radius: var(--radius-lg); border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'showcase_grid' ? '#67B34A' : 'var(--color-border)' }}; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'showcase_grid' ? 'rgba(103, 179, 74, 0.06)' : 'var(--color-bg-card)' }}; transition: all 0.3s ease; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span class="badge" style="background: rgba(42, 143, 194, 0.15); color: #2A8FC2; font-weight: 800; font-size: 0.7rem;">
+                                FORMAT 2 · MODERN GRID
+                            </span>
+                            <div class="format-check-circle" style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'showcase_grid' ? '#67B34A' : '#94A3B8' }}; display: flex; align-items: center; justify-content: center; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'showcase_grid' ? '#67B34A' : 'transparent' }}; color: #fff; font-size: 10px;">
+                                <i class="fa-solid fa-check" style="display: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'showcase_grid' ? 'block' : 'none' }};"></i>
+                            </div>
+                        </div>
+                        <h5 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--color-text);">
+                            <i class="fa-solid fa-table-cells-large mr-1 ml-1 text-primary"></i> {{ app()->getLocale() === 'ar' ? 'شبكة البطاقات الحديثة (3×2)' : 'Modern 6-Card Showcase Grid' }}
+                        </h5>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.45; margin: 0;">
+                            {{ app()->getLocale() === 'ar' ? 'عرض الركائز الست دفعة واحدة في شبكة متجاوبة من 6 بطاقات مع تأثيرات حركية.' : 'Displays all 6 pillars at once in a balanced responsive 3-column grid with hover lift.' }}
+                        </p>
+                    </div>
+
+                    <!-- Format 3: Interactive Accordion -->
+                    <div class="format-choice-card cursor-pointer" onclick="selectPillarFormat('interactive_accordion')" id="format_card_interactive_accordion"
+                        style="padding: 1.25rem; border-radius: var(--radius-lg); border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'interactive_accordion' ? '#67B34A' : 'var(--color-border)' }}; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'interactive_accordion' ? 'rgba(103, 179, 74, 0.06)' : 'var(--color-bg-card)' }}; transition: all 0.3s ease; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <span class="badge" style="background: rgba(10, 79, 120, 0.15); color: #0A4F78; font-weight: 800; font-size: 0.7rem;">
+                                FORMAT 3 · ACCORDION
+                            </span>
+                            <div class="format-check-circle" style="width: 22px; height: 22px; border-radius: 50%; border: 2px solid {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'interactive_accordion' ? '#67B34A' : '#94A3B8' }}; display: flex; align-items: center; justify-content: center; background: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'interactive_accordion' ? '#67B34A' : 'transparent' }}; color: #fff; font-size: 10px;">
+                                <i class="fa-solid fa-check" style="display: {{ ($settings['pillars_layout_format'] ?? 'orbital_matrix') === 'interactive_accordion' ? 'block' : 'none' }};"></i>
+                            </div>
+                        </div>
+                        <h5 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 0.35rem; color: var(--color-text);">
+                            <i class="fa-solid fa-bars-staggered mr-1 ml-1 text-primary"></i> {{ app()->getLocale() === 'ar' ? 'القوائم المنسدلة التفاعلية' : 'Interactive Stacked Accordion' }}
+                        </h5>
+                        <p style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.45; margin: 0;">
+                            {{ app()->getLocale() === 'ar' ? 'قوائم قابلة للفتح والغلق بتصميم أنيق مناسب للقراءة المتسلسلة والموبايل.' : 'Collapsible animated accordion items with clear typography for focused mobile reading.' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Palette & Surface Controls Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+                    <!-- Accent Color Picker -->
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.5rem;">
+                            {{ app()->getLocale() === 'ar' ? 'لوحة اللون الأساسي (Accent Color Theme)' : 'Accent Color Palette' }}
+                        </label>
+                        <input type="hidden" name="pillars_accent_color" id="pillars_accent_color_input" value="{{ $settings['pillars_accent_color'] ?? 'green' }}">
+                        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                            @php
+                                $accentColors = [
+                                    'green' => ['hex' => '#67B34A', 'name' => 'Emerald Vitality'],
+                                    'cyan' => ['hex' => '#2A8FC2', 'name' => 'Cyber Blue'],
+                                    'navy' => ['hex' => '#0A4F78', 'name' => 'Deep Navy'],
+                                    'amber' => ['hex' => '#F59E0B', 'name' => 'Metabolic Amber'],
+                                    'purple' => ['hex' => '#8B5CF6', 'name' => 'Neuro Violet'],
+                                ];
+                                $activeColor = $settings['pillars_accent_color'] ?? 'green';
+                            @endphp
+                            @foreach($accentColors as $cKey => $cInfo)
+                                <button type="button" class="color-swatch-btn" onclick="selectPillarColor('{{ $cKey }}', '{{ $cInfo['hex'] }}')" id="color_swatch_{{ $cKey }}"
+                                    title="{{ $cInfo['name'] }}"
+                                    style="width: 34px; height: 34px; border-radius: 50%; background: {{ $cInfo['hex'] }}; border: 3px solid {{ $activeColor === $cKey ? '#fff' : 'transparent' }}; box-shadow: {{ $activeColor === $cKey ? '0 0 0 2px ' . $cInfo['hex'] : 'none' }}; cursor: pointer; transition: all 0.2s;">
+                                </button>
+                            @endforeach
+                            <span id="active_color_name_badge" class="badge font-mono text-xs" style="background: rgba(10, 79, 120, 0.1); color: var(--color-text);">
+                                {{ $accentColors[$activeColor]['name'] ?? 'Emerald Vitality' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Card Surface Style -->
+                    <div>
+                        <x-forms.select 
+                            name="pillars_card_style" 
+                            :label="app()->getLocale() === 'ar' ? 'نمط خلفية البطاقات (Surface Style)' : 'Card Surface Style'" 
+                            :selected="$settings['pillars_card_style'] ?? 'adaptive'"
+                            :options="[
+                                'adaptive' => app()->getLocale() === 'ar' ? 'متكيف (كريمي فاتح / كحلي داكن)' : 'Adaptive Contrast (Cream Light / Ocean Dark)',
+                                'glassmorphism' => app()->getLocale() === 'ar' ? 'زجاجي نصف شفاف (Frosted Glass)' : 'Frosted Glassmorphism',
+                                'elevated_card' => app()->getLocale() === 'ar' ? 'بطاقة بيضاء مرتفعة (Elevated Solid)' : 'Elevated Solid Card',
+                            ]" 
+                        />
+                    </div>
+
+                    <!-- Visual Toggles -->
+                    <div>
+                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.5rem;">
+                            {{ app()->getLocale() === 'ar' ? 'خيارات العرض الإضافية' : 'Visual Display Toggles' }}
+                        </label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.775rem; cursor: pointer;">
+                                <input type="checkbox" name="pillars_show_orbital" value="1" {{ !empty($settings['pillars_show_orbital']) ? 'checked' : '' }} class="form-checkbox">
+                                <span>{{ app()->getLocale() === 'ar' ? 'إظهار الرسم المداري في نمط المصفوفة' : 'Show Central Orbital SVG in Matrix Format' }}</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.775rem; cursor: pointer;">
+                                <input type="checkbox" name="pillars_show_tags" value="1" {{ !empty($settings['pillars_show_tags']) ? 'checked' : '' }} class="form-checkbox">
+                                <span>{{ app()->getLocale() === 'ar' ? 'إظهار وسوم الأثر الفسيولوجي (Impact Badges)' : 'Show Physiological Impact Badges' }}</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.775rem; cursor: pointer;">
+                                <input type="checkbox" name="pillars_show_numbers" value="1" {{ !empty($settings['pillars_show_numbers']) ? 'checked' : '' }} class="form-checkbox">
+                                <span>{{ app()->getLocale() === 'ar' ? 'إظهار الترقيم الرقمي (01, 02..)' : 'Show Number Badges (01..06)' }}</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SECTION HEADER & CORE IDENTITY -->
+            <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-heading text-primary"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'عناوين وهوية القسم (Section Header & Eyebrow)' : 'Section Header & Core Branding' }}</span>
+                </h4>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                    <x-forms.input name="pillars_eyebrow_en" :label="__('admin.settings.fields.site_name') . ' (EN Eyebrow)'" :value="$settings['pillars_eyebrow_en'] ?? 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT'" />
+                    <x-forms.input name="pillars_eyebrow_ar" :label="__('admin.settings.fields.site_name') . ' (AR شريط العنوان العلوي)'" :value="$settings['pillars_eyebrow_ar'] ?? 'مكمل دعم الإدراك الشامل'" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                    <x-forms.input name="pillars_heading_prefix_en" label="Heading Prefix (EN) - e.g. THE 6 PILLARS OF" :value="$settings['pillars_heading_prefix_en'] ?? 'THE 6 PILLARS OF'" />
+                    <x-forms.input name="pillars_heading_prefix_ar" label="مقدمة العنوان (AR) - مثلاً: الركائز الست لـ" :value="$settings['pillars_heading_prefix_ar'] ?? 'الركائز الست لـ'" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                    <x-forms.input name="pillars_heading_highlight_en" label="Heading Highlight Text (EN) - e.g. BLUE MIND" :value="$settings['pillars_heading_highlight_en'] ?? 'BLUE MIND'" />
+                    <x-forms.input name="pillars_heading_highlight_ar" label="النص البارز بلون التركيز (AR) - مثلاً: بلو مايند" :value="$settings['pillars_heading_highlight_ar'] ?? 'بلو مايند'" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                    <x-forms.textarea name="pillars_description_en" label="Section Subtitle / Description (EN)" rows="2">
+                        {{ $settings['pillars_description_en'] ?? 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.' }}
+                    </x-forms.textarea>
+                    <x-forms.textarea name="pillars_description_ar" label="الوصف الفرعي للقسم (AR)" rows="2">
+                        {{ $settings['pillars_description_ar'] ?? 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.' }}
+                    </x-forms.textarea>
+                </div>
+
+                <!-- Central Orbital Graphic Badge Texts -->
+                <div style="background: rgba(10, 79, 120, 0.05); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-top: 1.25rem; border: 1px dashed rgba(10, 79, 120, 0.25);">
+                    <span style="font-size: 0.75rem; font-weight: 800; color: #0A4F78; display: block; margin-bottom: 0.75rem; text-transform: uppercase;">
+                        <i class="fa-solid fa-bullseye mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'نصوص الدائرة المركزية للمدار (Orbital Center Badge)' : 'Orbital Center Circle Badge Texts' }}
+                    </span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <x-forms.input name="pillars_center_title_en" label="Center Title (EN) - e.g. BLUE MIND" :value="$settings['pillars_center_title_en'] ?? 'BLUE MIND'" />
+                        <x-forms.input name="pillars_center_title_ar" label="عنوان المركز (AR)" :value="$settings['pillars_center_title_ar'] ?? 'بلو مايند'" />
+                        <x-forms.input name="pillars_center_subtitle_en" label="Center Subtitle (EN) - e.g. CORE" :value="$settings['pillars_center_subtitle_en'] ?? 'CORE'" />
+                        <x-forms.input name="pillars_center_subtitle_ar" label="العبارة السفلية (AR) - مثلاً: الجوهر" :value="$settings['pillars_center_subtitle_ar'] ?? 'الجوهر'" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: THE 6 PILLARS ACCORDION CONTENT EDITORS -->
+            <div class="card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fa-solid fa-layer-group text-primary"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'محرر محتوى الركائز الست الفردية (Pillars 01 to 06)' : 'The 6 Pillars Content Editors (Pillars 01 to 06)' }}</span>
+                        </h4>
+                        <p style="font-size: 0.775rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+                            {{ app()->getLocale() === 'ar' ? 'تحرير نصوص، عناوين، أيقونات، وأوسمة كل ركيزة من الركائز الست بشكل مفصل.' : 'Customize numbers, icons, navigation menu titles, card titles, badges, and HTML rich descriptions.' }}
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" class="btn btn-sm btn-outline" onclick="expandAllPillars()">
+                            <i class="fa-solid fa-angles-down mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'توسيع الكل' : 'Expand All' }}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="collapseAllPillars()">
+                            <i class="fa-solid fa-angles-up mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'طي الكل' : 'Collapse All' }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pillars-accordion-list space-y-4">
+                    @for($p = 1; $p <= 6; $p++)
+                        @php
+                            $defaultIcons = [
+                                1 => 'fa-solid fa-brain',
+                                2 => 'fa-solid fa-bolt',
+                                3 => 'fa-solid fa-flask-vial',
+                                4 => 'fa-solid fa-shield-halved',
+                                5 => 'fa-solid fa-star',
+                                6 => 'fa-solid fa-circle-question',
+                            ];
+                            $pNum = str_pad($p, 2, '0', STR_PAD_LEFT);
+                            $pIcon = $settings["pillars_item_{$p}_icon"] ?? $defaultIcons[$p];
+                            $pTitleEn = $settings["pillars_item_{$p}_title_en"] ?? "Pillar {$pNum}";
+                            $pMenuEn = $settings["pillars_item_{$p}_menu_en"] ?? "PILLAR {$pNum}";
+                        @endphp
+                        <div class="pillar-editor-card" id="pillar_editor_wrap_{{ $p }}" style="border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; background: var(--color-bg-card); transition: all 0.3s ease;">
+                            <!-- Pillar Header Accordion Bar -->
+                            <div class="pillar-accordion-head" onclick="togglePillarEditor({{ $p }})" 
+                                style="padding: 1rem 1.25rem; background: rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; border-inline-start: 4px solid #67B34A;">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <span class="badge font-mono" style="background: #67B34A; color: #fff; font-size: 0.75rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: var(--radius-sm);">
+                                        {{ $settings["pillars_item_{$p}_num"] ?? $pNum }}
+                                    </span>
+                                    <span style="font-size: 1rem; color: #67B34A; width: 24px; text-align: center;">
+                                        <i class="{{ $pIcon }}"></i>
+                                    </span>
+                                    <div>
+                                        <span style="font-size: 0.85rem; font-weight: 800; color: var(--color-text);" id="pillar_{{ $p }}_title_badge">
+                                            {{ $pTitleEn }}
+                                        </span>
+                                        <span style="font-size: 0.7rem; color: var(--color-text-muted); margin-inline-start: 0.5rem;">
+                                            ({{ $pMenuEn }})
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="pillar-accordion-chevron text-muted" id="pillar_chevron_{{ $p }}" style="transition: transform 0.3s ease;">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </span>
+                            </div>
+
+                            <!-- Pillar Body Form (Collapsible) -->
+                            <div class="pillar-accordion-body" id="pillar_body_{{ $p }}" style="padding: 1.5rem; display: {{ $p === 1 ? 'block' : 'none' }}; border-top: 1px solid var(--color-border);">
+                                <div style="display: grid; grid-template-columns: 120px 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <x-forms.input name="pillars_item_{{ $p }}_num" label="Number" :value="$settings['pillars_item_' . $p . '_num'] ?? $pNum" />
+                                    <x-forms.input name="pillars_item_{{ $p }}_icon" label="FontAwesome Icon (e.g. fa-solid fa-brain)" :value="$settings['pillars_item_' . $p . '_icon'] ?? $defaultIcons[$p]" />
+                                    <x-forms.input name="pillars_item_{{ $p }}_tag_en" label="Impact Tag Badge (EN)" :value="$settings['pillars_item_' . $p . '_tag_en'] ?? ''" />
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                                    <x-forms.input name="pillars_item_{{ $p }}_menu_en" label="Navigation Menu Short Title (EN)" :value="$settings['pillars_item_' . $p . '_menu_en'] ?? ''" />
+                                    <x-forms.input name="pillars_item_{{ $p }}_menu_ar" label="عنوان زر القائمة الجانبية (AR)" :value="$settings['pillars_item_' . $p . '_menu_ar'] ?? ''" />
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                                    <x-forms.input name="pillars_item_{{ $p }}_title_en" label="Pillar Full Title (EN)" :value="$settings['pillars_item_' . $p . '_title_en'] ?? ''" />
+                                    <x-forms.input name="pillars_item_{{ $p }}_title_ar" label="العنوان الكامل للركيزة (AR)" :value="$settings['pillars_item_' . $p . '_title_ar'] ?? ''" />
+                                </div>
+
+                                <div style="margin-bottom: 1rem;">
+                                    <x-forms.input name="pillars_item_{{ $p }}_tag_ar" label="وسم الأثر الفسيولوجي (AR)" :value="$settings['pillars_item_' . $p . '_tag_ar'] ?? ''" />
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                                    <div>
+                                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                                            {{ app()->getLocale() === 'ar' ? 'المحتوى والتفاصيل (EN - يدعم HTML وقوائم النقاط)' : 'Pillar Content & Details (EN - Supports HTML, Bold & Bullet Lists)' }}
+                                        </label>
+                                        <textarea name="pillars_item_{{ $p }}_desc_en" rows="5" class="form-control font-mono text-xs" style="line-height: 1.5;">{{ $settings['pillars_item_' . $p . '_desc_en'] ?? '' }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">
+                                            {{ app()->getLocale() === 'ar' ? 'المحتوى والتفاصيل (AR - يدعم HTML وقوائم النقاط)' : 'Pillar Content & Details (AR - Supports HTML, Bold & Bullet Lists)' }}
+                                        </label>
+                                        <textarea name="pillars_item_{{ $p }}_desc_ar" rows="5" class="form-control font-mono text-xs" style="line-height: 1.5;" dir="rtl">{{ $settings['pillars_item_' . $p . '_desc_ar'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+        </div>
+
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
             <button type="submit" class="btn btn-primary btn-lg">
                 <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i> {{ __('admin.settings.save_settings') }}
@@ -3200,6 +3529,185 @@
                 }
             }
         });
+
+        // ==========================================
+        // 6PILLARS MANAGEMENT & REDESIGN STUDIO JS
+        // ==========================================
+        function selectPillarFormat(format) {
+            const input = document.getElementById('pillars_layout_format_input');
+            if (input) input.value = format;
+
+            const formats = ['orbital_matrix', 'showcase_grid', 'interactive_accordion'];
+            formats.forEach(f => {
+                const card = document.getElementById(`format_card_${f}`);
+                if (!card) return;
+                const checkCircle = card.querySelector('.format-check-circle');
+                const checkIcon = checkCircle ? checkCircle.querySelector('i') : null;
+
+                if (f === format) {
+                    card.style.borderColor = '#67B34A';
+                    card.style.background = 'rgba(103, 179, 74, 0.08)';
+                    if (checkCircle) {
+                        checkCircle.style.borderColor = '#67B34A';
+                        checkCircle.style.background = '#67B34A';
+                    }
+                    if (checkIcon) checkIcon.style.display = 'block';
+                } else {
+                    card.style.borderColor = 'var(--color-border)';
+                    card.style.background = 'var(--color-bg-card)';
+                    if (checkCircle) {
+                        checkCircle.style.borderColor = '#94A3B8';
+                        checkCircle.style.background = 'transparent';
+                    }
+                    if (checkIcon) checkIcon.style.display = 'none';
+                }
+            });
+        }
+
+        const pillarAccentColorNames = {
+            'green': 'Emerald Vitality',
+            'cyan': 'Cyber Blue',
+            'navy': 'Deep Navy',
+            'amber': 'Metabolic Amber',
+            'purple': 'Neuro Violet'
+        };
+
+        function selectPillarColor(key, hex) {
+            const input = document.getElementById('pillars_accent_color_input');
+            if (input) input.value = key;
+
+            document.querySelectorAll('.color-swatch-btn').forEach(btn => {
+                btn.style.border = '3px solid transparent';
+                btn.style.boxShadow = 'none';
+            });
+
+            const activeBtn = document.getElementById(`color_swatch_${key}`);
+            if (activeBtn) {
+                activeBtn.style.border = '3px solid #fff';
+                activeBtn.style.boxShadow = `0 0 0 2px ${hex}`;
+            }
+
+            const badge = document.getElementById('active_color_name_badge');
+            if (badge) {
+                badge.textContent = pillarAccentColorNames[key] || key;
+            }
+        }
+
+        function togglePillarEditor(index) {
+            const body = document.getElementById(`pillar_body_${index}`);
+            const chevron = document.getElementById(`pillar_chevron_${index}`);
+            if (!body) return;
+
+            const isHidden = body.style.display === 'none' || body.offsetParent === null;
+            if (isHidden) {
+                body.style.display = 'block';
+                if (chevron) chevron.style.transform = 'rotate(180deg)';
+            } else {
+                body.style.display = 'none';
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function expandAllPillars() {
+            for (let i = 1; i <= 6; i++) {
+                const body = document.getElementById(`pillar_body_${i}`);
+                const chevron = document.getElementById(`pillar_chevron_${i}`);
+                if (body) body.style.display = 'block';
+                if (chevron) chevron.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function collapseAllPillars() {
+            for (let i = 1; i <= 6; i++) {
+                const body = document.getElementById(`pillar_body_${i}`);
+                const chevron = document.getElementById(`pillar_chevron_${i}`);
+                if (body) body.style.display = 'none';
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function resetPillarsToDefault() {
+            if (!confirm('{{ app()->getLocale() === "ar" ? "هل أنت متأكد من استعادة المحتوى والتصميم الافتراضي للركائز الست (Blue Mind)؟" : "Are you sure you want to reset the 6 Pillars content and formatting to the Blue Mind default?" }}')) {
+                return;
+            }
+
+            const defaults = {
+                pillars_layout_format: 'orbital_matrix',
+                pillars_accent_color: 'green',
+                pillars_card_style: 'adaptive',
+                pillars_eyebrow_en: 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT',
+                pillars_eyebrow_ar: 'مكمل دعم الإدراك الشامل',
+                pillars_heading_prefix_en: 'THE 6 PILLARS OF',
+                pillars_heading_prefix_ar: 'الركائز الست لـ',
+                pillars_heading_highlight_en: 'BLUE MIND',
+                pillars_heading_highlight_ar: 'بلو مايند',
+                pillars_description_en: 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.',
+                pillars_description_ar: 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.',
+                pillars_center_title_en: 'BLUE MIND',
+                pillars_center_title_ar: 'بلو مايند',
+                pillars_center_subtitle_en: 'CORE',
+                pillars_center_subtitle_ar: 'الجوهر',
+                pillars_item_1_num: '01',
+                pillars_item_1_icon: 'fa-solid fa-brain',
+                pillars_item_1_menu_en: 'THE SCIENCE',
+                pillars_item_1_menu_ar: 'العلم وراء التركيبة',
+                pillars_item_1_title_en: 'The Science Behind Blue Mind',
+                pillars_item_1_title_ar: 'العلم وراء بلو مايند',
+                pillars_item_1_tag_en: 'Cognitive Optimization & Safeguard',
+                pillars_item_1_tag_ar: 'تحسين الإدراك والحماية الخلوية',
+                pillars_item_2_num: '02',
+                pillars_item_2_icon: 'fa-solid fa-bolt',
+                pillars_item_2_menu_en: 'TARGETED NOOTROPICS',
+                pillars_item_2_menu_ar: 'منشطات الإدراك',
+                pillars_item_2_title_en: 'Targeted Nootropics for Mental Performance',
+                pillars_item_2_title_ar: 'منشطات إدراكية مستهدفة للأداء العقلي',
+                pillars_item_2_tag_en: 'Memory, Focus & Alertness',
+                pillars_item_2_tag_ar: 'الذاكرة والتركيز واليقظة الذهنية',
+                pillars_item_3_num: '03',
+                pillars_item_3_icon: 'fa-solid fa-flask-vial',
+                pillars_item_3_menu_en: 'VITAMINS & COFACTORS',
+                pillars_item_3_menu_ar: 'الفيتامينات والعوامل المساعدة',
+                pillars_item_3_title_en: 'Essential Vitamins & Neurological Cofactors',
+                pillars_item_3_title_ar: 'فيتامينات أساسية وعوامل عصبية مساعدة',
+                pillars_item_3_tag_en: 'Energy Metabolism & Neuro-Balance',
+                pillars_item_3_tag_ar: 'أيض الطاقة وتوازن النواقل العصبية',
+                pillars_item_4_num: '04',
+                pillars_item_4_icon: 'fa-solid fa-shield-halved',
+                pillars_item_4_menu_en: 'DAILY FOUNDATION',
+                pillars_item_4_menu_ar: 'الأساس اليومي',
+                pillars_item_4_title_en: 'Your Complete Daily Foundation',
+                pillars_item_4_title_ar: 'أساسك اليومي المتكامل',
+                pillars_item_4_tag_en: 'Complete Multivitamin Base',
+                pillars_item_4_tag_ar: 'قاعدة فيتامينات شاملة',
+                pillars_item_5_num: '05',
+                pillars_item_5_icon: 'fa-solid fa-star',
+                pillars_item_5_menu_en: 'CORE HIGHLIGHTS',
+                pillars_item_5_menu_ar: 'أبرز المزايا',
+                pillars_item_5_title_en: 'High-Performance Formula Highlights',
+                pillars_item_5_title_ar: 'أبرز مزايا التركيبة المركزة',
+                pillars_item_5_tag_en: 'Clinical Synergy & Potency',
+                pillars_item_5_tag_ar: 'تآزر وفعالية سريرية',
+                pillars_item_6_num: '06',
+                pillars_item_6_icon: 'fa-solid fa-circle-question',
+                pillars_item_6_menu_en: 'INFO & FAQS',
+                pillars_item_6_menu_ar: 'معلومات وأسئلة شائعة',
+                pillars_item_6_title_en: 'Important Information & FAQs',
+                pillars_item_6_title_ar: 'معلومات هامة وأسئلة شائعة',
+                pillars_item_6_tag_en: 'Usage, Safety & Clinical Guidance',
+                pillars_item_6_tag_ar: 'السلامة وطريقة الاستخدام والإرشادات'
+            };
+
+            for (const [key, val] of Object.entries(defaults)) {
+                const el = document.querySelector(`[name="${key}"]`);
+                if (el) el.value = val;
+            }
+
+            selectPillarFormat('orbital_matrix');
+            selectPillarColor('green', '#67B34A');
+            const cardStyleSelect = document.querySelector('[name="pillars_card_style"]');
+            if (cardStyleSelect) cardStyleSelect.value = 'adaptive';
+            expandAllPillars();
+        }
     </script>
 </x-layouts.admin>
 

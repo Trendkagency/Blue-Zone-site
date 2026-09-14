@@ -101,347 +101,7 @@
         </div>
     @endif
 
-    <!-- Top Announcement Bar -->
-    {{-- =========================================================
-    TOP UTILITY / ANNOUNCEMENT BAR
-========================================================= --}}
-    <div
-        class="bg-[#031827] text-[#E8DCC4]
-           text-[11px] font-semibold
-           border-b border-[#0A4F78]/30">
-        <div class="max-w-7xl mx-auto
-               px-4 sm:px-6 lg:px-8
-               py-2.5 sm:py-2">
 
-            {{-- ================================
-            DESKTOP / TABLET
-        ================================= --}}
-            <div
-                class="hidden sm:flex
-                   items-center justify-between
-                   gap-6 min-h-[24px]">
-
-                {{-- Announcement --}}
-                <div class="flex items-center gap-2 min-w-0">
-
-                    <span
-                        class="w-2 h-2 rounded-full
-                           bg-[#67B34A]
-                           animate-pulse shrink-0"
-                        aria-hidden="true"></span>
-
-                    <span class="truncate">
-                        <i class="fa-solid fa-wand-magic-sparkles
-                               text-[#67B34A] mr-1"
-                            aria-hidden="true"></i>
-
-                        {{ __('app.cold_chain_shipping_offer') }}
-                    </span>
-
-                </div>
-
-
-                {{-- Utility Controls --}}
-                <div class="flex items-center gap-3 lg:gap-4
-                       shrink-0 whitespace-nowrap">
-
-                    {{-- Language --}}
-                    @if (app()->getLocale() === 'ar')
-                        <a href="{{ route('locale.switch', 'en') }}"
-                            class="font-bold text-[#2A8FC2]
-                               hover:text-white
-                               hover:underline
-                               transition-colors">
-                            English (EN)
-                        </a>
-                    @else
-                        <a href="{{ route('locale.switch', 'ar') }}"
-                            class="font-bold text-[#2A8FC2]
-                               hover:text-white
-                               hover:underline
-                               transition-colors">
-                            العربية (AR)
-                        </a>
-                    @endif
-
-
-                    <span class="text-[#E8DCC4]/30">|</span>
-
-
-                    {{-- Theme --}}
-                    <button type="button"
-                        onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}"
-                        data-theme-toggle
-                        class="hover:text-white
-                           transition-colors
-                           cursor-pointer
-                           inline-flex items-center gap-1.5"
-                        title="{{ __('app.switch_theme') }}" aria-label="{{ __('app.switch_theme') }}">
-                        <span data-theme-label>
-                            <i class="fa-solid fa-moon mr-1" aria-hidden="true"></i>
-                            {{ __('app.dark_mode') }}
-                        </span>
-                    </button>
-
-
-                    <span class="text-[#E8DCC4]/30">|</span>
-
-
-                    {{-- Customer --}}
-                    @if (auth('customer')->check())
-                        <a href="{{ route('customer.account.dashboard') }}"
-                            class="font-bold text-[#67B34A]
-                               hover:text-white
-                               transition-colors
-                               flex items-center gap-1">
-                            <i class="fa-solid fa-circle-user
-                                   text-[#67B34A]"
-                                aria-hidden="true"></i>
-
-                            <span class="max-w-[140px] truncate">
-                                {{ auth('customer')->user()->name }}
-                            </span>
-                        </a>
-
-
-                        <span class="text-[#E8DCC4]/30">|</span>
-
-
-                        <form action="{{ route('customer.auth.logout') }}" method="POST" class="inline">
-                            @csrf
-
-                            <button type="submit"
-                                class="hover:text-red-400
-                                   transition-colors
-                                   cursor-pointer
-                                   font-semibold">
-                                {{ __('app.logout') }}
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('customer.auth.login') }}"
-                            class="font-bold
-                               text-[#E8DCC4]
-                               hover:text-white
-                               transition-colors">
-                            {{ __('app.nav.login') }}
-                        </a>
-                    @endif
-
-
-                    <span class="text-[#E8DCC4]/30">|</span>
-
-
-                    {{-- Admin Portal --}}
-                    <a href="{{ route('admin.dashboard') }}"
-                        class="font-bold
-                           text-[#94A3B8]
-                           hover:text-white
-                           transition-colors
-                           inline-flex items-center gap-1">
-                        {{ __('app.admin_portal') }}
-
-                        <i class="fa-solid fa-arrow-right-to-bracket text-xs" aria-hidden="true"></i>
-                    </a>
-
-                </div>
-            </div>
-
-
-            {{-- ================================
-            MOBILE
-        ================================= --}}
-            <div class="sm:hidden space-y-2.5">
-
-                {{-- Announcement --}}
-                <div class="flex items-center gap-2
-                       min-w-0">
-
-                    <span
-                        class="w-2 h-2 rounded-full
-                           bg-[#67B34A]
-                           animate-pulse
-                           shrink-0"
-                        aria-hidden="true"></span>
-
-                    <span
-                        class="text-[10px]
-                           leading-4
-                           font-semibold
-                           text-[#E8DCC4]/95">
-                        <i class="fa-solid fa-wand-magic-sparkles
-                               text-[#67B34A] mr-1"
-                            aria-hidden="true"></i>
-
-                        {{ __('app.cold_chain_shipping_offer') }}
-                    </span>
-
-                </div>
-
-
-                {{-- Mobile Controls --}}
-                <div
-                    class="flex items-center
-                       justify-between
-                       gap-2
-                       pt-2
-                       border-t border-white/5">
-
-                    {{-- Left Controls --}}
-                    <div class="flex items-center gap-2">
-
-                        {{-- Language --}}
-                        @if (app()->getLocale() === 'ar')
-                            <a href="{{ route('locale.switch', 'en') }}"
-                                class="inline-flex items-center
-                                   min-h-[32px]
-                                   px-2.5
-                                   rounded-lg
-                                   bg-white/5
-                                   border border-white/10
-                                   text-[10px]
-                                   font-bold
-                                   text-[#2A8FC2]
-                                   hover:bg-white/10
-                                   transition-colors">
-                                EN
-                            </a>
-                        @else
-                            <a href="{{ route('locale.switch', 'ar') }}"
-                                class="inline-flex items-center
-                                   min-h-[32px]
-                                   px-2.5
-                                   rounded-lg
-                                   bg-white/5
-                                   border border-white/10
-                                   text-[10px]
-                                   font-bold
-                                   text-[#2A8FC2]
-                                   hover:bg-white/10
-                                   transition-colors">
-                                AR
-                            </a>
-                        @endif
-
-
-                        {{-- Theme --}}
-                        <button type="button"
-                            onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}"
-                            data-theme-toggle
-                            class="inline-flex items-center
-                               justify-center
-                               min-w-[32px]
-                               min-h-[32px]
-                               px-2
-                               rounded-lg
-                               bg-white/5
-                               border border-white/10
-                               text-[#E8DCC4]
-                               hover:bg-white/10
-                               hover:text-white
-                               transition-colors"
-                            title="{{ __('app.switch_theme') }}" aria-label="{{ __('app.switch_theme') }}">
-                            <span data-theme-label>
-                                <i class="fa-solid fa-moon text-xs" aria-hidden="true"></i>
-                            </span>
-                        </button>
-
-                    </div>
-
-
-                    {{-- Right Controls --}}
-                    <div class="flex items-center gap-2 min-w-0">
-
-                        @if (auth('customer')->check())
-                            {{-- Account --}}
-                            <a href="{{ route('customer.account.dashboard') }}"
-                                class="inline-flex items-center
-                                   gap-1.5
-                                   min-h-[32px]
-                                   max-w-[130px]
-                                   px-2.5
-                                   rounded-lg
-                                   bg-[#67B34A]/10
-                                   border border-[#67B34A]/20
-                                   text-[#67B34A]
-                                   hover:bg-[#67B34A]/20
-                                   transition-colors">
-                                <i class="fa-solid fa-circle-user
-                                       shrink-0"
-                                    aria-hidden="true"></i>
-
-                                <span class="truncate text-[10px] font-bold">
-                                    {{ auth('customer')->user()->name }}
-                                </span>
-                            </a>
-
-
-                            {{-- Logout --}}
-                            <form action="{{ route('customer.auth.logout') }}" method="POST" class="inline">
-                                @csrf
-
-                                <button type="submit"
-                                    class="inline-flex items-center
-                                       justify-center
-                                       w-8 h-8
-                                       rounded-lg
-                                       bg-white/5
-                                       border border-white/10
-                                       text-[#E8DCC4]
-                                       hover:bg-red-500/10
-                                       hover:text-red-400
-                                       transition-colors"
-                                    title="{{ __('app.logout') }}" aria-label="{{ __('app.logout') }}">
-                                    <i class="fa-solid fa-right-from-bracket text-xs" aria-hidden="true"></i>
-                                </button>
-                            </form>
-                        @else
-                            {{-- Login --}}
-                            <a href="{{ route('customer.auth.login') }}"
-                                class="inline-flex items-center
-                                   gap-1.5
-                                   min-h-[32px]
-                                   px-3
-                                   rounded-lg
-                                   bg-white/5
-                                   border border-white/10
-                                   text-[#E8DCC4]
-                                   hover:bg-white/10
-                                   hover:text-white
-                                   text-[10px]
-                                   font-bold
-                                   transition-colors">
-                                <i class="fa-solid fa-right-to-bracket text-xs" aria-hidden="true"></i>
-
-                                {{ __('app.nav.login') }}
-                            </a>
-                        @endif
-
-
-                        {{-- Admin --}}
-                        <a href="{{ route('admin.dashboard') }}"
-                            class="inline-flex items-center
-                               justify-center
-                               w-8 h-8
-                               rounded-lg
-                               bg-white/5
-                               border border-white/10
-                               text-[#94A3B8]
-                               hover:text-white
-                               hover:bg-white/10
-                               transition-colors"
-                            title="{{ __('app.admin_portal') }}" aria-label="{{ __('app.admin_portal') }}">
-                            <i class="fa-solid fa-arrow-right-to-bracket text-xs" aria-hidden="true"></i>
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-    </div>
 
 
     {{-- =========================================================
@@ -509,10 +169,12 @@
                     {{ __('app.products') }}
                 </a>
 
+                {{--
                 <a href="{{ route('customer.pages.team') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.pages.team*') || request()->is('team*') ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">
                     {{ __('app.meet_the_team') }}
                 </a>
+                --}}
 
                 <a href="{{ route('customer.pages.blog') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.pages.blog*') || request()->is('blog*') ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }}">
@@ -533,7 +195,7 @@
 
 
             <!-- Header Actions -->
-            <div class="flex items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-2 sm:gap-3 lg:gap-3.5">
                 <!-- Search Trigger -->
                 <button onclick="if(window.BLUEZONE_SEARCH){BLUEZONE_SEARCH.open();}"
                     aria-label="Open live product search"
@@ -586,15 +248,72 @@
                     </svg>
                 </button>
 
-                <!-- Customer Account Link -->
-                <a href="{{ route('customer.account.dashboard') }}"
-                    class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer"
-                    aria-label="{{ __('app.nav.account') }}" title="{{ __('app.nav.account') }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </a>
+                <!-- Localization / Language Switcher -->
+                @if (app()->getLocale() === 'ar')
+                    <a href="{{ route('locale.switch', 'en') }}"
+                        class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-extrabold border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-[#031827] dark:text-[#E8DCC4] hover:bg-[#0A4F78]/10 dark:hover:bg-[#2A8FC2]/10 transition-colors shadow-xs"
+                        title="Switch to English" aria-label="Switch to English">
+                        <i class="fa-solid fa-globe text-[#2A8FC2] text-xs" aria-hidden="true"></i>
+                        <span class="tracking-wider">EN</span>
+                    </a>
+                @else
+                    <a href="{{ route('locale.switch', 'ar') }}"
+                        class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-extrabold border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-[#031827] dark:text-[#E8DCC4] hover:bg-[#0A4F78]/10 dark:hover:bg-[#2A8FC2]/10 transition-colors shadow-xs"
+                        title="التحويل إلى العربية" aria-label="التحويل إلى العربية">
+                        <i class="fa-solid fa-globe text-[#2A8FC2] text-xs" aria-hidden="true"></i>
+                        <span>عربي</span>
+                    </a>
+                @endif
+
+                <!-- Customer Account / Auth Dropdown -->
+                @if (auth('customer')->check())
+                    <div class="relative group hidden sm:block">
+                        <a href="{{ route('customer.account.dashboard') }}"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold text-[#67B34A] hover:bg-[#67B34A]/10 transition-colors"
+                            title="{{ auth('customer')->user()->name }}">
+                            <i class="fa-solid fa-circle-user text-base text-[#67B34A]" aria-hidden="true"></i>
+                            <span class="max-w-[90px] lg:max-w-[120px] truncate hidden md:inline">{{ auth('customer')->user()->name }}</span>
+                            <i class="fa-solid fa-chevron-down text-[8px] opacity-70 hidden md:inline"></i>
+                        </a>
+                        <!-- Dropdown Menu -->
+                        <div class="absolute end-0 top-full mt-2 w-52 py-2 bg-white dark:bg-[#031827] rounded-xl shadow-2xl border border-[#0A4F78]/20 dark:border-[#0A4F78]/40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                            <div class="px-4 py-2 border-b border-[#0A4F78]/10 dark:border-white/10">
+                                <p class="text-[10px] uppercase font-bold tracking-wider text-[#0A4F78] dark:text-[#2A8FC2]">{{ __('app.nav.account') }}</p>
+                                <p class="text-xs font-bold text-[#031827] dark:text-white truncate">{{ auth('customer')->user()->name }}</p>
+                            </div>
+                            <a href="{{ route('customer.account.dashboard') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:bg-[#0A4F78]/10 dark:hover:bg-white/10 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">
+                                <i class="fa-solid fa-gauge-high text-xs text-[#2A8FC2]"></i>
+                                <span>{{ __('shop.account.dashboard') }}</span>
+                            </a>
+                            <a href="{{ route('customer.account.orders') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:bg-[#0A4F78]/10 dark:hover:bg-white/10 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">
+                                <i class="fa-solid fa-box-archive text-xs text-[#67B34A]"></i>
+                                <span>{{ __('shop.account.orders') }}</span>
+                            </a>
+                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-[#031827]/80 dark:text-[#F6F5EF]/80 hover:bg-[#0A4F78]/10 dark:hover:bg-white/10 hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">
+                                <i class="fa-solid fa-shield-halved text-xs text-[#94A3B8]"></i>
+                                <span>{{ __('app.admin_portal') }}</span>
+                            </a>
+                            <div class="border-t border-[#0A4F78]/10 dark:border-white/10 mt-1 pt-1">
+                                <form action="{{ route('customer.auth.logout') }}" method="POST" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 text-start transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                                        <span>{{ __('app.logout') }}</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('customer.auth.login') }}"
+                        class="p-2 rounded-full text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 dark:hover:bg-[#0A4F78]/30 transition-colors cursor-pointer inline-flex items-center gap-1"
+                        aria-label="{{ __('app.nav.login') }}" title="{{ __('app.nav.login') }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
+                @endif
 
                 <!-- Shop CTA -->
                 <a href="{{ route('customer.shop') }}"
@@ -638,11 +357,6 @@
                     <span>PRODUCTS</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
-                <a href="{{ route('customer.pages.team') }}"
-                    class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.pages.team*') || request()->is('team*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
-                    <span>MEET THE TEAM</span> <i
-                        class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
-                </a>
                 <a href="{{ route('customer.pages.blog') }}"
                     class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.pages.blog*') || request()->is('blog*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>BLOG</span> <i
@@ -658,6 +372,68 @@
                     <span>CONTACT</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
+
+                <!-- Mobile Language Switcher -->
+                <div class="py-2.5 px-3 rounded-xl border border-[#0A4F78]/20 bg-white/50 dark:bg-[#062B49]/50 flex items-center justify-between">
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] flex items-center gap-2">
+                        <i class="fa-solid fa-globe text-[#2A8FC2]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللغة' : 'LANGUAGE' }}</span>
+                    </span>
+                    <div class="flex items-center gap-1.5 bg-black/5 dark:bg-black/30 p-1 rounded-lg">
+                        <a href="{{ route('locale.switch', 'en') }}"
+                            class="px-3 py-1 rounded text-xs font-bold transition-all {{ app()->getLocale() === 'en' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-white' }}">
+                            EN
+                        </a>
+                        <a href="{{ route('locale.switch', 'ar') }}"
+                            class="px-3 py-1 rounded text-xs font-bold transition-all {{ app()->getLocale() === 'ar' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-[#031827]/70 dark:text-[#F6F5EF]/70 hover:text-white' }}">
+                            عربي
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Mobile Customer Auth / Account -->
+                @if (auth('customer')->check())
+                    <div class="py-3 px-3 rounded-xl border border-[#67B34A]/30 bg-[#67B34A]/5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i class="fa-solid fa-circle-user text-xl text-[#67B34A]"></i>
+                                <div class="min-w-0">
+                                    <p class="text-[10px] uppercase font-extrabold text-[#67B34A] tracking-wider">{{ __('app.nav.account') }}</p>
+                                    <p class="text-xs font-bold text-[#031827] dark:text-[#F6F5EF] truncate">{{ auth('customer')->user()->name }}</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('customer.auth.logout') }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="text-xs font-bold text-red-500 hover:text-red-400 px-2.5 py-1 rounded bg-red-500/10 transition-colors">
+                                    {{ __('app.logout') }}
+                                </button>
+                            </form>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2 border-t border-[#67B34A]/15 text-xs">
+                            <a href="{{ route('customer.account.dashboard') }}" class="flex-1 py-1 text-center font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
+                                <i class="fa-solid fa-gauge-high mr-1"></i> {{ __('shop.account.dashboard') }}
+                            </a>
+                            <span class="text-gray-300 dark:text-gray-700">|</span>
+                            <a href="{{ route('customer.account.orders') }}" class="flex-1 py-1 text-center font-bold text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
+                                <i class="fa-solid fa-box-archive mr-1"></i> {{ __('shop.account.orders') }}
+                            </a>
+                        </div>
+                    </div>
+                @else
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ route('customer.auth.login') }}"
+                            class="py-2.5 px-3 text-center rounded-xl border border-[#0A4F78]/20 bg-white/50 dark:bg-[#062B49]/50 text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-right-to-bracket text-xs text-[#2A8FC2]"></i>
+                            <span>{{ __('app.nav.login') }}</span>
+                        </a>
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="py-2.5 px-3 text-center rounded-xl border border-[#0A4F78]/20 bg-white/50 dark:bg-[#062B49]/50 text-xs font-extrabold uppercase tracking-widest text-[#031827] dark:text-[#F6F5EF] hover:bg-[#0A4F78]/10 transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-xs text-[#94A3B8]"></i>
+                            <span>{{ __('app.admin_portal') }}</span>
+                        </a>
+                    </div>
+                @endif
+
                 <!-- Mobile Theme Toggle -->
                 <button type="button"
                     onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle
@@ -671,6 +447,7 @@
                     <span data-theme-label class="text-[#0A4F78] dark:text-[#2A8FC2]"><i
                             class="fa-solid fa-moon mr-1"></i> Dark Mode</span>
                 </button>
+
                 <!-- Mobile Cart Link -->
                 <button type="button" id="mobile-cart-btn"
                     onclick="const m=document.getElementById('mobile-nav-drawer'); if(m){m.classList.add('hidden');} if(window.BLUEZONE_CART){BLUEZONE_CART.open();}else{window.location.href='{{ route('customer.cart') }}';}"
@@ -827,10 +604,12 @@
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.products') ?? 'Products Overview' }}
                             </a></li>
+                        {{--
                         <li><a href="{{ route('customer.pages.team') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.team') ?? 'Meet the Team' }}
                             </a></li>
+                        --}}
                         <li><a href="{{ route('customer.shop') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.shop') ?? 'Shop Catalog' }}

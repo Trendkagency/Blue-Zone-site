@@ -133,212 +133,464 @@
     <!-- PHILOSOPHY SECTION -->
     <!-- 04. WHAT WE BELIEVE (THE 6 PILLARS) -->
     @php
-        $bluezonePillars = [
-            [
-                'num' => '01',
-                'title' => __('app.pillars.movement.title'),
-                'desc' => __('app.pillars.movement.desc'),
-                'tag' => __('app.pillars.movement.tag'),
-                'img' => asset('assets/images/hero/hero-03.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>',
+        $isArabic = app()->getLocale() === 'ar';
+        $locale = $isArabic ? 'ar' : 'en';
+
+        // Layout format, accent theme, card surface style, toggles
+        $pillarsFormat = \App\Models\Setting::get('pillars_layout_format', 'orbital_matrix');
+        $pillarsAccent = \App\Models\Setting::get('pillars_accent_color', 'green');
+        $pillarsCardStyle = \App\Models\Setting::get('pillars_card_style', 'adaptive');
+        $showOrbital = (bool) \App\Models\Setting::get('pillars_show_orbital', true);
+        $showTags = (bool) \App\Models\Setting::get('pillars_show_tags', true);
+        $showNumbers = (bool) \App\Models\Setting::get('pillars_show_numbers', true);
+
+        $accentThemes = [
+            'green' => [
+                'hex' => '#67B34A',
+                'rgba_bg' => 'rgba(103, 179, 74, 0.12)',
+                'rgba_border' => 'rgba(103, 179, 74, 0.3)',
+                'text_class' => 'text-[#67B34A]',
+                'bg_class' => 'bg-[#67B34A]',
+                'border_class' => 'border-[#67B34A]',
             ],
-            [
-                'num' => '02',
-                'title' => __('app.pillars.nutrition.title'),
-                'desc' => __('app.pillars.nutrition.desc'),
-                'tag' => __('app.pillars.nutrition.tag'),
-                'img' => asset('assets/images/hero/hero-02.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>',
+            'cyan' => [
+                'hex' => '#2A8FC2',
+                'rgba_bg' => 'rgba(42, 143, 194, 0.12)',
+                'rgba_border' => 'rgba(42, 143, 194, 0.3)',
+                'text_class' => 'text-[#2A8FC2]',
+                'bg_class' => 'bg-[#2A8FC2]',
+                'border_class' => 'border-[#2A8FC2]',
             ],
-            [
-                'num' => '03',
-                'title' => __('app.pillars.purpose.title'),
-                'desc' => __('app.pillars.purpose.desc'),
-                'tag' => __('app.pillars.purpose.tag'),
-                'img' => asset('assets/images/hero/hero-01.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h-0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>',
+            'navy' => [
+                'hex' => '#0A4F78',
+                'rgba_bg' => 'rgba(10, 79, 120, 0.12)',
+                'rgba_border' => 'rgba(10, 79, 120, 0.3)',
+                'text_class' => 'text-[#0A4F78]',
+                'bg_class' => 'bg-[#0A4F78]',
+                'border_class' => 'border-[#0A4F78]',
             ],
-            [
-                'num' => '04',
-                'title' => __('app.pillars.community.title'),
-                'desc' => __('app.pillars.community.desc'),
-                'tag' => __('app.pillars.community.tag'),
-                'img' => asset('assets/images/okinawa.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>',
+            'amber' => [
+                'hex' => '#F59E0B',
+                'rgba_bg' => 'rgba(245, 158, 11, 0.12)',
+                'rgba_border' => 'rgba(245, 158, 11, 0.3)',
+                'text_class' => 'text-amber-500',
+                'bg_class' => 'bg-amber-500',
+                'border_class' => 'border-amber-500',
             ],
-            [
-                'num' => '05',
-                'title' => __('app.pillars.rest.title'),
-                'desc' => __('app.pillars.rest.desc'),
-                'tag' => __('app.pillars.rest.tag'),
-                'img' => asset('assets/images/hero/hero-05.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>',
-            ],
-            [
-                'num' => '06',
-                'title' => __('app.pillars.wellness.title'),
-                'desc' => __('app.pillars.wellness.desc'),
-                'tag' => __('app.pillars.wellness.tag'),
-                'img' => asset('assets/images/hero_longevity.jpg'),
-                'svgIcon' =>
-                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>',
+            'purple' => [
+                'hex' => '#8B5CF6',
+                'rgba_bg' => 'rgba(139, 92, 246, 0.12)',
+                'rgba_border' => 'rgba(139, 92, 246, 0.3)',
+                'text_class' => 'text-purple-500',
+                'bg_class' => 'bg-purple-500',
+                'border_class' => 'border-purple-500',
             ],
         ];
+        $activeTheme = $accentThemes[$pillarsAccent] ?? $accentThemes['green'];
+
+        $cardSurfaceClass = match($pillarsCardStyle) {
+            'glassmorphism' => 'bg-white/80 dark:bg-[#031827]/80 backdrop-blur-md border border-white/20 shadow-xl',
+            'elevated_card' => 'bg-white dark:bg-[#0a2238] shadow-2xl border border-[#0A4F78]/10',
+            default => 'bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 shadow-xl',
+        };
+
+        // Header values
+        $defaultEyebrow = $isArabic ? 'مكمل دعم الإدراك الشامل' : 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT';
+        $defaultHeadingPrefix = $isArabic ? 'الركائز الست لـ' : 'THE 6 PILLARS OF';
+        $defaultHeadingHighlight = $isArabic ? 'بلو مايند' : 'BLUE MIND';
+        $defaultDescription = $isArabic 
+            ? 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.' 
+            : 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.';
+        
+        $eyebrow = \App\Models\Setting::get("pillars_eyebrow_{$locale}", $defaultEyebrow);
+        $headingPrefix = \App\Models\Setting::get("pillars_heading_prefix_{$locale}", $defaultHeadingPrefix);
+        $headingHighlight = \App\Models\Setting::get("pillars_heading_highlight_{$locale}", $defaultHeadingHighlight);
+        $sectionDesc = \App\Models\Setting::get("pillars_description_{$locale}", $defaultDescription);
+
+        $centerTitle = \App\Models\Setting::get("pillars_center_title_{$locale}", ($isArabic ? 'بلو مايند' : 'BLUE MIND'));
+        $centerSubtitle = \App\Models\Setting::get("pillars_center_subtitle_{$locale}", ($isArabic ? 'الجوهر' : 'CORE'));
+
+        // Default Pillars content definitions
+        $defaultPillars = [
+            1 => [
+                'icon' => 'fa-solid fa-brain',
+                'menu_en' => 'THE SCIENCE',
+                'menu_ar' => 'العلم وراء التركيبة',
+                'title_en' => 'The Science Behind Blue Mind',
+                'title_ar' => 'العلم وراء بلو مايند',
+                'tag_en' => 'Cognitive Optimization & Safeguard',
+                'tag_ar' => 'تحسين الإدراك والحماية الخلوية',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">The brain acts as the command center of your nervous system and contains over <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">80 billion intricate neural pathways</strong>. It is highly demanding, using about <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">30% of the energy</strong> your body produces from food.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">Since brain cells are irreplaceable, they have the highest priority for specific micronutrients. Just like any advanced machine, the quality of what you put in directly affects performance.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] leading-relaxed"><strong class="text-[#67B34A] font-bold">Blue mind</strong> is a scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.</div>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">يعمل الدماغ كمركز تحكم لجهازك العصبي ويحتوي على أكثر من <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">80 مليار مسار عصبي معقد</strong>. يستهلك الدماغ طاقة هائلة، حيث يحتاج إلى حوالي <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">30% من الطاقة</strong> التي ينتجها جسمك من الطعام.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">ولأن خلايا الدماغ لا يمكن تعويضها أو استبدالها، فإنها تحظى بالأولوية القصوى للعناصر الغذائية الدقيقة المتخصصة. تمامًا مثل أي محرك متقدم، فإن جودة ما تغذيه به تؤثر مباشرة على كفاءته وأدائه.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] leading-relaxed"><strong class="text-[#67B34A] font-bold">بلو مايند</strong> هو مكمل يومي شامل ومُصاغ علميًا لضمان حماية مدخولك الغذائي وتحسين وظائفك الإدراكية إلى أقصى حد.</div>'
+            ],
+            2 => [
+                'icon' => 'fa-solid fa-bolt',
+                'menu_en' => 'TARGETED NOOTROPICS',
+                'menu_ar' => 'منشطات الإدراك',
+                'title_en' => 'Targeted Nootropics for Mental Performance',
+                'title_ar' => 'منشطات إدراكية مستهدفة للأداء العقلي',
+                'tag_en' => 'Memory, Focus & Alertness',
+                'tag_ar' => 'الذاكرة والتركيز واليقظة الذهنية',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">Our advanced formula combines specialist nutrients designed to support memory, focus, and psychological function:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Ginkgo Biloba (120 mg):</strong> Enhances cerebral blood flow and nutrient delivery, helping to maintain memory with age and support mental alertness.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Essential Phospholipids:</strong> Phosphatidylserine and Phosphatidylcholine preserve neural membrane integrity and support acetylcholine production, which is crucial for learning speed and memory storage.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Cellular Antioxidant Defense:</strong> Co-Q10, L-Glutathione, and Selenium protect delicate brain tissue from oxidative stress and cellular damage.</span></li></ul>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">تجمع تركيبتنا المتطورة بين مغذيات تخصصية فائقة لدعم الذاكرة والتركيز والوظائف النفسية السليمة:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الجنكة بيلوبا (120 ملغ):</strong> تعزز تدفق الدم الدماغي وتوصيل المغذيات الحيوية، مما يساعد على دعم الذاكرة مع التقدم في العمر وتعزيز اليقظة الذهنية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الفسفوليبيدات الأساسية:</strong> يحافظ كل من الفوسفاتيديل سيرين والفوسفاتيديل كولين على سلامة الغشاء العصبي ويدعمان إنتاج الأسيتيل كولين، الحاسم لسرعة التعلم وتخزين الذاكرة.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الدفاع الخلوي المضاد للأكسدة:</strong> يحمي الإنزيم المساعد Co-Q10، وL-جلوتاثيون، والسيلينيوم أنسجة الدماغ الحساسة من الإجهاد التأكسدي والتلف الخلوي.</span></li></ul>'
+            ],
+            3 => [
+                'icon' => 'fa-solid fa-flask-vial',
+                'menu_en' => 'VITAMINS & COFACTORS',
+                'menu_ar' => 'الفيتامينات والعوامل المساعدة',
+                'title_en' => 'Essential Vitamins & Neurological Cofactors',
+                'title_ar' => 'فيتامينات أساسية وعوامل عصبية مساعدة',
+                'tag_en' => 'Energy Metabolism & Neuro-Balance',
+                'tag_ar' => 'أيض الطاقة وتوازن النواقل العصبية',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">A healthy brain relies on a broad supply of essential vitamins and minerals to maintain optimal cognitive capacity and a healthy nervous system:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">High-Potency B-Complex:</strong> High doses of B-vitamins (including B12, B6, and Pantothenic Acid) optimize cellular energy metabolism, reduce central nervous system fatigue, and support normal psychological function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Key Brain Minerals:</strong> Zinc, Iodine, and Iron plus Pantothenic acid work synergistically to support neurotransmitter balance, thyroid function, and normal cognitive function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Optimum Vitamin D3 (1000 IU):</strong> Delivers the preferred D3 form to support neuroprotective pathways, mood regulation, and overall immune health.</span></li></ul>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">يعتمد الدماغ الصحي على إمداد واسع ومتوازن من الفيتامينات والمعادن الأساسية للحفاظ على القدرة الإدراكية القصوى وجهاز عصبي سليم:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">فيتامينات ب عالية الفعالية:</strong> جرعات متقدمة من فيتامينات ب (بما في ذلك B12 وB6 وحمض البانتوثنيك) لتحفيز أيض الطاقة الخلوية وتقليل إجهاد الجهاز العصبي المركزي ودعم الوظائف النفسية الطبيعية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">معادن الدماغ الحيوية:</strong> يعمل الزنك واليود والحديد مع حمض البانتوثنيك بتآزر تام لدعم توازن النواقل العصبية ووظائف الغدة الدرقية والأداء الإدراكي السليم.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">فيتامين D3 بالجرعة المثالية (1000 وحدة دولية):</strong> يوفر الصورة المفضلة D3 لدعم المسارات الواقية للأعصاب وتنظيم المزاج وتعزيز صحة المناعة الشاملة.</span></li></ul>'
+            ],
+            4 => [
+                'icon' => 'fa-solid fa-shield-halved',
+                'menu_en' => 'DAILY FOUNDATION',
+                'menu_ar' => 'الأساس اليومي',
+                'title_en' => 'Your Complete Daily Foundation',
+                'title_ar' => 'أساسك اليومي المتكامل',
+                'tag_en' => 'Complete Multivitamin Base',
+                'tag_ar' => 'قاعدة فيتامينات شاملة',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">This formula goes beyond targeted brain health to provide a <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">complete multivitamin foundation</strong>.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-4">With added <strong class="text-[#031827] dark:text-[#F6F5EF] font-semibold">Vitamin C, Copper, and Folic Acid</strong> to support vascular health, red blood cell formation, and natural energy release, an additional daily multivitamin is no longer necessary.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3"><span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold"><i class="fa-solid fa-check"></i></span><span>Convenient all-in-one daily foundation replaces the need for additional general multivitamin tablets.</span></div>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">تتجاوز هذه التركيبة دعم صحة الدماغ المستهدفة لتوفر <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">أساساً متكاملاً من الفيتامينات المتعددة اليومية</strong>.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-4">مع إضافة <strong class="text-[#031827] dark:text-[#F6F5EF] font-semibold">فيتامين C، والنحاس، وحمض الفوليك</strong> لدعم صحة الأوعية الدموية، وتكوين خلايا الدم الحمراء، وإطلاق الطاقة الطبيعية، لم يعد هناك أي داعٍ لتناول مكمل فيتامينات متعددة يومي إضافي.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3"><span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold"><i class="fa-solid fa-check"></i></span><span>تكامل يومي شامل يغنيك عن تناول أقراص فيتامينات متعددة منفصلة.</span></div>'
+            ],
+            5 => [
+                'icon' => 'fa-solid fa-star',
+                'menu_en' => 'CORE HIGHLIGHTS',
+                'menu_ar' => 'أبرز المزايا',
+                'title_en' => 'High-Performance Formula Highlights',
+                'title_ar' => 'أبرز مزايا التركيبة المركزة',
+                'tag_en' => 'Clinical Synergy & Potency',
+                'tag_ar' => 'تآزر وفعالية سريرية',
+                'desc_en' => '<ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Comprehensive Nootropic Support:</strong> Formulated with 120 mg Ginkgo Biloba, Phosphatidylserine, and Phosphatidylcholine to help support memory, mental focus, and cognitive function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">High-Potency Cellular Energy:</strong> Packed with Vitamin B12 and high-dose B-complex vitamins to assist in energy metabolism and fight mental fatigue.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Cellular Antioxidant Defense:</strong> Features Co-Q10, L-Glutathione, and Vitamin E to help protect brain cells and neural tissue from oxidative stress.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Essential Brain & Thyroid Minerals:</strong> Supplies key doses of Zinc, Iodine, and Iron to support neurotransmitter balance, thyroid function, and normal brain oxygenation.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Convenient All-in-One Daily Tablet:</strong> Combines specialized brain-boosting nutrients with a complete multivitamin foundation into a single daily dose.</span></li></ul>',
+                'desc_ar' => '<ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">دعم نتروبيك شامل:</strong> تركيبة غنية بـ 120 ملغ من الجنكة بيلوبا، وفوسفاتيديل سيرين، وفوسفاتيديل كولين للمساعدة في دعم الذاكرة والتركيز والوظائف الإدراكية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">طاقة خلوية فائقة الفعالية:</strong> مدعم بفيتامين B12 ومجموعة فيتامينات B بجرعات عالية للمساعدة في استقلاب الطاقة ومكافحة الإجهاد الذهني.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">حماية خلوية بمضادات الأكسدة:</strong> يحتوي على Co-Q10، وL-جلوتاثيون، وفيتامين E للمساعدة في حماية خلايا الدماغ والأنسجة العصبية من الإجهاد التأكسدي.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">معادن أساسية للدماغ والغدة الدرقية:</strong> يوفر جرعات رئيسية من الزنك، واليود، والحديد لدعم توازن النواقل العصبية، ووظيفة الغدة الدرقية، وأكسجة الدماغ الطبيعية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">قرص يومي واحد متكامل وسهل التناول:</strong> يجمع بين المغذيات المعززة للدماغ وقاعدة الفيتامينات المتعددة الكاملة في جرعة يومية واحدة مريحة.</span></li></ul>'
+            ],
+            6 => [
+                'icon' => 'fa-solid fa-circle-question',
+                'menu_en' => 'INFO & FAQS',
+                'menu_ar' => 'معلومات وأسئلة شائعة',
+                'title_en' => 'Important Information & FAQs',
+                'title_ar' => 'معلومات هامة وأسئلة شائعة',
+                'tag_en' => 'Usage, Safety & Clinical Guidance',
+                'tag_ar' => 'السلامة وطريقة الاستخدام والإرشادات',
+                'desc_en' => '<div class="space-y-3.5 text-xs"><div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200"><div class="font-bold text-xs uppercase flex items-center gap-1.5 mb-1 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> Warning & Usage Guidance</div><p class="text-[11px] leading-relaxed">Always read product directions before use. Do not exceed recommended intake. Contains Ginkgo Biloba; those taking anticoagulants (blood thinners) should consult their doctor before using. Contains iron (harmful to very young children in excess). Seek professional advice if pregnant, breast-feeding, under medical supervision, or suffering from allergies. Do not take if allergic to soya. Food supplements must not replace a varied diet and healthy lifestyle.</p></div><div class="space-y-2.5 text-[#031827]/85 dark:text-[#F6F5EF]/85"><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Why has Blue Mind been developed?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Maintaining mental performance requires optimal functioning of brain cells. Blue Mind safeguards your dietary intake of essential nutrients such as iron, zinc, and iodine to contribute to normal cognitive function.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">When is Blue Mind recommended?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Recommended for men and women of all ages, and ideal for exam periods or intensive professional qualification study.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Can Blue Mind be taken simultaneously with other medications?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Free from drugs and hormones. Contains Ginkgo Biloba (consult doctor/pharmacist if taking blood thinners).</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">How and when should Blue Mind be used?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">1 tablet per day with or immediately after your main meal, with water or cold drink. Do not chew. Always take on a full stomach.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Side effects & Duration of benefits:</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">No known side effects when taken as directed. Benefits build over several weeks with regular intake; no maximum duration limit.</p></div></div></div>',
+                'desc_ar' => '<div class="space-y-3.5 text-xs"><div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200"><div class="font-bold text-xs uppercase flex items-center gap-1.5 mb-1 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> تحذير وإرشادات هامة</div><p class="text-[11px] leading-relaxed">اقرأ دائمًا إرشادات المنتج قبل الاستخدام. لا تتجاوز الجرعة الموصى بها. يحتوي على الجنكة بيلوبا؛ يجب على من يتناولون مضادات التخثر (مسيلات الدم) استشارة الطبيب. يحتوي على الحديد. استشر طبيبك في حال الحمل، الإرضاع، أو وجود حساسية. يحتوي على الصويا. لا تغني المكملات عن نظام غذائي متوازن ونمط حياة صحي.</p></div><div class="space-y-2.5 text-[#031827]/85 dark:text-[#F6F5EF]/85"><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">لماذا تم تطوير بلو مايند؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">يتطلب الحفاظ على الأداء العقلي عمل خلايا الدماغ والشبكة العصبية المعقدة بكفاءة مثالية. يوفر بلو مايند تركيبة متكاملة لحماية مدخولك الغذائي وتزويدك بالحديد والزنك واليود للوظائف الإدراكية.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">متى يُنصح بتناول بلو مايند؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">يوصى به للرجال والنساء من جميع الأعمار، ومثالي للطلاب خلال فترات الامتحانات والمهنيين الذين تتطلب أعمالهم تركيزاً عالياً.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">هل يمكن تناوله مع أدوية أخرى؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">خالٍ من العقاقير والهرمونات. نظرًا لاحتوائه على الجنكة بيلوبا، يُنصح باستشارة الطبيب أو الصيدلي في حال تناول مسيلات الدم.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">كيف ومتى يُستخدم؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">قرص واحد يوميًا مع الوجبة الرئيسية أو بعدها مباشرة مع الماء أو مشروب بارد دون مضغ وعلى معدة ممتلئة لزيادة الامتصاص وتجنب الغثيان.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">هل هناك آثار جانبية وكم تستغرق النتائج؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">ليس له آثار جانبية معروفة عند تناوله وفق التعليمات. تظهر الفوائد تدريجيًا على مدار عدة أسابيع من الاستخدام المنتظم، ولا توجد مدة أقصى للاستخدام.</p></div></div></div>'
+            ],
+        ];
+
+        $bluezonePillars = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $pDef = $defaultPillars[$i];
+            $pad = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $num = \App\Models\Setting::get("pillars_item_{$i}_num", $pad);
+            $icon = \App\Models\Setting::get("pillars_item_{$i}_icon", $pDef['icon']);
+            $menuTitle = \App\Models\Setting::get("pillars_item_{$i}_menu_{$locale}", $pDef["menu_{$locale}"]);
+            $title = \App\Models\Setting::get("pillars_item_{$i}_title_{$locale}", $pDef["title_{$locale}"]);
+            $tag = \App\Models\Setting::get("pillars_item_{$i}_tag_{$locale}", $pDef["tag_{$locale}"]);
+            $desc = \App\Models\Setting::get("pillars_item_{$i}_desc_{$locale}", $pDef["desc_{$locale}"]);
+
+            $bluezonePillars[] = [
+                'num' => $num,
+                'icon' => $icon,
+                'menu_title' => $menuTitle,
+                'title' => $title,
+                'tag' => $tag,
+                'desc' => $desc,
+            ];
+        }
     @endphp
 
     <section id="philosophy"
         class="py-14 sm:py-20 bg-white dark:bg-[#062B49] border-b border-[#0A4F78]/10 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
-            <div class="text-center max-w-2xl mx-auto space-y-3">
+            <!-- Section Header -->
+            <div class="text-center max-w-3xl mx-auto space-y-3">
                 <span
-                    class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2]">
-                    {{ __('app.philosophy.eyebrow') }}
+                    class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] sm:tracking-[0.3em]"
+                    style="color: {{ $activeTheme['hex'] }};">
+                    {{ $eyebrow }}
                 </span>
                 <h2
                     class="text-2xl sm:text-4xl lg:text-5xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-                    {{ __('app.philosophy.heading_prefix') }} <span
-                        class="font-bold text-[#67B34A]">{{ __('app.philosophy.heading_highlight') }}</span>
+                    {{ $headingPrefix }} <span
+                        class="font-bold" style="color: {{ $activeTheme['hex'] }};">{{ $headingHighlight }}</span>
                 </h2>
                 <p
-                    class="text-xs sm:text-sm text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium max-w-lg mx-auto leading-relaxed">
-                    {{ __('app.philosophy.description') }}
+                    class="text-xs sm:text-sm text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium max-w-xl mx-auto leading-relaxed">
+                    {{ $sectionDesc }}
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-center lg:min-h-[520px]">
-                <!-- Column 1: Pillar Selectors -->
-                <div class="lg:col-span-4 space-y-2">
-                    <div class="lg:hidden flex overflow-x-auto gap-2 pb-2 scrollbar-none border-b border-[#0A4F78]/15">
-                        @foreach ($bluezonePillars as $i => $pillar)
-                            <button onclick="BLUEZONE_PILLARS.select({{ $i }})"
-                                class="pillar-nav-btn shrink-0 px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all {{ $i === 0 ? 'bg-[#67B34A] text-white' : 'bg-[#0A4F78]/10 text-[#031827] dark:text-[#F6F5EF]' }}"
-                                data-index="{{ $i }}">{{ $pillar['num'] }} {{ $pillar['title'] }}</button>
-                        @endforeach
+            {{-- FORMAT 1: INTERACTIVE ORBITAL MATRIX --}}
+            @if ($pillarsFormat === 'orbital_matrix')
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-center lg:min-h-[520px]">
+                    <!-- Column 1: Pillar Selectors -->
+                    <div class="{{ $showOrbital ? 'lg:col-span-4' : 'lg:col-span-5' }} space-y-2">
+                        <!-- Mobile Horizontal Pill Nav -->
+                        <div class="lg:hidden flex overflow-x-auto gap-2 pb-2 scrollbar-none border-b border-[#0A4F78]/15">
+                            @foreach ($bluezonePillars as $i => $pillar)
+                                <button onclick="BLUEZONE_PILLARS.select({{ $i }})"
+                                    class="pillar-nav-btn shrink-0 px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all"
+                                    style="{{ $i === 0 ? 'background: ' . $activeTheme['hex'] . '; color: #fff;' : 'background: rgba(10, 79, 120, 0.08); color: var(--color-text);' }}"
+                                    data-index="{{ $i }}">
+                                    @if($showNumbers)<span class="font-mono">{{ $pillar['num'] }}</span>@endif
+                                    <span>{{ $pillar['menu_title'] }}</span>
+                                </button>
+                            @endforeach
+                        </div>
+
+                        <!-- Desktop Vertical Selectors -->
+                        <div class="hidden lg:block divide-y divide-[#0A4F78]/15 dark:divide-[#0A4F78]/30 border-y border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
+                            @foreach ($bluezonePillars as $i => $pillar)
+                                <button onclick="BLUEZONE_PILLARS.select({{ $i }})"
+                                    onmouseenter="BLUEZONE_PILLARS.select({{ $i }})"
+                                    class="pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left rtl:text-right transition-all duration-300 group cursor-pointer border-l-4 rtl:border-r-4 rtl:border-l-0"
+                                    style="{{ $i === 0 ? 'border-color: ' . $activeTheme['hex'] . '; background: ' . $activeTheme['rgba_bg'] . ';' : 'border-color: transparent;' }}"
+                                    data-index="{{ $i }}">
+                                    @if($showNumbers)
+                                        <span class="text-xs font-extrabold font-mono"
+                                            style="color: {{ $i === 0 ? $activeTheme['hex'] : 'rgba(3, 24, 39, 0.4)' }};">
+                                            {{ $pillar['num'] }}
+                                        </span>
+                                    @endif
+                                    <span class="w-6 text-center text-sm" style="color: {{ $i === 0 ? $activeTheme['hex'] : '#94A3B8' }};">
+                                        @if(str_starts_with(trim($pillar['icon']), '<svg'))
+                                            {!! $pillar['icon'] !!}
+                                        @else
+                                            <i class="{{ $pillar['icon'] }}"></i>
+                                        @endif
+                                    </span>
+                                    <span class="text-sm tracking-wider uppercase {{ $i === 0 ? 'font-bold' : 'font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 group-hover:opacity-100' }}"
+                                        style="{{ $i === 0 ? 'color: ' . $activeTheme['hex'] . ';' : '' }}">
+                                        {{ $pillar['menu_title'] }}
+                                    </span>
+                                </button>
+                            @endforeach
+                        </div>
                     </div>
 
-                    <div
-                        class="hidden lg:block divide-y divide-[#0A4F78]/15 dark:divide-[#0A4F78]/30 border-y border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
-                        @foreach ($bluezonePillars as $i => $pillar)
-                            <button onclick="BLUEZONE_PILLARS.select({{ $i }})"
-                                onmouseenter="BLUEZONE_PILLARS.select({{ $i }})"
-                                class="pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left transition-all duration-300 group cursor-pointer border-l-4 {{ $i === 0 ? 'border-[#67B34A] bg-[#67B34A]/5' : 'border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5' }}"
-                                data-index="{{ $i }}">
-                                <span
-                                    class="text-xs font-extrabold {{ $i === 0 ? 'text-[#67B34A]' : 'text-[#031827]/40 dark:text-[#F6F5EF]/40' }} font-mono">{{ $pillar['num'] }}</span>
-                                <span
-                                    class="text-sm {{ $i === 0 ? 'font-bold text-[#67B34A]' : 'font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 group-hover:text-[#2A8FC2]' }} tracking-wider uppercase">{{ $pillar['title'] }}</span>
+                    <!-- Column 2: Orbital SVG Animation -->
+                    @if ($showOrbital)
+                        <div class="hidden lg:flex lg:col-span-4 items-center justify-center relative py-4">
+                            <div class="w-56 h-56 xl:w-72 xl:h-72 relative flex items-center justify-center">
+                                <svg class="w-full h-full" viewBox="0 0 300 300" fill="none">
+                                    <circle cx="150" cy="150" r="110" stroke="#0A4F78" stroke-width="1.5"
+                                        stroke-opacity="0.25" stroke-dasharray="4 4" />
+                                    <circle cx="150" cy="150" r="70" stroke="#2A8FC2" stroke-width="1"
+                                        stroke-opacity="0.2" />
+
+                                    <line id="spoke-0" x1="150" y1="150" x2="150" y2="40"
+                                        stroke="{{ $activeTheme['hex'] }}" stroke-width="2" opacity="0.9" />
+                                    <line id="spoke-1" x1="150" y1="150" x2="245" y2="95"
+                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+                                    <line id="spoke-2" x1="150" y1="150" x2="245" y2="205"
+                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+                                    <line id="spoke-3" x1="150" y1="150" x2="150" y2="260"
+                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+                                    <line id="spoke-4" x1="150" y1="150" x2="55" y2="205"
+                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+                                    <line id="spoke-5" x1="150" y1="150" x2="55" y2="95"
+                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+
+                                    <circle id="node-0" cx="150" cy="40" r="10" fill="{{ $activeTheme['hex'] }}"
+                                        stroke="#FFFFFF" stroke-width="2" class="transition-all duration-300" />
+                                    <circle id="node-1" cx="245" cy="95" r="7" fill="#0A4F78"
+                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                    <circle id="node-2" cx="245" cy="205" r="7" fill="#0A4F78"
+                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                    <circle id="node-3" cx="150" cy="260" r="7" fill="#0A4F78"
+                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                    <circle id="node-4" cx="55" cy="205" r="7" fill="#0A4F78"
+                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                    <circle id="node-5" cx="55" cy="95" r="7" fill="#0A4F78"
+                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                </svg>
+
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                    <div class="w-20 h-20 xl:w-24 xl:h-24 rounded-full bg-[#031827] border-2 border-[#2A8FC2] flex flex-col items-center justify-center p-2 shadow-xl">
+                                        <span class="text-[8px] xl:text-[9px] font-black tracking-widest text-[#2A8FC2] uppercase">
+                                            {{ $centerTitle }}
+                                        </span>
+                                        <span class="text-[7px] xl:text-[8px] font-bold uppercase tracking-wider mt-0.5" style="color: {{ $activeTheme['hex'] }};">
+                                            {{ $centerSubtitle }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Column 3: Active Pillar Content Display Panel (Text Only - Controlled By Admin) -->
+                    <div class="{{ $showOrbital ? 'lg:col-span-4' : 'lg:col-span-7' }} p-5 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl {{ $cardSurfaceClass }} transition-all duration-500 relative min-h-[460px] lg:min-h-[500px] flex flex-col justify-between"
+                        id="pillar-content-panel">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center pb-3 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
+                                <div class="flex items-center gap-3">
+                                    @if($showNumbers)
+                                        <span id="pillar-active-num"
+                                            class="text-3xl sm:text-4xl font-light font-mono leading-none"
+                                            style="color: {{ $activeTheme['hex'] }};">
+                                            {{ $bluezonePillars[0]['num'] }}
+                                        </span>
+                                        <div class="h-6 w-[1px] bg-[#0A4F78]/20 dark:bg-[#0A4F78]/40"></div>
+                                    @endif
+                                    <span class="text-[10px] sm:text-[11px] font-black tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] uppercase">
+                                        PILLAR PROFILE
+                                    </span>
+                                </div>
+                                <span id="pillar-active-icon-box"
+                                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 text-base"
+                                    style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                    @if(str_starts_with(trim($bluezonePillars[0]['icon']), '<svg'))
+                                        {!! $bluezonePillars[0]['icon'] !!}
+                                    @else
+                                        <i class="{{ $bluezonePillars[0]['icon'] }}"></i>
+                                    @endif
+                                </span>
+                            </div>
+
+                            <div class="space-y-2.5">
+                                <h3 id="pillar-active-title"
+                                    class="text-lg sm:text-xl font-bold text-[#031827] dark:text-[#F6F5EF] tracking-tight leading-snug">
+                                    {{ $bluezonePillars[0]['title'] }}
+                                </h3>
+                                <div id="pillar-active-desc"
+                                    class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed max-h-[300px] sm:max-h-[320px] overflow-y-auto pr-2"
+                                    style="scrollbar-width: thin; scrollbar-color: rgba(10, 79, 120, 0.3) transparent;">
+                                    {!! $bluezonePillars[0]['desc'] !!}
+                                </div>
+                            </div>
+                        </div>
+
+                        @if ($showTags)
+                            <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 space-y-1.5" id="pillar-active-tag-wrap">
+                                <span class="block text-[10px] font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">
+                                    {{ __('app.philosophy.impact_label') }}
+                                </span>
+                                <div id="pillar-active-tag"
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold"
+                                    style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                    <span>{{ $bluezonePillars[0]['tag'] }}</span>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+            {{-- FORMAT 2: MODERN 6-CARD SHOWCASE GRID --}}
+            @elseif ($pillarsFormat === 'showcase_grid')
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    @foreach ($bluezonePillars as $pillar)
+                        <div class="rounded-2xl sm:rounded-3xl {{ $cardSurfaceClass }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl border-t-4"
+                            style="border-top-color: {{ $activeTheme['hex'] }};">
+                            <div>
+                                <div class="flex justify-between items-center mb-4 pb-3 border-b border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
+                                    <div class="flex items-center gap-2.5">
+                                        @if ($showNumbers)
+                                            <span class="text-2xl font-light font-mono" style="color: {{ $activeTheme['hex'] }};">
+                                                {{ $pillar['num'] }}
+                                            </span>
+                                        @endif
+                                        <span class="text-[10px] font-bold tracking-wider uppercase text-[#0A4F78] dark:text-[#2A8FC2]">
+                                            {{ $pillar['menu_title'] }}
+                                        </span>
+                                    </div>
+                                    <span class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0"
+                                        style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                        @if(str_starts_with(trim($pillar['icon']), '<svg'))
+                                            {!! $pillar['icon'] !!}
+                                        @else
+                                            <i class="{{ $pillar['icon'] }}"></i>
+                                        @endif
+                                    </span>
+                                </div>
+
+                                <h3 class="text-base sm:text-lg font-bold text-[#031827] dark:text-[#F6F5EF] tracking-tight mb-3">
+                                    {{ $pillar['title'] }}
+                                </h3>
+
+                                <div class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 leading-relaxed mb-4 max-h-[220px] overflow-y-auto pr-1"
+                                    style="scrollbar-width: thin;">
+                                    {!! $pillar['desc'] !!}
+                                </div>
+                            </div>
+
+                            @if ($showTags && !empty($pillar['tag']))
+                                <div class="pt-3 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold"
+                                        style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                        {{ $pillar['tag'] }}
+                                    </span>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+            {{-- FORMAT 3: INTERACTIVE STACKED ACCORDION --}}
+            @elseif ($pillarsFormat === 'interactive_accordion')
+                <div class="max-w-4xl mx-auto space-y-4">
+                    @foreach ($bluezonePillars as $i => $pillar)
+                        <div class="rounded-2xl {{ $cardSurfaceClass }} overflow-hidden transition-all duration-300">
+                            <!-- Accordion Header -->
+                            <button type="button" onclick="toggleStorefrontPillar({{ $i }})"
+                                class="w-full p-4 sm:p-5 flex justify-between items-center text-left rtl:text-right cursor-pointer group select-none transition-colors border-l-4 rtl:border-r-4 rtl:border-l-0"
+                                style="border-color: {{ $activeTheme['hex'] }};">
+                                <div class="flex items-center gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                                    @if ($showNumbers)
+                                        <span class="font-mono font-bold text-xs px-2.5 py-1 rounded-md text-white shrink-0"
+                                            style="background: {{ $activeTheme['hex'] }};">
+                                            {{ $pillar['num'] }}
+                                        </span>
+                                    @endif
+                                    <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
+                                        style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                        @if(str_starts_with(trim($pillar['icon']), '<svg'))
+                                            {!! $pillar['icon'] !!}
+                                        @else
+                                            <i class="{{ $pillar['icon'] }}"></i>
+                                        @endif
+                                    </span>
+                                    <span class="text-sm sm:text-base font-bold text-[#031827] dark:text-[#F6F5EF] group-hover:opacity-90">
+                                        {{ $pillar['title'] }}
+                                    </span>
+                                    @if ($showTags && !empty($pillar['tag']))
+                                        <span class="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold shrink-0"
+                                            style="background: {{ $activeTheme['rgba_bg'] }}; color: {{ $activeTheme['hex'] }};">
+                                            {{ $pillar['tag'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <span class="text-xs transition-transform duration-300 text-muted shrink-0 ml-2 rtl:mr-2"
+                                    id="storefront_chevron_{{ $i }}"
+                                    style="{{ $i === 0 ? 'transform: rotate(180deg);' : '' }}">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </span>
                             </button>
-                        @endforeach
-                    </div>
-                </div>
 
-                <!-- Column 2: Orbital SVG Animation -->
-                <div class="hidden lg:flex lg:col-span-4 items-center justify-center relative py-4">
-                    <div class="w-56 h-56 xl:w-72 xl:h-72 relative flex items-center justify-center">
-                        <svg class="w-full h-full" viewBox="0 0 300 300" fill="none">
-                            <circle cx="150" cy="150" r="110" stroke="#0A4F78" stroke-width="1.5"
-                                stroke-opacity="0.25" stroke-dasharray="4 4" />
-                            <circle cx="150" cy="150" r="70" stroke="#2A8FC2" stroke-width="1"
-                                stroke-opacity="0.2" />
-
-                            <line id="spoke-0" x1="150" y1="150" x2="150" y2="40"
-                                stroke="#67B34A" stroke-width="2" opacity="0.9" />
-                            <line id="spoke-1" x1="150" y1="150" x2="245" y2="95"
-                                stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                            <line id="spoke-2" x1="150" y1="150" x2="245" y2="205"
-                                stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                            <line id="spoke-3" x1="150" y1="150" x2="150" y2="260"
-                                stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                            <line id="spoke-4" x1="150" y1="150" x2="55" y2="205"
-                                stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                            <line id="spoke-5" x1="150" y1="150" x2="55" y2="95"
-                                stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-
-                            <circle id="node-0" cx="150" cy="40" r="10" fill="#67B34A"
-                                stroke="#FFFFFF" stroke-width="2" class="transition-all duration-300" />
-                            <circle id="node-1" cx="245" cy="95" r="7" fill="#0A4F78"
-                                stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                            <circle id="node-2" cx="245" cy="205" r="7" fill="#0A4F78"
-                                stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                            <circle id="node-3" cx="150" cy="260" r="7" fill="#0A4F78"
-                                stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                            <circle id="node-4" cx="55" cy="205" r="7" fill="#0A4F78"
-                                stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                            <circle id="node-5" cx="55" cy="95" r="7" fill="#0A4F78"
-                                stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                        </svg>
-
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                            <div
-                                class="w-20 h-20 xl:w-24 xl:h-24 rounded-full bg-[#031827] border-2 border-[#2A8FC2] flex flex-col items-center justify-center p-2 shadow-xl">
-                                <span
-                                    class="text-[8px] xl:text-[9px] font-black tracking-widest text-[#2A8FC2] uppercase">{{ __('app.brand_name') }}</span>
-                                <span
-                                    class="text-[7px] xl:text-[8px] font-bold text-[#E8DCC4] uppercase tracking-wider mt-0.5">{{ __('app.philosophy.core_label') }}</span>
+                            <!-- Accordion Body -->
+                            <div id="storefront_body_{{ $i }}"
+                                style="display: {{ $i === 0 ? 'block' : 'none' }};"
+                                class="p-5 sm:p-6 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">
+                                {!! $pillar['desc'] !!}
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
-
-                <!-- Column 3: Active Pillar Content Display Panel -->
-                <div class="lg:col-span-4 p-5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/20 shadow-xl transition-all duration-500 relative min-h-0 lg:min-h-[420px] flex flex-col justify-between"
-                    id="pillar-content-panel">
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span id="pillar-active-num"
-                                class="text-3xl sm:text-4xl font-light text-[#67B34A] font-mono">{{ $bluezonePillars[0]['num'] }}</span>
-                            <span id="pillar-active-icon-box"
-                                class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#67B34A]/15 text-[#67B34A] flex items-center justify-center">
-                                {!! $bluezonePillars[0]['svgIcon'] !!}
-                            </span>
-                        </div>
-
-                        <div
-                            class="w-full h-28 sm:h-32 lg:h-36 rounded-xl sm:rounded-2xl overflow-hidden relative border border-[#0A4F78]/20 shadow-md group">
-                            <img id="pillar-active-img" src="{{ $bluezonePillars[0]['img'] }}"
-                                alt="{{ $bluezonePillars[0]['title'] }}" width="600" height="200"
-                                loading="lazy" decoding="async"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                            <div
-                                class="absolute inset-0 bg-gradient-to-t from-[#031827]/60 via-transparent to-transparent">
-                            </div>
-                        </div>
-
-                        <div class="space-y-1.5">
-                            <h3 id="pillar-active-title"
-                                class="text-xl sm:text-2xl font-bold text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-                                {{ $bluezonePillars[0]['title'] }}
-                            </h3>
-                            <p id="pillar-active-desc"
-                                class="text-xs text-[#031827]/75 dark:text-[#F6F5EF]/75 font-medium leading-relaxed">
-                                {{ $bluezonePillars[0]['desc'] }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 space-y-1.5">
-                        <span
-                            class="block text-[10px] font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2]">{{ __('app.philosophy.impact_label') }}</span>
-                        <div id="pillar-active-tag"
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#67B34A]/15 text-[#67B34A] text-xs font-bold">
-                            <span>{{ $bluezonePillars[0]['tag'] }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
     </section>
 
-    <!-- Inline Script for Pillar Selection Controller -->
+    <!-- Script for Dynamic Storefront Formats -->
     <script>
         (function() {
             const PILLARS_DATA = @json($bluezonePillars);
+            const ACCENT_COLOR = @json($activeTheme['hex']);
+            const ACCENT_BG = @json($activeTheme['rgba_bg']);
 
+            // Matrix Controller
             function selectPillar(idx) {
                 if (idx < 0 || idx >= PILLARS_DATA.length) return;
                 const p = PILLARS_DATA[idx];
@@ -347,20 +599,28 @@
                 const desktopBtns = document.querySelectorAll('.pillar-desktop-btn');
                 desktopBtns.forEach((btn, i) => {
                     const numSpan = btn.querySelector('span:first-child');
+                    const iconSpan = btn.querySelector('span:nth-child(2)');
                     const titleSpan = btn.querySelector('span:last-child');
                     if (i === idx) {
-                        btn.className =
-                            'pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left transition-all duration-300 group cursor-pointer border-l-4 border-[#67B34A] bg-[#67B34A]/10';
-                        if (numSpan) numSpan.className = 'text-xs font-extrabold text-[#67B34A] font-mono';
-                        if (titleSpan) titleSpan.className =
-                            'text-sm font-bold text-[#67B34A] tracking-wider uppercase';
+                        btn.style.borderColor = ACCENT_COLOR;
+                        btn.style.background = ACCENT_BG;
+                        if (numSpan) numSpan.style.color = ACCENT_COLOR;
+                        if (iconSpan) iconSpan.style.color = ACCENT_COLOR;
+                        if (titleSpan) {
+                            titleSpan.style.color = ACCENT_COLOR;
+                            titleSpan.classList.add('font-bold');
+                            titleSpan.classList.remove('font-medium');
+                        }
                     } else {
-                        btn.className =
-                            'pillar-desktop-btn w-full py-4 px-3 flex items-center gap-4 text-left transition-all duration-300 group cursor-pointer border-l-4 border-transparent hover:border-[#2A8FC2]/50 hover:bg-[#0A4F78]/5';
-                        if (numSpan) numSpan.className =
-                            'text-xs font-extrabold text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono';
-                        if (titleSpan) titleSpan.className =
-                            'text-sm font-medium text-[#031827]/80 dark:text-[#F6F5EF]/80 tracking-wider uppercase group-hover:text-[#2A8FC2]';
+                        btn.style.borderColor = 'transparent';
+                        btn.style.background = 'transparent';
+                        if (numSpan) numSpan.style.color = 'rgba(3, 24, 39, 0.4)';
+                        if (iconSpan) iconSpan.style.color = '#94A3B8';
+                        if (titleSpan) {
+                            titleSpan.style.color = '';
+                            titleSpan.classList.remove('font-bold');
+                            titleSpan.classList.add('font-medium');
+                        }
                     }
                 });
 
@@ -368,11 +628,11 @@
                 const mobileBtns = document.querySelectorAll('.pillar-nav-btn');
                 mobileBtns.forEach((btn, i) => {
                     if (i === idx) {
-                        btn.className =
-                            'pillar-nav-btn shrink-0 px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all bg-[#67B34A] text-white';
+                        btn.style.background = ACCENT_COLOR;
+                        btn.style.color = '#ffffff';
                     } else {
-                        btn.className =
-                            'pillar-nav-btn shrink-0 px-3 sm:px-4 py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all bg-[#0A4F78]/10 text-[#031827] dark:text-[#F6F5EF]';
+                        btn.style.background = 'rgba(10, 79, 120, 0.08)';
+                        btn.style.color = '';
                     }
                 });
 
@@ -383,12 +643,12 @@
                     if (i === idx) {
                         if (node) {
                             node.setAttribute('r', '11');
-                            node.setAttribute('fill', '#67B34A');
+                            node.setAttribute('fill', ACCENT_COLOR);
                             node.setAttribute('stroke', '#FFFFFF');
                             node.setAttribute('stroke-width', '2.5');
                         }
                         if (spoke) {
-                            spoke.setAttribute('stroke', '#67B34A');
+                            spoke.setAttribute('stroke', ACCENT_COLOR);
                             spoke.setAttribute('stroke-width', '2');
                             spoke.setAttribute('opacity', '0.9');
                         }
@@ -417,16 +677,17 @@
                         const descEl = document.getElementById('pillar-active-desc');
                         const tagEl = document.getElementById('pillar-active-tag');
                         const iconBox = document.getElementById('pillar-active-icon-box');
-                        const imgEl = document.getElementById('pillar-active-img');
 
                         if (numEl) numEl.textContent = p.num;
                         if (titleEl) titleEl.textContent = p.title;
-                        if (descEl) descEl.textContent = p.desc;
+                        if (descEl) descEl.innerHTML = p.desc;
                         if (tagEl) tagEl.innerHTML = `<span>${p.tag}</span>`;
-                        if (iconBox) iconBox.innerHTML = p.svgIcon;
-                        if (imgEl) {
-                            imgEl.src = p.img;
-                            imgEl.alt = p.title;
+                        if (iconBox) {
+                            if (p.icon && p.icon.trim().startsWith('<svg')) {
+                                iconBox.innerHTML = p.icon;
+                            } else {
+                                iconBox.innerHTML = `<i class="${p.icon}"></i>`;
+                            }
                         }
 
                         panel.style.opacity = '1';
@@ -434,9 +695,26 @@
                 }
             }
 
+            // Accordion Controller
+            function toggleStorefrontPillar(idx) {
+                const body = document.getElementById(`storefront_body_${idx}`);
+                const chevron = document.getElementById(`storefront_chevron_${idx}`);
+                if (!body) return;
+
+                const isClosed = body.style.display === 'none' || body.offsetParent === null;
+                if (isClosed) {
+                    body.style.display = 'block';
+                    if (chevron) chevron.style.transform = 'rotate(180deg)';
+                } else {
+                    body.style.display = 'none';
+                    if (chevron) chevron.style.transform = 'rotate(0deg)';
+                }
+            }
+
             window.BLUEZONE_PILLARS = {
                 select: selectPillar
             };
+            window.toggleStorefrontPillar = toggleStorefrontPillar;
         })();
     </script>
 

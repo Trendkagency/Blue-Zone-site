@@ -4,41 +4,6 @@
 ])
 
 <x-layouts.app :title="$title" :description="$description">
-    <!-- Top Announcement Bar -->
-    <div class="topbar">
-        <div class="container" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <div class="text-xs font-semibold">
-                <i class="fa-solid fa-wand-magic-sparkles mr-1.5 ml-1.5 text-accent"></i> {{ __('shop.cart.shipping_unlocked') }}
-            </div>
-            <div class="topbar-links">
-                <!-- Language Switcher -->
-                @if(app()->getLocale() === 'ar')
-                    <a href="{{ route('locale.switch', 'en') }}" class="text-xs font-bold" style="color: var(--bz-accent-blue);">
-                        English (EN)
-                    </a>
-                @else
-                    <a href="{{ route('locale.switch', 'ar') }}" class="text-xs font-bold" style="color: var(--bz-accent-blue);">
-                        العربية (AR)
-                    </a>
-                @endif
-
-                <span style="opacity: 0.3;">|</span>
-
-                <!-- Theme Toggle Button -->
-                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="text-xs font-semibold" style="display: inline-flex; align-items: center; gap: 0.25rem;" title="Switch Theme">
-                    <span data-theme-label><i class="fa-solid fa-circle-half-stroke mr-1 ml-1"></i> Dark Mode</span>
-                </button>
-
-                <span style="opacity: 0.3;">|</span>
-
-                <!-- Admin Link -->
-                <a href="{{ route('admin.dashboard') }}" class="text-xs font-bold" style="color: #94A3B8;">
-                    {{ __('app.nav.admin_portal') }} <i class="fa-solid fa-arrow-right mr-1 ml-1"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Navigation Header -->
     <header class="site-header">
         <nav class="site-nav">
@@ -63,9 +28,6 @@
                 <a href="{{ route('customer.pages.about') }}" class="nav-link {{ (request()->routeIs('customer.pages.about*') || request()->is('about*')) ? 'active' : '' }}">
                     {{ __('app.nav.about') }}
                 </a>
-                <a href="{{ route('customer.pages.team') }}" class="nav-link {{ (request()->routeIs('customer.pages.team*') || request()->is('team*')) ? 'active' : '' }}">
-                    {{ __('app.nav.team') }}
-                </a>
                 <a href="{{ route('customer.pages.contact') }}" class="nav-link {{ (request()->routeIs('customer.pages.contact*') || request()->is('contact*')) ? 'active' : '' }}">
                     {{ __('app.nav.contact') }}
                 </a>
@@ -75,7 +37,23 @@
             </div>
 
             <!-- Header Actions -->
-            <div class="nav-actions">
+            <div class="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+                <!-- Localization Switcher -->
+                @if(app()->getLocale() === 'ar')
+                    <a href="{{ route('locale.switch', 'en') }}" class="btn btn-ghost btn-sm" style="font-weight: 700; font-size: 0.75rem; border-radius: var(--radius-full); padding: 0.35rem 0.75rem; border: 1px solid rgba(10, 79, 120, 0.2);" title="Switch to English">
+                        <i class="fa-solid fa-globe" style="color: var(--bz-accent-blue); margin-inline-end: 0.25rem;"></i> EN
+                    </a>
+                @else
+                    <a href="{{ route('locale.switch', 'ar') }}" class="btn btn-ghost btn-sm" style="font-weight: 700; font-size: 0.75rem; border-radius: var(--radius-full); padding: 0.35rem 0.75rem; border: 1px solid rgba(10, 79, 120, 0.2);" title="التحويل للعربية">
+                        <i class="fa-solid fa-globe" style="color: var(--bz-accent-blue); margin-inline-end: 0.25rem;"></i> عربي
+                    </a>
+                @endif
+
+                <!-- Theme Toggle Button -->
+                <button type="button" onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else{toggleTheme();}" data-theme-toggle class="btn btn-ghost btn-sm" title="Switch Theme">
+                    <span data-theme-label><i class="fa-solid fa-circle-half-stroke"></i></span>
+                </button>
+
                 <a href="{{ route('customer.account.dashboard') }}" class="btn btn-ghost btn-sm" title="{{ __('app.nav.account') }}">
                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -143,7 +121,9 @@
                         <a href="{{ route('customer.shop') }}" class="footer-link">{{ __('app.nav.shop') }}</a>
                         <a href="{{ route('customer.pages.science') }}" class="footer-link">{{ __('app.nav.science') }}</a>
                         <a href="{{ route('customer.pages.about') }}" class="footer-link">{{ __('app.nav.about') }}</a>
+                        {{--
                         <a href="{{ route('customer.pages.team') }}" class="footer-link">{{ __('app.nav.team') }}</a>
+                        --}}
                     </div>
                 </div>
 
