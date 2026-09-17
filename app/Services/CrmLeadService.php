@@ -7,6 +7,7 @@ use App\Models\CrmCompany;
 use App\Models\CrmLead;
 use App\Models\CrmNote;
 use App\Models\CrmOpportunity;
+use App\Models\CrmPipeline;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;

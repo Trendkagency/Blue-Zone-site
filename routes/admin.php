@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\CrmCampaignController;
 use App\Http\Controllers\Admin\CrmCompanyController;
 use App\Http\Controllers\Admin\CrmController;
 use App\Http\Controllers\Admin\CrmLeadController;
+use App\Http\Controllers\Admin\CrmLeadImportController;
 use App\Http\Controllers\Admin\CrmOpportunityController;
 use App\Http\Controllers\Admin\CrmPipelineController;
 use App\Http\Controllers\Admin\CrmReportController;
@@ -186,6 +187,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/create', [CrmLeadController::class, 'create'])->middleware('permission:crm.leads.create')->name('create');
                 Route::post('/', [CrmLeadController::class, 'store'])->middleware('permission:crm.leads.create')->name('store');
                 Route::get('/export', [CrmLeadController::class, 'export'])->middleware('permission:crm.reports.export')->name('export');
+                Route::get('/import', [CrmLeadImportController::class, 'show'])->middleware('permission:crm.leads.create')->name('import');
+                Route::post('/import', [CrmLeadImportController::class, 'import'])->middleware('permission:crm.leads.create')->name('import.process');
+                Route::get('/import/template', [CrmLeadImportController::class, 'downloadTemplate'])->middleware('permission:crm.leads.create')->name('import.template');
                 Route::get('/check-duplicates', [CrmLeadController::class, 'checkDuplicates'])->middleware('permission:crm.leads.view')->name('check-duplicates');
                 Route::post('/bulk-assign', [CrmLeadController::class, 'bulkAssign'])->middleware('permission:crm.leads.assign')->name('bulk-assign');
                 Route::post('/bulk-status', [CrmLeadController::class, 'bulkStatus'])->middleware('permission:crm.leads.edit')->name('bulk-status');

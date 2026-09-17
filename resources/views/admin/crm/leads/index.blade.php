@@ -35,7 +35,10 @@
             @endif
         </form>
 
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="{{ route('admin.crm.leads.import') }}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                <i class="fa-solid fa-file-excel text-emerald-600"></i> Import Excel / CSV
+            </a>
             <a href="{{ route('admin.crm.leads.export', request()->query()) }}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <i class="fa-solid fa-file-csv text-emerald-600"></i> {{ __('crm.leads.export_csv') }}
             </a>
