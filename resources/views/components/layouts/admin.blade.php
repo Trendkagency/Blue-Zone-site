@@ -162,12 +162,12 @@
                                 <i class="fa-solid fa-sliders text-xs text-emerald-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'مركز التحكم بالمخزون' : 'Inventory Control Hub' }}</span>
                             </a>
-                            <a href="{{ route('admin.inventory.index') }}"
+                            <a href="{{ Route::has('admin.inventory.index') ? route('admin.inventory.index') : url('/admin/inventory') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}">
                                 <i class="fa-solid fa-boxes-packing text-xs"></i>
                                 <span>{{ __('admin.menu.stock_levels') }}</span>
                             </a>
-                            <a href="{{ route('admin.locations.index') }}"
+                            <a href="{{ Route::has('admin.locations.index') ? route('admin.locations.index') : (Route::has('admin.warehouses.index') ? route('admin.warehouses.index') : url('/admin/locations')) }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-building-columns text-xs text-indigo-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمواقع' : 'Locations & Hubs' }}</span>
@@ -177,12 +177,12 @@
                                 <i class="fa-solid fa-network-wired text-xs text-sky-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون (Live)' : 'Stock Allocator (Live)' }}</span>
                             </a>
-                            <a href="{{ route('admin.inventory.transfers') }}"
+                            <a href="{{ Route::has('admin.inventory.transfers') ? route('admin.inventory.transfers') : url('/admin/inventory/transfers') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
                                 <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
                                 <span>{{ __('admin.menu.stock_transfers') }}</span>
                             </a>
-                            <a href="{{ route('admin.inventory.history') }}"
+                            <a href="{{ Route::has('admin.inventory.history') ? route('admin.inventory.history') : url('/admin/inventory/history') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
                                 <i class="fa-solid fa-clock-rotate-left text-xs"></i>
                                 <span>{{ __('admin.menu.stock_history') }}</span>
@@ -286,7 +286,7 @@
                         </button>
                         <div class="sidebar-submenu">
                             @if($u->hasPermission('content.view') || $u->hasPermission('content'))
-                                <a href="{{ route('admin.content.index') }}"
+                                <a href="{{ Route::has('admin.content.index') ? route('admin.content.index') : url('/admin/content') }}"
                                     class="sidebar-sublink {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
                                     <i class="fa-solid fa-newspaper text-xs"></i>
                                     <span>{{ __('admin.menu.content') }}</span>
@@ -328,7 +328,7 @@
                                 <i class="fa-solid fa-gear text-xs"></i>
                                 <span>{{ __('admin.menu.settings') }}</span>
                             </a>
-                            <a href="{{ route('admin.settings.geo.index') }}"
+                            <a href="{{ Route::has('admin.settings.geo.index') ? route('admin.settings.geo.index') : url('/admin/settings/geo') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.settings.geo.*') || request()->routeIs('admin.countries.*') ? 'active' : '' }}"
                                 title="{{ app()->getLocale() == 'ar' ? 'إدارة النطاقات الجغرافية والدول والمدن' : 'Countries, Cities & Geographic Hub' }}">
                                 <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>

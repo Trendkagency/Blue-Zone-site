@@ -33,7 +33,7 @@
 
             <!-- Header Quick Action Buttons -->
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.locations.index') }}" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-semibold text-sm transition-all flex items-center gap-2">
+                <a href="{{ Route::has('admin.locations.index') ? route('admin.locations.index') : (Route::has('admin.warehouses.index') ? route('admin.warehouses.index') : url('/admin/locations')) }}" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 font-semibold text-sm transition-all flex items-center gap-2">
                     <i class="fa-solid fa-building-columns text-indigo-500"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'عرض المستودعات والمواقع' : 'View Storage Hubs' }}</span>
                 </a>

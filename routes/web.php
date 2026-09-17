@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CaptchaController;
 use App\Http\Controllers\PaymentWebhookController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 // Dynamic Locale Switcher (supports session persistence for 'en' and 'ar')
@@ -32,25 +33,48 @@ Route::get('/api/geo/countries/{id}/cities', [\App\Http\Controllers\Admin\CityCo
 require __DIR__ . '/customer.php';
 require __DIR__ . '/admin.php';
 
-
-//  Make Route To Migrate 
-
-
+// Database Migration Utility Endpoint
 Route::get('/migrate-database', function () {
     try {
         Artisan::call('migrate', [
             '--force' => true,
         ]);
 
+        // Auto-clear stale caches after migration
+        Artisan::call('optimize:clear');
+
         return response()->json([
             'success' => true,
-            'message' => 'Database migrated successfully.',
+            'message' => 'Database migrated and caches cleared successfully.',
             'output' => Artisan::output(),
         ]);
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
             'message' => 'Migration failed.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+});
+
+// Cache & Optimization Clearing Utility Endpoint
+Route::get('/clear-cache', function () {
+    try {
+        Artisan::call('optimize:clear');
+        Artisan::call('route:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        Artisan::call('cache:clear');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'All caches (routes, config, views, application) cleared successfully.',
+            'output' => Artisan::output(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Cache clearing failed.',
             'error' => $e->getMessage(),
         ], 500);
     }
