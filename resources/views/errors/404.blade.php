@@ -47,7 +47,7 @@
                 <a href="{{ route('customer.home') }}" class="px-6 py-3 rounded-xl bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md">
                     {{ app()->getLocale() === 'ar' ? 'الصفحة الرئيسية' : 'Home Discovery' }}
                 </a>
-                <a href="{{ route('customer.shop') }}" class="px-6 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#083f61] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md">
+                <a href="{{ route('customer.products') }}" class="px-6 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#083f61] text-white text-xs font-black uppercase tracking-widest transition-all shadow-md">
                     {{ app()->getLocale() === 'ar' ? 'جميع التركيبات' : 'All Formulations' }}
                 </a>
                 <a href="{{ route('customer.pages.science') }}" class="px-6 py-3 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78]/20 dark:bg-[#0A4F78]/40 text-[#0A4F78] dark:text-[#2A8FC2] text-xs font-bold uppercase tracking-wider transition-all">

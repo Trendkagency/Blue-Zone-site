@@ -155,7 +155,7 @@
 
         <!-- Action CTAs -->
         <div class="flex items-center justify-center gap-4 flex-wrap">
-            <a href="{{ route('customer.shop') }}" class="px-8 py-4 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-lg transition-all btn-sheen cursor-pointer">
+            <a href="{{ route('customer.products') }}" class="px-8 py-4 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-lg transition-all btn-sheen cursor-pointer">
                 {{ __('app.actions.continue_shopping') }}
             </a>
             <button onclick="window.print()" class="px-8 py-4 rounded-2xl border border-[#0A4F78]/30 hover:bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-xs font-black uppercase tracking-widest transition-all cursor-pointer">

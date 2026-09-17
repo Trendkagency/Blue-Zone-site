@@ -12,7 +12,7 @@
                 </h1>
             </div>
             
-            <a href="{{ route('customer.shop') }}" class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
+            <a href="{{ route('customer.products') }}" class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>{{ __('app.actions.continue_shopping') }}</span>
             </a>
@@ -137,7 +137,7 @@
 
                         <!-- Table Footer Actions -->
                         <div class="p-4 sm:p-6 bg-[#F6F5EF]/60 dark:bg-[#031827]/60 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/25 flex items-center justify-between flex-wrap gap-4">
-                            <a href="{{ route('customer.shop') }}" class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
+                            <a href="{{ route('customer.products') }}" class="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] hover:underline">
                                 <i class="fa-solid fa-arrow-left"></i>
                                 <span>{{ __('app.actions.continue_shopping') }}</span>
                             </a>
@@ -262,7 +262,7 @@
                     </p>
                 </div>
                 <div>
-                    <a href="{{ route('customer.shop') }}" class="inline-block px-8 py-4 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-xl transition-all btn-sheen cursor-pointer">
+                    <a href="{{ route('customer.products') }}" class="inline-block px-8 py-4 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-widest shadow-xl transition-all btn-sheen cursor-pointer">
                         {{ __('app.actions.continue_shopping') }}
                     </a>
                 </div>

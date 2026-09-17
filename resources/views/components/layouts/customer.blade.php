@@ -181,10 +181,12 @@
                     {{ __('app.blog') }}
                 </a>
 
+                {{--
                 <a href="{{ route('customer.shop') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.shop*') || request()->is('shop*') ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">
                     {{ __('app.shop') }}
                 </a>
+                --}}
 
                 <a href="{{ route('customer.pages.contact') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.pages.contact*') || request()->is('contact*') ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }}">
@@ -315,11 +317,13 @@
                     </a>
                 @endif
 
+                {{--
                 <!-- Shop CTA -->
                 <a href="{{ route('customer.shop') }}"
                     class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-md bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest transition-all shadow-md btn-sheen">
                     {{ __('app.shop_now') }}
                 </a>
+                --}}
 
                 <!-- Mobile Hamburger Button -->
                 <button onclick="const el=document.getElementById('mobile-nav-drawer'); el.classList.toggle('hidden');"
@@ -362,11 +366,13 @@
                     <span>BLOG</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
+                {{--
                 <a href="{{ route('customer.shop') }}"
                     class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.shop*') || request()->is('shop*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>SHOP</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
+                --}}
                 <a href="{{ route('customer.pages.contact') }}"
                     class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.pages.contact*') || request()->is('contact*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>CONTACT</span> <i
@@ -460,10 +466,12 @@
                     </span>
                     <i class="fa-solid fa-arrow-right text-[#0A4F78] dark:text-[#2A8FC2] rtl:rotate-180 text-xs"></i>
                 </button>
+                {{--
                 <a href="{{ route('customer.shop') }}"
                     class="w-full text-center py-3.5 bg-[#0A4F78] text-white font-extrabold uppercase tracking-widest rounded-lg mt-1 shadow-md">
                     {{ __('app.shop_now') }}
                 </a>
+                --}}
             </div>
         </div>
     </header>
@@ -610,10 +618,12 @@
                                 {{ __('app.nav.team') ?? 'Meet the Team' }}
                             </a></li>
                         --}}
+                        {{--
                         <li><a href="{{ route('customer.shop') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.shop') ?? 'Shop Catalog' }}
                             </a></li>
+                        --}}
                         <li><a href="{{ route('customer.pages.blog') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.blog') ?? 'Longevity Journal' }}

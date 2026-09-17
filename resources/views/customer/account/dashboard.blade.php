@@ -15,7 +15,7 @@
             </div>
 
             <div style="display: flex; gap: 0.75rem;">
-                <a href="{{ route('customer.shop') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('customer.products') }}" class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-bag-shopping mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تصفح المتجر' : 'Shop Formulations' }}
                 </a>
                 <a href="{{ route('customer.account.orders') }}" class="btn btn-secondary btn-sm">
@@ -144,7 +144,7 @@
                                     <tr>
                                         <td colspan="5" class="text-center py-6 text-muted">
                                             {{ app()->getLocale() === 'ar' ? 'لم تقم بطلب أي منتجات بعد.' : 'No orders placed yet.' }}
-                                            <a href="{{ route('customer.shop') }}" class="text-primary font-bold ml-1">{{ app()->getLocale() === 'ar' ? 'ابدأ التسوق الآن' : 'Start shopping now' }}</a>
+                                            <a href="{{ route('customer.products') }}" class="text-primary font-bold ml-1">{{ app()->getLocale() === 'ar' ? 'ابدأ التسوق الآن' : 'Start shopping now' }}</a>
                                         </td>
                                     </tr>
                                 @endforelse

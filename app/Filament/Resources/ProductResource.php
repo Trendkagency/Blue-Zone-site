@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
 use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
@@ -351,13 +352,13 @@ class ProductResource extends Resource
                     ->label('Featured Only'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Actions\EditAction::make(),
+                Actions\ViewAction::make(),
+                Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultSort('created_at', 'desc')

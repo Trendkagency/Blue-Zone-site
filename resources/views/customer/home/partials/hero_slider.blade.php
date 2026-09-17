@@ -108,7 +108,7 @@
                         class="w-full sm:w-auto px-8 py-4 bg-[#2A8FC2] hover:bg-[#0A4F78] text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-xl hover:scale-105 btn-sheen text-center">
                         EXPLORE OUR SCIENCE
                     </a>
-                    <a href="{{ route('customer.shop') }}"
+                    <a href="{{ route('customer.products') }}"
                         class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xs font-black uppercase tracking-widest rounded-full backdrop-blur-md transition-all text-center">
                         SHOP FORMULATIONS
                     </a>
@@ -216,7 +216,7 @@
                         class="w-full sm:w-auto px-8 py-4 bg-[#2A8FC2] hover:bg-[#0A4F78] text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-xl hover:scale-105 btn-sheen text-center">
                         EXPLORE REGIONS
                     </a>
-                    <a href="{{ route('customer.shop') }}"
+                    <a href="{{ route('customer.products') }}"
                         class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xs font-black uppercase tracking-widest rounded-full backdrop-blur-md transition-all text-center">
                         SHOP CATALOG
                     </a>

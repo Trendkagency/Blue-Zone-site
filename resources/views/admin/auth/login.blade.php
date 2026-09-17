@@ -46,6 +46,32 @@
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <span>{{ __('app.auth.sign_in') }}</span>
                 </button>
+
+                @if(app()->environment('local', 'testing') || config('app.debug'))
+                    <div class="p-3.5 bg-blue-50/70 dark:bg-[#031827]/70 border border-blue-100 dark:border-[#2A8FC2]/20 rounded-2xl text-xs space-y-2 text-gray-600 dark:text-gray-300">
+                        <div class="flex items-center justify-between font-semibold text-[#0A4F78] dark:text-[#2A8FC2]">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-key text-[11px]"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بيانات الدخول الافتراضية للمسؤول:' : 'Default Admin Credentials:' }}</span>
+                            </span>
+                            <button type="button" onclick="fillAdminDemo()" class="text-[11px] underline hover:text-[#062B49] dark:hover:text-blue-300 cursor-pointer font-bold">
+                                {{ app()->getLocale() === 'ar' ? 'تعبئة تلقائية' : 'Auto Fill' }}
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-1 font-mono text-[11px]">
+                            <div>Email: <strong class="select-all text-[#031827] dark:text-white font-bold">admin@bluezone.com</strong> (or <strong class="select-all text-[#031827] dark:text-white font-bold">admin@admin.com</strong>)</div>
+                            <div>Password: <strong class="select-all text-[#031827] dark:text-white font-bold">password</strong></div>
+                        </div>
+                    </div>
+                    <script>
+                        function fillAdminDemo() {
+                            const emailInput = document.querySelector('input[name="email"]');
+                            const passwordInput = document.querySelector('input[name="password"]');
+                            if (emailInput) emailInput.value = 'admin@bluezone.com';
+                            if (passwordInput) passwordInput.value = 'password';
+                        }
+                    </script>
+                @endif
             </form>
         </div>
     </div>

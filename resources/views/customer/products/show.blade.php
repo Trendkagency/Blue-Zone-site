@@ -199,12 +199,12 @@
         
         <!-- Top Back Navigation & Breadcrumb -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#0A4F78]/15">
-          <a href="{{ route('customer.shop') }}" class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">
+          <a href="{{ route('customer.products') }}" class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">
             <i class="fa-solid fa-arrow-left rtl:rotate-180 mr-1.5 ml-1.5"></i> {{ $isRtl ? 'العودة لكتالوج المستحضرات' : 'BACK TO PRODUCTS' }}
           </a>
           <div class="text-[11px] font-bold uppercase tracking-widest text-[#031827]/60 dark:text-[#F6F5EF]/60">
             <a href="{{ route('customer.home') }}" class="hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">{{ $isRtl ? 'الرئيسية' : 'HOME' }}</a> / 
-            <a href="{{ route('customer.shop') }}" class="hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">{{ $isRtl ? 'المتجر' : 'PRODUCTS' }}</a> / 
+            <a href="{{ route('customer.products') }}" class="hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">{{ $isRtl ? 'المتجر' : 'PRODUCTS' }}</a> / 
             <span class="text-[#0A4F78] dark:text-[#2A8FC2]">{{ $pName }}</span>
           </div>
         </div>
@@ -910,7 +910,7 @@
                   {{ $isRtl ? 'تركيبات متكاملة تعزز النتائج' : 'Complementary Formulations' }}
                 </h3>
               </div>
-              <a href="{{ route('customer.shop') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">
+              <a href="{{ route('customer.products') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">
                 {{ $isRtl ? 'عرض المتجر كاملاً' : 'EXPLORE ALL' }} <i class="fa-solid fa-arrow-right rtl:rotate-180 mr-1 ml-1"></i>
               </a>
             </div>

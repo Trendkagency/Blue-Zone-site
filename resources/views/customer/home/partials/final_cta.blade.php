@@ -11,7 +11,7 @@
           DISCOVER A BETTER WAY TO LIVE WITH CLINICAL LONGEVITY FORMULATIONS.
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <a href="{{ route('customer.shop') }}" class="w-full sm:w-auto px-10 py-5 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-2xl hover:scale-105 btn-sheen text-center">
+          <a href="{{ route('customer.products') }}" class="w-full sm:w-auto px-10 py-5 bg-[#67B34A] hover:bg-[#589c3e] text-white text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-2xl hover:scale-105 btn-sheen text-center">
             SHOP ALL FORMULATIONS
           </a>
           <a href="{{ route('customer.pages.science') }}" class="w-full sm:w-auto px-10 py-5 bg-white dark:bg-white/10 hover:bg-gray-100 dark:hover:bg-white/20 text-[#0A4F78] dark:text-white border border-[#0A4F78]/25 dark:border-white/30 text-xs font-black uppercase tracking-widest rounded-full backdrop-blur-md transition-all text-center shadow-md dark:shadow-none">

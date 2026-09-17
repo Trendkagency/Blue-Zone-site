@@ -169,6 +169,7 @@ class BluezoneSeeder extends Seeder
 
         $users = [
             ['name' => 'Tariq M.',       'email' => 'admin@bluezone.com',   'role_id' => $adminRole?->id],
+            ['name' => 'Super Admin',    'email' => 'admin@admin.com',      'role_id' => $adminRole?->id],
             ['name' => 'Lina Al-Rashid', 'email' => 'lina@bluezone.com',    'role_id' => $managerRole?->id],
             ['name' => 'Khalid Nassir',  'email' => 'khalid@bluezone.com',  'role_id' => $salesRole?->id],
             ['name' => 'Sara Almutairi', 'email' => 'sara@bluezone.com',    'role_id' => $salesRole?->id],

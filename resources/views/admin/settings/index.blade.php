@@ -2972,26 +2972,26 @@
                 </h4>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
-                    <x-forms.input name="pillars_eyebrow_en" :label="__('admin.settings.fields.site_name') . ' (EN Eyebrow)'" :value="$settings['pillars_eyebrow_en'] ?? 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT'" />
-                    <x-forms.input name="pillars_eyebrow_ar" :label="__('admin.settings.fields.site_name') . ' (AR شريط العنوان العلوي)'" :value="$settings['pillars_eyebrow_ar'] ?? 'مكمل دعم الإدراك الشامل'" />
+                    <x-forms.input name="pillars_eyebrow_en" :label="__('admin.settings.fields.site_name') . ' (EN Eyebrow)'" :value="$settings['pillars_eyebrow_en'] ?? ''" />
+                    <x-forms.input name="pillars_eyebrow_ar" :label="__('admin.settings.fields.site_name') . ' (AR شريط العنوان العلوي)'" :value="$settings['pillars_eyebrow_ar'] ?? ''" />
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
-                    <x-forms.input name="pillars_heading_prefix_en" label="Heading Prefix (EN) - e.g. THE 6 PILLARS OF" :value="$settings['pillars_heading_prefix_en'] ?? 'THE 6 PILLARS OF'" />
-                    <x-forms.input name="pillars_heading_prefix_ar" label="مقدمة العنوان (AR) - مثلاً: الركائز الست لـ" :value="$settings['pillars_heading_prefix_ar'] ?? 'الركائز الست لـ'" />
+                    <x-forms.input name="pillars_heading_prefix_en" label="Heading Prefix (EN) - e.g. About" :value="$settings['pillars_heading_prefix_en'] ?? 'About'" />
+                    <x-forms.input name="pillars_heading_prefix_ar" label="مقدمة العنوان (AR) - مثلاً: عن" :value="$settings['pillars_heading_prefix_ar'] ?? 'عن'" />
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
-                    <x-forms.input name="pillars_heading_highlight_en" label="Heading Highlight Text (EN) - e.g. BLUE MIND" :value="$settings['pillars_heading_highlight_en'] ?? 'BLUE MIND'" />
-                    <x-forms.input name="pillars_heading_highlight_ar" label="النص البارز بلون التركيز (AR) - مثلاً: بلو مايند" :value="$settings['pillars_heading_highlight_ar'] ?? 'بلو مايند'" />
+                    <x-forms.input name="pillars_heading_highlight_en" label="Heading Highlight Text (EN) - e.g. Blue Zone" :value="$settings['pillars_heading_highlight_en'] ?? 'Blue Zone'" />
+                    <x-forms.input name="pillars_heading_highlight_ar" label="النص البارز بلون التركيز (AR) - مثلاً: بلو زون" :value="$settings['pillars_heading_highlight_ar'] ?? 'بلو زون'" />
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
                     <x-forms.textarea name="pillars_description_en" label="Section Subtitle / Description (EN)" rows="2">
-                        {{ $settings['pillars_description_en'] ?? 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.' }}
+                        {{ $settings['pillars_description_en'] ?? '' }}
                     </x-forms.textarea>
                     <x-forms.textarea name="pillars_description_ar" label="الوصف الفرعي للقسم (AR)" rows="2">
-                        {{ $settings['pillars_description_ar'] ?? 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.' }}
+                        {{ $settings['pillars_description_ar'] ?? '' }}
                     </x-forms.textarea>
                 </div>
 
@@ -3635,14 +3635,14 @@
                 pillars_layout_format: 'orbital_matrix',
                 pillars_accent_color: 'green',
                 pillars_card_style: 'adaptive',
-                pillars_eyebrow_en: 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT',
-                pillars_eyebrow_ar: 'مكمل دعم الإدراك الشامل',
-                pillars_heading_prefix_en: 'THE 6 PILLARS OF',
-                pillars_heading_prefix_ar: 'الركائز الست لـ',
-                pillars_heading_highlight_en: 'BLUE MIND',
-                pillars_heading_highlight_ar: 'بلو مايند',
-                pillars_description_en: 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.',
-                pillars_description_ar: 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.',
+                pillars_eyebrow_en: '',
+                pillars_eyebrow_ar: '',
+                pillars_heading_prefix_en: 'About',
+                pillars_heading_prefix_ar: 'عن',
+                pillars_heading_highlight_en: 'Blue Zone',
+                pillars_heading_highlight_ar: 'بلو زون',
+                pillars_description_en: '',
+                pillars_description_ar: '',
                 pillars_center_title_en: 'BLUE MIND',
                 pillars_center_title_ar: 'بلو مايند',
                 pillars_center_subtitle_en: 'CORE',

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Infolists;
 use Filament\Resources\Resource;
@@ -195,7 +196,7 @@ class OrderResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Actions\ViewAction::make(),
             ])
             ->defaultSort('date', 'desc')
             ->striped();

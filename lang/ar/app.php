@@ -130,10 +130,10 @@ return array(
 
   // lang/ar/app.php
   'philosophy' => [
-    'eyebrow' => 'مكمل دعم الإدراك الشامل',
-    'heading_prefix' => 'الركائز الست لـ',
-    'heading_highlight' => 'بلو مايند',
-    'description' => 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.',
+    'eyebrow' => '',
+    'heading_prefix' => 'عن',
+    'heading_highlight' => 'بلو زون',
+    'description' => '',
     'core_label' => 'الجوهر',
     'impact_label' => 'الأثر الفسيولوجي',
   ],
@@ -172,9 +172,12 @@ return array(
 
   'formulation_price' => 'سعر التركيبة',
   'our_science_details' => 'تفاصيل العلم لدينا',
-  'view_product' => 'عرض المنتجات',
+  'full_science_details' => 'تفاصيل العلوم السريرية',
+  'hide_science_details' => 'إخفاء تفاصيل العلوم',
+  'add_to_cart' => 'أضف إلى السلة',
+  'view_product' => 'عرض المنتج',
+  'dosage_protocol' => 'بروتوكول الجرعات',
   'clinical_protocol' => 'بروتوكول سريري',
-  'discover_your_longevity_code' => 'اكتشف رمز طول العمر الخاص بك',
   'standardized_formula' => 'صيغة موحدة',
   'view_formulation' => 'عرض التركيبة',
   'clinical_biomarker_profile' => 'ملف المؤشرات الحيوية السريرية',

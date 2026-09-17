@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\User;
 use App\Services\CaptchaService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -63,6 +64,14 @@ class AuthController extends Controller
 
             return redirect()->intended(route('customer.account.dashboard'))
                 ->with('success', __('app.welcome_back', ['default' => 'Welcome back, :name!', 'name' => $customer->name]));
+        }
+
+        if (User::where('email', $credentials['email'])->exists()) {
+            return back()->withErrors([
+                'email' => app()->getLocale() === 'ar'
+                    ? 'هذا الحساب مسجل كمسؤول نظام. يرجى تسجيل الدخول من خلال بوابة الإدارة: ' . route('admin.login')
+                    : 'This account belongs to an Administrator. Please log in via the Admin Portal: ' . route('admin.login'),
+            ])->onlyInput('email');
         }
 
         return back()->withErrors([

@@ -10,7 +10,7 @@
                 </div>
             </div>
 
-            <a href="{{ route('customer.shop') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('customer.products') }}" class="btn btn-primary btn-sm">
                 <i class="fa-solid fa-compass mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'استكشاف جميع التركيبات' : 'Explore All Formulations' }}
             </a>
         </div>
@@ -108,7 +108,7 @@
                         <p class="text-sm text-muted" style="max-width: 420px; margin: 0 auto 1.5rem auto;">
                             {{ app()->getLocale() === 'ar' ? 'احفظ التركيبات الحيوية المفضلة لديك من الكتالوج الطبي للوصول السريع إليها وإعادة طلبها.' : 'Save clinical bioceuticals from our catalog for rapid refilling and protocol tracking.' }}
                         </p>
-                        <a href="{{ route('customer.shop') }}" class="btn btn-primary">
+                        <a href="{{ route('customer.products') }}" class="btn btn-primary">
                             <i class="fa-solid fa-bag-shopping mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تصفح الكتالوج الطبي' : 'Browse Formulations Catalog' }}
                         </a>
                     </div>

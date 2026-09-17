@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\InventoryItemResource\Pages;
 use App\Models\InventoryItem;
 use BackedEnum;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Infolists;
 use Filament\Resources\Resource;
@@ -148,8 +149,8 @@ class InventoryItemResource extends Resource
                     ]),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Actions\ViewAction::make(),
+                Actions\EditAction::make(),
             ])
             ->striped();
     }

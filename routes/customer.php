@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 // Customer Public Storefront
 Route::get('/', [HomeController::class, 'index'])->name('customer.home');
-Route::get('/shop', [ShopController::class, 'index'])->name('customer.shop');
+// Route::get('/shop', [ShopController::class, 'index'])->name('customer.shop');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('customer.product.show');
 // Cart & Protocol Management
 Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');

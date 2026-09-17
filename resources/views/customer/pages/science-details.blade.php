@@ -92,7 +92,7 @@
             {{ $isRtl ? 'الرئيسية' : 'Home' }}
           </a>
           <span>/</span>
-          <a href="{{ route('customer.shop') }}" class="hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">
+          <a href="{{ route('customer.products') }}" class="hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors">
             {{ $isRtl ? 'المنتجات' : 'Products' }}
           </a>
           <span>/</span>
@@ -410,7 +410,7 @@
                 {{ $isRtl ? 'استكشف الملفات السريرية للتركيبات الأخرى' : 'Explore Other Formulations\' Science' }}
               </h2>
             </div>
-            <a href="{{ route('customer.shop') }}" class="text-xs font-black text-[#0A4F78] dark:text-[#2A8FC2] hover:underline uppercase tracking-wider flex items-center gap-1.5">
+            <a href="{{ route('customer.products') }}" class="text-xs font-black text-[#0A4F78] dark:text-[#2A8FC2] hover:underline uppercase tracking-wider flex items-center gap-1.5">
               <span>{{ $isRtl ? 'جميع المنتجات' : 'View All Products' }}</span>
               <i class="fa-solid {{ $isRtl ? 'fa-arrow-left' : 'fa-arrow-right' }}"></i>
             </a>

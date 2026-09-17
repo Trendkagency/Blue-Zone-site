@@ -9,7 +9,7 @@
                     {{ app()->getLocale() === 'ar' ? 'تتبع مسارات الشحن المبرد وتفاصيل طلبيات بروتوكولات طول العمر.' : 'Track active cold-chain fulfillment, order milestones, and re-order clinical protocols.' }}
                 </div>
             </div>
-            <a href="{{ route('customer.shop') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('customer.products') }}" class="btn btn-primary btn-sm">
                 <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'طلب تركيبة جديدة' : 'Order New Formulation' }}
             </a>
         </div>

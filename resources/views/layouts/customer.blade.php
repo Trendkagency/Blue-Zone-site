@@ -19,9 +19,11 @@
                 <a href="{{ route('customer.home') }}" class="nav-link {{ (request()->routeIs('customer.home') || request()->is('/')) ? 'active' : '' }}">
                     {{ __('app.nav.home') }}
                 </a>
+                {{--
                 <a href="{{ route('customer.shop') }}" class="nav-link {{ (request()->routeIs('customer.shop*') || request()->routeIs('customer.product*') || request()->is('shop*') || request()->is('products*')) ? 'active' : '' }}">
                     {{ __('app.nav.shop') }}
                 </a>
+                --}}
                 <a href="{{ route('customer.pages.science') }}" class="nav-link {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : '' }}">
                     {{ __('app.nav.science') }}
                 </a>
@@ -118,7 +120,9 @@
                     <h4 class="footer-title">{{ __('app.footer.quick_links') }}</h4>
                     <div class="footer-links">
                         <a href="{{ route('customer.home') }}" class="footer-link">{{ __('app.nav.home') }}</a>
+                        {{--
                         <a href="{{ route('customer.shop') }}" class="footer-link">{{ __('app.nav.shop') }}</a>
+                        --}}
                         <a href="{{ route('customer.pages.science') }}" class="footer-link">{{ __('app.nav.science') }}</a>
                         <a href="{{ route('customer.pages.about') }}" class="footer-link">{{ __('app.nav.about') }}</a>
                         {{--
@@ -176,12 +180,14 @@
             <span>{{ __('app.nav.home') }}</span>
         </a>
 
+        {{--
         <a href="{{ route('customer.shop') }}" class="dock-item {{ request()->routeIs('customer.shop*') ? 'active' : '' }}">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
             <span>{{ __('app.nav.shop') }}</span>
         </a>
+        --}}
 
         <a href="{{ route('customer.cart') }}" class="dock-item {{ request()->routeIs('customer.cart*') ? 'active' : '' }}" style="position: relative;">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">

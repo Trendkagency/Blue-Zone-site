@@ -71,11 +71,6 @@ class CustomerScienceDetailsTest extends TestCase
      */
     public function test_products_catalog_page_contains_our_science_details_buttons(): void
     {
-        $response = $this->get(route('customer.shop'));
-        $response->assertStatus(200);
-        $response->assertSee('Our Science Details');
-        $response->assertSee('/our-science/' . $this->productA->slug);
-
         $productsResponse = $this->get(route('customer.products'));
         $productsResponse->assertStatus(200);
         $productsResponse->assertSee('Our Science Details');

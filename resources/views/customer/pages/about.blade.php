@@ -195,93 +195,82 @@
         };
 
         // Header values
-        $defaultEyebrow = $isArabic ? 'مكمل دعم الإدراك الشامل' : 'COMPREHENSIVE COGNITIVE SUPPORT SUPPLEMENT';
-        $defaultHeadingPrefix = $isArabic ? 'الركائز الست لـ' : 'THE 6 PILLARS OF';
-        $defaultHeadingHighlight = $isArabic ? 'بلو مايند' : 'BLUE MIND';
+        $defaultEyebrow = '';
+        $defaultHeadingPrefix = $isArabic ? 'عن' : 'About';
+        $defaultHeadingHighlight = $isArabic ? 'بلو زون' : 'Blue Zone';
         $defaultDescription = $isArabic 
-            ? 'بلو مايند: غذِّ عقلك، ونشّط جسدك. تركيبة علمية شاملة صُممت لحماية مدخولك الغذائي وتحسين الوظائف الإدراكية.' 
-            : 'Blue Mind: Fuel your mind, Energize your body. A scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.';
+            ? 'انطلاقاً من مفهوم المناطق الزرقاء (Blue Zones) — تلك المناطق التي يعيش فيها الناس حياة أطول وأكثر صحة — تتطلع بلو زون للصناعات الدوائية إلى تعزيز أنماط الحياة الصحية وجودة العيش من خلال تركيبات متقدمة عالية الجودة للصحة الخلوية والمكملات الغذائية المتخصصة.'
+            : 'Inspired by the concept of Blue Zones—regions where people live longer, healthier lives— Blue Zone Pharmaceuticals envisions promoting healthier lives and enhanced well-being through high-quality nutraceutical and cellular health formulations.';
         
         $eyebrow = \App\Models\Setting::get("pillars_eyebrow_{$locale}", $defaultEyebrow);
         $headingPrefix = \App\Models\Setting::get("pillars_heading_prefix_{$locale}", $defaultHeadingPrefix);
         $headingHighlight = \App\Models\Setting::get("pillars_heading_highlight_{$locale}", $defaultHeadingHighlight);
         $sectionDesc = \App\Models\Setting::get("pillars_description_{$locale}", $defaultDescription);
 
-        $centerTitle = \App\Models\Setting::get("pillars_center_title_{$locale}", ($isArabic ? 'بلو مايند' : 'BLUE MIND'));
-        $centerSubtitle = \App\Models\Setting::get("pillars_center_subtitle_{$locale}", ($isArabic ? 'الجوهر' : 'CORE'));
+        $centerTitle = \App\Models\Setting::get("pillars_center_title_{$locale}", ($isArabic ? 'بلو زون' : 'BLUE ZONE'));
+        $centerSubtitle = \App\Models\Setting::get("pillars_center_subtitle_{$locale}", ($isArabic ? 'الدوائية' : 'PHARMA'));
 
-        // Default Pillars content definitions
+        // Default Pillars content definitions (About Blue Zone Core Elements)
         $defaultPillars = [
             1 => [
-                'icon' => 'fa-solid fa-brain',
-                'menu_en' => 'THE SCIENCE',
-                'menu_ar' => 'العلم وراء التركيبة',
-                'title_en' => 'The Science Behind Blue Mind',
-                'title_ar' => 'العلم وراء بلو مايند',
-                'tag_en' => 'Cognitive Optimization & Safeguard',
-                'tag_ar' => 'تحسين الإدراك والحماية الخلوية',
-                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">The brain acts as the command center of your nervous system and contains over <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">80 billion intricate neural pathways</strong>. It is highly demanding, using about <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">30% of the energy</strong> your body produces from food.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">Since brain cells are irreplaceable, they have the highest priority for specific micronutrients. Just like any advanced machine, the quality of what you put in directly affects performance.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] leading-relaxed"><strong class="text-[#67B34A] font-bold">Blue mind</strong> is a scientifically formulated, all-in-one daily supplement designed to safeguard your dietary intake and optimize cognitive function.</div>',
-                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">يعمل الدماغ كمركز تحكم لجهازك العصبي ويحتوي على أكثر من <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">80 مليار مسار عصبي معقد</strong>. يستهلك الدماغ طاقة هائلة، حيث يحتاج إلى حوالي <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">30% من الطاقة</strong> التي ينتجها جسمك من الطعام.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">ولأن خلايا الدماغ لا يمكن تعويضها أو استبدالها، فإنها تحظى بالأولوية القصوى للعناصر الغذائية الدقيقة المتخصصة. تمامًا مثل أي محرك متقدم، فإن جودة ما تغذيه به تؤثر مباشرة على كفاءته وأدائه.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] leading-relaxed"><strong class="text-[#67B34A] font-bold">بلو مايند</strong> هو مكمل يومي شامل ومُصاغ علميًا لضمان حماية مدخولك الغذائي وتحسين وظائفك الإدراكية إلى أقصى حد.</div>'
+                'icon' => 'fa-solid fa-eye',
+                'menu_en' => 'VISION',
+                'menu_ar' => 'الرؤية',
+                'title_en' => 'Vision',
+                'title_ar' => 'رؤيتنا',
+                'tag_en' => 'Evidence-Based Nutrition',
+                'tag_ar' => 'حلول غذائية قائمة على الدليل العلمي',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">To become one of the leading evidence-based dietary supplement companies in Egypt and the Middle East, improving people\'s quality of life through innovative, scientifically formulated nutritional solutions, manufactured with stringent quality standards, and communicated with clarity and transparency.</p>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">أن نصبح إحدى الشركات الرائدة في مجال المكملات الغذائية القائمة على الدليل العلمي في مصر والشرق الأوسط، والارتقاء بجودة حياة الناس من خلال حلول غذائية مبتكرة ومصاغة علمياً، ومصنعة وفقاً لأعلى معايير الجودة الصارمة، مع التواصل بكل وضوح وشفافية.</p>'
             ],
             2 => [
-                'icon' => 'fa-solid fa-bolt',
-                'menu_en' => 'TARGETED NOOTROPICS',
-                'menu_ar' => 'منشطات الإدراك',
-                'title_en' => 'Targeted Nootropics for Mental Performance',
-                'title_ar' => 'منشطات إدراكية مستهدفة للأداء العقلي',
-                'tag_en' => 'Memory, Focus & Alertness',
-                'tag_ar' => 'الذاكرة والتركيز واليقظة الذهنية',
-                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">Our advanced formula combines specialist nutrients designed to support memory, focus, and psychological function:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Ginkgo Biloba (120 mg):</strong> Enhances cerebral blood flow and nutrient delivery, helping to maintain memory with age and support mental alertness.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Essential Phospholipids:</strong> Phosphatidylserine and Phosphatidylcholine preserve neural membrane integrity and support acetylcholine production, which is crucial for learning speed and memory storage.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Cellular Antioxidant Defense:</strong> Co-Q10, L-Glutathione, and Selenium protect delicate brain tissue from oxidative stress and cellular damage.</span></li></ul>',
-                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">تجمع تركيبتنا المتطورة بين مغذيات تخصصية فائقة لدعم الذاكرة والتركيز والوظائف النفسية السليمة:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الجنكة بيلوبا (120 ملغ):</strong> تعزز تدفق الدم الدماغي وتوصيل المغذيات الحيوية، مما يساعد على دعم الذاكرة مع التقدم في العمر وتعزيز اليقظة الذهنية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الفسفوليبيدات الأساسية:</strong> يحافظ كل من الفوسفاتيديل سيرين والفوسفاتيديل كولين على سلامة الغشاء العصبي ويدعمان إنتاج الأسيتيل كولين، الحاسم لسرعة التعلم وتخزين الذاكرة.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">الدفاع الخلوي المضاد للأكسدة:</strong> يحمي الإنزيم المساعد Co-Q10، وL-جلوتاثيون، والسيلينيوم أنسجة الدماغ الحساسة من الإجهاد التأكسدي والتلف الخلوي.</span></li></ul>'
+                'icon' => 'fa-solid fa-bullseye',
+                'menu_en' => 'MISSION',
+                'menu_ar' => 'الرسالة',
+                'title_en' => 'Mission',
+                'title_ar' => 'رسالتنا',
+                'tag_en' => 'Healthcare Value & Excellence',
+                'tag_ar' => 'معايير استثنائية وقيمة مستدامة',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">Blue Zone Pharmaceuticals is committed to developing premium-quality dietary supplements that combine scientific evidence, exceptional manufacturing standards, and innovative branding to support healthier lives while creating long-term value for healthcare professionals, patients, and business partners.</p>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">تلتزم بلو زون للصناعات الدوائية بتطوير مكملات غذائية عالية الجودة تجمع بين الأدلة العلمية، ومعايير التصنيع الاستثنائية، والهوية المبتكرة لدعم حياة أكثر صحة، مع خلق قيمة مستدامة طويلة الأمد لمتخصصي الرعاية الصحية والمرضى وشركاء الأعمال.</p>'
             ],
             3 => [
-                'icon' => 'fa-solid fa-flask-vial',
-                'menu_en' => 'VITAMINS & COFACTORS',
-                'menu_ar' => 'الفيتامينات والعوامل المساعدة',
-                'title_en' => 'Essential Vitamins & Neurological Cofactors',
-                'title_ar' => 'فيتامينات أساسية وعوامل عصبية مساعدة',
-                'tag_en' => 'Energy Metabolism & Neuro-Balance',
-                'tag_ar' => 'أيض الطاقة وتوازن النواقل العصبية',
-                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">A healthy brain relies on a broad supply of essential vitamins and minerals to maintain optimal cognitive capacity and a healthy nervous system:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">High-Potency B-Complex:</strong> High doses of B-vitamins (including B12, B6, and Pantothenic Acid) optimize cellular energy metabolism, reduce central nervous system fatigue, and support normal psychological function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Key Brain Minerals:</strong> Zinc, Iodine, and Iron plus Pantothenic acid work synergistically to support neurotransmitter balance, thyroid function, and normal cognitive function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Optimum Vitamin D3 (1000 IU):</strong> Delivers the preferred D3 form to support neuroprotective pathways, mood regulation, and overall immune health.</span></li></ul>',
-                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed mb-3">يعتمد الدماغ الصحي على إمداد واسع ومتوازن من الفيتامينات والمعادن الأساسية للحفاظ على القدرة الإدراكية القصوى وجهاز عصبي سليم:</p><ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">فيتامينات ب عالية الفعالية:</strong> جرعات متقدمة من فيتامينات ب (بما في ذلك B12 وB6 وحمض البانتوثنيك) لتحفيز أيض الطاقة الخلوية وتقليل إجهاد الجهاز العصبي المركزي ودعم الوظائف النفسية الطبيعية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">معادن الدماغ الحيوية:</strong> يعمل الزنك واليود والحديد مع حمض البانتوثنيك بتآزر تام لدعم توازن النواقل العصبية ووظائف الغدة الدرقية والأداء الإدراكي السليم.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#2A8FC2] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">فيتامين D3 بالجرعة المثالية (1000 وحدة دولية):</strong> يوفر الصورة المفضلة D3 لدعم المسارات الواقية للأعصاب وتنظيم المزاج وتعزيز صحة المناعة الشاملة.</span></li></ul>'
+                'icon' => 'fa-solid fa-gem',
+                'menu_en' => 'CORE VALUES',
+                'menu_ar' => 'القيم الجوهرية',
+                'title_en' => 'Core Values',
+                'title_ar' => 'قيمنا الجوهرية',
+                'tag_en' => 'Integrity, Quality & Innovation',
+                'tag_ar' => 'النزاهة، الجودة والابتكار',
+                'desc_en' => '<div class="space-y-2.5 text-xs sm:text-sm leading-relaxed"><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-flask-vial mr-1.5 text-xs text-[#67B34A]"></i>Scientific Integrity</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">We believe in science-led decisions, responsible formulation, and clear communication grounded in reliable information.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-shield-halved mr-1.5 text-xs text-[#67B34A]"></i>Quality Without Compromise</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">We maintain high standards throughout product selection and development, with careful attention to quality, safety, and consistency.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-lightbulb mr-1.5 text-xs text-[#67B34A]"></i>Innovation</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">We continuously explore better ideas, ingredients, and approaches to create thoughtful products that respond to evolving health and wellness needs.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-handshake mr-1.5 text-xs text-[#67B34A]"></i>Trust & Transparency</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">We build lasting relationships through consistency, responsibility, and straightforward information about our products, ingredients, and standards.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-heart-pulse mr-1.5 text-xs text-[#67B34A]"></i>Patient First & Continuous Improvement</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">We keep the needs, well-being, and experience of the people we serve at the heart of what we do, always learning and raising our standards across everything.</p></div></div>',
+                'desc_ar' => '<div class="space-y-2.5 text-xs sm:text-sm leading-relaxed"><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-flask-vial ml-1.5 text-xs text-[#67B34A]"></i>النزاهة العلمية</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">نؤمن بالقرارات المبنية على العلم، والصياغة المسؤولة، والتواصل الواضح القائم على معلومات موثوقة.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-shield-halved ml-1.5 text-xs text-[#67B34A]"></i>الجودة دون مساومة</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">نحافظ على معايير رفيعة طوال مراحل اختيار وتطوير المنتجات، مع عناية دقيقة بالجودة والسلامة والاتساق.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-lightbulb ml-1.5 text-xs text-[#67B34A]"></i>الابتكار</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">نستكشف باستمرار أفكاراً ومكونات وحلولاً أفضل لابتكار منتجات مدروسة تلبي الاحتياجات الصحية المتطورة.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-handshake ml-1.5 text-xs text-[#67B34A]"></i>الثقة والشفافية</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">نبني علاقات دائمة قائمة على الاتساق والمسؤولية والشفافية الصادقة حول منتجاتنا ومكوناتنا ومعاييرنا.</p></div><div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-[#0A4F78]/10"><strong class="text-[#0A4F78] dark:text-[#2A8FC2] block font-bold mb-0.5"><i class="fa-solid fa-heart-pulse ml-1.5 text-xs text-[#67B34A]"></i>المريض أولاً والتحسين المستمر</strong><p class="text-[#031827]/80 dark:text-[#F6F5EF]/80 text-[11px] sm:text-xs">نضع احتياجات وعافية وتجربة مستخدمي منتجاتنا في صميم كل ما نقوم به، مؤمنين بأن هناك دائماً فرصة للتعلم ورفع المعايير في كل ما نقدمه.</p></div></div>'
             ],
             4 => [
-                'icon' => 'fa-solid fa-shield-halved',
-                'menu_en' => 'DAILY FOUNDATION',
-                'menu_ar' => 'الأساس اليومي',
-                'title_en' => 'Your Complete Daily Foundation',
-                'title_ar' => 'أساسك اليومي المتكامل',
-                'tag_en' => 'Complete Multivitamin Base',
-                'tag_ar' => 'قاعدة فيتامينات شاملة',
-                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">This formula goes beyond targeted brain health to provide a <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">complete multivitamin foundation</strong>.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-4">With added <strong class="text-[#031827] dark:text-[#F6F5EF] font-semibold">Vitamin C, Copper, and Folic Acid</strong> to support vascular health, red blood cell formation, and natural energy release, an additional daily multivitamin is no longer necessary.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3"><span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold"><i class="fa-solid fa-check"></i></span><span>Convenient all-in-one daily foundation replaces the need for additional general multivitamin tablets.</span></div>',
-                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-3">تتجاوز هذه التركيبة دعم صحة الدماغ المستهدفة لتوفر <strong class="text-[#0A4F78] dark:text-[#2A8FC2] font-semibold">أساساً متكاملاً من الفيتامينات المتعددة اليومية</strong>.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-normal leading-relaxed mb-4">مع إضافة <strong class="text-[#031827] dark:text-[#F6F5EF] font-semibold">فيتامين C، والنحاس، وحمض الفوليك</strong> لدعم صحة الأوعية الدموية، وتكوين خلايا الدم الحمراء، وإطلاق الطاقة الطبيعية، لم يعد هناك أي داعٍ لتناول مكمل فيتامينات متعددة يومي إضافي.</p><div class="p-3.5 rounded-xl bg-[#67B34A]/10 border border-[#67B34A]/25 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3"><span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold"><i class="fa-solid fa-check"></i></span><span>تكامل يومي شامل يغنيك عن تناول أقراص فيتامينات متعددة منفصلة.</span></div>'
+                'icon' => 'fa-solid fa-handshake-angle',
+                'menu_en' => 'OUR COMMITMENT',
+                'menu_ar' => 'التزامنا',
+                'title_en' => 'Our Commitment',
+                'title_ar' => 'التزامنا',
+                'tag_en' => 'Trust & Responsible Communication',
+                'tag_ar' => 'أمانة وتواصل مسؤول',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed mb-3">At Blue Zone Pharmaceuticals, we are committed to developing reliable nutraceutical products based on scientific evidence and stringent quality standards.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">We prioritize transparency and responsible communication, aiming to provide clear product information and support healthier lives with integrity and care.</p>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed mb-3">في بلو زون للصناعات الدوائية، نلتزم بتطوير منتجات غذائية علاجية موثوقة تستند إلى الأدلة العلمية ومعايير الجودة الصارمة.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">نضع الشفافية والتواصل المسؤول على رأس أولوياتنا، بهدف تقديم معلومات واضحة وموثوقة عن المنتجات ودعم حياة أكثر صحة بنزاهة ورعاية حقيقية.</p>'
             ],
             5 => [
-                'icon' => 'fa-solid fa-star',
-                'menu_en' => 'CORE HIGHLIGHTS',
-                'menu_ar' => 'أبرز المزايا',
-                'title_en' => 'High-Performance Formula Highlights',
-                'title_ar' => 'أبرز مزايا التركيبة المركزة',
-                'tag_en' => 'Clinical Synergy & Potency',
-                'tag_ar' => 'تآزر وفعالية سريرية',
-                'desc_en' => '<ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Comprehensive Nootropic Support:</strong> Formulated with 120 mg Ginkgo Biloba, Phosphatidylserine, and Phosphatidylcholine to help support memory, mental focus, and cognitive function.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">High-Potency Cellular Energy:</strong> Packed with Vitamin B12 and high-dose B-complex vitamins to assist in energy metabolism and fight mental fatigue.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Cellular Antioxidant Defense:</strong> Features Co-Q10, L-Glutathione, and Vitamin E to help protect brain cells and neural tissue from oxidative stress.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Essential Brain & Thyroid Minerals:</strong> Supplies key doses of Zinc, Iodine, and Iron to support neurotransmitter balance, thyroid function, and normal brain oxygenation.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">Convenient All-in-One Daily Tablet:</strong> Combines specialized brain-boosting nutrients with a complete multivitamin foundation into a single daily dose.</span></li></ul>',
-                'desc_ar' => '<ul class="space-y-3 text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85"><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">دعم نتروبيك شامل:</strong> تركيبة غنية بـ 120 ملغ من الجنكة بيلوبا، وفوسفاتيديل سيرين، وفوسفاتيديل كولين للمساعدة في دعم الذاكرة والتركيز والوظائف الإدراكية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">طاقة خلوية فائقة الفعالية:</strong> مدعم بفيتامين B12 ومجموعة فيتامينات B بجرعات عالية للمساعدة في استقلاب الطاقة ومكافحة الإجهاد الذهني.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">حماية خلوية بمضادات الأكسدة:</strong> يحتوي على Co-Q10، وL-جلوتاثيون، وفيتامين E للمساعدة في حماية خلايا الدماغ والأنسجة العصبية من الإجهاد التأكسدي.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">معادن أساسية للدماغ والغدة الدرقية:</strong> يوفر جرعات رئيسية من الزنك، واليود، والحديد لدعم توازن النواقل العصبية، ووظيفة الغدة الدرقية، وأكسجة الدماغ الطبيعية.</span></li><li class="flex items-start gap-2.5"><span class="w-2 h-2 rounded-full bg-[#67B34A] mt-1.5 shrink-0"></span><span><strong class="text-[#031827] dark:text-[#F6F5EF] font-bold">قرص يومي واحد متكامل وسهل التناول:</strong> يجمع بين المغذيات المعززة للدماغ وقاعدة الفيتامينات المتعددة الكاملة في جرعة يومية واحدة مريحة.</span></li></ul>'
-            ],
-            6 => [
-                'icon' => 'fa-solid fa-circle-question',
-                'menu_en' => 'INFO & FAQS',
-                'menu_ar' => 'معلومات وأسئلة شائعة',
-                'title_en' => 'Important Information & FAQs',
-                'title_ar' => 'معلومات هامة وأسئلة شائعة',
-                'tag_en' => 'Usage, Safety & Clinical Guidance',
-                'tag_ar' => 'السلامة وطريقة الاستخدام والإرشادات',
-                'desc_en' => '<div class="space-y-3.5 text-xs"><div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200"><div class="font-bold text-xs uppercase flex items-center gap-1.5 mb-1 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> Warning & Usage Guidance</div><p class="text-[11px] leading-relaxed">Always read product directions before use. Do not exceed recommended intake. Contains Ginkgo Biloba; those taking anticoagulants (blood thinners) should consult their doctor before using. Contains iron (harmful to very young children in excess). Seek professional advice if pregnant, breast-feeding, under medical supervision, or suffering from allergies. Do not take if allergic to soya. Food supplements must not replace a varied diet and healthy lifestyle.</p></div><div class="space-y-2.5 text-[#031827]/85 dark:text-[#F6F5EF]/85"><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Why has Blue Mind been developed?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Maintaining mental performance requires optimal functioning of brain cells. Blue Mind safeguards your dietary intake of essential nutrients such as iron, zinc, and iodine to contribute to normal cognitive function.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">When is Blue Mind recommended?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Recommended for men and women of all ages, and ideal for exam periods or intensive professional qualification study.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Can Blue Mind be taken simultaneously with other medications?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">Free from drugs and hormones. Contains Ginkgo Biloba (consult doctor/pharmacist if taking blood thinners).</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">How and when should Blue Mind be used?</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">1 tablet per day with or immediately after your main meal, with water or cold drink. Do not chew. Always take on a full stomach.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">Side effects & Duration of benefits:</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">No known side effects when taken as directed. Benefits build over several weeks with regular intake; no maximum duration limit.</p></div></div></div>',
-                'desc_ar' => '<div class="space-y-3.5 text-xs"><div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200"><div class="font-bold text-xs uppercase flex items-center gap-1.5 mb-1 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-triangle-exclamation"></i> تحذير وإرشادات هامة</div><p class="text-[11px] leading-relaxed">اقرأ دائمًا إرشادات المنتج قبل الاستخدام. لا تتجاوز الجرعة الموصى بها. يحتوي على الجنكة بيلوبا؛ يجب على من يتناولون مضادات التخثر (مسيلات الدم) استشارة الطبيب. يحتوي على الحديد. استشر طبيبك في حال الحمل، الإرضاع، أو وجود حساسية. يحتوي على الصويا. لا تغني المكملات عن نظام غذائي متوازن ونمط حياة صحي.</p></div><div class="space-y-2.5 text-[#031827]/85 dark:text-[#F6F5EF]/85"><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">لماذا تم تطوير بلو مايند؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">يتطلب الحفاظ على الأداء العقلي عمل خلايا الدماغ والشبكة العصبية المعقدة بكفاءة مثالية. يوفر بلو مايند تركيبة متكاملة لحماية مدخولك الغذائي وتزويدك بالحديد والزنك واليود للوظائف الإدراكية.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">متى يُنصح بتناول بلو مايند؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">يوصى به للرجال والنساء من جميع الأعمار، ومثالي للطلاب خلال فترات الامتحانات والمهنيين الذين تتطلب أعمالهم تركيزاً عالياً.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">هل يمكن تناوله مع أدوية أخرى؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">خالٍ من العقاقير والهرمونات. نظرًا لاحتوائه على الجنكة بيلوبا، يُنصح باستشارة الطبيب أو الصيدلي في حال تناول مسيلات الدم.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">كيف ومتى يُستخدم؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">قرص واحد يوميًا مع الوجبة الرئيسية أو بعدها مباشرة مع الماء أو مشروب بارد دون مضغ وعلى معدة ممتلئة لزيادة الامتصاص وتجنب الغثيان.</p></div><div><strong class="text-[#031827] dark:text-[#F6F5EF] block text-xs">هل هناك آثار جانبية وكم تستغرق النتائج؟</strong><p class="text-[11px] leading-relaxed text-[#031827]/75 dark:text-[#F6F5EF]/75 mt-0.5">ليس له آثار جانبية معروفة عند تناوله وفق التعليمات. تظهر الفوائد تدريجيًا على مدار عدة أسابيع من الاستخدام المنتظم، ولا توجد مدة أقصى للاستخدام.</p></div></div></div>'
+                'icon' => 'fa-solid fa-shield-halved',
+                'menu_en' => 'QUALITY & SAFETY',
+                'menu_ar' => 'الجودة والسلامة',
+                'title_en' => 'Quality and Safety',
+                'title_ar' => 'الجودة والسلامة',
+                'tag_en' => 'Stringent Quality & Thoughtful Formulation',
+                'tag_ar' => 'معايير صارمة وصياغة مدروسة',
+                'desc_en' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed mb-3">We follow strict quality standards to ensure reliable products.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">Every ingredient in a BlueZone product is carefully selected and evaluated for quality, safety, and suitability, reflecting our commitment to thoughtful formulation and creating products designed to add meaningful value to everyday health and well-being.</p>',
+                'desc_ar' => '<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed mb-3">نتبع معايير جودة صارمة لضمان منتجات موثوقة تدعم صحة الإنسان.</p><p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed">يتم اختيار كل مكون في منتجات بلو زون وتقييمه بعناية فائقة لضمان الجودة والسلامة والملاءمة، مما يعكس التزامنا بالصياغة المدروسة وابتكار منتجات تهدف إلى إضفاء قيمة ملموسة على الصحة اليومية والعافية العامة.</p>'
             ],
         ];
 
         $bluezonePillars = [];
-        for ($i = 1; $i <= 6; $i++) {
+        for ($i = 1; $i <= count($defaultPillars); $i++) {
             $pDef = $defaultPillars[$i];
             $pad = str_pad($i, 2, '0', STR_PAD_LEFT);
             $num = \App\Models\Setting::get("pillars_item_{$i}_num", $pad);
@@ -307,20 +296,28 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
             <!-- Section Header -->
             <div class="text-center max-w-3xl mx-auto space-y-3">
-                <span
-                    class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] sm:tracking-[0.3em]"
-                    style="color: {{ $activeTheme['hex'] }};">
-                    {{ $eyebrow }}
-                </span>
+                @if(!empty(trim($eyebrow)))
+                    <span
+                        class="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.25em] sm:tracking-[0.3em]"
+                        style="color: {{ $activeTheme['hex'] }};">
+                        {{ $eyebrow }}
+                    </span>
+                @endif
                 <h2
                     class="text-2xl sm:text-4xl lg:text-5xl font-light text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-                    {{ $headingPrefix }} <span
-                        class="font-bold" style="color: {{ $activeTheme['hex'] }};">{{ $headingHighlight }}</span>
+                    @if(!empty(trim($headingPrefix)))
+                        {{ $headingPrefix }}
+                    @endif
+                    @if(!empty(trim($headingHighlight)))
+                        <span class="font-bold" style="color: {{ $activeTheme['hex'] }};">{{ $headingHighlight }}</span>
+                    @endif
                 </h2>
-                <p
-                    class="text-xs sm:text-sm text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium max-w-xl mx-auto leading-relaxed">
-                    {{ $sectionDesc }}
-                </p>
+                @if(!empty(trim($sectionDesc)))
+                    <p
+                        class="text-xs sm:text-sm text-[#031827]/70 dark:text-[#F6F5EF]/70 font-medium max-w-xl mx-auto leading-relaxed">
+                        {{ $sectionDesc }}
+                    </p>
+                @endif
             </div>
 
             {{-- FORMAT 1: INTERACTIVE ORBITAL MATRIX --}}
@@ -373,6 +370,19 @@
 
                     <!-- Column 2: Orbital SVG Animation -->
                     @if ($showOrbital)
+                        @php
+                            $totalPillars = count($bluezonePillars);
+                            $radius = 110;
+                            $centerX = 150;
+                            $centerY = 150;
+                            $spokeCoords = [];
+                            for ($idx = 0; $idx < $totalPillars; $idx++) {
+                                $angle = deg2rad(-90 + ($idx * (360 / $totalPillars)));
+                                $x = round($centerX + $radius * cos($angle));
+                                $y = round($centerY + $radius * sin($angle));
+                                $spokeCoords[] = ['x' => $x, 'y' => $y];
+                            }
+                        @endphp
                         <div class="hidden lg:flex lg:col-span-4 items-center justify-center relative py-4">
                             <div class="w-56 h-56 xl:w-72 xl:h-72 relative flex items-center justify-center">
                                 <svg class="w-full h-full" viewBox="0 0 300 300" fill="none">
@@ -381,31 +391,22 @@
                                     <circle cx="150" cy="150" r="70" stroke="#2A8FC2" stroke-width="1"
                                         stroke-opacity="0.2" />
 
-                                    <line id="spoke-0" x1="150" y1="150" x2="150" y2="40"
-                                        stroke="{{ $activeTheme['hex'] }}" stroke-width="2" opacity="0.9" />
-                                    <line id="spoke-1" x1="150" y1="150" x2="245" y2="95"
-                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                                    <line id="spoke-2" x1="150" y1="150" x2="245" y2="205"
-                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                                    <line id="spoke-3" x1="150" y1="150" x2="150" y2="260"
-                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                                    <line id="spoke-4" x1="150" y1="150" x2="55" y2="205"
-                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
-                                    <line id="spoke-5" x1="150" y1="150" x2="55" y2="95"
-                                        stroke="#2A8FC2" stroke-width="1" opacity="0.3" />
+                                    @foreach ($spokeCoords as $k => $coord)
+                                        <line id="spoke-{{ $k }}" x1="150" y1="150" x2="{{ $coord['x'] }}" y2="{{ $coord['y'] }}"
+                                            stroke="{{ $k === 0 ? $activeTheme['hex'] : '#2A8FC2' }}" 
+                                            stroke-width="{{ $k === 0 ? 2 : 1 }}" 
+                                            opacity="{{ $k === 0 ? 0.9 : 0.3 }}" />
+                                    @endforeach
 
-                                    <circle id="node-0" cx="150" cy="40" r="10" fill="{{ $activeTheme['hex'] }}"
-                                        stroke="#FFFFFF" stroke-width="2" class="transition-all duration-300" />
-                                    <circle id="node-1" cx="245" cy="95" r="7" fill="#0A4F78"
-                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                                    <circle id="node-2" cx="245" cy="205" r="7" fill="#0A4F78"
-                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                                    <circle id="node-3" cx="150" cy="260" r="7" fill="#0A4F78"
-                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                                    <circle id="node-4" cx="55" cy="205" r="7" fill="#0A4F78"
-                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
-                                    <circle id="node-5" cx="55" cy="95" r="7" fill="#0A4F78"
-                                        stroke="#2A8FC2" stroke-width="1.5" class="transition-all duration-300" />
+                                    @foreach ($spokeCoords as $k => $coord)
+                                        <circle id="node-{{ $k }}" cx="{{ $coord['x'] }}" cy="{{ $coord['y'] }}" 
+                                            r="{{ $k === 0 ? 10 : 7 }}" 
+                                            fill="{{ $k === 0 ? $activeTheme['hex'] : '#0A4F78' }}"
+                                            stroke="{{ $k === 0 ? '#FFFFFF' : '#2A8FC2' }}" 
+                                            stroke-width="{{ $k === 0 ? 2 : 1.5 }}" 
+                                            class="transition-all duration-300 cursor-pointer"
+                                            onclick="BLUEZONE_PILLARS.select({{ $k }})" />
+                                    @endforeach
                                 </svg>
 
                                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
@@ -437,7 +438,7 @@
                                         <div class="h-6 w-[1px] bg-[#0A4F78]/20 dark:bg-[#0A4F78]/40"></div>
                                     @endif
                                     <span class="text-[10px] sm:text-[11px] font-black tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] uppercase">
-                                        PILLAR PROFILE
+                                        {{ $isArabic ? 'ملف التعريف' : 'PROFILE' }}
                                     </span>
                                 </div>
                                 <span id="pillar-active-icon-box"
@@ -637,7 +638,7 @@
                 });
 
                 // 3. Update Orbital Center SVG Nodes & Spokes
-                for (let i = 0; i < 6; i++) {
+                for (let i = 0; i < PILLARS_DATA.length; i++) {
                     const node = document.getElementById(`node-${i}`);
                     const spoke = document.getElementById(`spoke-${i}`);
                     if (i === idx) {
