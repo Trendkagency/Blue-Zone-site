@@ -48,7 +48,7 @@
                 @endphp
 
                 <!-- CRM & Sales Intelligence Dropdown -->
-                @if($u && ($u->hasPermission('crm.view') || $u->hasPermission('crm.*') || $u->hasPermission('crm.dashboard') || $u->hasPermission('crm.leads.view') || $u->hasPermission('crm.opportunities.view') || $u->hasPermission('*')))
+                @if($u && ($u->hasPermission('crm.view') || $u->hasPermission('crm.*') || $u->hasPermission('crm.dashboard') || $u->hasPermission('crm.leads.view') || $u->hasPermission('crm.opportunities.view') || $u->hasPermission('*')) && Route::has('admin.crm.dashboard'))
                     <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-crm">
                         <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-crm')">
                             <div class="sidebar-dropdown-label">
@@ -156,7 +156,7 @@
                             </div>
                         </button>
                         <div class="sidebar-submenu">
-                            <a href="{{ route('admin.inventory.control') }}"
+                            <a href="{{ Route::has('admin.inventory.control') ? route('admin.inventory.control') : url('/admin/inventory/control') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.control') ? 'active' : '' }}"
                                 title="{{ app()->getLocale() === 'ar' ? 'مركز التحكم السريع وإدارة كميات المنتجات' : 'Quick Stock Control Hub' }}">
                                 <i class="fa-solid fa-sliders text-xs text-emerald-400"></i>
@@ -172,7 +172,7 @@
                                 <i class="fa-solid fa-building-columns text-xs text-indigo-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمواقع' : 'Locations & Hubs' }}</span>
                             </a>
-                            <a href="{{ route('admin.inventory.allocator') }}"
+                            <a href="{{ Route::has('admin.inventory.allocator') ? route('admin.inventory.allocator') : url('/admin/inventory/allocator') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.allocator') ? 'active' : '' }}">
                                 <i class="fa-solid fa-network-wired text-xs text-sky-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون (Live)' : 'Stock Allocator (Live)' }}</span>
