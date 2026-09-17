@@ -207,6 +207,20 @@
         $headingHighlight = \App\Models\Setting::get("pillars_heading_highlight_{$locale}", $defaultHeadingHighlight);
         $sectionDesc = \App\Models\Setting::get("pillars_description_{$locale}", $defaultDescription);
 
+        // Discard old placeholder text if present in database
+        if (str_contains($eyebrow, 'COMPREHENSIVE COGNITIVE') || str_contains($eyebrow, 'COGNITIVE SUPPORT')) {
+            $eyebrow = $defaultEyebrow;
+        }
+        if (str_contains($headingPrefix, 'THE 6 PILLARS') || str_contains($headingPrefix, 'ركائز بلو مايند')) {
+            $headingPrefix = $defaultHeadingPrefix;
+        }
+        if (trim($headingHighlight) === 'BLUE MIND' && $headingPrefix !== 'About') {
+            $headingHighlight = $defaultHeadingHighlight;
+        }
+        if (str_contains($sectionDesc, 'Fuel your mind') || str_contains($sectionDesc, 'safeguard your dietary intake')) {
+            $sectionDesc = $defaultDescription;
+        }
+
         $centerTitle = \App\Models\Setting::get("pillars_center_title_{$locale}", ($isArabic ? 'بلو زون' : 'BLUE ZONE'));
         $centerSubtitle = \App\Models\Setting::get("pillars_center_subtitle_{$locale}", ($isArabic ? 'الدوائية' : 'PHARMA'));
 
@@ -279,6 +293,13 @@
             $title = \App\Models\Setting::get("pillars_item_{$i}_title_{$locale}", $pDef["title_{$locale}"]);
             $tag = \App\Models\Setting::get("pillars_item_{$i}_tag_{$locale}", $pDef["tag_{$locale}"]);
             $desc = \App\Models\Setting::get("pillars_item_{$i}_desc_{$locale}", $pDef["desc_{$locale}"]);
+
+            if (str_contains($title, 'Cognitive Fuel') || str_contains($title, 'Neuro-Protection') || str_contains($desc, 'Fuel your mind')) {
+                $menuTitle = $pDef["menu_{$locale}"];
+                $title = $pDef["title_{$locale}"];
+                $tag = $pDef["tag_{$locale}"];
+                $desc = $pDef["desc_{$locale}"];
+            }
 
             $bluezonePillars[] = [
                 'num' => $num,
