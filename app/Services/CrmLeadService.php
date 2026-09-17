@@ -129,6 +129,37 @@ class CrmLeadService
 
             Log::info("CRM: Created lead {$lead->lead_number}", ['id' => $lead->id, 'creator' => $creatorId]);
 
+            // Auto-create opportunity in active pipeline so the new lead immediately shows on the Kanban board
+            try {
+                $pipeline = !empty($data['pipeline_id'])
+                    ? CrmPipeline::find($data['pipeline_id'])
+                    : (CrmPipeline::where('is_default', true)->where('is_active', true)->first() ?? CrmPipeline::where('is_active', true)->first());
+
+                if ($pipeline) {
+                    $firstStage = $pipeline->stages()->where('is_active', true)->orderBy('sort_order')->first();
+                        $defaultUserId = $lead->owner_id ?? $creatorId ?? \App\Models\User::value('id');
+                        $oppService = app(\App\Services\CrmOpportunityService::class);
+                        $oppService->createOpportunity([
+                            'name' => $lead->full_name . (!empty($lead->company_name) ? " — {$lead->company_name}" : ' — Longevity Consultation'),
+                            'pipeline_id' => $pipeline->id,
+                            'stage_id' => $firstStage->id,
+                            'lead_id' => $lead->id,
+                            'customer_id' => $lead->customer_id,
+                            'company_id' => $lead->company_id,
+                            'owner_id' => $defaultUserId,
+                            'source_id' => $lead->source_id,
+                            'campaign_id' => $lead->campaign_id,
+                            'value' => (float) ($lead->estimated_value ?? 0),
+                            'currency' => $lead->currency ?? \App\Services\CurrencyService::code(),
+                            'probability' => $firstStage->probability ?? 10,
+                            'expected_close_date' => $lead->next_follow_up_at ? \Carbon\Carbon::parse($lead->next_follow_up_at)->addDays(14) : now()->addDays(14),
+                            'description' => $lead->notes ?? ('Pipeline Opportunity for lead ' . $lead->lead_number),
+                        ], $defaultUserId ?? 0);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("CRM: Could not auto-create opportunity for lead {$lead->id}: " . $e->getMessage());
+            }
+
             return $lead;
         });
     }

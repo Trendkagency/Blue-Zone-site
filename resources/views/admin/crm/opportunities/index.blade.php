@@ -95,9 +95,21 @@
                                     {{ $opp->name }}
                                 </a>
 
-                                <div style="font-size: 0.8rem; color: #64748B; margin-bottom: 0.5rem;">
-                                    <i class="fa-solid fa-user text-xs mr-1 ml-1"></i> {{ $opp->customer?->name ?? $opp->company?->name ?? 'Direct Account' }}
+                                <div style="font-size: 0.8rem; color: #475569; margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        <i class="fa-solid fa-user text-xs mr-1 ml-1 text-sky-600"></i> {{ $opp->customer?->name ?? $opp->lead?->full_name ?? $opp->company?->name ?? 'Direct Account' }}
+                                    </span>
+                                    @if($opp->lead_id && !$opp->customer_id)
+                                        <span style="font-size: 0.65rem; background: #E0F2FE; color: #0369A1; padding: 0.05rem 0.35rem; border-radius: 0.25rem; font-weight: 700;">Lead</span>
+                                    @endif
                                 </div>
+
+                                @if($opp->lead?->phone || $opp->customer?->phone)
+                                    <div style="font-size: 0.72rem; color: #64748B; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.3rem;">
+                                        <i class="fa-solid fa-phone text-xs text-slate-400 mr-0.5 ml-0.5"></i>
+                                        <span>{{ $opp->lead?->phone ?? $opp->customer?->phone }}</span>
+                                    </div>
+                                @endif
 
                                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #F1F5F9; padding-top: 0.5rem;">
                                     <strong style="font-size: 0.875rem; color: #059669;">

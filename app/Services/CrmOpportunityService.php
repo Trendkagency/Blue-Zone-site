@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CrmActivity;
 use App\Models\CrmCampaign;
+use App\Models\CrmLead;
 use App\Models\CrmNote;
 use App\Models\CrmOpportunity;
 use App\Models\CrmPipeline;
@@ -140,6 +141,24 @@ class CrmOpportunityService
                 'last_activity_at' => now(),
             ]);
 
+            // Synchronize status with linked Lead if opportunity originated from a lead
+            if ($opportunity->lead_id) {
+                try {
+                    $leadStatus = match ($status) {
+                        'won' => 'converted',
+                        'lost' => 'lost',
+                        default => (in_array($newStage->slug, ['contacted-qualified', 'contacted_qualified']) ? 'contacted' : 'qualified')
+                    };
+                    CrmLead::where('id', $opportunity->lead_id)->update([
+                        'status' => $leadStatus,
+                        'stage' => $newStage->slug,
+                        'lost_reason' => $status === 'lost' ? $lostReason : null,
+                    ]);
+                } catch (\Throwable $e) {
+                    Log::warning("CRM: Failed to sync lead status for opportunity {$opportunity->id}: " . $e->getMessage());
+                }
+            }
+
             // Add timeline note
             CrmNote::create([
                 'user_id' => $userId,
@@ -156,6 +175,45 @@ class CrmOpportunityService
     }
 
     /**
+     * Ensure all unlinked leads are automatically represented on the Kanban board under stage 1 (New Lead).
+     */
+    public function syncUnlinkedLeadsToPipeline(CrmPipeline $pipeline): void
+    {
+        try {
+            $firstStage = $pipeline->stages()->where('is_active', true)->orderBy('sort_order')->first();
+            if (!$firstStage) {
+                return;
+            }
+
+            $existingLeadIds = CrmOpportunity::whereNotNull('lead_id')->pluck('lead_id')->toArray();
+            $unlinkedLeads = CrmLead::whereNotIn('id', $existingLeadIds)
+                ->whereNotIn('status', ['lost', 'unqualified'])
+                ->get();
+
+            foreach ($unlinkedLeads as $lead) {
+                $this->createOpportunity([
+                    'name' => $lead->full_name . (!empty($lead->company_name) ? " — {$lead->company_name}" : ' — Longevity Consultation'),
+                    'pipeline_id' => $pipeline->id,
+                    'stage_id' => $firstStage->id,
+                    'lead_id' => $lead->id,
+                    'customer_id' => $lead->customer_id,
+                    'company_id' => $lead->company_id,
+                    'owner_id' => $lead->owner_id ?? \App\Models\User::value('id'),
+                    'source_id' => $lead->source_id,
+                    'campaign_id' => $lead->campaign_id,
+                    'value' => (float) ($lead->estimated_value ?? 0),
+                    'currency' => $lead->currency ?? \App\Services\CurrencyService::code(),
+                    'probability' => $firstStage->probability ?? 10,
+                    'expected_close_date' => $lead->next_follow_up_at ? \Carbon\Carbon::parse($lead->next_follow_up_at)->addDays(14) : now()->addDays(14),
+                    'description' => $lead->notes ?? ('Pipeline Opportunity for lead ' . $lead->lead_number),
+                ], $lead->owner_id ?? \App\Models\User::value('id') ?? 0);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("CRM: Could not sync unlinked leads to pipeline {$pipeline->id}: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Get optimized Kanban Board structure for a pipeline.
      */
     public function getKanbanBoard(int $pipelineId): array
@@ -164,6 +222,9 @@ class CrmOpportunityService
             $q->where('is_active', true)->orderBy('sort_order');
         }])->findOrFail($pipelineId);
 
+        // Auto-sync any leads that don't have an opportunity card yet into the initial stage
+        $this->syncUnlinkedLeadsToPipeline($pipeline);
+
         $stagesData = [];
         $totalPipelineValue = 0;
         $totalWeightedValue = 0;
@@ -171,7 +232,7 @@ class CrmOpportunityService
         foreach ($pipeline->stages as $stage) {
             $opportunities = CrmOpportunity::where('pipeline_id', $pipelineId)
                 ->where('stage_id', $stage->id)
-                ->with(['owner:id,name,avatar', 'customer:id,name,phone,email', 'company:id,name'])
+                ->with(['owner:id,name,avatar', 'customer:id,name,phone,email', 'company:id,name', 'lead:id,full_name,phone,email'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 

@@ -122,10 +122,27 @@ class CustomerController extends Controller
             'registered_at' => now(),
         ]);
 
+        // Auto-register customer into CRM Leads & Opportunities Pipeline so they appear on the Kanban board
+        try {
+            app(\App\Services\CrmLeadService::class)->createLead([
+                'customer_id' => $customer->id,
+                'first_name' => $customer->name,
+                'full_name' => $customer->name,
+                'email' => $customer->email,
+                'phone' => $customer->phone,
+                'status' => 'new',
+                'priority' => 'normal',
+                'owner_id' => auth()->id() ?? \App\Models\User::value('id'),
+                'notes' => 'Customer registered via Admin portal',
+            ], auth()->id() ?? \App\Models\User::value('id'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Could not auto-create CRM lead for customer {$customer->id}: " . $e->getMessage());
+        }
+
         return redirect()->route('admin.customers.index')
             ->with('success', app()->getLocale() === 'ar' 
-                ? "تم تسجيل العميل [{$customer->name}] بنجاح في قاعدة العملاء!" 
-                : "Customer [{$customer->name}] created successfully!");
+                ? "تم تسجيل العميل [{$customer->name}] بنجاح وإضافته لمسار العملاء المحتملين!" 
+                : "Customer [{$customer->name}] created successfully and added to CRM pipeline!");
     }
 
     public function show(int $id): View
