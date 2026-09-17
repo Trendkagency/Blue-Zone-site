@@ -228,4 +228,37 @@ class User extends Authenticatable implements FilamentUser
             'fcm_device_info' => 'array',
         ];
     }
+
+    /**
+     * CRM Relationships
+     */
+    public function crmAssignedLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmLead::class, 'owner_id');
+    }
+
+    public function crmAssignedOpportunities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmOpportunity::class, 'owner_id');
+    }
+
+    public function crmActivities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmActivity::class, 'assigned_to');
+    }
+
+    public function crmNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmNote::class);
+    }
+
+    public function crmCampaigns(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmCampaign::class, 'owner_id');
+    }
+
+    public function crmCompanies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmCompany::class, 'owner_id');
+    }
 }

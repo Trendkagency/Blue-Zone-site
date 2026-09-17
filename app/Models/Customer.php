@@ -13,6 +13,7 @@ class Customer extends Authenticatable
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
+        'company_id',
         'name',
         'email',
         'password',
@@ -116,5 +117,72 @@ class Customer extends Authenticatable
             }
         }
         return $list[0] ?? [];
+    }
+
+    /**
+     * CRM Relationships & Intelligence
+     */
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(CrmCompany::class, 'company_id');
+    }
+
+    public function crmLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmLead::class);
+    }
+
+    public function crmOpportunities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmOpportunity::class);
+    }
+
+    public function crmActivities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmActivity::class)->orderBy('due_at', 'desc');
+    }
+
+    public function crmNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CrmNote::class)->latest();
+    }
+
+    public function crmTags(): \Illuminate\Database\Eloquent\Relations\MorphToMany
+    {
+        return $this->morphToMany(CrmTag::class, 'taggable', 'crm_taggables', 'taggable_id', 'tag_id');
+    }
+
+    /**
+     * CRM Relationship Lifecycle intelligence (separate from operational status)
+     */
+    public function getCrmLifecycleAttribute(): string
+    {
+        $lastOrder = $this->orders()->where('status', 'delivered')->latest()->first();
+
+        if ($lastOrder && $lastOrder->created_at->diffInDays(now()) > 180) {
+            return 'inactive';
+        }
+
+        if ($lastOrder && $lastOrder->created_at->diffInDays(now()) > 90) {
+            return 'at_risk';
+        }
+
+        if ((float) $this->total_spent >= 5000 || $this->tier === 'Platinum') {
+            return 'vip';
+        }
+
+        if ($this->total_orders > 1) {
+            return 'repeat_customer';
+        }
+
+        if ($this->total_orders === 1) {
+            return 'customer';
+        }
+
+        if ($this->crmLeads()->exists()) {
+            return 'lead';
+        }
+
+        return 'prospect';
     }
 }

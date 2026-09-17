@@ -332,4 +332,16 @@ class CustomerController extends Controller
                 ? "تم الحذف النهائي لحساب العميل [{$name}] نهائياً!" 
                 : "Customer [{$name}] permanently deleted!");
     }
+
+    /**
+     * Display Customer 360 CRM profile.
+     */
+    public function crm360(int $id): View
+    {
+        $customer = Customer::with(['orders', 'company', 'crmLeads', 'crmOpportunities', 'crmActivities', 'crmNotes.user', 'crmTags'])->findOrFail($id);
+        $service = app(\App\Services\CrmCustomerService::class);
+        $profile = $service->getCustomer360($customer);
+
+        return view('admin.crm.customer-360', $profile);
+    }
 }

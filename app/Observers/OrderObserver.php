@@ -101,6 +101,15 @@ class OrderObserver
                 default      => 'fa-solid fa-clock-rotate-left text-amber-500',
             };
             $eventType = 'order_status_' . $status;
+
+            // Trigger CRM post-delivery follow-up automation
+            if ($status === 'delivered') {
+                try {
+                    app(\App\Services\CrmAutomationService::class)->handleOrderDelivered($order);
+                } catch (\Throwable $e) {
+                    Log::error("OrderObserver: Failed CRM follow-up automation for order #{$orderNum}: " . $e->getMessage());
+                }
+            }
         } elseif ($paymentChanged) {
             $title = "💳 Payment Update: #{$orderNum} ({$payment})";
             $body = "Payment status updated to " . ucfirst($payment) . " for Order #{$orderNum}.";

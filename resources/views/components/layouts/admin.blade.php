@@ -42,9 +42,72 @@
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*');
                     $isSalesActive = request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
+                    $isCrmActive = request()->routeIs('admin.crm.*');
                     $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
                     $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
                 @endphp
+
+                <!-- CRM & Sales Intelligence Dropdown -->
+                @if($u && ($u->hasPermission('crm.view') || $u->hasPermission('crm.*') || $u->hasPermission('crm.dashboard') || $u->hasPermission('crm.leads.view') || $u->hasPermission('crm.opportunities.view') || $u->hasPermission('*')))
+                    <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-crm">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-crm')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-users-rays sidebar-link-icon text-cyan-400"></i>
+                                <span>{{ __('crm.crm') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.crm.dashboard') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
+                                <i class="fa-solid fa-chart-pie text-xs text-sky-400"></i>
+                                <span>{{ __('crm.dashboard.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.leads.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-bullseye text-xs text-indigo-400"></i>
+                                <span>{{ __('crm.leads.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.opportunities.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-table-columns text-xs text-amber-400"></i>
+                                <span>{{ __('crm.opportunities.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.activities.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-list-check text-xs text-emerald-400"></i>
+                                <span>{{ __('crm.activities.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.companies.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-hospital-user text-xs text-blue-400"></i>
+                                <span>{{ __('crm.companies.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.campaigns.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-bullhorn text-xs text-purple-400"></i>
+                                <span>{{ __('crm.campaigns.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.pipelines.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.pipelines.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-route text-xs text-teal-400"></i>
+                                <span>{{ __('crm.pipelines.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.segments.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.segments.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-layer-group text-xs text-rose-400"></i>
+                                <span>{{ __('crm.segments.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.reports.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.crm.reports.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice text-xs text-cyan-400"></i>
+                                <span>{{ __('crm.reports.title') }}</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- 1. Catalog & Formulations Dropdown -->
                 @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products') || $u->hasPermission('products.create') || $u->hasPermission('products.edit')))

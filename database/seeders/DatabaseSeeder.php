@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BluezoneSeeder::class,
             NotificationSeeder::class,
+            CrmSeeder::class,
         ]);
     }
 }
