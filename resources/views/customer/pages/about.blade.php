@@ -195,36 +195,17 @@
         };
 
         // Header values
-        $defaultEyebrow = '';
-        $defaultHeadingPrefix = $isArabic ? 'عن' : 'About';
-        $defaultHeadingHighlight = $isArabic ? 'بلو زون' : 'Blue Zone';
-        $defaultDescription = $isArabic 
+        $eyebrow = '';
+        $headingPrefix = $isArabic ? 'عن' : 'About';
+        $headingHighlight = $isArabic ? 'بلو زون' : 'Blue Zone';
+        $sectionDesc = $isArabic 
             ? 'انطلاقاً من مفهوم المناطق الزرقاء (Blue Zones) — تلك المناطق التي يعيش فيها الناس حياة أطول وأكثر صحة — تتطلع بلو زون للصناعات الدوائية إلى تعزيز أنماط الحياة الصحية وجودة العيش من خلال تركيبات متقدمة عالية الجودة للصحة الخلوية والمكملات الغذائية المتخصصة.'
             : 'Inspired by the concept of Blue Zones—regions where people live longer, healthier lives— Blue Zone Pharmaceuticals envisions promoting healthier lives and enhanced well-being through high-quality nutraceutical and cellular health formulations.';
-        
-        $eyebrow = \App\Models\Setting::get("pillars_eyebrow_{$locale}", $defaultEyebrow);
-        $headingPrefix = \App\Models\Setting::get("pillars_heading_prefix_{$locale}", $defaultHeadingPrefix);
-        $headingHighlight = \App\Models\Setting::get("pillars_heading_highlight_{$locale}", $defaultHeadingHighlight);
-        $sectionDesc = \App\Models\Setting::get("pillars_description_{$locale}", $defaultDescription);
 
-        // Discard old placeholder text if present in database
-        if (str_contains($eyebrow, 'COMPREHENSIVE COGNITIVE') || str_contains($eyebrow, 'COGNITIVE SUPPORT')) {
-            $eyebrow = $defaultEyebrow;
-        }
-        if (str_contains($headingPrefix, 'THE 6 PILLARS') || str_contains($headingPrefix, 'ركائز بلو مايند')) {
-            $headingPrefix = $defaultHeadingPrefix;
-        }
-        if (trim($headingHighlight) === 'BLUE MIND' && $headingPrefix !== 'About') {
-            $headingHighlight = $defaultHeadingHighlight;
-        }
-        if (str_contains($sectionDesc, 'Fuel your mind') || str_contains($sectionDesc, 'safeguard your dietary intake')) {
-            $sectionDesc = $defaultDescription;
-        }
+        $centerTitle = $isArabic ? 'بلو زون' : 'BLUE ZONE';
+        $centerSubtitle = $isArabic ? 'الدوائية' : 'PHARMA';
 
-        $centerTitle = \App\Models\Setting::get("pillars_center_title_{$locale}", ($isArabic ? 'بلو زون' : 'BLUE ZONE'));
-        $centerSubtitle = \App\Models\Setting::get("pillars_center_subtitle_{$locale}", ($isArabic ? 'الدوائية' : 'PHARMA'));
-
-        // Default Pillars content definitions (About Blue Zone Core Elements)
+        // Verified Pillars content definitions (About Blue Zone Core Elements)
         $defaultPillars = [
             1 => [
                 'icon' => 'fa-solid fa-eye',
@@ -287,27 +268,13 @@
         for ($i = 1; $i <= count($defaultPillars); $i++) {
             $pDef = $defaultPillars[$i];
             $pad = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $num = \App\Models\Setting::get("pillars_item_{$i}_num", $pad);
-            $icon = \App\Models\Setting::get("pillars_item_{$i}_icon", $pDef['icon']);
-            $menuTitle = \App\Models\Setting::get("pillars_item_{$i}_menu_{$locale}", $pDef["menu_{$locale}"]);
-            $title = \App\Models\Setting::get("pillars_item_{$i}_title_{$locale}", $pDef["title_{$locale}"]);
-            $tag = \App\Models\Setting::get("pillars_item_{$i}_tag_{$locale}", $pDef["tag_{$locale}"]);
-            $desc = \App\Models\Setting::get("pillars_item_{$i}_desc_{$locale}", $pDef["desc_{$locale}"]);
-
-            if (str_contains($title, 'Cognitive Fuel') || str_contains($title, 'Neuro-Protection') || str_contains($desc, 'Fuel your mind')) {
-                $menuTitle = $pDef["menu_{$locale}"];
-                $title = $pDef["title_{$locale}"];
-                $tag = $pDef["tag_{$locale}"];
-                $desc = $pDef["desc_{$locale}"];
-            }
-
             $bluezonePillars[] = [
-                'num' => $num,
-                'icon' => $icon,
-                'menu_title' => $menuTitle,
-                'title' => $title,
-                'tag' => $tag,
-                'desc' => $desc,
+                'num' => $pad,
+                'icon' => $pDef['icon'],
+                'menu_title' => $pDef["menu_{$locale}"],
+                'title' => $pDef["title_{$locale}"],
+                'tag' => $pDef["tag_{$locale}"],
+                'desc' => $pDef["desc_{$locale}"],
             ];
         }
     @endphp
