@@ -20,6 +20,15 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LocationController;
+use App\Http\Controllers\Admin\Mr\AssignmentController as MrAssignmentController;
+use App\Http\Controllers\Admin\Mr\ClassificationController as MrClassificationController;
+use App\Http\Controllers\Admin\Mr\ContactController as MrContactController;
+use App\Http\Controllers\Admin\Mr\CycleController as MrCycleController;
+use App\Http\Controllers\Admin\Mr\GpsConfigController as MrGpsConfigController;
+use App\Http\Controllers\Admin\Mr\MrMapController;
+use App\Http\Controllers\Admin\Mr\MrReportController;
+use App\Http\Controllers\Admin\Mr\SpecialtyController as MrSpecialtyController;
+use App\Http\Controllers\Admin\Mr\VisitController as MrVisitController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfflineSaleController;
 use App\Http\Controllers\Admin\OrderController;
@@ -176,89 +185,175 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{id}/crm-360', [CustomerController::class, 'crm360'])->middleware('permission:crm.contacts.view')->name('crm-360');
         });
 
-        // Full CRM System
+        // Native Medical Representative (MR) Visit Management System
+        Route::prefix('mr')->name('mr.')->group(function () {
+            // Live Ops Map
+            Route::get('/map', [MrMapController::class, 'index'])->name('live-map');
+
+            // Doctors & Clinics (Contacts)
+            Route::prefix('contacts')->name('contacts.')->group(function () {
+                Route::get('/', [MrContactController::class, 'index'])->name('index');
+                Route::get('/create', [MrContactController::class, 'create'])->name('create');
+                Route::post('/', [MrContactController::class, 'store'])->name('store');
+                Route::post('/resolve-map-url', [MrContactController::class, 'resolveMapUrl'])->name('resolve_map_url');
+                Route::get('/{id}', [MrContactController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [MrContactController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [MrContactController::class, 'update'])->name('update');
+                Route::delete('/{id}', [MrContactController::class, 'destroy'])->name('destroy');
+            });
+
+            // Doctor Classifications (A+/A/B/C)
+            Route::prefix('classifications')->name('classifications.')->group(function () {
+                Route::get('/', [MrClassificationController::class, 'index'])->name('index');
+                Route::post('/', [MrClassificationController::class, 'store'])->name('store');
+                Route::put('/{id}', [MrClassificationController::class, 'update'])->name('update');
+                Route::delete('/{id}', [MrClassificationController::class, 'destroy'])->name('destroy');
+            });
+
+            // Medical Specialties
+            Route::prefix('specialties')->name('specialties.')->group(function () {
+                Route::get('/', [MrSpecialtyController::class, 'index'])->name('index');
+                Route::post('/', [MrSpecialtyController::class, 'store'])->name('store');
+                Route::put('/{id}', [MrSpecialtyController::class, 'update'])->name('update');
+                Route::delete('/{id}', [MrSpecialtyController::class, 'destroy'])->name('destroy');
+            });
+
+            // Doctor Assignments
+            Route::prefix('assignments')->name('assignments.')->group(function () {
+                Route::get('/', [MrAssignmentController::class, 'index'])->name('index');
+                Route::post('/', [MrAssignmentController::class, 'store'])->name('store');
+                Route::delete('/{id}', [MrAssignmentController::class, 'destroy'])->name('destroy');
+            });
+
+            // Visit Cycles
+            Route::prefix('cycles')->name('cycles.')->group(function () {
+                Route::get('/', [MrCycleController::class, 'index'])->name('index');
+                Route::post('/', [MrCycleController::class, 'store'])->name('store');
+                Route::put('/{id}', [MrCycleController::class, 'update'])->name('update');
+                Route::delete('/{id}', [MrCycleController::class, 'destroy'])->name('destroy');
+            });
+
+            // Executed Visits & GPS Log
+            Route::prefix('visits')->name('visits.')->group(function () {
+                Route::get('/', [MrVisitController::class, 'index'])->name('index');
+                Route::get('/{id}', [MrVisitController::class, 'show'])->name('show');
+            });
+
+            // Reports (§8)
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/coverage', [MrReportController::class, 'coverage'])->name('coverage');
+                Route::get('/performance', [MrReportController::class, 'performance'])->name('performance');
+            });
+
+            // GPS Geofence & Rules Config
+            Route::prefix('gps-config')->name('gps-config.')->group(function () {
+                Route::get('/', [MrGpsConfigController::class, 'index'])->name('index');
+                Route::post('/global', [MrGpsConfigController::class, 'updateGlobal'])->name('update-global');
+                Route::post('/rep', [MrGpsConfigController::class, 'storeRepConfig'])->name('store-rep');
+                Route::delete('/rep/{id}', [MrGpsConfigController::class, 'destroyRepConfig'])->name('destroy-rep');
+            });
+        });
+
+        // Redirects to Native MR Routes for Backward Compatibility
+        Route::get('/mr-live-ops-map', fn () => redirect()->route('admin.mr.live-map'))->name('mr-live-ops-map');
+        Route::get('/contacts', fn () => redirect()->route('admin.mr.contacts.index'))->name('contacts.index');
+        Route::get('/contacts/create', fn () => redirect()->route('admin.mr.contacts.create'))->name('contacts.create');
+        Route::get('/contact-classifications', fn () => redirect()->route('admin.mr.classifications.index'))->name('contact-classifications.index');
+        Route::get('/contact-specialties', fn () => redirect()->route('admin.mr.specialties.index'))->name('contact-specialties.index');
+        Route::get('/contact-assignments', fn () => redirect()->route('admin.mr.assignments.index'))->name('contact-assignments.index');
+        Route::get('/visit-cycles', fn () => redirect()->route('admin.mr.cycles.index'))->name('visit-cycles.index');
+        Route::get('/visits', fn () => redirect()->route('admin.mr.visits.index'))->name('visits.index');
+        Route::get('/unvisited-coverage-report', fn () => redirect()->route('admin.mr.reports.coverage'))->name('unvisited-coverage-report');
+        Route::get('/rep-performance-report', fn () => redirect()->route('admin.mr.reports.performance'))->name('rep-performance-report');
+
+        Route::prefix('mr-crm')->name('mr-crm.')->group(function () {
+            Route::get('/', fn () => redirect()->route('admin.mr.reports.performance'))->name('dashboard');
+            Route::get('/live-map', fn () => redirect()->route('admin.mr.live-map'))->name('live-map');
+            Route::get('/contacts', fn () => redirect()->route('admin.mr.contacts.index'))->name('contacts');
+            Route::get('/assignments', fn () => redirect()->route('admin.mr.assignments.index'))->name('assignments');
+            Route::get('/reports', fn () => redirect()->route('admin.mr.reports.coverage'))->name('reports');
+        });
+
+        // Full Commercial CRM System (Leads, Pipelines, Opportunities, Customer 360, Activities)
         Route::prefix('crm')->name('crm.')->group(function () {
             // Dashboard
-            Route::get('/', [CrmController::class, 'index'])->middleware('permission:crm.dashboard')->name('dashboard');
+            Route::get('/', [CrmController::class, 'index'])->name('dashboard');
 
             // Leads
             Route::prefix('leads')->name('leads.')->group(function () {
-                Route::get('/', [CrmLeadController::class, 'index'])->middleware('permission:crm.leads.view')->name('index');
-                Route::get('/create', [CrmLeadController::class, 'create'])->middleware('permission:crm.leads.create')->name('create');
-                Route::post('/', [CrmLeadController::class, 'store'])->middleware('permission:crm.leads.create')->name('store');
-                Route::get('/export', [CrmLeadController::class, 'export'])->middleware('permission:crm.reports.export')->name('export');
-                Route::get('/import', [CrmLeadImportController::class, 'show'])->middleware('permission:crm.leads.create')->name('import');
-                Route::post('/import', [CrmLeadImportController::class, 'import'])->middleware('permission:crm.leads.create')->name('import.process');
-                Route::get('/import/template', [CrmLeadImportController::class, 'downloadTemplate'])->middleware('permission:crm.leads.create')->name('import.template');
-                Route::get('/check-duplicates', [CrmLeadController::class, 'checkDuplicates'])->middleware('permission:crm.leads.view')->name('check-duplicates');
-                Route::post('/bulk-assign', [CrmLeadController::class, 'bulkAssign'])->middleware('permission:crm.leads.assign')->name('bulk-assign');
-                Route::post('/bulk-status', [CrmLeadController::class, 'bulkStatus'])->middleware('permission:crm.leads.edit')->name('bulk-status');
-                Route::get('/{id}', [CrmLeadController::class, 'show'])->middleware('permission:crm.leads.view')->name('show');
-                Route::get('/{id}/edit', [CrmLeadController::class, 'edit'])->middleware('permission:crm.leads.edit')->name('edit');
-                Route::put('/{id}', [CrmLeadController::class, 'update'])->middleware('permission:crm.leads.edit')->name('update');
-                Route::delete('/{id}', [CrmLeadController::class, 'destroy'])->middleware('permission:crm.leads.delete')->name('destroy');
-                Route::post('/{id}/convert', [CrmLeadController::class, 'convert'])->middleware('permission:crm.leads.convert')->name('convert');
+                Route::get('/', [CrmLeadController::class, 'index'])->name('index');
+                Route::get('/create', [CrmLeadController::class, 'create'])->name('create');
+                Route::post('/', [CrmLeadController::class, 'store'])->name('store');
+                Route::get('/export', [CrmLeadController::class, 'export'])->name('export');
+                Route::get('/check-duplicates', [CrmLeadController::class, 'checkDuplicates'])->name('check-duplicates');
+                Route::post('/bulk-assign', [CrmLeadController::class, 'bulkAssign'])->name('bulk-assign');
+                Route::post('/bulk-status', [CrmLeadController::class, 'bulkStatus'])->name('bulk-status');
+                Route::get('/{id}', [CrmLeadController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [CrmLeadController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [CrmLeadController::class, 'update'])->name('update');
+                Route::delete('/{id}', [CrmLeadController::class, 'destroy'])->name('destroy');
+                Route::post('/{id}/convert', [CrmLeadController::class, 'convert'])->name('convert');
             });
 
             // Opportunities
             Route::prefix('opportunities')->name('opportunities.')->group(function () {
-                Route::get('/', [CrmOpportunityController::class, 'index'])->middleware('permission:crm.opportunities.view')->name('index');
-                Route::get('/create', [CrmOpportunityController::class, 'create'])->middleware('permission:crm.opportunities.create')->name('create');
-                Route::post('/', [CrmOpportunityController::class, 'store'])->middleware('permission:crm.opportunities.create')->name('store');
-                Route::get('/{id}', [CrmOpportunityController::class, 'show'])->middleware('permission:crm.opportunities.view')->name('show');
-                Route::post('/{id}/stage', [CrmOpportunityController::class, 'updateStage'])->middleware('permission:crm.opportunities.edit')->name('update-stage');
-                Route::delete('/{id}', [CrmOpportunityController::class, 'destroy'])->middleware('permission:crm.opportunities.delete')->name('destroy');
+                Route::get('/', [CrmOpportunityController::class, 'index'])->name('index');
+                Route::get('/create', [CrmOpportunityController::class, 'create'])->name('create');
+                Route::post('/', [CrmOpportunityController::class, 'store'])->name('store');
+                Route::get('/{id}', [CrmOpportunityController::class, 'show'])->name('show');
+                Route::post('/{id}/stage', [CrmOpportunityController::class, 'updateStage'])->name('update-stage');
+                Route::delete('/{id}', [CrmOpportunityController::class, 'destroy'])->name('destroy');
             });
 
             // Activities / Tasks
             Route::prefix('activities')->name('activities.')->group(function () {
-                Route::get('/', [CrmActivityController::class, 'index'])->middleware('permission:crm.activities.view')->name('index');
-                Route::get('/create', [CrmActivityController::class, 'create'])->middleware('permission:crm.activities.create')->name('create');
-                Route::post('/', [CrmActivityController::class, 'store'])->middleware('permission:crm.activities.create')->name('store');
-                Route::post('/{id}/complete', [CrmActivityController::class, 'complete'])->middleware('permission:crm.activities.edit')->name('complete');
-                Route::post('/{id}/cancel', [CrmActivityController::class, 'cancel'])->middleware('permission:crm.activities.edit')->name('cancel');
-                Route::delete('/{id}', [CrmActivityController::class, 'destroy'])->middleware('permission:crm.activities.delete')->name('destroy');
+                Route::get('/', [CrmActivityController::class, 'index'])->name('index');
+                Route::get('/create', [CrmActivityController::class, 'create'])->name('create');
+                Route::post('/', [CrmActivityController::class, 'store'])->name('store');
+                Route::post('/{id}/complete', [CrmActivityController::class, 'complete'])->name('complete');
+                Route::post('/{id}/cancel', [CrmActivityController::class, 'cancel'])->name('cancel');
+                Route::delete('/{id}', [CrmActivityController::class, 'destroy'])->name('destroy');
             });
 
             // B2B Companies
             Route::prefix('companies')->name('companies.')->group(function () {
-                Route::get('/', [CrmCompanyController::class, 'index'])->middleware('permission:crm.companies.view')->name('index');
-                Route::get('/create', [CrmCompanyController::class, 'create'])->middleware('permission:crm.companies.create')->name('create');
-                Route::post('/', [CrmCompanyController::class, 'store'])->middleware('permission:crm.companies.create')->name('store');
-                Route::get('/{id}', [CrmCompanyController::class, 'show'])->middleware('permission:crm.companies.view')->name('show');
-                Route::get('/{id}/edit', [CrmCompanyController::class, 'edit'])->middleware('permission:crm.companies.edit')->name('edit');
-                Route::put('/{id}', [CrmCompanyController::class, 'update'])->middleware('permission:crm.companies.edit')->name('update');
-                Route::delete('/{id}', [CrmCompanyController::class, 'destroy'])->middleware('permission:crm.companies.delete')->name('destroy');
+                Route::get('/', [CrmCompanyController::class, 'index'])->name('index');
+                Route::get('/create', [CrmCompanyController::class, 'create'])->name('create');
+                Route::post('/', [CrmCompanyController::class, 'store'])->name('store');
+                Route::get('/{id}', [CrmCompanyController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [CrmCompanyController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [CrmCompanyController::class, 'update'])->name('update');
+                Route::delete('/{id}', [CrmCompanyController::class, 'destroy'])->name('destroy');
             });
 
             // Marketing Campaigns
             Route::prefix('campaigns')->name('campaigns.')->group(function () {
-                Route::get('/', [CrmCampaignController::class, 'index'])->middleware('permission:crm.campaigns.manage')->name('index');
-                Route::get('/create', [CrmCampaignController::class, 'create'])->middleware('permission:crm.campaigns.manage')->name('create');
-                Route::post('/', [CrmCampaignController::class, 'store'])->middleware('permission:crm.campaigns.manage')->name('store');
-                Route::get('/{id}', [CrmCampaignController::class, 'show'])->middleware('permission:crm.campaigns.manage')->name('show');
-                Route::get('/{id}/edit', [CrmCampaignController::class, 'edit'])->middleware('permission:crm.campaigns.manage')->name('edit');
-                Route::put('/{id}', [CrmCampaignController::class, 'update'])->middleware('permission:crm.campaigns.manage')->name('update');
-                Route::delete('/{id}', [CrmCampaignController::class, 'destroy'])->middleware('permission:crm.campaigns.manage')->name('destroy');
+                Route::get('/', [CrmCampaignController::class, 'index'])->name('index');
+                Route::get('/create', [CrmCampaignController::class, 'create'])->name('create');
+                Route::post('/', [CrmCampaignController::class, 'store'])->name('store');
+                Route::get('/{id}', [CrmCampaignController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [CrmCampaignController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [CrmCampaignController::class, 'update'])->name('update');
+                Route::delete('/{id}', [CrmCampaignController::class, 'destroy'])->name('destroy');
             });
 
             // Pipelines & Stages
             Route::prefix('pipelines')->name('pipelines.')->group(function () {
-                Route::get('/', [CrmPipelineController::class, 'index'])->middleware('permission:crm.pipelines.manage')->name('index');
-                Route::post('/', [CrmPipelineController::class, 'store'])->middleware('permission:crm.pipelines.manage')->name('store');
-                Route::post('/{id}/stages', [CrmPipelineController::class, 'storeStage'])->middleware('permission:crm.pipelines.manage')->name('stages.store');
+                Route::get('/', [CrmPipelineController::class, 'index'])->name('index');
+                Route::post('/', [CrmPipelineController::class, 'store'])->name('store');
+                Route::post('/{id}/stages', [CrmPipelineController::class, 'storeStage'])->name('stages.store');
             });
 
             // Dynamic Segments
             Route::prefix('segments')->name('segments.')->group(function () {
-                Route::get('/', [CrmSegmentController::class, 'index'])->middleware('permission:crm.segments.manage')->name('index');
-                Route::get('/{id}', [CrmSegmentController::class, 'show'])->middleware('permission:crm.segments.manage')->name('show');
-                Route::post('/refresh', [CrmSegmentController::class, 'refresh'])->middleware('permission:crm.segments.manage')->name('refresh');
+                Route::get('/', [CrmSegmentController::class, 'index'])->name('index');
+                Route::get('/{id}', [CrmSegmentController::class, 'show'])->name('show');
+                Route::post('/refresh', [CrmSegmentController::class, 'refresh'])->name('refresh');
             });
 
             // Reports
             Route::prefix('reports')->name('reports.')->group(function () {
-                Route::get('/', [CrmReportController::class, 'index'])->middleware('permission:crm.reports.view')->name('index');
+                Route::get('/', [CrmReportController::class, 'index'])->name('index');
             });
         });
 

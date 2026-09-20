@@ -29,9 +29,10 @@ Route::post('/api/fcm/register-token', [\App\Http\Controllers\Admin\Notification
 Route::get('/api/geo/countries/{id}/cities', [\App\Http\Controllers\Admin\CityController::class, 'getCitiesByCountry'])
     ->name('api.geo.cities');
 
-// Load Customer and Admin Routes
+// Load Customer, Admin, and MR Routes
 require __DIR__ . '/customer.php';
 require __DIR__ . '/admin.php';
+require __DIR__ . '/mr.php';
 
 // Database Migration Utility Endpoint
 Route::get('/migrate-database', function () {

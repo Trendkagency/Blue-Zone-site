@@ -24,7 +24,7 @@ class SecurityAndPerformanceHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=*');
 
         // Cross-Origin-Opener-Policy: Only set on secure/trustworthy origins per W3C specification
         // (Prevents browser console warnings on local non-SSL domains like http://blue-zone.test)

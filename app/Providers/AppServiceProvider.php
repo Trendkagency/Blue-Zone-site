@@ -26,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\FcmService::class, function () {
             return \App\Services\FcmService::getInstance();
         });
+
+        // Singleton pattern: GpsValidationService for Medical Representative visit tracking
+        $this->app->singleton(\App\Services\Mr\GpsValidationService::class, function () {
+            return \App\Services\Mr\GpsValidationService::getInstance();
+        });
     }
 
     /**
@@ -53,10 +58,11 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \App\Services\CurrencyService::code(); ?>";
         });
 
-        // Observer pattern: Orders, Inventory items, and movements observers
+        // Observer pattern: Orders, Inventory items, movements, and MR visits observers
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\InventoryItem::observe(\App\Observers\InventoryItemObserver::class);
         \App\Models\InventoryMovement::observe(\App\Observers\InventoryMovementObserver::class);
+        \App\Models\Mr\Visit::observe(\App\Observers\VisitObserver::class);
 
         if ($this->app->environment('production') || config('app.env') === 'production' || str_starts_with(config('app.url', ''), 'https://')) {
             URL::forceScheme('https');

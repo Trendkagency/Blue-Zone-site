@@ -42,72 +42,120 @@
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*');
                     $isSalesActive = request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
+                    $isMrActive = request()->routeIs('admin.mr.*') || request()->is('admin/mr*');
                     $isCrmActive = request()->routeIs('admin.crm.*');
                     $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
                     $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
                 @endphp
 
-                <!-- CRM & Sales Intelligence Dropdown -->
-                @if($u && ($u->hasPermission('crm.view') || $u->hasPermission('crm.*') || $u->hasPermission('crm.dashboard') || $u->hasPermission('crm.leads.view') || $u->hasPermission('crm.opportunities.view') || $u->hasPermission('*')) && Route::has('admin.crm.dashboard'))
-                    <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-crm">
-                        <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-crm')">
-                            <div class="sidebar-dropdown-label">
-                                <i class="fa-solid fa-users-rays sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ __('crm.crm') }}</span>
-                            </div>
-                            <div class="sidebar-dropdown-meta">
-                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
-                            </div>
-                        </button>
-                        <div class="sidebar-submenu">
-                            <a href="{{ route('admin.crm.dashboard') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
-                                <i class="fa-solid fa-chart-pie text-xs text-sky-400"></i>
-                                <span>{{ __('crm.dashboard.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.leads.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-bullseye text-xs text-indigo-400"></i>
-                                <span>{{ __('crm.leads.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.opportunities.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-table-columns text-xs text-amber-400"></i>
-                                <span>{{ __('crm.opportunities.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.activities.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-list-check text-xs text-emerald-400"></i>
-                                <span>{{ __('crm.activities.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.companies.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-hospital-user text-xs text-blue-400"></i>
-                                <span>{{ __('crm.companies.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.campaigns.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-bullhorn text-xs text-purple-400"></i>
-                                <span>{{ __('crm.campaigns.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.pipelines.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.pipelines.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-route text-xs text-teal-400"></i>
-                                <span>{{ __('crm.pipelines.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.segments.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.segments.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-layer-group text-xs text-rose-400"></i>
-                                <span>{{ __('crm.segments.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.crm.reports.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.crm.reports.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-file-invoice text-xs text-cyan-400"></i>
-                                <span>{{ __('crm.reports.title') }}</span>
-                            </a>
+                <!-- Medical Representative (MR) CRM Dropdown -->
+                <div class="sidebar-dropdown-group {{ $isMrActive ? 'is-open' : '' }}" id="group-mr-crm">
+                    <button type="button" class="sidebar-dropdown-btn {{ $isMrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-mr-crm')">
+                        <div class="sidebar-dropdown-label">
+                            <i class="fa-solid fa-user-doctor sidebar-link-icon text-cyan-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'نظام المندوب الطبي (MR CRM)' : 'Medical Rep CRM (MR)' }}</span>
                         </div>
+                        <div class="sidebar-dropdown-meta">
+                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                        </div>
+                    </button>
+                    <div class="sidebar-submenu">
+                        <a href="{{ route('admin.mr.live-map') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.live-map') ? 'active' : '' }}">
+                            <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة (Live Map)' : 'Live Ops Field Map' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.contacts.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.contacts.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-stethoscope text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الأطباء والعيادات (Contacts)' : 'Doctors & Clinics (Contacts)' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.classifications.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.classifications.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-ranking-star text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'تصنيفات الأطباء (A+/A/B/C)' : 'Doctor Classes (A+/A/B/C)' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.specialties.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.specialties.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-heart-pulse text-xs text-rose-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'التخصصات الطبية' : 'Medical Specialties' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.assignments.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.assignments.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-check text-xs text-indigo-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'توزيع وتعيين الأطباء' : 'Doctor Assignments' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.cycles.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.cycles.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-calendar-days text-xs text-purple-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'دورات الزيارات (Cycles)' : 'Visit Cycles' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.visits.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.visits.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-location-dot text-xs text-cyan-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية (GPS)' : 'Executed Visits & GPS Log' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.reports.coverage') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.coverage') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chart-column text-xs text-teal-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'تقرير التغطية والأطباء غير المزارين' : 'Doctor Coverage Report' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.reports.performance') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.performance') ? 'active' : '' }}">
+                            <i class="fa-solid fa-trophy text-xs text-yellow-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'بطاقة أداء المناديب (Scorecard)' : 'Rep Performance Scorecard' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.gps-config.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.gps-config.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-satellite-dish text-xs text-purple-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وقواعد الـ GPS' : 'GPS Geofence & Rules' }}</span>
+                        </a>
+                        <a href="{{ url('/mr') }}" target="_blank"
+                            class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg">
+                            <i class="fa-solid fa-mobile-screen-button text-xs text-cyan-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية (MR Portal) ↗' : 'MR Mobile Portal ↗' }}</span>
+                        </a>
                     </div>
-                @endif
+                </div>
+
+                <!-- Commercial Sales CRM Dropdown -->
+                <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-sales-crm">
+                    <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales-crm')">
+                        <div class="sidebar-dropdown-label">
+                            <i class="fa-solid fa-briefcase sidebar-link-icon text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء (Sales CRM)' : 'Commercial Sales CRM' }}</span>
+                        </div>
+                        <div class="sidebar-dropdown-meta">
+                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                        </div>
+                    </button>
+                    <div class="sidebar-submenu">
+                        <a href="{{ route('admin.crm.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
+                            <i class="fa-solid fa-chart-pie text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الـ CRM' : 'CRM Dashboard' }}</span>
+                        </a>
+                        <a href="{{ route('admin.crm.leads.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-tag text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'العملاء المحتملين (Leads)' : 'Leads Pipeline' }}</span>
+                        </a>
+                        <a href="{{ route('admin.crm.opportunities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-handshake text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الصفقات والفرص (Deals)' : 'Deals & Kanban' }}</span>
+                        </a>
+                        <a href="{{ route('admin.crm.activities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-list-check text-xs text-purple-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'المهام والأنشطة' : 'Activities & Tasks' }}</span>
+                        </a>
+                        <a href="{{ route('admin.crm.companies.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-building text-xs text-indigo-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'حسابات الشركات (B2B)' : 'Corporate Accounts' }}</span>
+                        </a>
+                        <a href="{{ route('admin.crm.campaigns.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الحملات التسويقية' : 'Marketing Campaigns' }}</span>
+                        </a>
+                    </div>
+                </div>
 
                 <!-- 1. Catalog & Formulations Dropdown -->
                 @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products') || $u->hasPermission('products.create') || $u->hasPermission('products.edit')))
@@ -614,7 +662,7 @@
                                     <i class="fa-solid fa-shield-keyhole" style="width: 18px; color: #0284c7;"></i>
                                     <span>{{ __('admin.profile.password') }}</span>
                                 </a>
-                                @if($u->hasPermission('settings.view') || $u->hasPermission('settings') || $u->isSuperAdmin())
+                                @if($u && ($u->hasPermission('settings.view') || $u->hasPermission('settings') || (method_exists($u, 'isSuperAdmin') && $u->isSuperAdmin())))
                                     <a href="{{ route('admin.settings.index') }}" class="admin-dropdown-item">
                                         <i class="fa-solid fa-sliders" style="width: 18px; color: #10b981;"></i>
                                         <span>{{ __('admin.menu.settings') }}</span>
@@ -1389,21 +1437,41 @@
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 1.25rem;
+            padding: 0.75rem;
             box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 640px) {
+            .bz-fcm-modal-backdrop {
+                padding: 1.25rem;
+            }
         }
 
         .bz-fcm-modal-dialog {
             background: var(--color-surface, #FFFFFF);
             color: var(--color-text, #1E293B);
             border: 1px solid rgba(10, 79, 120, 0.2);
-            border-radius: 1.5rem;
-            max-width: 540px;
+            border-radius: 1.25rem;
+            max-width: 520px;
             width: 100%;
+            max-height: calc(100vh - 1.5rem);
+            max-height: calc(100dvh - 1.5rem);
             box-shadow: 0 25px 50px -12px rgba(10, 79, 120, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
             position: relative;
+            box-sizing: border-box;
+            margin: auto;
             animation: bzModalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @media (min-width: 640px) {
+            .bz-fcm-modal-dialog {
+                border-radius: 1.5rem;
+                max-height: calc(100vh - 2.5rem);
+                max-height: calc(100dvh - 2.5rem);
+            }
         }
 
         .dark .bz-fcm-modal-dialog {
@@ -1412,16 +1480,36 @@
             border-color: rgba(255, 255, 255, 0.1);
         }
 
+        .bz-fcm-modal-body {
+            padding: 1.25rem 1rem 1rem 1rem;
+            text-align: start;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 640px) {
+            .bz-fcm-modal-body {
+                padding: 2rem 2rem 1.75rem 2rem;
+            }
+        }
+
         .bz-config-card {
             border: 1.5px solid var(--color-border, #E2E8F0);
             border-radius: 1rem;
-            padding: 1rem 1.15rem;
+            padding: 0.875rem 1rem;
             cursor: pointer;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: flex-start;
-            gap: 0.875rem;
+            gap: 0.75rem;
             background: var(--color-bg-subtle, rgba(0,0,0,0.02));
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 640px) {
+            .bz-config-card {
+                padding: 1rem 1.15rem;
+                gap: 0.875rem;
+            }
         }
 
         .dark .bz-config-card {
@@ -1457,6 +1545,47 @@
             background: rgba(100, 116, 139, 0.15);
         }
 
+        .bz-sound-config-row {
+            background: var(--color-bg-subtle, rgba(0,0,0,0.03));
+            border: 1.5px solid var(--color-border, #E2E8F0);
+            border-radius: 1rem;
+            padding: 0.85rem 0.95rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 480px) {
+            .bz-sound-config-row {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.875rem;
+                padding: 0.95rem 1.15rem;
+            }
+        }
+
+        .dark .bz-sound-config-row {
+            border-color: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .bz-sound-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.65rem;
+            width: 100%;
+        }
+
+        @media (min-width: 480px) {
+            .bz-sound-actions {
+                justify-content: flex-end;
+                width: auto;
+            }
+        }
+
         .bz-sound-toggle-track {
             width: 48px;
             height: 26px;
@@ -1465,6 +1594,7 @@
             position: relative;
             cursor: pointer;
             transition: background-color 0.25s;
+            flex-shrink: 0;
         }
 
         .dark .bz-sound-toggle-track {
@@ -1510,26 +1640,26 @@
 
             <!-- Close Cross Button -->
             <button type="button" onclick="closeFcmPermissionModal(3)"
-                style="position: absolute; top: 1.15rem; {{ app()->getLocale() == 'ar' ? 'left: 1.15rem;' : 'right: 1.15rem;' }} background: rgba(0,0,0,0.06); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-muted); transition: all 0.2s;"
+                style="position: absolute; top: 1rem; {{ app()->getLocale() == 'ar' ? 'left: 1rem;' : 'right: 1rem;' }} background: rgba(0,0,0,0.06); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-muted); transition: all 0.2s;"
                 onmouseover="this.style.background='rgba(0,0,0,0.12)'"
                 onmouseout="this.style.background='rgba(0,0,0,0.06)'" aria-label="Close">
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
             <!-- STATE 1: Professional Notification & Sound Configurator -->
-            <div id="fcmModalStatePrompt" style="padding: 2rem 2rem 1.75rem 2rem; text-align: start;">
+            <div id="fcmModalStatePrompt" class="bz-fcm-modal-body">
                 <!-- Header with Animated Aura Icon -->
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="width: 54px; height: 54px; border-radius: 1rem; background: linear-gradient(135deg, rgba(10, 79, 120, 0.15), rgba(2, 132, 199, 0.25)); border: 1.5px solid rgba(2, 132, 199, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.3);">
-                        <i class="fa-solid fa-sliders text-2xl text-sky-600 dark:text-sky-400"></i>
+                <div style="display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.25rem;">
+                    <div style="width: 46px; height: 46px; border-radius: 0.875rem; background: linear-gradient(135deg, rgba(10, 79, 120, 0.15), rgba(2, 132, 199, 0.25)); border: 1.5px solid rgba(2, 132, 199, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.3);">
+                        <i class="fa-solid fa-sliders text-xl text-sky-600 dark:text-sky-400"></i>
                     </div>
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                            <h3 style="font-size: 1.25rem; font-weight: 900; color: var(--color-text); margin: 0;">
+                            <h3 style="font-size: 1.1rem; line-height: 1.25; font-weight: 900; color: var(--color-text); margin: 0;">
                                 {{ app()->getLocale() == 'ar' ? 'إعدادات وتخصيص إشعارات النظام' : 'Notification & Sound Preferences' }}
                             </h3>
                         </div>
-                        <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0; line-height: 1.4;">
+                        <p style="font-size: 0.775rem; color: var(--color-text-muted); margin: 0; line-height: 1.35;">
                             {{ app()->getLocale() == 'ar'
                                 ? 'حدد خيارك لاستلام الإشعارات المنبثقة وتشغيل النغمة الصوتية للأوامر والمخزون.'
                                 : 'Configure push alert permissions and audio chime feedback for live store events.' }}
@@ -1538,26 +1668,26 @@
                 </div>
 
                 <!-- Interactive Choices Container -->
-                <div style="display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
 
                     <!-- CHOICE 1: Allow Push Notifications (YES) -->
                     <div id="choiceCardAllow" class="bz-config-card selected-allow" onclick="selectNotificationChoice('allow')">
                         <div style="margin-top: 2px;">
-                            <div id="radioIndicatorAllow" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #0284C7; display: flex; align-items: center; justify-content: center; background: #0284C7;">
+                            <div id="radioIndicatorAllow" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #0284C7; display: flex; align-items: center; justify-content: center; background: #0284C7; flex-shrink: 0;">
                                 <div style="width: 8px; height: 8px; border-radius: 50%; background: #FFFFFF;"></div>
                             </div>
                         </div>
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.25rem;">
-                                <strong style="font-size: 0.9375rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.25rem;">
+                                <strong style="font-size: 0.875rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fa-solid fa-bell text-emerald-500"></i>
                                     <span>{{ app()->getLocale() == 'ar' ? 'نعم، السماح بالإشعارات الفورية (موصى به)' : 'Yes, Allow Real-Time Notifications' }}</span>
                                 </strong>
-                                <span class="badge badge-success text-[10px] font-bold" style="padding: 0.2rem 0.5rem;">
+                                <span class="badge badge-success text-[10px] font-bold" style="padding: 0.15rem 0.45rem;">
                                     {{ app()->getLocale() == 'ar' ? 'موصى به' : 'Recommended' }}
                                 </span>
                             </div>
-                            <div style="font-size: 0.775rem; color: var(--color-text-muted); line-height: 1.4;">
+                            <div style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.35;">
                                 {{ app()->getLocale() == 'ar'
                                     ? 'استلام تنبيهات سطح المكتب اللحظية للطلبات الجديدة، وتنبيهات نفاد المخزون والتحويلات.'
                                     : 'Receive live desktop alerts for new orders, critical inventory warnings, and transfers.' }}
@@ -1568,18 +1698,18 @@
                     <!-- CHOICE 2: Do Not Allow / Mute (NOT ALLOW) -->
                     <div id="choiceCardDeny" class="bz-config-card" onclick="selectNotificationChoice('deny')">
                         <div style="margin-top: 2px;">
-                            <div id="radioIndicatorDeny" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #94A3B8; display: flex; align-items: center; justify-content: center; background: transparent;">
+                            <div id="radioIndicatorDeny" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #94A3B8; display: flex; align-items: center; justify-content: center; background: transparent; flex-shrink: 0;">
                                 <div style="width: 8px; height: 8px; border-radius: 50%; background: transparent;"></div>
                             </div>
                         </div>
-                        <div style="flex: 1;">
+                        <div style="flex: 1; min-width: 0;">
                             <div style="margin-bottom: 0.25rem;">
-                                <strong style="font-size: 0.9375rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                                <strong style="font-size: 0.875rem; color: var(--color-text); font-weight: 800; display: flex; align-items: center; gap: 0.4rem;">
                                     <i class="fa-solid fa-bell-slash text-slate-400"></i>
                                     <span>{{ app()->getLocale() == 'ar' ? 'عدم السماح / كتم الإشعارات المنبثقة' : 'Do Not Allow / Mute Push Alerts' }}</span>
                                 </strong>
                             </div>
-                            <div style="font-size: 0.775rem; color: var(--color-text-muted); line-height: 1.4;">
+                            <div style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.35;">
                                 {{ app()->getLocale() == 'ar'
                                     ? 'تعطيل الإشعارات المنبثقة على هذا الجهاز. يمكنك مراجعة الإشعارات دائماً داخل جرس التنبيهات.'
                                     : 'Disable desktop popups on this browser. Notifications will still be visible in your top bell ledger.' }}
@@ -1588,25 +1718,25 @@
                     </div>
 
                     <!-- SOUND CONFIGURATION & TEST CHIME ROW -->
-                    <div style="background: var(--color-bg-subtle, rgba(0,0,0,0.03)); border: 1.5px solid var(--color-border, #E2E8F0); border-radius: 1rem; padding: 0.95rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-                        <div style="display: flex; align-items: center; gap: 0.875rem;">
-                            <div style="width: 38px; height: 38px; border-radius: 0.75rem; background: rgba(2, 132, 199, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div class="bz-sound-config-row">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; min-width: 0;">
+                            <div style="width: 36px; height: 36px; border-radius: 0.75rem; background: rgba(2, 132, 199, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                 <i id="soundIconState" class="fa-solid fa-volume-high text-sky-600 dark:text-sky-400"></i>
                             </div>
-                            <div>
-                                <strong style="font-size: 0.875rem; color: var(--color-text); font-weight: 800; display: block;">
-                                    {{ app()->getLocale() == 'ar' ? 'النغمة والتنبيه الصوتي (Sound Chime)' : 'Notification Audio Chime' }}
+                            <div style="min-width: 0;">
+                                <strong style="font-size: 0.825rem; color: var(--color-text); font-weight: 800; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ app()->getLocale() == 'ar' ? 'النغمة والتنبيه الصوتي' : 'Notification Audio Chime' }}
                                 </strong>
-                                <span style="font-size: 0.75rem; color: var(--color-text-muted);">
+                                <span style="font-size: 0.725rem; color: var(--color-text-muted); line-height: 1.3; display: block;">
                                     {{ app()->getLocale() == 'ar' ? 'تشغيل رنة نقية عند حدوث أحداث جديدة' : 'Play an acoustic chime on incoming events' }}
                                 </span>
                             </div>
                         </div>
 
-                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                        <div class="bz-sound-actions">
                             <!-- Test Sound Button -->
                             <button type="button" onclick="playNotificationChime(true)"
-                                style="padding: 0.35rem 0.75rem; border-radius: 0.6rem; font-size: 0.75rem; font-weight: 700; background: rgba(2, 132, 199, 0.1); color: #0284C7; border: 1px solid rgba(2, 132, 199, 0.25); cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.2s;"
+                                style="padding: 0.4rem 0.75rem; border-radius: 0.6rem; font-size: 0.75rem; font-weight: 700; background: rgba(2, 132, 199, 0.1); color: #0284C7; border: 1px solid rgba(2, 132, 199, 0.25); cursor: pointer; display: flex; align-items: center; gap: 0.35rem; transition: all 0.2s;"
                                 onmouseover="this.style.background='rgba(2, 132, 199, 0.2)'"
                                 onmouseout="this.style.background='rgba(2, 132, 199, 0.1)'">
                                 <i class="fa-solid fa-play text-[10px]"></i>
@@ -1626,7 +1756,7 @@
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                     <button type="button" id="btnApplyNotificationConfig" onclick="applyNotificationConfiguration()"
                         class="btn btn-primary"
-                        style="width: 100%; padding: 0.9rem; font-size: 0.9375rem; font-weight: 800; border-radius: 0.75rem; background: linear-gradient(135deg, #0A4F78, #0284C7); border: none; box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
+                        style="width: 100%; padding: 0.85rem; font-size: 0.9rem; font-weight: 800; border-radius: 0.75rem; background: linear-gradient(135deg, #0A4F78, #0284C7); border: none; box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; transition: all 0.2s;">
                         <i class="fa-solid fa-circle-check"></i>
                         <span id="btnApplyNotificationText">{{ app()->getLocale() == 'ar' ? 'حفظ وتطبيق الإعدادات' : 'Save & Apply Preferences' }}</span>
                     </button>
@@ -1647,7 +1777,7 @@
             </div>
 
             <!-- STATE 2: Illustrated Browser Configuration & Unblock Guide -->
-            <div id="fcmModalStateGuide" style="display: none; padding: 2.25rem 2rem 2rem 2rem; text-align: start;">
+            <div id="fcmModalStateGuide" style="display: none;" class="bz-fcm-modal-body">
                 <!-- Header -->
                 <div style="display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.25rem;">
                     <div style="width: 48px; height: 48px; border-radius: 0.875rem; background: rgba(234, 88, 12, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(234, 88, 12, 0.25);">

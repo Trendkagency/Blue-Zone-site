@@ -83,6 +83,22 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Check if user is a Super Admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && (int)$this->role_id === 1);
+    }
+
+    /**
+     * Check if user is an Admin.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && in_array((int)$this->role_id, [1, 2], true));
+    }
+
+    /**
      * Check if user has a specific permission.
      */
     public function hasPermission(string $permission): bool
@@ -260,5 +276,38 @@ class User extends Authenticatable implements FilamentUser
     public function crmCompanies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(CrmCompany::class, 'owner_id');
+    }
+
+    /**
+     * Medical Representative (MR) Module Relationships
+     */
+    public function mrAssignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Mr\ContactAssignment::class, 'mr_id');
+    }
+
+    public function mrScheduledVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Mr\ScheduledVisit::class, 'mr_id');
+    }
+
+    public function mrVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Mr\Visit::class, 'mr_id');
+    }
+
+    public function mrDailyLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Mr\RepDailyLog::class, 'mr_id');
+    }
+
+    public function mrPerformanceSnapshots(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Mr\RepPerformanceSnapshot::class, 'mr_id');
+    }
+
+    public function mrGpsConfig(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(\App\Models\Mr\GpsConfig::class, 'user_id');
     }
 }
