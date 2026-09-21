@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'password', 'role_id', 'status', 'avatar', 'bio', 'preferences', 'fcm_token', 'fcm_device_info'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'role_id', 'country_id', 'city_id', 'area_id', 'status', 'avatar', 'bio', 'preferences', 'fcm_token', 'fcm_device_info'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -62,6 +62,43 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class);
+    }
+
+    public function getTerritoryLabelAttribute(): string
+    {
+        $parts = [];
+        if ($this->country) {
+            $parts[] = $this->country->name;
+        }
+        if ($this->city) {
+            $parts[] = $this->city->name;
+        }
+        if ($this->area) {
+            $parts[] = $this->area->name;
+        }
+
+        return !empty($parts) ? implode(' › ', $parts) : (app()->getLocale() === 'ar' ? 'غير محدد' : 'Unassigned');
+    }
+
+    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
 
     /**
      * Check if user has specific role(s).

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CityController;
@@ -38,6 +39,23 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\Hr\AssetController as HrAssetController;
+use App\Http\Controllers\Admin\Hr\AttendanceController as HrAttendanceController;
+use App\Http\Controllers\Admin\Hr\DepartmentController as HrDepartmentController;
+use App\Http\Controllers\Admin\Hr\EmployeeController as HrEmployeeController;
+use App\Http\Controllers\Admin\Hr\EmployeeDocumentController as HrEmployeeDocumentController;
+use App\Http\Controllers\Admin\Hr\EmployeeRequestController as HrEmployeeRequestController;
+use App\Http\Controllers\Admin\Hr\HrDashboardController;
+use App\Http\Controllers\Admin\Hr\HrReportController;
+use App\Http\Controllers\Admin\Hr\HrSettingController;
+use App\Http\Controllers\Admin\Hr\LeaveController as HrLeaveController;
+use App\Http\Controllers\Admin\Hr\OffboardingController as HrOffboardingController;
+use App\Http\Controllers\Admin\Hr\PayrollController as HrPayrollController;
+use App\Http\Controllers\Admin\Hr\PerformanceController as HrPerformanceController;
+use App\Http\Controllers\Admin\Hr\PositionController as HrPositionController;
+use App\Http\Controllers\Admin\Hr\RecruitmentController as HrRecruitmentController;
+use App\Http\Controllers\Admin\Hr\TrainingController as HrTrainingController;
+use App\Http\Controllers\Admin\Hr\WorkScheduleController as HrWorkScheduleController;
 use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -255,9 +273,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/rep', [MrGpsConfigController::class, 'storeRepConfig'])->name('store-rep');
                 Route::delete('/rep/{id}', [MrGpsConfigController::class, 'destroyRepConfig'])->name('destroy-rep');
             });
+
+            // Territories & Areas Management
+            Route::prefix('areas')->name('areas.')->group(function () {
+                Route::get('/', [AreaController::class, 'index'])->name('index');
+                Route::post('/', [AreaController::class, 'store'])->name('store');
+                Route::put('/{id}', [AreaController::class, 'update'])->name('update');
+                Route::post('/{id}/toggle-status', [AreaController::class, 'toggleStatus'])->name('toggle-status');
+                Route::delete('/{id}', [AreaController::class, 'destroy'])->name('destroy');
+            });
         });
 
         // Redirects to Native MR Routes for Backward Compatibility
+        Route::get('/areas', fn () => redirect()->route('admin.mr.areas.index'))->name('areas.index');
         Route::get('/mr-live-ops-map', fn () => redirect()->route('admin.mr.live-map'))->name('mr-live-ops-map');
         Route::get('/contacts', fn () => redirect()->route('admin.mr.contacts.index'))->name('contacts.index');
         Route::get('/contacts/create', fn () => redirect()->route('admin.mr.contacts.create'))->name('contacts.create');
@@ -278,7 +306,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         // Full Commercial CRM System (Leads, Pipelines, Opportunities, Customer 360, Activities)
-        Route::prefix('crm')->name('crm.')->group(function () {
+        Route::prefix('crm')->name('crm.')->middleware('permission:crm.view')->group(function () {
             // Dashboard
             Route::get('/', [CrmController::class, 'index'])->name('dashboard');
 
@@ -431,7 +459,179 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [CityController::class, 'destroy'])->middleware('permission:settings.edit')->name('destroy');
         });
 
-        // Dynamic Cascading Geo API Endpoint
+        // ==========================================
+        // Human Resources Management (HR)
+        // ==========================================
+        Route::prefix('hr')->name('hr.')->group(function () {
+            // HR Dashboard
+            Route::get('/', [HrDashboardController::class, 'index'])->name('dashboard');
+
+            // Organization
+            Route::prefix('organization')->name('organization.')->group(function () {
+                // Departments
+                Route::get('/departments', [HrDepartmentController::class, 'index'])->name('departments.index');
+                Route::post('/departments', [HrDepartmentController::class, 'store'])->name('departments.store');
+                Route::put('/departments/{id}', [HrDepartmentController::class, 'update'])->name('departments.update');
+                Route::delete('/departments/{id}', [HrDepartmentController::class, 'destroy'])->name('departments.destroy');
+
+                // Positions
+                Route::get('/positions', [HrPositionController::class, 'index'])->name('positions.index');
+                Route::post('/positions', [HrPositionController::class, 'store'])->name('positions.store');
+                Route::put('/positions/{id}', [HrPositionController::class, 'update'])->name('positions.update');
+                Route::delete('/positions/{id}', [HrPositionController::class, 'destroy'])->name('positions.destroy');
+
+                // Work Schedules
+                Route::get('/work-schedules', [HrWorkScheduleController::class, 'index'])->name('work-schedules.index');
+                Route::post('/work-schedules', [HrWorkScheduleController::class, 'store'])->name('work-schedules.store');
+                Route::put('/work-schedules/{id}', [HrWorkScheduleController::class, 'update'])->name('work-schedules.update');
+                Route::delete('/work-schedules/{id}', [HrWorkScheduleController::class, 'destroy'])->name('work-schedules.destroy');
+            });
+
+            // Employees
+            Route::prefix('employees')->name('employees.')->group(function () {
+                Route::get('/', [HrEmployeeController::class, 'index'])->name('index');
+                Route::get('/create', [HrEmployeeController::class, 'create'])->name('create');
+                Route::post('/', [HrEmployeeController::class, 'store'])->name('store');
+                Route::get('/{id}', [HrEmployeeController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [HrEmployeeController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [HrEmployeeController::class, 'update'])->name('update');
+                Route::delete('/{id}', [HrEmployeeController::class, 'destroy'])->name('destroy');
+
+                // Documents
+                Route::get('/documents/all', [HrEmployeeDocumentController::class, 'index'])->name('documents.index');
+                Route::post('/{employeeId}/documents', [HrEmployeeDocumentController::class, 'store'])->name('documents.store');
+                Route::get('/documents/{id}/download', [HrEmployeeDocumentController::class, 'download'])->name('documents.download');
+                Route::delete('/documents/{id}', [HrEmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+            });
+
+            // Recruitment
+            Route::prefix('recruitment')->name('recruitment.')->group(function () {
+                Route::get('/', [HrRecruitmentController::class, 'index'])->name('index');
+                Route::get('/vacancies', [HrRecruitmentController::class, 'vacancies'])->name('vacancies');
+                Route::post('/vacancies', [HrRecruitmentController::class, 'storeVacancy'])->name('vacancies.store');
+                Route::get('/candidates', [HrRecruitmentController::class, 'candidates'])->name('candidates');
+                Route::post('/candidates', [HrRecruitmentController::class, 'storeCandidate'])->name('candidates.store');
+                Route::post('/candidates/{id}/convert', [HrRecruitmentController::class, 'convertCandidate'])->name('candidates.convert');
+                Route::get('/interviews', [HrRecruitmentController::class, 'interviews'])->name('interviews');
+                Route::post('/interviews', [HrRecruitmentController::class, 'storeInterview'])->name('interviews.store');
+                Route::get('/offers', [HrRecruitmentController::class, 'offers'])->name('offers');
+                Route::post('/offers', [HrRecruitmentController::class, 'storeOffer'])->name('offers.store');
+            });
+
+            // Attendance
+            Route::prefix('attendance')->name('attendance.')->group(function () {
+                Route::get('/', [HrAttendanceController::class, 'index'])->name('index');
+                Route::get('/daily', [HrAttendanceController::class, 'daily'])->name('daily');
+                Route::post('/check-in', [HrAttendanceController::class, 'checkIn'])->name('check-in');
+                Route::post('/check-out', [HrAttendanceController::class, 'checkOut'])->name('check-out');
+                Route::get('/overtime', [HrAttendanceController::class, 'overtime'])->name('overtime');
+                Route::post('/overtime', [HrAttendanceController::class, 'storeOvertime'])->name('overtime.store');
+                Route::post('/overtime/{id}/approve', [HrAttendanceController::class, 'approveOvertime'])->name('overtime.approve');
+            });
+
+            // Leave Management
+            Route::prefix('leave')->name('leave.')->group(function () {
+                Route::get('/requests', [HrLeaveController::class, 'requests'])->name('requests');
+                Route::post('/requests', [HrLeaveController::class, 'storeRequest'])->name('requests.store');
+                Route::get('/approvals', [HrLeaveController::class, 'approvals'])->name('approvals');
+                Route::post('/requests/{id}/approve', [HrLeaveController::class, 'approveRequest'])->name('requests.approve');
+                Route::post('/requests/{id}/reject', [HrLeaveController::class, 'rejectRequest'])->name('requests.reject');
+                Route::get('/types', [HrLeaveController::class, 'types'])->name('types');
+                Route::post('/types', [HrLeaveController::class, 'storeType'])->name('types.store');
+                Route::get('/balances', [HrLeaveController::class, 'balances'])->name('balances');
+            });
+
+            // Payroll
+            Route::prefix('payroll')->name('payroll.')->group(function () {
+                Route::get('/', [HrPayrollController::class, 'index'])->name('index');
+                Route::get('/periods', [HrPayrollController::class, 'periods'])->name('periods');
+                Route::post('/periods', [HrPayrollController::class, 'storePeriod'])->name('periods.store');
+                Route::post('/periods/{id}/generate', [HrPayrollController::class, 'generate'])->name('periods.generate');
+                Route::post('/periods/{id}/finalize', [HrPayrollController::class, 'finalize'])->name('periods.finalize');
+                Route::get('/payslips', [HrPayrollController::class, 'payslips'])->name('payslips');
+                Route::get('/payslips/{id}', [HrPayrollController::class, 'showPayslip'])->name('payslips.show');
+                Route::get('/structures', [HrPayrollController::class, 'structures'])->name('structures');
+                Route::get('/advances', [HrPayrollController::class, 'advances'])->name('advances');
+                Route::post('/advances', [HrPayrollController::class, 'storeAdvance'])->name('advances.store');
+                Route::get('/loans', [HrPayrollController::class, 'loans'])->name('loans');
+                Route::post('/loans', [HrPayrollController::class, 'storeLoan'])->name('loans.store');
+            });
+
+            // Performance
+            Route::prefix('performance')->name('performance.')->group(function () {
+                Route::get('/reviews', [HrPerformanceController::class, 'reviews'])->name('reviews');
+                Route::get('/goals', [HrPerformanceController::class, 'goals'])->name('goals');
+                Route::post('/goals', [HrPerformanceController::class, 'storeGoal'])->name('goals.store');
+                Route::get('/kpis', [HrPerformanceController::class, 'kpis'])->name('kpis');
+                Route::get('/promotions', [HrPerformanceController::class, 'promotions'])->name('promotions');
+                Route::post('/promotions', [HrPerformanceController::class, 'storePromotion'])->name('promotions.store');
+            });
+
+            // Training
+            Route::prefix('training')->name('training.')->group(function () {
+                Route::get('/programs', [HrTrainingController::class, 'programs'])->name('programs');
+                Route::post('/programs', [HrTrainingController::class, 'storeProgram'])->name('programs.store');
+                Route::get('/employee-training', [HrTrainingController::class, 'employeeTraining'])->name('employee-training');
+                Route::post('/employee-training', [HrTrainingController::class, 'assignEmployee'])->name('employee-training.assign');
+                Route::get('/certificates', [HrTrainingController::class, 'certificates'])->name('certificates');
+            });
+
+            // Employee Requests
+            Route::prefix('requests')->name('requests.')->group(function () {
+                Route::get('/', [HrEmployeeRequestController::class, 'index'])->name('index');
+                Route::post('/', [HrEmployeeRequestController::class, 'storeRequest'])->name('store');
+                Route::put('/{id}/status', [HrEmployeeRequestController::class, 'updateStatus'])->name('update-status');
+                Route::get('/complaints', [HrEmployeeRequestController::class, 'complaints'])->name('complaints');
+                Route::get('/suggestions', [HrEmployeeRequestController::class, 'suggestions'])->name('suggestions');
+                Route::get('/transfers', [HrEmployeeRequestController::class, 'transfers'])->name('transfers');
+                Route::post('/transfers', [HrEmployeeRequestController::class, 'storeTransfer'])->name('transfers.store');
+                Route::get('/disciplinary', [HrEmployeeRequestController::class, 'disciplinary'])->name('disciplinary');
+                Route::post('/disciplinary', [HrEmployeeRequestController::class, 'storeDisciplinary'])->name('disciplinary.store');
+            });
+
+            // Assets
+            Route::prefix('assets')->name('assets.')->group(function () {
+                Route::get('/', [HrAssetController::class, 'index'])->name('index');
+                Route::post('/', [HrAssetController::class, 'store'])->name('store');
+                Route::get('/assignments', [HrAssetController::class, 'assignments'])->name('assignments');
+                Route::post('/assign', [HrAssetController::class, 'assign'])->name('assign');
+                Route::post('/assignments/{id}/return', [HrAssetController::class, 'returnAsset'])->name('return');
+                Route::get('/returns', [HrAssetController::class, 'returns'])->name('returns');
+            });
+
+            // Offboarding
+            Route::prefix('offboarding')->name('offboarding.')->group(function () {
+                Route::get('/resignations', [HrOffboardingController::class, 'resignations'])->name('resignations');
+                Route::post('/resignations', [HrOffboardingController::class, 'storeResignation'])->name('resignations.store');
+                Route::get('/terminations', [HrOffboardingController::class, 'terminations'])->name('terminations');
+                Route::post('/terminations', [HrOffboardingController::class, 'storeTermination'])->name('terminations.store');
+                Route::get('/exit-interviews', [HrOffboardingController::class, 'exitInterviews'])->name('exit-interviews');
+                Route::post('/exit-interviews', [HrOffboardingController::class, 'storeExitInterview'])->name('exit-interviews.store');
+                Route::get('/settlements', [HrOffboardingController::class, 'settlements'])->name('settlements');
+                Route::post('/settlements/calculate', [HrOffboardingController::class, 'calculateSettlement'])->name('settlements.calculate');
+            });
+
+            // Reports
+            Route::prefix('reports')->name('reports.')->group(function () {
+                Route::get('/', [HrReportController::class, 'index'])->name('index');
+                Route::get('/employees', [HrReportController::class, 'employees'])->name('employees');
+                Route::get('/attendance', [HrReportController::class, 'attendance'])->name('attendance');
+                Route::get('/leave', [HrReportController::class, 'leave'])->name('leave');
+                Route::get('/payroll', [HrReportController::class, 'payroll'])->name('payroll');
+                Route::get('/recruitment', [HrReportController::class, 'recruitment'])->name('recruitment');
+                Route::get('/performance', [HrReportController::class, 'performance'])->name('performance');
+                Route::get('/training', [HrReportController::class, 'training'])->name('training');
+            });
+
+            // Settings
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', [HrSettingController::class, 'index'])->name('index');
+                Route::post('/', [HrSettingController::class, 'update'])->name('update');
+            });
+        });
+
+        // Dynamic Cascading Geo API Endpoints
         Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
+        Route::get('/api/cities/{id}/areas', [AreaController::class, 'getAreasByCity'])->name('api.cities.areas');
     });
 });

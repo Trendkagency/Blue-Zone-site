@@ -31,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Mr\GpsValidationService::class, function () {
             return \App\Services\Mr\GpsValidationService::getInstance();
         });
+
+        // Singleton pattern: AreaTerritoryService for MR territory management
+        $this->app->singleton(\App\Services\Mr\AreaTerritoryService::class, function () {
+            return \App\Services\Mr\AreaTerritoryService::getInstance();
+        });
     }
 
     /**
@@ -58,11 +63,17 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo \App\Services\CurrencyService::code(); ?>";
         });
 
-        // Observer pattern: Orders, Inventory items, movements, and MR visits observers
+        // Observer pattern: Orders, Inventory items, movements, MR visits, and Areas observers
         \App\Models\Order::observe(\App\Observers\OrderObserver::class);
         \App\Models\InventoryItem::observe(\App\Observers\InventoryItemObserver::class);
         \App\Models\InventoryMovement::observe(\App\Observers\InventoryMovementObserver::class);
         \App\Models\Mr\Visit::observe(\App\Observers\VisitObserver::class);
+        \App\Models\Area::observe(\App\Observers\AreaObserver::class);
+        \App\Models\Employee::observe(\App\Observers\EmployeeObserver::class);
+        \App\Models\LeaveRequest::observe(\App\Observers\LeaveRequestObserver::class);
+        \App\Models\EmployeeContract::observe(\App\Observers\EmployeeContractObserver::class);
+        \App\Models\EmployeeAssetAssignment::observe(\App\Observers\EmployeeAssetAssignmentObserver::class);
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
 
         if ($this->app->environment('production') || config('app.env') === 'production' || str_starts_with(config('app.url', ''), 'https://')) {
             URL::forceScheme('https');

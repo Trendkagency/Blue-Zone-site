@@ -109,6 +109,15 @@
                             </td>
                             <td>
                                 <span class="badge badge-accent text-xs font-bold">{{ $uRole }}</span>
+                                @if(!empty($u['area']))
+                                    <div class="mt-1 flex items-center gap-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                                        <i class="fa-solid fa-location-dot text-[10px]"></i>
+                                        <span>{{ $u['area'] }}</span>
+                                        @if(!empty($u['city']))
+                                            <span class="text-slate-400 text-[10px]">({{ $u['city'] }})</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td>
                                 @if($isItemTrashed)
@@ -129,6 +138,11 @@
                                         <a href="{{ route('admin.users.edit', $uId) }}" class="action-btn" title="{{ __('app.actions.edit') }}">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
+                                        @if(!empty($u['employee_id']))
+                                            <a href="{{ route('admin.hr.employees.show', $u['employee_id']) }}" class="action-btn text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30" title="{{ app()->getLocale() === 'ar' ? 'الملف الوظيفي بالـ HR' : 'HR Employee Profile' }}">
+                                                <i class="fa-solid fa-id-card"></i>
+                                            </a>
+                                        @endif
 
                                         @if(auth()->id() !== $uId)
                                             <form method="POST" action="{{ route('admin.users.toggle-status', $uId) }}" class="inline m-0 p-0">

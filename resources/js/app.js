@@ -1,6 +1,9 @@
-/**
- * BLUE ZONE Application Master JS
- */
+import Alpine from 'alpinejs';
+
+if (!window.Alpine) {
+    window.Alpine = Alpine;
+    Alpine.start();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Theme Manager (Light / Dark mode - Default Light)

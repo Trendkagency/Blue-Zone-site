@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             BluezoneSeeder::class,
             NotificationSeeder::class,
             CrmSeeder::class,
+            HrSeeder::class,
         ]);
     }
 }

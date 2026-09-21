@@ -118,7 +118,7 @@
                             <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Representatives' }}</option>
                             @foreach($medicalReps as $rep)
                                 <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                    {{ $rep->name }}
+                                    {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>
@@ -544,7 +544,9 @@
                             <select name="mr_id" required class="form-select text-sm w-full">
                                 <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
                                 @foreach($medicalReps as $rep)
-                                    <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>{{ $rep->name }}</option>
+                                    <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                        {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -633,7 +635,7 @@
                                 <select name="mr_id" id="record-mr-id" required class="form-select text-sm w-full">
                                     <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
                                     @foreach($medicalReps as $rep)
-                                        <option value="{{ $rep->id }}">{{ $rep->name }}</option>
+                                        <option value="{{ $rep->id }}">{{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}</option>
                                     @endforeach
                                 </select>
                             </div>

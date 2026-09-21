@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Area;
+use App\Models\City;
+use App\Models\Country;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Mr\AreaTerritoryService;
 use App\View\ViewModels\RoleViewModel;
 use App\View\ViewModels\UserViewModel;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +24,7 @@ class UserController extends Controller
         $roleFilter = $request->query('role_id');
         $isTrashed = $status === 'trashed';
 
-        $query = User::with('role');
+        $query = User::with(['role', 'country', 'city', 'area', 'employee']);
 
         if ($isTrashed) {
             $query->onlyTrashed();
@@ -58,6 +62,14 @@ class UserController extends Controller
                     'status' => $u->status ?? 'active',
                     'avatar' => $u->avatar ?? null,
                     'avatar_url' => $u->avatar_url,
+                    'country_id' => $u->country_id,
+                    'city_id' => $u->city_id,
+                    'area_id' => $u->area_id,
+                    'country' => $u->country?->name,
+                    'city' => $u->city?->name,
+                    'area' => $u->area?->name,
+                    'territory_label' => $u->territory_label,
+                    'employee_id' => $u->employee?->id,
                     'last_login' => $u->updated_at?->diffForHumans() ?? 'Recently',
                     'deleted_at' => $u->deleted_at,
                 ];
@@ -91,8 +103,12 @@ class UserController extends Controller
     {
         $dbRoles = Role::all();
         $roles = $dbRoles->isNotEmpty() ? $dbRoles->toArray() : RoleViewModel::all();
+        $countries = Country::where('is_active', true)->orderBy('sort_order')->orderBy('name_en')->get();
 
-        return view('admin.users.create', ['roles' => $roles]);
+        return view('admin.users.create', [
+            'roles' => $roles,
+            'countries' => $countries,
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -104,6 +120,9 @@ class UserController extends Controller
             'bio' => 'nullable|string|max:1000',
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'nullable|integer|exists:roles,id',
+            'country_id' => 'nullable|integer|exists:countries,id',
+            'city_id' => 'nullable|integer|exists:cities,id',
+            'area_id' => 'nullable|integer|exists:areas,id',
             'status' => 'required|string|in:active,inactive,suspended',
         ]);
 
@@ -114,8 +133,20 @@ class UserController extends Controller
             'bio' => $validated['bio'] ?? null,
             'password' => Hash::make($validated['password']),
             'role_id' => $validated['role_id'] ?? null,
+            'country_id' => $validated['country_id'] ?? null,
+            'city_id' => $validated['city_id'] ?? null,
+            'area_id' => $validated['area_id'] ?? null,
             'status' => $validated['status'],
         ]);
+
+        if (!empty($validated['area_id'])) {
+            AreaTerritoryService::getInstance()->assignRepToTerritory(
+                $user,
+                (int)$validated['area_id'],
+                !empty($validated['city_id']) ? (int)$validated['city_id'] : null,
+                !empty($validated['country_id']) ? (int)$validated['country_id'] : null
+            );
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', app()->getLocale() === 'ar' 
@@ -125,7 +156,7 @@ class UserController extends Controller
 
     public function show(int $id): View
     {
-        $dbUser = User::with('role')->find($id);
+        $dbUser = User::with(['role', 'country', 'city', 'area'])->find($id);
 
         if ($dbUser) {
             $user = [
@@ -137,6 +168,10 @@ class UserController extends Controller
                 'role' => $dbUser->role?->name ?? 'Admin',
                 'role_id' => $dbUser->role_id,
                 'role_description' => $dbUser->role?->description ?? '',
+                'country' => $dbUser->country?->name,
+                'city' => $dbUser->city?->name,
+                'area' => $dbUser->area?->name,
+                'territory_label' => $dbUser->territory_label,
                 'status' => $dbUser->status ?? 'active',
                 'avatar' => $dbUser->avatar ?? null,
                 'avatar_url' => $dbUser->avatar_url,
@@ -225,7 +260,7 @@ class UserController extends Controller
 
     public function edit(int $id): View
     {
-        $dbUser = User::find($id);
+        $dbUser = User::with(['country', 'city', 'area'])->find($id);
 
         if ($dbUser) {
             $user = [
@@ -235,9 +270,21 @@ class UserController extends Controller
                 'phone' => $dbUser->phone ?? '',
                 'bio' => $dbUser->bio ?? '',
                 'role_id' => $dbUser->role_id,
+                'country_id' => $dbUser->country_id,
+                'city_id' => $dbUser->city_id,
+                'area_id' => $dbUser->area_id,
+                'territory_label' => $dbUser->territory_label,
                 'status' => $dbUser->status ?? 'active',
                 'avatar' => $dbUser->avatar ?? 'assets/avatars/user-1.jpg',
             ];
+
+            $cities = $dbUser->country_id 
+                ? City::where('country_id', $dbUser->country_id)->where('is_active', true)->orderBy('name_en')->get() 
+                : collect();
+
+            $areas = $dbUser->city_id 
+                ? Area::where('city_id', $dbUser->city_id)->where('is_active', true)->orderBy('name_en')->get() 
+                : collect();
         } else {
             $users = UserViewModel::all();
             $user = null;
@@ -247,14 +294,20 @@ class UserController extends Controller
                     break;
                 }
             }
+            $cities = collect();
+            $areas = collect();
         }
 
         $dbRoles = Role::all();
         $roles = $dbRoles->isNotEmpty() ? $dbRoles->toArray() : RoleViewModel::all();
+        $countries = Country::where('is_active', true)->orderBy('sort_order')->orderBy('name_en')->get();
 
         return view('admin.users.edit', [
             'user' => $user ?? ($users[0] ?? []),
             'roles' => $roles,
+            'countries' => $countries,
+            'cities' => $cities,
+            'areas' => $areas,
         ]);
     }
 
@@ -269,6 +322,9 @@ class UserController extends Controller
             'bio' => 'nullable|string|max:1000',
             'password' => 'nullable|string|min:8|confirmed',
             'role_id' => 'nullable|integer|exists:roles,id',
+            'country_id' => 'nullable|integer|exists:countries,id',
+            'city_id' => 'nullable|integer|exists:cities,id',
+            'area_id' => 'nullable|integer|exists:areas,id',
             'status' => 'required|string|in:active,inactive,suspended',
         ]);
 
@@ -278,6 +334,9 @@ class UserController extends Controller
             'phone' => $validated['phone'] ?? null,
             'bio' => $validated['bio'] ?? null,
             'role_id' => $validated['role_id'] ?? null,
+            'country_id' => $validated['country_id'] ?? null,
+            'city_id' => $validated['city_id'] ?? null,
+            'area_id' => $validated['area_id'] ?? null,
             'status' => $validated['status'],
         ];
 
@@ -286,6 +345,15 @@ class UserController extends Controller
         }
 
         $user->update($updateData);
+
+        if (!empty($validated['area_id'])) {
+            AreaTerritoryService::getInstance()->assignRepToTerritory(
+                $user,
+                (int)$validated['area_id'],
+                !empty($validated['city_id']) ? (int)$validated['city_id'] : null,
+                !empty($validated['country_id']) ? (int)$validated['country_id'] : null
+            );
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', app()->getLocale() === 'ar' 

@@ -29,7 +29,7 @@ class VisitController extends Controller
 
         $medicalReps = User::whereHas('role', function ($q) {
             $q->where('name', 'mr');
-        })->orWhere('role_id', 2)->select('id', 'name')->get();
+        })->orWhere('role_id', 2)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
 
         $availableDoctors = Contact::where('is_active', true)
             ->with(['specialty', 'classification', 'city'])

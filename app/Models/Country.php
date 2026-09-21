@@ -44,6 +44,16 @@ class Country extends Model
         return $this->hasMany(Location::class);
     }
 
+    public function areas(): HasMany
+    {
+        return $this->hasMany(Area::class)->orderBy('sort_order')->orderBy('name_en');
+    }
+
+    public function activeAreas(): HasMany
+    {
+        return $this->hasMany(Area::class)->where('is_active', true)->orderBy('sort_order')->orderBy('name_en');
+    }
+
     public function getNameAttribute(): string
     {
         $locale = app()->getLocale();

@@ -153,15 +153,19 @@
         <!-- Navigation Tabs Container -->
         <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
-                <div class="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl w-fit">
+                <div class="flex flex-wrap items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl w-fit">
                     <button @click="activeTab = 'countries'" :class="activeTab === 'countries' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
                         <i class="fa-solid fa-flag"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'الدول وأكواد الاتصال' : 'Countries & Dial Codes' }} ({{ count($countries) }})</span>
                     </button>
                     <button @click="activeTab = 'cities'" :class="activeTab === 'cities' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'" class="px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
                         <i class="fa-solid fa-city"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'المدن والمناطق' : 'Cities & Shipping Zones' }} ({{ $totalCitiesCount }})</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'المدن ومناطق الشحن' : 'Cities & Shipping' }} ({{ $totalCitiesCount }})</span>
                     </button>
+                    <a href="{{ route('admin.mr.areas.index') }}" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-teal-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات الميدانية (Areas) ↗' : 'Field Areas (Areas) ↗' }}</span>
+                    </a>
                 </div>
 
                 <!-- Tab Quick Info -->

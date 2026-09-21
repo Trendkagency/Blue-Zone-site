@@ -10,12 +10,12 @@ use App\Models\Mr\ContactSpecialty;
 use App\Models\Mr\VisitCycle;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminMrNativeRoutesTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     protected User $admin;
 
@@ -80,6 +80,10 @@ class AdminMrNativeRoutesTest extends TestCase
 
         // 10. GPS Config
         $response = $this->get(route('admin.mr.gps-config.index'));
+        $response->assertStatus(200);
+
+        // 11. Territories & Areas
+        $response = $this->get(route('admin.mr.areas.index'));
         $response->assertStatus(200);
     }
 }

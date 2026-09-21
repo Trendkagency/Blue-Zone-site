@@ -174,7 +174,14 @@
                         <div class="w-6 h-6 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-[11px]">
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
-                        <span class="font-bold text-slate-800 dark:text-slate-200 max-w-[140px] truncate">{{ $user->name ?? 'Medical Rep' }}</span>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-800 dark:text-slate-200 max-w-[140px] truncate leading-tight">{{ $user->name ?? 'Medical Rep' }}</span>
+                            @if(!empty($user->area))
+                                <span class="text-[10px] text-sky-600 dark:text-sky-400 font-semibold leading-tight flex items-center gap-0.5">
+                                    <i class="fa-solid fa-location-dot text-[9px]"></i> {{ $user->area->name }}
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
                     <!-- Language Switcher -->

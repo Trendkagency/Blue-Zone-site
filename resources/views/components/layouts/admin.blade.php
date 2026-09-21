@@ -44,6 +44,7 @@
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
                     $isMrActive = request()->routeIs('admin.mr.*') || request()->is('admin/mr*');
                     $isCrmActive = request()->routeIs('admin.crm.*');
+                    $isHrActive = request()->routeIs('admin.hr.*') || request()->is('admin/hr*');
                     $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
                     $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
                 @endphp
@@ -64,6 +65,11 @@
                             class="sidebar-sublink {{ request()->routeIs('admin.mr.live-map') ? 'active' : '' }}">
                             <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة (Live Map)' : 'Live Ops Field Map' }}</span>
+                        </a>
+                        <a href="{{ route('admin.mr.areas.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.mr.areas.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-map-location-dot text-xs text-teal-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات (Territories & Areas)' : 'Territories & Areas' }}</span>
                         </a>
                         <a href="{{ route('admin.mr.contacts.index') }}"
                             class="sidebar-sublink {{ request()->routeIs('admin.mr.contacts.*') ? 'active' : '' }}">
@@ -153,6 +159,133 @@
                         <a href="{{ route('admin.crm.campaigns.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'الحملات التسويقية' : 'Marketing Campaigns' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Human Resources (HR) Dropdown -->
+                <div class="sidebar-dropdown-group {{ $isHrActive ? 'is-open' : '' }}" id="group-hr">
+                    <button type="button" class="sidebar-dropdown-btn {{ $isHrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-hr')">
+                        <div class="sidebar-dropdown-label">
+                            <i class="fa-solid fa-people-roof sidebar-link-icon text-pink-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الموارد البشرية (HR)' : 'Human Resources (HR)' }}</span>
+                        </div>
+                        <div class="sidebar-dropdown-meta">
+                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                        </div>
+                    </button>
+                    <div class="sidebar-submenu">
+                        <!-- HR Dashboard -->
+                        <a href="{{ route('admin.hr.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.dashboard') ? 'active' : '' }}">
+                            <i class="fa-solid fa-gauge-high text-xs text-pink-400"></i>
+                            <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الموارد البشرية' : 'HR Dashboard' }}</span>
+                        </a>
+
+                        {{-- 1. Organization (Temporarily hidden)
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'الهيكل التنظيمي' : 'Organization' }}
+                        </div>
+                        <a href="{{ route('admin.hr.organization.departments.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.departments.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sitemap text-xs text-teal-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الأقسام (Departments)' : 'Departments' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.organization.positions.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.positions.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-id-card-clip text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الوظائف والمهن (Positions)' : 'Positions' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.organization.work-schedules.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.work-schedules.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-business-time text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'ورديات ومواعيد العمل' : 'Work Schedules' }}</span>
+                        </a>
+                        <a href="{{ Route::has('admin.locations.index') ? route('admin.locations.index') : url('/admin/locations') }}" class="sidebar-sublink {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-building-circle-check text-xs text-indigo-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الفروع والمواقع (Branches)' : 'Branches / Hubs' }}</span>
+                        </a>
+                        --}}
+
+                        <!-- 2. Employees -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'إدارة الموظفين' : 'Employees' }}
+                        </div>
+                        <a href="{{ route('admin.hr.employees.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.employees.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-users text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'دليل الموظفين (All Employees)' : 'All Employees' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.employees.create') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.employees.create') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-plus text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إضافة موظف جديد' : 'New Employee Profile' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.employees.documents.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.employees.documents.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-folder-open text-xs text-violet-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'أرشيف ومستندات الموظفين' : 'Employee Documents' }}</span>
+                        </a>
+
+                        <!-- 3. Attendance -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'الحضور والانصراف' : 'Attendance' }}
+                        </div>
+                        <a href="{{ route('admin.hr.attendance.daily') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.attendance.daily') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clipboard-user text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الحضور اليومي' : 'Daily Attendance Sheet' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.attendance.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.attendance.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-list-check text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجلات الحضور الكاملة' : 'Attendance Records' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.attendance.overtime') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.attendance.overtime*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-clock-rotate-left text-xs text-purple-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'العمل الإضافي (Overtime)' : 'Overtime Requests' }}</span>
+                        </a>
+
+                        <!-- 4. Leave Management -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'إدارة الإجازات' : 'Leave Management' }}
+                        </div>
+                        <a href="{{ route('admin.hr.leave.approvals') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.leave.approvals') ? 'active' : '' }}">
+                            <i class="fa-solid fa-stamp text-xs text-rose-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'طلبات بانتظار الاعتماد' : 'Leave Approvals Queue' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.leave.requests') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.leave.requests') ? 'active' : '' }}">
+                            <i class="fa-solid fa-calendar-check text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'كافة طلبات الإجازات' : 'Leave Requests' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.leave.balances') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.leave.balances') ? 'active' : '' }}">
+                            <i class="fa-solid fa-scale-balanced text-xs text-teal-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'أرصدة إجازات الموظفين' : 'Leave Balances' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.leave.types') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.leave.types') ? 'active' : '' }}">
+                            <i class="fa-solid fa-tags text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'أنواع الإجازات والسياسات' : 'Leave Types & Policies' }}</span>
+                        </a>
+
+                        <!-- 5. Payroll -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'الرواتب والمسيرات' : 'Payroll & Compensation' }}
+                        </div>
+                        <a href="{{ route('admin.hr.payroll.periods') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.periods*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-calendar-days text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'فترات ومسيرات الرواتب' : 'Payroll Periods' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.payroll.payslips') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.payslips*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-receipt text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'قسائم الرواتب (Payslips)' : 'Employee Payslips' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.payroll.structures') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.structures*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-cubes-stacked text-xs text-purple-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'هياكل ومكونات الأجور' : 'Salary Structures' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.payroll.advances') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.advances*') || request()->routeIs('admin.hr.payroll.loans*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-hand-holding-dollar text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'السلف والقروض المالية' : 'Salary Advances & Loans' }}</span>
+                        </a>
+
+                        <!-- 6. Settings -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'الإعدادات' : 'Settings' }}
+                        </div>
+                        <a href="{{ route('admin.hr.settings.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.settings.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sliders text-xs text-violet-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وسياسات الـ HR' : 'HR System Settings' }}</span>
                         </a>
                     </div>
                 </div>
@@ -1327,7 +1460,7 @@
         }
 
         .sidebar-dropdown-group.is-open .sidebar-submenu {
-            max-height: 600px;
+            max-height: 4000px;
             opacity: 1;
             padding-top: 0.25rem;
             padding-bottom: 0.35rem;

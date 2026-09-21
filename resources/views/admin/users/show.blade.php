@@ -106,6 +106,23 @@
                             @endif
                         </div>
                     </div>
+                    <div style="background: var(--color-bg-subtle); padding: 0.875rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                        <div class="text-xs text-secondary font-medium">{{ app()->getLocale() === 'ar' ? 'النطاق والمربع الميداني' : 'Field Territory' }}</div>
+                        <div class="font-bold text-sm" style="margin-top: 0.25rem;">
+                            @if(!empty($user['area']))
+                                <span class="text-sky-600 dark:text-sky-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-map-location-dot"></i> {{ $user['area'] }}
+                                    @if(!empty($user['city']))
+                                        <span class="text-slate-400 font-normal text-xs">({{ $user['city'] }})</span>
+                                    @endif
+                                </span>
+                            @else
+                                <span class="text-gray-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-location-crosshairs"></i> {{ app()->getLocale() === 'ar' ? 'غير معين' : 'Unassigned' }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
 
