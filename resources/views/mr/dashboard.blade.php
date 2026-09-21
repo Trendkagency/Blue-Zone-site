@@ -305,19 +305,24 @@
                             </div>
                         </div>
 
-                        <!-- KPI 2: Completed Visits -->
-                        <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto mb-2">
+                        <!-- KPI 2: Completed Visits (Clickable -> Opens Doctors Done Modal) -->
+                        <div onclick="openVisitsDoneModal()" class="cursor-pointer group p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 active:scale-95 transition-all shadow-sm relative overflow-hidden" title="{{ app()->getLocale() === 'ar' ? 'اضغط لعرض تفاصيل الأطباء الذين تمت زيارتهم' : 'Click to view visited doctors' }}">
+                            <div class="absolute top-2 right-2 rtl:right-auto rtl:left-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                <span class="p-1 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto mb-2 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-calendar-check text-sm"></i>
                             </div>
                             <div class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
                                 {{ $snapshot->visits_done ?? 0 }} <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">/ {{ $snapshot->planned_visits ?? 0 }}</span>
                             </div>
-                            <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'الزيارات المنفذة' : 'Visits Done' }}
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1 flex items-center justify-center gap-1">
+                                <span>{{ app()->getLocale() === 'ar' ? 'الزيارات المنفذة' : 'Visits Done' }}</span>
                             </div>
-                            <div class="text-[10px] text-slate-500 mt-0.5">
-                                {{ $snapshot->visit_compliance_pct ?? 0 }}% {{ app()->getLocale() === 'ar' ? 'التزام' : 'compliance' }}
+                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 group-hover:underline flex items-center justify-center gap-1">
+                                <span>{{ app()->getLocale() === 'ar' ? 'عرض الأطباء المكتملين 👈' : 'View Doctors Done 👈' }}</span>
                             </div>
                         </div>
 
@@ -450,6 +455,16 @@
                                                 <i class="fa-solid fa-check-double"></i>
                                                 {{ app()->getLocale() === 'ar' ? 'تمت الزيارة' : 'Completed' }}
                                             </span>
+                                        @elseif($activeOngoingVisit && $activeOngoingVisit->contact_id == $sv->contact_id)
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 animate-pulse">
+                                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
+                                                <i class="fa-solid fa-circle-check"></i>
+                                                {{ app()->getLocale() === 'ar' ? 'تم تسجيل الحضور' : 'Checked In (Active)' }}
+                                            </span>
+                                            <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($sv->contact?->name ?? 'Doctor') }}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs active:scale-95 transition shadow-md shadow-amber-500/20 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل انصراف' : 'Check Out' }}</span>
+                                            </button>
                                         @else
                                             @if($sv->contact?->latitude && $sv->contact?->longitude)
                                                 <a href="https://www.google.com/maps?q={{ $sv->contact->latitude }},{{ $sv->contact->longitude }}" target="_blank" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-xs border border-slate-200 dark:border-slate-700/60" title="Directions">
@@ -517,10 +532,20 @@
                             <button onclick="filterByClass('C')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60">
                                 Class C
                             </button>
+                            <button onclick="filterByStatus('done')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تمت زيارتهم' : 'Visited' }}</span>
+                            </button>
+                            @if($activeOngoingVisit)
+                                <button onclick="filterByStatus('active')" class="chip-filter px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 font-bold transition border border-amber-500/40 flex items-center gap-1 animate-pulse">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'مسجل حضور الآن' : 'Checked In Now' }}</span>
+                                </button>
+                            @endif
                         </div>
 
-                        <!-- Doctor Cards Grid: 1 col on mobile, 2 cols on tablet & desktop -->
-                        <div id="doctors-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                        <!-- Doctor Cards: Vertical stacked cards (card under card), full responsive design -->
+                        <div id="doctors-container" class="space-y-3.5 pt-1">
                             @foreach($allAssignments as $item)
                                 @php
                                     $c = $item->contact;
@@ -528,55 +553,103 @@
                                     $req = $cl ? (int)$cl->required_visits : (int)$item->target_visits;
                                     $done = (int)$item->visits_done;
                                     $pct = $req > 0 ? min(100, round(($done / $req) * 100)) : 0;
+                                    $isCurrentlyCheckedIn = ($activeOngoingVisit && $activeOngoingVisit->contact_id === $c?->id);
                                 @endphp
-                                <div class="doctor-card p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition flex flex-col justify-between shadow-sm"
+                                <div class="doctor-card p-4 sm:p-5 rounded-2xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/50 shadow-lg shadow-amber-500/10' : 'bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800/80 hover:border-sky-500/40 dark:hover:border-sky-500/40' }} transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
                                      data-name="{{ strtolower($c?->name ?? '') }}"
                                      data-clinic="{{ strtolower($c?->hospital_clinic_name ?? '') }}"
                                      data-specialty="{{ strtolower($c?->specialty?->name ?? '') }}"
-                                     data-class="{{ $cl?->code ?? 'C' }}">
+                                     data-class="{{ $cl?->code ?? 'C' }}"
+                                     data-status="{{ $isCurrentlyCheckedIn ? 'active' : ($done > 0 ? 'done' : 'pending') }}">
                                     
-                                    <div>
-                                        <div class="flex items-start justify-between gap-2">
-                                            <div>
-                                                <h4 class="text-sm font-bold text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition">
+                                    <!-- Left Section: Doctor Identity & Meta -->
+                                    <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+                                        <div class="w-12 h-12 rounded-xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : ($done >= $req ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20') }} flex items-center justify-center font-black text-base flex-shrink-0">
+                                            @if($isCurrentlyCheckedIn)
+                                                <i class="fa-solid fa-user-check animate-pulse"></i>
+                                            @else
+                                                <i class="fa-solid fa-user-doctor"></i>
+                                            @endif
+                                        </div>
+
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition truncate">
                                                     {{ $c?->name }}
                                                 </h4>
-                                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                                                    {{ $c?->hospital_clinic_name }}
-                                                </p>
+                                                @if($c?->code)
+                                                    <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">({{ $c->code }})</span>
+                                                @endif
+                                                @if($cl)
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-black {{ $cl->code === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : ($cl->code === 'A' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700') }}">
+                                                        Class {{ $cl->code }}
+                                                    </span>
+                                                @endif
+                                                @if($isCurrentlyCheckedIn)
+                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 shadow-sm animate-pulse">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-950 inline-block animate-ping"></span>
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                        {{ app()->getLocale() === 'ar' ? 'مسجل وصول حالياً' : 'Checked In (Active)' }}
+                                                    </span>
+                                                @elseif($done >= $req)
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                                        <i class="fa-solid fa-circle-check text-[9px]"></i>
+                                                        {{ app()->getLocale() === 'ar' ? 'اكتملت الخطة' : 'Target Completed' }}
+                                                    </span>
+                                                @endif
                                             </div>
 
-                                            @if($cl)
-                                                <span class="px-2 py-0.5 rounded text-[10px] font-black {{ $cl->code === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : ($cl->code === 'A' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700') }}">
-                                                    {{ $cl->code }}
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                                                {{ $c?->hospital_clinic_name }}
+                                            </p>
+
+                                            <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 flex-wrap">
+                                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50">
+                                                    {{ $c?->specialty?->name ?? 'General' }}
                                                 </span>
-                                            @endif
-                                        </div>
-
-                                        <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-2">
-                                            <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50">
-                                                {{ $c?->specialty?->name ?? 'General' }}
-                                            </span>
-                                            @if($c?->city)
-                                                <span>•</span>
-                                                <span>{{ $c->city->name }}</span>
-                                            @endif
-                                        </div>
-
-                                        <!-- Progress Bar -->
-                                        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800/60">
-                                            <div class="flex items-center justify-between text-[11px] font-semibold mb-1">
-                                                <span class="text-slate-500 dark:text-slate-400">{{ app()->getLocale() === 'ar' ? 'الزيارات:' : 'Visits:' }} <strong class="text-slate-900 dark:text-white">{{ $done }}/{{ $req }}</strong></span>
-                                                <span class="text-sky-600 dark:text-sky-400 font-bold">{{ $item->achieved_points }}/{{ $item->target_points }} pts</span>
-                                            </div>
-                                            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                                <div class="h-full rounded-full {{ $pct >= 100 ? 'bg-emerald-500' : ($pct > 0 ? 'bg-sky-500' : 'bg-rose-500') }}" style="width: {{ $pct }}%"></div>
+                                                @if($c?->city)
+                                                    <span>•</span>
+                                                    <span>{{ $c->city->name }}</span>
+                                                @endif
+                                                @if($c?->region)
+                                                    <span>•</span>
+                                                    <span class="text-slate-400">{{ $c->region }}</span>
+                                                @endif
+                                                @if($done > 0 && $done < $req)
+                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25">
+                                                        <i class="fa-solid fa-check text-[9px]"></i> {{ $done }}/{{ $req }} {{ app()->getLocale() === 'ar' ? 'زيارات تمت' : 'done' }}
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Actions Row -->
-                                    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80">
+                                    <!-- Center Section: Progress & Frequency Bar -->
+                                    <div class="w-full md:w-56 flex-shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                        <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                                            <span class="text-slate-500 dark:text-slate-400">
+                                                {{ app()->getLocale() === 'ar' ? 'الزيارات:' : 'Visits:' }} 
+                                                <strong class="text-slate-900 dark:text-white font-bold">{{ $done }}/{{ $req }}</strong>
+                                            </span>
+                                            <span class="text-sky-600 dark:text-sky-400 font-bold text-xs">
+                                                {{ $item->achieved_points }}/{{ $item->target_points }} pts
+                                            </span>
+                                        </div>
+                                        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden p-0.5 border border-slate-300/60 dark:border-slate-700/60">
+                                            <div class="h-full rounded-full transition-all duration-500 {{ $pct >= 100 ? 'bg-emerald-500' : ($pct > 0 ? 'bg-sky-500' : 'bg-slate-400 dark:bg-slate-600') }}" style="width: {{ $pct }}%"></div>
+                                        </div>
+                                        <div class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                            <span>{{ $pct }}% {{ app()->getLocale() === 'ar' ? 'مكتمل' : 'completed' }}</span>
+                                            @if($done > 0)
+                                                <span class="text-emerald-500 font-semibold">{{ $done }} {{ app()->getLocale() === 'ar' ? 'زيارة تمت' : 'done' }}</span>
+                                            @else
+                                                <span class="text-slate-400">{{ app()->getLocale() === 'ar' ? 'لم تبدأ' : 'Not started' }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Section: Actions Row -->
+                                    <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
                                         @if($c?->latitude && $c?->longitude)
                                             <a href="https://www.google.com/maps?q={{ $c->latitude }},{{ $c->longitude }}" target="_blank" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm" title="Open Google Maps">
                                                 <i class="fa-solid fa-location-arrow text-sky-500 dark:text-sky-400"></i>
@@ -587,10 +660,17 @@
                                             <i class="fa-regular fa-calendar-plus"></i>
                                         </button>
 
-                                        <button onclick="triggerCheckIn({{ $c->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}', {{ $item->id }})" class="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1.5">
-                                            <i class="fa-solid fa-location-dot"></i>
-                                            <span>{{ app()->getLocale() === 'ar' ? 'تسجيل زيارة' : 'Visit Now' }}</span>
-                                        </button>
+                                        @if($isCurrentlyCheckedIn)
+                                            <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="flex-1 md:flex-initial py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                                <span>{{ app()->getLocale() === 'ar' ? 'إنهاء الزيارة (تسجيل انصراف)' : 'Check Out & Finish' }}</span>
+                                            </button>
+                                        @else
+                                            <button onclick="triggerCheckIn({{ $c->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}', {{ $item->id }})" class="flex-1 md:flex-initial py-2.5 px-5 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                                <i class="fa-solid fa-location-dot"></i>
+                                                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل زيارة' : 'Visit Now' }}</span>
+                                            </button>
+                                        @endif
                                     </div>
 
                                 </div>
@@ -894,14 +974,55 @@
         </div>
     </div>
 
+    {{-- ================= Active Visit In Progress Warning Modal ================= --}}
+    <div id="active-visit-warning-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl border border-amber-500/40 text-center relative">
+            <button onclick="closeActiveVisitWarning()" class="absolute top-4 right-4 rtl:right-auto rtl:left-4 text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-500 dark:text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-500/30">
+                <i class="fa-solid fa-hand text-3xl animate-bounce"></i>
+            </div>
+
+            <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                {{ app()->getLocale() === 'ar' ? 'توجد زيارة جارية بالفعل!' : 'Visit Already in Progress!' }}
+            </h3>
+
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                {{ app()->getLocale() === 'ar' 
+                    ? 'وفقاً لسياسة العمل الميداني، يُسمح بزيارة واحدة نشطة فقط في نفس الوقت. يجب إنهاء وتسجيل الانصراف من الزيارة الحالية أولاً قبل بدء زيارة جديدة مع طبيب آخر.' 
+                    : 'Field policy permits only one active visit at a time. You must check out and end your current ongoing visit before starting a new visit.' }}
+            </p>
+
+            <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-700 dark:text-amber-300 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-user-doctor text-amber-500"></i>
+                <span id="active-visit-warning-doc-name"></span>
+            </div>
+
+            <div class="flex items-center gap-2.5 pt-2">
+                <button type="button" onclick="closeActiveVisitWarning()" class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition border border-slate-300 dark:border-slate-700">
+                    {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Dismiss' }}
+                </button>
+                <button type="button" onclick="goToActiveCheckout()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-500/30 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'إنهاء الزيارة الآن' : 'Check Out Now' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- ================= Interactive Check-Out Modal ================= --}}
-    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative">
-            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
-                    <i class="fa-solid fa-clipboard-check text-emerald-500 dark:text-emerald-400"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الانصراف ومخرجات الزيارة' : 'Visit Check-Out & Outcome' }}</span>
-                </h3>
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative my-auto max-h-[92vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-emerald-500 dark:text-emerald-400"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'تسجيل الانصراف ومخرجات الزيارة' : 'Visit Check-Out & Outcome' }}</span>
+                    </h3>
+                    <p id="checkout-doctor-banner" class="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5"></p>
+                </div>
                 <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
@@ -909,33 +1030,196 @@
 
             <input type="hidden" id="checkout-visit-id">
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    {{ app()->getLocale() === 'ar' ? 'نتيجة الزيارة *' : 'Visit Outcome *' }}
-                </label>
-                <select id="checkout-outcome" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-emerald-500">
-                    <option value="completed">✅ {{ app()->getLocale() === 'ar' ? 'مقابلة ناجحة ومناقشة تفصيلية' : 'Successful Meeting & Clinical Discussion' }}</option>
-                    <option value="sample_delivered">💊 {{ app()->getLocale() === 'ar' ? 'تسليم عينات ومواد ترويجية' : 'Samples & Marketing Materials Delivered' }}</option>
-                    <option value="follow_up_needed">📅 {{ app()->getLocale() === 'ar' ? 'تحديد موعد متابعة قادم' : 'Follow-Up Needed / Action Assigned' }}</option>
-                    <option value="doctor_busy">⏳ {{ app()->getLocale() === 'ar' ? 'الطبيب منشغل / مقابلة سريعة' : 'Doctor Busy / Brief Presentation' }}</option>
-                    <option value="cancelled">❌ {{ app()->getLocale() === 'ar' ? 'الطبيب غير متاح بالعيادة' : 'Doctor Unavailable at Clinic' }}</option>
-                </select>
+            <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <!-- Visit Outcome (Custom HTML Dropdown with Real Icons) -->
+                <div class="relative" id="checkout-outcome-wrapper">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
+                        {{ app()->getLocale() === 'ar' ? 'نتيجة ومخرجات الزيارة *' : 'Visit Outcome *' }}
+                    </label>
+
+                    <!-- Hidden Input to preserve value for form submission -->
+                    <input type="hidden" id="checkout-outcome" value="completed">
+
+                    <!-- Custom Dropdown Trigger Button -->
+                    <button type="button" id="checkout-outcome-btn" onclick="toggleOutcomeDropdown()" class="w-full flex items-center justify-between gap-3 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-emerald-500 hover:border-slate-400 dark:hover:border-slate-600 transition shadow-sm select-none">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span id="checkout-outcome-selected-icon" class="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs flex-shrink-0">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                            <span id="checkout-outcome-selected-text" class="font-semibold truncate text-slate-800 dark:text-slate-200">
+                                {{ app()->getLocale() === 'ar' ? 'مقابلة ناجحة ومناقشة علمية تفصيلية' : 'Successful Meeting & Clinical Discussion' }}
+                            </span>
+                        </div>
+                        <i id="checkout-outcome-chevron" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                    </button>
+
+                    <!-- Custom Dropdown Menu with Real FontAwesome Icons -->
+                    <div id="checkout-outcome-menu" class="hidden absolute top-full left-0 right-0 z-50 mt-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl shadow-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800/60 transition-all">
+                        
+                        <!-- Option 1: Completed -->
+                        <div onclick="selectCheckoutOutcome('completed', 'fa-circle-check', 'emerald', '{{ addslashes(app()->getLocale() === 'ar' ? 'مقابلة ناجحة ومناقشة علمية تفصيلية' : 'Successful Meeting & Clinical Discussion') }}')" 
+                             class="outcome-option flex items-center justify-between gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition select-none group active:scale-[0.99]"
+                             data-value="completed">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </span>
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'مقابلة ناجحة ومناقشة علمية تفصيلية' : 'Successful Meeting & Clinical Discussion' }}
+                                </span>
+                            </div>
+                            <i class="outcome-check fa-solid fa-check text-emerald-500 text-xs"></i>
+                        </div>
+
+                        <!-- Option 2: Sample Delivered -->
+                        <div onclick="selectCheckoutOutcome('sample_delivered', 'fa-capsules', 'sky', '{{ addslashes(app()->getLocale() === 'ar' ? 'تسليم عينات ومواد ترويجية' : 'Samples & Marketing Materials Delivered') }}')" 
+                             class="outcome-option flex items-center justify-between gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition select-none group active:scale-[0.99]"
+                             data-value="sample_delivered">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-7 h-7 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-capsules"></i>
+                                </span>
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-sky-600 dark:group-hover:text-sky-400 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'تسليم عينات ومواد ترويجية' : 'Samples & Marketing Materials Delivered' }}
+                                </span>
+                            </div>
+                            <i class="outcome-check hidden fa-solid fa-check text-sky-500 text-xs"></i>
+                        </div>
+
+                        <!-- Option 3: Follow-Up Needed -->
+                        <div onclick="selectCheckoutOutcome('follow_up_needed', 'fa-calendar-check', 'indigo', '{{ addslashes(app()->getLocale() === 'ar' ? 'تحديد موعد متابعة قادم' : 'Follow-Up Needed / Action Assigned') }}')" 
+                             class="outcome-option flex items-center justify-between gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition select-none group active:scale-[0.99]"
+                             data-value="follow_up_needed">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                </span>
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'تحديد موعد متابعة قادم' : 'Follow-Up Needed / Action Assigned' }}
+                                </span>
+                            </div>
+                            <i class="outcome-check hidden fa-solid fa-check text-indigo-500 text-xs"></i>
+                        </div>
+
+                        <!-- Option 4: Doctor Busy -->
+                        <div onclick="selectCheckoutOutcome('doctor_busy', 'fa-hourglass-half', 'amber', '{{ addslashes(app()->getLocale() === 'ar' ? 'الطبيب منشغل / مقابلة سريعة' : 'Doctor Busy / Brief Presentation') }}')" 
+                             class="outcome-option flex items-center justify-between gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition select-none group active:scale-[0.99]"
+                             data-value="doctor_busy">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-hourglass-half"></i>
+                                </span>
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'الطبيب منشغل / مقابلة سريعة' : 'Doctor Busy / Brief Presentation' }}
+                                </span>
+                            </div>
+                            <i class="outcome-check hidden fa-solid fa-check text-amber-500 text-xs"></i>
+                        </div>
+
+                        <!-- Option 5: Cancelled / Doctor Unavailable -->
+                        <div onclick="selectCheckoutOutcome('cancelled', 'fa-circle-xmark', 'rose', '{{ addslashes(app()->getLocale() === 'ar' ? 'الطبيب غير متاح بالعيادة' : 'Doctor Unavailable at Clinic') }}')" 
+                             class="outcome-option flex items-center justify-between gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/80 cursor-pointer transition select-none group active:scale-[0.99]"
+                             data-value="cancelled">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <span class="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </span>
+                                <span class="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'الطبيب غير متاح بالعيادة' : 'Doctor Unavailable at Clinic' }}
+                                </span>
+                            </div>
+                            <i class="outcome-check hidden fa-solid fa-check text-rose-500 text-xs"></i>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Products Discussed with Doctor (Required) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
+                            {{ app()->getLocale() === 'ar' ? 'المنتجات التي تمت مناقشتها مع الطبيب *' : 'Products Discussed with Doctor *' }}
+                        </label>
+                        <span id="checkout-products-count-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                            <span id="checkout-products-selected-count">0</span> {{ app()->getLocale() === 'ar' ? 'محدد' : 'selected' }}
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'حدد التركيبات الطبية والمنتجات التي تم شرحها للطبيب ليعلم الإدارة محتوى الزيارة.' 
+                            : 'Select the product(s) presented or detailed with the doctor so management tracks clinical engagement.' }}
+                    </p>
+
+                    <!-- Product Search -->
+                    <div class="relative mb-2">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                        <input type="text" id="checkout-product-search" 
+                            placeholder="{{ app()->getLocale() === 'ar' ? 'بحث باسم المنتج أو الكود...' : 'Search product name or SKU...' }}" 
+                            class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white pl-8 pr-8 rtl:pl-8 rtl:pr-8 py-2 focus:outline-none focus:border-emerald-500 transition">
+                    </div>
+
+                    <!-- Products List Cards -->
+                    <div id="checkout-products-list" class="max-h-44 overflow-y-auto space-y-1.5 p-1.5 rounded-xl bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700">
+                        @forelse($availableProducts as $prod)
+                            <div class="checkout-product-row group flex items-center justify-between gap-2.5 p-2 rounded-lg cursor-pointer transition border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-900 hover:border-emerald-500 select-none"
+                                 data-id="{{ $prod->id }}"
+                                 data-name="{{ app()->getLocale() === 'ar' && !empty($prod->name_ar) ? $prod->name_ar : $prod->name_en }}"
+                                 data-search="{{ strtolower($prod->name_en . ' ' . $prod->name_ar . ' ' . $prod->sku) }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <input type="checkbox" name="checkout_product_ids[]" value="{{ $prod->id }}" class="checkout-product-cb h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500 pointer-events-none">
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-bold text-slate-900 dark:text-white truncate group-hover:text-emerald-500 transition">
+                                            {{ app()->getLocale() === 'ar' && !empty($prod->name_ar) ? $prod->name_ar : $prod->name_en }}
+                                        </div>
+                                        @if($prod->sku)
+                                            <div class="text-[10px] text-slate-400 font-mono">
+                                                SKU: {{ $prod->sku }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="product-check-indicator hidden text-emerald-500 text-xs flex-shrink-0">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-4 text-center text-xs text-slate-400">
+                                {{ app()->getLocale() === 'ar' ? 'لا توجد منتجات مسجلة.' : 'No products available.' }}
+                            </div>
+                        @endforelse
+
+                        <div id="no-checkout-products-found" class="hidden p-4 text-center text-xs text-slate-400">
+                            {{ app()->getLocale() === 'ar' ? 'لا توجد منتجات مطابقة لبحثك.' : 'No products matched your search.' }}
+                        </div>
+                    </div>
+
+                    <div id="checkout-products-error" class="hidden text-xs text-rose-500 font-bold mt-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'يرجى اختيار منتج واحد على الأقل تمت مناقشته مع الطبيب.' : 'Please select at least one product discussed during the visit.' }}</span>
+                    </div>
+                </div>
+
+                <!-- Meeting Notes & Doctor Feedback (Required) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">
+                        {{ app()->getLocale() === 'ar' ? 'ملاحظات الزيارة وملاحظات الطبيب (مطلوب) *' : 'Meeting Notes & Doctor Feedback (Required) *' }}
+                    </label>
+                    <textarea id="checkout-notes" rows="3" required placeholder="{{ app()->getLocale() === 'ar' ? 'اكتب بالتفصيل ما تم نقاشه، استجابة الطبيب للمنتجات، احتياجات العينات، أو أي خطط متابعة (إجباري)...' : 'Detail clinical topics discussed, doctor feedback on formulations, sample requests, or follow-up commitments (required)...' }}" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-emerald-500 leading-relaxed"></textarea>
+                    
+                    <div id="checkout-notes-error" class="hidden text-xs text-rose-500 font-bold mt-1.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات الزيارة وملاحظات الطبيب مطلوبة لحفظ وإنهاء الزيارة.' : 'Meeting notes and doctor feedback are required to complete the visit.' }}</span>
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    {{ app()->getLocale() === 'ar' ? 'ملاحظات الزيارة وملاحظات الطبيب' : 'Meeting Notes & Doctor Feedback' }}
-                </label>
-                <textarea id="checkout-notes" rows="3" placeholder="{{ app()->getLocale() === 'ar' ? 'التركيبات الطبية المناقشة، استجابة الطبيب، الاحتياجات...' : 'Key longevity formulations discussed, product feedback, requirements...' }}" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-emerald-500"></textarea>
-            </div>
-
-            <div class="flex items-center justify-end gap-2.5 pt-2">
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
                 <button type="button" onclick="closeCheckoutModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition border border-slate-200 dark:border-transparent">
                     {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                 </button>
-                <button onclick="submitCheckoutForm()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs active:scale-95 transition shadow-lg shadow-emerald-600/30 flex items-center gap-2">
+                <button type="button" id="submit-checkout-btn" onclick="submitCheckoutForm()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs active:scale-95 transition shadow-lg shadow-emerald-600/30 flex items-center gap-2">
                     <i class="fa-solid fa-floppy-disk"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'حفظ وإنهاء الزيارة' : 'Save & Log Visit' }}</span>
+                    <span id="submit-checkout-btn-text">{{ app()->getLocale() === 'ar' ? 'حفظ وإنهاء الزيارة' : 'Save & Log Visit' }}</span>
                 </button>
             </div>
         </div>
@@ -990,6 +1274,191 @@
                     <span>{{ app()->getLocale() === 'ar' ? 'تأكيد الحجز' : 'Schedule Appointment' }}</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    {{-- ================= Visits Done / Completed Doctors Modal ================= --}}
+    <div id="visits-done-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/25 flex-shrink-0">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-black text-slate-900 dark:text-white text-base sm:text-lg">
+                                {{ app()->getLocale() === 'ar' ? 'الأطباء الذين تمت زيارتهم' : 'Doctors Visited & Done' }}
+                            </h3>
+                            <span id="visits-done-badge-count" class="px-2 py-0.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                {{ count($completedVisits) }} {{ app()->getLocale() === 'ar' ? 'مكتملة' : 'completed' }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            {{ app()->getLocale() === 'ar' ? 'سجل الزيارات المنفذة مع المنتجات المناقشة وملاحظات العيادة' : 'Log of completed visits, discussed products, and doctor feedback.' }}
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeVisitsDoneModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Search & Filter Bar Inside Modal -->
+            <div class="pt-3.5 pb-2 flex-shrink-0">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                    <input type="text" id="completed-visits-search" onkeyup="filterCompletedVisits()" placeholder="{{ app()->getLocale() === 'ar' ? 'بحث في الأطباء، المركز، التخصص، أو المنتج...' : 'Search doctor name, clinic, specialty, product...' }}" class="w-full pl-9 rtl:pl-3 rtl:pr-9 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/90 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition">
+                </div>
+            </div>
+
+            <!-- Scrollable Completed Visits List -->
+            <div id="completed-visits-container" class="overflow-y-auto max-h-[60vh] space-y-3 pt-2 pb-2 pr-1">
+                @forelse($completedVisits as $cv)
+                    @php
+                        $doc = $cv->contact;
+                        $spec = $doc?->specialty?->name ?? 'Specialist';
+                        $classCode = $doc?->classification?->code;
+                        $prods = $cv->products;
+                        if ($prods->isEmpty() && $cv->product) {
+                            $prods = collect([$cv->product]);
+                        }
+                        $prodNames = $prods->map(fn($p) => ($p->name_en . ' ' . $p->name_ar . ' ' . $p->sku))->implode(' ');
+                        $durationMin = $cv->duration_minutes ?? ($cv->checkin_at && $cv->checkout_at ? $cv->checkin_at->diffInMinutes($cv->checkout_at) : 0);
+                    @endphp
+                    <div class="completed-visit-card p-4 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 hover:border-emerald-500/40 transition space-y-3"
+                         data-doctor="{{ strtolower($doc?->name ?? '') }}"
+                         data-clinic="{{ strtolower($doc?->hospital_clinic_name ?? '') }}"
+                         data-specialty="{{ strtolower($spec) }}"
+                         data-products="{{ strtolower($prodNames) }}"
+                         data-notes="{{ strtolower($cv->notes ?? '') }}">
+                        
+                        <!-- Doctor & Visit Status Header -->
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/20 flex-shrink-0">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">
+                                            {{ $doc?->name ?? 'Doctor' }}
+                                        </h4>
+                                        @if($doc?->code)
+                                            <span class="text-[10px] text-slate-400 font-mono">({{ $doc->code }})</span>
+                                        @endif
+                                        @if($classCode)
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-black {{ $classCode === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' }}">
+                                                Class {{ $classCode }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                        {{ $doc?->hospital_clinic_name }} • {{ $spec }}
+                                        @if($doc?->city)
+                                            • {{ $doc->city->name }}
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Duration & GPS Pill -->
+                            <div class="text-right rtl:text-left flex flex-col items-end rtl:items-start gap-1 flex-shrink-0">
+                                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                                    <i class="fa-regular fa-clock text-slate-400"></i>
+                                    {{ $durationMin }} {{ app()->getLocale() === 'ar' ? 'دقيقة' : 'min' }}
+                                </span>
+                                @if($cv->gps_verified)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                        <i class="fa-solid fa-satellite"></i> {{ app()->getLocale() === 'ar' ? 'مؤكد بالـ GPS' : 'GPS Verified' }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> {{ app()->getLocale() === 'ar' ? 'غير مؤكد' : 'Unverified' }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Date, Time & Outcome -->
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 border-t border-b border-slate-200/60 dark:border-slate-700/50 py-2">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar-check text-sky-500"></i>
+                                <span>{{ $cv->checkout_at ? $cv->checkout_at->format('d M Y, h:i A') : $cv->created_at->format('d M Y, h:i A') }}</span>
+                            </span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                {{ ucfirst(str_replace('_', ' ', $cv->outcome ?? 'completed')) }}
+                            </span>
+                        </div>
+
+                        <!-- Discussed Products Section -->
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-capsules text-emerald-500"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المنتجات التي نوقشت:' : 'Products Discussed:' }}</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1.5">
+                                @forelse($prods as $p)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                                        <i class="fa-solid fa-check text-[9px] text-emerald-500"></i>
+                                        <span>{{ app()->getLocale() === 'ar' && !empty($p->name_ar) ? $p->name_ar : $p->name_en }}</span>
+                                    </span>
+                                @empty
+                                    <span class="text-xs text-slate-400 italic">
+                                        {{ app()->getLocale() === 'ar' ? 'لم تُحدد منتجات' : 'No products specified' }}
+                                    </span>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- Meeting Notes & Feedback -->
+                        @if($cv->notes)
+                            <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                                <div class="flex items-start gap-2">
+                                    <i class="fa-solid fa-quote-left text-slate-400 text-[11px] mt-0.5 flex-shrink-0"></i>
+                                    <p class="whitespace-pre-line">{{ $cv->notes }}</p>
+                                </div>
+                            </div>
+                        @endif
+
+                    </div>
+                @empty
+                    <div id="completed-visits-empty-state" class="p-8 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-2 text-xl">
+                            <i class="fa-regular fa-clipboard"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                            {{ app()->getLocale() === 'ar' ? 'لا توجد زيارات مكتملة بعد' : 'No Completed Visits Yet' }}
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                            {{ app()->getLocale() === 'ar' ? 'عند تسجيل انصراف من زيارة طبيب وكتابة الملاحظات والمنتجات، ستظهر جميع بياناتها هنا.' : 'When you check out from a doctor visit with notes and products, the record will appear here.' }}
+                        </p>
+                    </div>
+                @endforelse
+
+                <div id="no-filtered-completed-visits" class="hidden p-8 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <p class="text-xs text-slate-500">
+                        {{ app()->getLocale() === 'ar' ? 'لا توجد زيارات مطابقة للبحث.' : 'No completed visits matched your search.' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 flex-shrink-0">
+                <span class="text-xs text-slate-500">
+                    {{ app()->getLocale() === 'ar' ? 'إجمالي الزيارات المنفذة: ' : 'Total visits: ' }}
+                    <strong class="text-emerald-600 dark:text-emerald-400 font-black">{{ count($completedVisits) }}</strong>
+                </span>
+                <button type="button" onclick="closeVisitsDoneModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition border border-slate-200 dark:border-transparent">
+                    {{ app()->getLocale() === 'ar' ? 'إغلاق' : 'Close' }}
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -1387,6 +1856,75 @@
             });
         }
 
+        function filterByStatus(targetStatus) {
+            document.querySelectorAll('.chip-filter').forEach(btn => {
+                btn.classList.remove('active', 'bg-sky-600', 'text-white', 'bg-emerald-600');
+                btn.classList.add('bg-slate-200', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-400');
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active', 'bg-sky-600', 'text-white');
+                event.currentTarget.classList.remove('bg-slate-200', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-400');
+            }
+
+            const cards = document.querySelectorAll('.doctor-card');
+            cards.forEach(card => {
+                const status = card.getAttribute('data-status');
+                if (targetStatus === 'all' || status === targetStatus) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Visits Done / Completed Doctors Modal Controls
+        function openVisitsDoneModal() {
+            const modal = document.getElementById('visits-done-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                const searchInput = document.getElementById('completed-visits-search');
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterCompletedVisits();
+                    setTimeout(() => searchInput.focus(), 150);
+                }
+            }
+        }
+
+        function closeVisitsDoneModal() {
+            const modal = document.getElementById('visits-done-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function filterCompletedVisits() {
+            const query = (document.getElementById('completed-visits-search').value || '').trim().toLowerCase();
+            const items = document.querySelectorAll('#completed-visits-container .completed-visit-card');
+            let visibleCount = 0;
+
+            items.forEach(card => {
+                const doc = card.getAttribute('data-doctor') || '';
+                const clinic = card.getAttribute('data-clinic') || '';
+                const spec = card.getAttribute('data-specialty') || '';
+                const prods = card.getAttribute('data-products') || '';
+                const notes = card.getAttribute('data-notes') || '';
+
+                const matches = !query || doc.includes(query) || clinic.includes(query) || spec.includes(query) || prods.includes(query) || notes.includes(query);
+                if (matches) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const noResults = document.getElementById('no-filtered-completed-visits');
+            if (noResults) {
+                noResults.classList.toggle('hidden', visibleCount > 0 || items.length === 0);
+            }
+        }
+
         // Toast feedback
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
@@ -1407,8 +1945,30 @@
             }, 4000);
         }
 
-        // Check-In flow
+        // Active ongoing visit tracking
+        const activeOngoingVisitId = {{ $activeOngoingVisit ? $activeOngoingVisit->id : 'null' }};
+        const activeOngoingDoctorName = "{{ $activeOngoingVisit ? addslashes($activeOngoingVisit->contact?->name ?? 'Doctor') : '' }}";
+
+        function closeActiveVisitWarning() {
+            document.getElementById('active-visit-warning-modal').classList.add('hidden');
+        }
+
+        function goToActiveCheckout() {
+            closeActiveVisitWarning();
+            if (activeOngoingVisitId) {
+                openCheckoutModal(activeOngoingVisitId, activeOngoingDoctorName);
+            }
+        }
+
+        // Check-In flow with Single Active Visit Guard
         function triggerCheckIn(contactId, doctorName, assignmentId = null, scheduledVisitId = null) {
+            // Enforce: only one active visit at a time
+            if (activeOngoingVisitId) {
+                document.getElementById('active-visit-warning-doc-name').innerText = activeOngoingDoctorName;
+                document.getElementById('active-visit-warning-modal').classList.remove('hidden');
+                return;
+            }
+
             currentCheckinData = { contactId, assignmentId, scheduledVisitId, lat: null, lng: null, accuracy: null };
             document.getElementById('checkin-doctor-name').innerText = doctorName;
             document.getElementById('checkin-modal').classList.remove('hidden');
@@ -1510,9 +2070,73 @@
             }
         }
 
+        // Custom Outcome Dropdown Controls
+        function toggleOutcomeDropdown() {
+            const menu = document.getElementById('checkout-outcome-menu');
+            const chevron = document.getElementById('checkout-outcome-chevron');
+            if (menu) {
+                const isHidden = menu.classList.contains('hidden');
+                menu.classList.toggle('hidden', !isHidden);
+                if (chevron) {
+                    chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                }
+            }
+        }
+
+        function selectCheckoutOutcome(val, iconName, colorName, textLabel) {
+            const input = document.getElementById('checkout-outcome');
+            if (input) input.value = val;
+
+            const iconSpan = document.getElementById('checkout-outcome-selected-icon');
+            if (iconSpan) {
+                iconSpan.className = `w-6 h-6 rounded-lg bg-${colorName}-500/15 text-${colorName}-600 dark:text-${colorName}-400 flex items-center justify-center text-xs flex-shrink-0`;
+                iconSpan.innerHTML = `<i class="fa-solid ${iconName}"></i>`;
+            }
+
+            const textSpan = document.getElementById('checkout-outcome-selected-text');
+            if (textSpan) textSpan.innerText = textLabel;
+
+            // Highlight chosen option
+            document.querySelectorAll('#checkout-outcome-menu .outcome-option').forEach(opt => {
+                const check = opt.querySelector('.outcome-check');
+                if (opt.getAttribute('data-value') === val) {
+                    if (check) check.classList.remove('hidden');
+                    opt.classList.add('bg-slate-100/70', 'dark:bg-slate-800');
+                } else {
+                    if (check) check.classList.add('hidden');
+                    opt.classList.remove('bg-slate-100/70', 'dark:bg-slate-800');
+                }
+            });
+
+            // Close menu
+            const menu = document.getElementById('checkout-outcome-menu');
+            if (menu) menu.classList.add('hidden');
+            const chevron = document.getElementById('checkout-outcome-chevron');
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('checkout-outcome-wrapper');
+            const menu = document.getElementById('checkout-outcome-menu');
+            if (wrapper && menu && !wrapper.contains(e.target)) {
+                menu.classList.add('hidden');
+                const chevron = document.getElementById('checkout-outcome-chevron');
+                if (chevron) chevron.style.transform = 'rotate(0deg)';
+            }
+        });
+
         // Check-Out flow
-        function openCheckoutModal(visitId, doctorName) {
+        function openCheckoutModal(visitId, doctorName = '') {
             document.getElementById('checkout-visit-id').value = visitId;
+            selectCheckoutOutcome('completed', 'fa-circle-check', 'emerald', "{{ addslashes(app()->getLocale() === 'ar' ? 'مقابلة ناجحة ومناقشة علمية تفصيلية' : 'Successful Meeting & Clinical Discussion') }}");
+            const docBanner = document.getElementById('checkout-doctor-banner');
+            if (docBanner) {
+                docBanner.innerText = doctorName ? ('{{ app()->getLocale() === 'ar' ? 'مع الطبيب: ' : 'Doctor: ' }}' + doctorName) : '';
+            }
+            const notesErr = document.getElementById('checkout-notes-error');
+            const prodsErr = document.getElementById('checkout-products-error');
+            if (notesErr) notesErr.classList.add('hidden');
+            if (prodsErr) prodsErr.classList.add('hidden');
             document.getElementById('checkout-modal').classList.remove('hidden');
         }
 
@@ -1520,10 +2144,105 @@
             document.getElementById('checkout-modal').classList.add('hidden');
         }
 
+        // Setup checkout product rows click handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const prodRows = document.querySelectorAll('#checkout-products-list .checkout-product-row');
+            prodRows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    const cb = row.querySelector('.checkout-product-cb');
+                    if (!cb) return;
+                    cb.checked = !cb.checked;
+                    
+                    const indicator = row.querySelector('.product-check-indicator');
+                    if (cb.checked) {
+                        row.classList.add('bg-emerald-500/10', 'border-emerald-500', 'ring-1', 'ring-emerald-500/30');
+                        row.classList.remove('bg-white', 'dark:bg-slate-900', 'border-slate-200/80', 'dark:border-slate-700/80');
+                        if (indicator) indicator.classList.remove('hidden');
+                    } else {
+                        row.classList.remove('bg-emerald-500/10', 'border-emerald-500', 'ring-1', 'ring-emerald-500/30');
+                        row.classList.add('bg-white', 'dark:bg-slate-900', 'border-slate-200/80', 'dark:border-slate-700/80');
+                        if (indicator) indicator.classList.add('hidden');
+                    }
+
+                    const checkedCount = document.querySelectorAll('#checkout-products-list .checkout-product-cb:checked').length;
+                    const badgeCount = document.getElementById('checkout-products-selected-count');
+                    if (badgeCount) badgeCount.innerText = checkedCount;
+                    if (checkedCount > 0) {
+                        document.getElementById('checkout-products-error').classList.add('hidden');
+                    }
+                });
+            });
+
+            // Product search inside checkout modal
+            const prodSearchInput = document.getElementById('checkout-product-search');
+            if (prodSearchInput) {
+                prodSearchInput.addEventListener('input', function() {
+                    const q = (this.value || '').trim().toLowerCase();
+                    let visible = 0;
+                    prodRows.forEach(r => {
+                        const search = r.getAttribute('data-search') || '';
+                        if (!q || search.includes(q)) {
+                            r.style.display = 'flex';
+                            visible++;
+                        } else {
+                            r.style.display = 'none';
+                        }
+                    });
+                    const noResults = document.getElementById('no-checkout-products-found');
+                    if (noResults) {
+                        noResults.classList.toggle('hidden', visible > 0);
+                    }
+                });
+            }
+
+            // Real-time hide error on notes input
+            const notesInput = document.getElementById('checkout-notes');
+            if (notesInput) {
+                notesInput.addEventListener('input', function() {
+                    if (this.value.trim().length >= 3) {
+                        document.getElementById('checkout-notes-error').classList.add('hidden');
+                    }
+                });
+            }
+        });
+
         async function submitCheckoutForm() {
             const visitId = document.getElementById('checkout-visit-id').value;
             const outcome = document.getElementById('checkout-outcome').value;
-            const notes = document.getElementById('checkout-notes').value;
+            const notes = (document.getElementById('checkout-notes').value || '').trim();
+
+            const notesErr = document.getElementById('checkout-notes-error');
+            const prodsErr = document.getElementById('checkout-products-error');
+
+            // 1. Validate Notes (Required)
+            if (!notes || notes.length < 3) {
+                if (notesErr) {
+                    notesErr.classList.remove('hidden');
+                    document.getElementById('checkout-notes').focus();
+                }
+                return;
+            } else {
+                if (notesErr) notesErr.classList.add('hidden');
+            }
+
+            // 2. Validate Products Discussed (Required)
+            const selectedProductBoxes = document.querySelectorAll('#checkout-products-list .checkout-product-cb:checked');
+            const productIds = Array.from(selectedProductBoxes).map(cb => parseInt(cb.value)).filter(id => !isNaN(id) && id > 0);
+
+            if (productIds.length === 0) {
+                if (prodsErr) {
+                    prodsErr.classList.remove('hidden');
+                    document.getElementById('checkout-products-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                return;
+            } else {
+                if (prodsErr) prodsErr.classList.add('hidden');
+            }
+
+            const btn = document.getElementById('submit-checkout-btn');
+            const btnText = document.getElementById('submit-checkout-btn-text');
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'جاري الحفظ...' : 'Saving...' }}';
 
             try {
                 const response = await fetch("{{ route('mr.checkout') }}", {
@@ -1536,7 +2255,9 @@
                     body: JSON.stringify({
                         visit_id: visitId,
                         outcome: outcome,
-                        notes: notes
+                        notes: notes,
+                        product_ids: productIds,
+                        product_id: productIds[0]
                     })
                 });
 
@@ -1547,9 +2268,13 @@
                     setTimeout(() => window.location.reload(), 1200);
                 } else {
                     showToast('Error: ' + res.message, 'error');
+                    if (btn) btn.disabled = false;
+                    if (btnText) btnText.innerText = "{{ app()->getLocale() === 'ar' ? 'حفظ وإنهاء الزيارة' : 'Save & Log Visit' }}";
                 }
             } catch (err) {
                 showToast('Network error: ' + err.message, 'error');
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.innerText = "{{ app()->getLocale() === 'ar' ? 'حفظ وإنهاء الزيارة' : 'Save & Log Visit' }}";
             }
         }
 

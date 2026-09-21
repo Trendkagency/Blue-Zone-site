@@ -2344,6 +2344,7 @@
 
     <!-- Global Admin Table Engine & Tools -->
     <script src="{{ asset('js/admin-table-tools.js') }}"></script>
+    <script src="{{ asset('assets/js/mr-table-sort.js') }}"></script>
     <style>
         /* Table Sorting & Enhancements */
         table.table th[data-sort-dir="asc"],

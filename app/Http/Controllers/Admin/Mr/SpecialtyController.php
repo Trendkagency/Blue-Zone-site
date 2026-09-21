@@ -8,9 +8,44 @@ use Illuminate\Http\Request;
 
 class SpecialtyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $specialties = ContactSpecialty::withCount('contacts')->latest()->get();
+
+        if ($request->has('export')) {
+            $exporter = app(\App\Services\Mr\Export\MrTableExcelExporter::class);
+            $metadata = ['Total Specialties' => $specialties->count()];
+            $totalDoctors = $specialties->sum('contacts_count');
+
+            $kpiCards = [
+                ['label' => 'Total Specialties', 'val' => (string)$specialties->count(), 'bg' => 'F1F5F9', 'fg' => '0F172A', 'border' => 'CBD5E1'],
+                ['label' => 'Total Registered Doctors', 'val' => (string)$totalDoctors, 'bg' => 'E0F2FE', 'fg' => '0369A1', 'border' => 'BAE6FD'],
+            ];
+
+            $columns = [
+                ['key' => fn($s) => $s->code, 'header' => 'Specialty Code', 'width' => 16, 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                ['key' => fn($s) => $s->name, 'header' => 'Specialty Name', 'width' => 26, 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+                ['key' => fn($s) => (int)$s->contacts_count, 'header' => 'Doctors Registered', 'width' => 18, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                ['key' => fn($s) => $s->description ?: '—', 'header' => 'Description', 'width' => 30, 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+                [
+                    'key' => fn($s) => $s->is_active ? 'Active' : 'Inactive',
+                    'header' => 'Status',
+                    'width' => 12,
+                    'type' => 'badge',
+                    'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'badgeColors' => fn($val) => $val === 'Active' ? ['bg' => 'DCFCE7', 'fg' => '15803D'] : ['bg' => 'FEE2E2', 'fg' => 'B91C1C']
+                ],
+            ];
+
+            return $exporter->export(
+                'Medical Specialties Directory',
+                $metadata,
+                $kpiCards,
+                $columns,
+                $specialties,
+                'medical-specialties-' . date('Y-m-d') . '.xlsx'
+            );
+        }
 
         return view('admin.mr.specialties.index', compact('specialties'));
     }

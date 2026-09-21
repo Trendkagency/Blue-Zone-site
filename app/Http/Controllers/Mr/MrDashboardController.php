@@ -8,6 +8,7 @@ use App\Models\Mr\ContactAssignment;
 use App\Models\Mr\ScheduledVisit;
 use App\Models\Mr\Visit;
 use App\Models\Mr\VisitCycle;
+use App\Models\Product;
 use App\Services\Mr\CrmMrReportService;
 use App\Services\Mr\CrmScheduleService;
 use App\Services\Mr\CrmVisitService;
@@ -84,6 +85,30 @@ class MrDashboardController extends Controller
                 ->get();
         }
 
+        // 5. Completed Visits / Doctors Done (with relations: contact, products, product)
+        $completedVisits = [];
+        if ($user) {
+            $completedVisits = Visit::with([
+                    'contact.specialty',
+                    'contact.classification',
+                    'contact.city',
+                    'product',
+                    'products',
+                ])
+                ->where('mr_id', $user->id)
+                ->when($activeCycle, function ($q) use ($activeCycle) {
+                    $q->where('cycle_id', $activeCycle->id);
+                })
+                ->whereNotNull('checkout_at')
+                ->latest('checkout_at')
+                ->get();
+        }
+
+        $availableProducts = Product::where('status', 'active')
+            ->orWhereNull('status')
+            ->orderBy('name_en')
+            ->get(['id', 'name_en', 'name_ar', 'sku']);
+
         return view('mr.dashboard', compact(
             'user',
             'activeCycle',
@@ -91,7 +116,9 @@ class MrDashboardController extends Controller
             'todayVisits',
             'activeOngoingVisit',
             'atRiskAssignments',
-            'allAssignments'
+            'allAssignments',
+            'completedVisits',
+            'availableProducts'
         ));
     }
 
@@ -140,7 +167,13 @@ class MrDashboardController extends Controller
             'lat' => 'nullable|numeric',
             'lng' => 'nullable|numeric',
             'outcome' => 'required|string',
-            'notes' => 'nullable|string|max:2000',
+            'notes' => 'required|string|min:3|max:2000',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'integer|exists:products,id',
+            'product_id' => 'nullable|integer|exists:products,id',
+        ], [
+            'notes.required' => app()->getLocale() === 'ar' ? 'ملاحظات الزيارة وملاحظات الطبيب مطلوبة.' : 'Meeting notes and feedback are required.',
+            'notes.min' => app()->getLocale() === 'ar' ? 'يرجى كتابة 3 أحرف على الأقل في الملاحظات.' : 'Meeting notes must be at least 3 characters.',
         ]);
 
         $user = Auth::user();

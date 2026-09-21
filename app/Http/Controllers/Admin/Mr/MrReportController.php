@@ -7,6 +7,7 @@ use App\Models\Mr\RepPerformanceSnapshot;
 use App\Models\Mr\VisitCycle;
 use App\Models\User;
 use App\Services\Mr\CrmMrReportService;
+use App\Services\Mr\DoctorCoverageExcelExporter;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -46,9 +47,12 @@ class MrReportController extends Controller
             });
         }
 
-        // CSV Export check
-        if ($request->has('export') && $request->export === 'csv') {
-            return $this->exportCoverageCsv($rows, $selectedCycleId);
+        // Export check (Default to professional formatted Excel sheet)
+        if ($request->has('export')) {
+            if ($request->export === 'csv') {
+                return $this->exportCoverageCsv($rows, $selectedCycleId);
+            }
+            return app(DoctorCoverageExcelExporter::class)->export($rows, $selectedCycleId, $selectedMrId, $filterStatus);
         }
 
         $medicalReps = User::whereHas('role', function ($q) {
@@ -84,11 +88,85 @@ class MrReportController extends Controller
                 ->get();
         }
 
-        if ($request->has('export') && $request->export === 'csv') {
-            return $this->exportPerformanceCsv($snapshots, $selectedCycleId);
+        if ($request->has('export')) {
+            if ($request->export === 'csv') {
+                return $this->exportPerformanceCsv($snapshots, $selectedCycleId);
+            }
+            return $this->exportPerformanceExcel($snapshots, $selectedCycleId);
         }
 
         return view('admin.mr.reports.performance', compact('snapshots', 'cycles', 'selectedCycleId'));
+    }
+
+    protected function exportPerformanceExcel($snapshots, ?int $cycleId)
+    {
+        $exporter = app(\App\Services\Mr\Export\MrTableExcelExporter::class);
+        $cycle = VisitCycle::find($cycleId);
+
+        $metadata = [
+            'Visit Cycle' => $cycle ? $cycle->name . ' (' . ucfirst($cycle->status) . ')' : 'All Cycles',
+            'Cycle Code' => $cycle ? $cycle->code : 'all',
+            'Total Reps Evaluated' => $snapshots->count(),
+        ];
+
+        $repsCount = $snapshots->count();
+        $avgCoverage = $snapshots->count() > 0 ? round($snapshots->avg('coverage_rate_pct'), 1) : 0;
+        $totalVisits = $snapshots->sum('visits_done');
+        $avgGps = $snapshots->count() > 0 ? round($snapshots->avg('gps_accuracy_pct'), 1) : 0;
+        $totalAchievedPoints = $snapshots->sum('achieved_points');
+
+        $kpiCards = [
+            ['label' => 'Reps Evaluated', 'val' => (string)$repsCount, 'bg' => 'F1F5F9', 'fg' => '0F172A', 'border' => 'CBD5E1'],
+            ['label' => 'Avg Coverage Rate', 'val' => $avgCoverage . '%', 'bg' => 'DCFCE7', 'fg' => '15803D', 'border' => '86EFAC'],
+            ['label' => 'Total Visits Done', 'val' => (string)$totalVisits, 'bg' => 'E0F2FE', 'fg' => '0369A1', 'border' => 'BAE6FD'],
+            ['label' => 'Avg GPS Accuracy', 'val' => $avgGps . '%', 'bg' => 'EDE9FE', 'fg' => '6D28D9', 'border' => 'C4B5FD'],
+            ['label' => 'Total Achieved Pts', 'val' => (string)$totalAchievedPoints, 'bg' => 'FEF3C7', 'fg' => '92400E', 'border' => 'FDE68A'],
+        ];
+
+        $columns = [
+            ['key' => fn($s) => $s->representative?->name ?? 'Rep #' . $s->mr_id, 'header' => 'Medical Representative', 'width' => 26, 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT],
+            ['key' => fn($s) => (float)$s->coverage_rate_pct, 'header' => 'Coverage Rate %', 'width' => 16, 'type' => 'percent', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (int)$s->visits_done, 'header' => 'Visits Done', 'width' => 14, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (int)$s->planned_visits, 'header' => 'Planned Visits', 'width' => 14, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (float)$s->gps_accuracy_pct, 'header' => 'GPS Accuracy %', 'width' => 16, 'type' => 'percent', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (float)$s->visit_compliance_pct, 'header' => 'Visit Compliance %', 'width' => 18, 'type' => 'percent', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (int)$s->target_points, 'header' => 'Target Points', 'width' => 14, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (int)$s->achieved_points, 'header' => 'Achieved Points', 'width' => 15, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (float)$s->points_achieved_pct, 'header' => 'Points %', 'width' => 14, 'type' => 'percent', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($s) => (int)$s->unreported_days_count, 'header' => 'Unreported Days', 'width' => 16, 'type' => 'number', 'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            [
+                'key' => function ($s) {
+                    $score = (float)$s->coverage_rate_pct;
+                    if ($score >= 90) return 'Top Tier (>=90%)';
+                    if ($score >= 75) return 'On Target (75-89%)';
+                    return 'Needs Follow-up (<75%)';
+                },
+                'header' => 'Performance Tier',
+                'width' => 22,
+                'type' => 'badge',
+                'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'badgeColors' => fn($val) => match ($val) {
+                    'Top Tier (>=90%)' => ['bg' => 'DCFCE7', 'fg' => '15803D'],
+                    'On Target (75-89%)' => ['bg' => 'E0F2FE', 'fg' => '0369A1'],
+                    default => ['bg' => 'FEE2E2', 'fg' => 'B91C1C'],
+                }
+            ],
+        ];
+
+        return $exporter->export(
+            'Rep Performance Scorecard & Field KPIs Audit',
+            $metadata,
+            $kpiCards,
+            $columns,
+            $snapshots,
+            'rep-performance-' . ($cycle ? $cycle->code : 'all') . '-' . date('Y-m-d') . '.xlsx',
+            [
+                'col' => 'A',
+                'mergeTo' => 'A',
+                'label' => 'PORTFOLIO AVERAGES & TOTALS',
+                'align' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+            ]
+        );
     }
 
     protected function exportCoverageCsv($rows, ?int $cycleId): StreamedResponse

@@ -47,22 +47,39 @@ class CrmAssignmentService
     }
 
     /**
-     * Bulk assign contacts to an MR for a cycle
+     * Bulk assign contacts to an MR for a cycle, with optional automated visit scheduling.
      *
      * @param int $cycleId
      * @param int $mrId
      * @param array<int> $contactIds
-     * @return int Count of created/updated assignments
+     * @param bool $autoSchedule
+     * @param array $scheduleOptions
+     * @return array [assigned_count, scheduled_count]
      */
-    public function bulkAssignContacts(int $cycleId, int $mrId, array $contactIds): int
-    {
+    public function bulkAssignContacts(
+        int $cycleId,
+        int $mrId,
+        array $contactIds,
+        bool $autoSchedule = false,
+        array $scheduleOptions = []
+    ): array {
         $count = 0;
-        DB::transaction(function () use ($cycleId, $mrId, $contactIds, &$count) {
+        $assignments = [];
+
+        DB::transaction(function () use ($cycleId, $mrId, $contactIds, &$count, &$assignments) {
             foreach ($contactIds as $contactId) {
-                $this->assignContact($cycleId, $mrId, (int) $contactId);
+                $assignment = $this->assignContact($cycleId, $mrId, (int) $contactId);
+                $assignments[] = $assignment;
                 $count++;
             }
         });
+
+        // Automated Visit Scheduling if requested
+        $scheduledVisitsCount = 0;
+        if ($autoSchedule && !empty($assignments)) {
+            $scheduleService = app(CrmScheduleService::class);
+            $scheduledVisitsCount = $scheduleService->generateAutoScheduleForAssignments($assignments, $scheduleOptions);
+        }
 
         // Trigger FCM push notification to MR
         try {
@@ -71,10 +88,14 @@ class CrmAssignmentService
                 $tokens = $user->getActiveFcmTokens();
                 if (!empty($tokens)) {
                     $fcm = FcmService::getInstance();
+                    $fcmBody = "You have been assigned {$count} doctor contact(s) for the active visit cycle.";
+                    if ($scheduledVisitsCount > 0) {
+                        $fcmBody .= " {$scheduledVisitsCount} visit(s) have been scheduled on your agenda.";
+                    }
                     $fcm->sendToTokens(
                         $tokens,
                         'New Contacts Assigned',
-                        "You have been assigned {$count} doctor contact(s) for the active visit cycle.",
+                        $fcmBody,
                         ['type' => 'new_assignments', 'cycle_id' => (string) $cycleId]
                     );
                 }
@@ -83,7 +104,10 @@ class CrmAssignmentService
             Log::warning("Failed to send FCM assignment alert: " . $e->getMessage());
         }
 
-        return $count;
+        return [
+            'assigned_count' => $count,
+            'scheduled_count' => $scheduledVisitsCount,
+        ];
     }
 
     /**

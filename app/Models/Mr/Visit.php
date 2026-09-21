@@ -19,6 +19,7 @@ class Visit extends Model
         'mr_id',
         'contact_id',
         'cycle_id',
+        'product_id',
         'checkin_at',
         'checkin_lat',
         'checkin_lng',
@@ -75,5 +76,15 @@ class Visit extends Model
     public function cycle(): BelongsTo
     {
         return $this->belongsTo(VisitCycle::class, 'cycle_id');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Product::class, 'product_id');
+    }
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Product::class, 'mr_visit_products', 'visit_id', 'product_id')->withTimestamps();
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Mr\Contact;
 use App\Models\Mr\ContactClassification;
 use App\Models\Mr\ContactSpecialty;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ContactController extends Controller
 {
@@ -44,12 +45,99 @@ class ContactController extends Controller
             $query->where('is_active', $request->status === 'active');
         }
 
+        if ($request->has('export')) {
+            return $this->exportContacts($query->get(), $request);
+        }
+
         $contacts = $query->latest()->paginate(15)->withQueryString();
         $specialties = ContactSpecialty::where('is_active', true)->get();
         $classifications = ContactClassification::where('is_active', true)->orderBy('sort_order')->get();
         $cities = City::where('is_active', true)->orderBy('name_en')->get();
 
         return view('admin.mr.contacts.index', compact('contacts', 'specialties', 'classifications', 'cities'));
+    }
+
+    protected function exportContacts($contacts, Request $request)
+    {
+        $exporter = app(\App\Services\Mr\Export\MrTableExcelExporter::class);
+
+        $metadata = [
+            'Search Query' => $request->search ?: null,
+            'Specialty Filter' => $request->filled('specialty_id') ? ContactSpecialty::find($request->specialty_id)?->name : 'All Specialties',
+            'Class Filter' => $request->filled('classification_id') ? ('Class ' . ContactClassification::find($request->classification_id)?->code) : 'All Classes',
+            'City Filter' => $request->filled('city_id') ? City::find($request->city_id)?->name_en : 'All Cities',
+            'Status' => $request->filled('status') ? ucfirst($request->status) : 'All Statuses',
+            'Total Contacts' => $contacts->count(),
+        ];
+
+        $totalDoctors = $contacts->count();
+        $classAPlus = $contacts->filter(fn($c) => strtoupper($c->classification?->code ?? '') === 'A+')->count();
+        $classA = $contacts->filter(fn($c) => strtoupper($c->classification?->code ?? '') === 'A')->count();
+        $activeCount = $contacts->where('is_active', true)->count();
+        $totalVisits = $contacts->sum('visits_count');
+
+        $kpiCards = [
+            ['label' => 'Total Contacts', 'val' => (string)$totalDoctors, 'bg' => 'F1F5F9', 'fg' => '0F172A', 'border' => 'CBD5E1'],
+            ['label' => 'Class A+ Doctors', 'val' => (string)$classAPlus, 'bg' => 'FEF3C7', 'fg' => '92400E', 'border' => 'FDE68A'],
+            ['label' => 'Class A Doctors', 'val' => (string)$classA, 'bg' => 'E0F2FE', 'fg' => '0369A1', 'border' => 'BAE6FD'],
+            ['label' => 'Active Contacts', 'val' => (string)$activeCount, 'bg' => 'DCFCE7', 'fg' => '15803D', 'border' => '86EFAC'],
+            ['label' => 'Recorded Visits', 'val' => (string)$totalVisits, 'bg' => 'EDE9FE', 'fg' => '6D28D9', 'border' => 'C4B5FD'],
+        ];
+
+        $columns = [
+            ['key' => fn($c) => $c->code ?? 'N/A', 'header' => 'Contact Code', 'width' => 14, 'align' => Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($c) => $c->name, 'header' => 'Doctor / Contact Name', 'width' => 26, 'align' => Alignment::HORIZONTAL_LEFT],
+            ['key' => fn($c) => $c->specialty?->name ?? 'General', 'header' => 'Specialty', 'width' => 18, 'align' => Alignment::HORIZONTAL_CENTER],
+            [
+                'key' => fn($c) => $c->classification?->code ?? 'C',
+                'header' => 'Class',
+                'width' => 10,
+                'type' => 'badge',
+                'align' => Alignment::HORIZONTAL_CENTER,
+                'badgeColors' => fn($val) => match (strtoupper((string)$val)) {
+                    'A+' => ['bg' => 'FEF3C7', 'fg' => '92400E'],
+                    'A' => ['bg' => 'E0F2FE', 'fg' => '0369A1'],
+                    'B' => ['bg' => 'F1F5F9', 'fg' => '334155'],
+                    default => ['bg' => 'F8FAFC', 'fg' => '64748B'],
+                }
+            ],
+            ['key' => fn($c) => $c->hospital_clinic_name ?: '—', 'header' => 'Hospital / Clinic', 'width' => 25, 'align' => Alignment::HORIZONTAL_LEFT],
+            ['key' => fn($c) => ($c->region ? $c->region . ', ' : '') . ($c->city?->name_en ?? $c->city?->name_ar ?? 'N/A'), 'header' => 'Region / City', 'width' => 20, 'align' => Alignment::HORIZONTAL_LEFT],
+            ['key' => fn($c) => $c->address ?: '—', 'header' => 'Address', 'width' => 28, 'align' => Alignment::HORIZONTAL_LEFT],
+            ['key' => fn($c) => $c->phone ?: '—', 'header' => 'Phone', 'width' => 16, 'align' => Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($c) => (int)$c->assignments_count, 'header' => 'Active Assigns', 'width' => 14, 'type' => 'number', 'align' => Alignment::HORIZONTAL_CENTER],
+            ['key' => fn($c) => (int)$c->visits_count, 'header' => 'Visits Executed', 'width' => 14, 'type' => 'number', 'align' => Alignment::HORIZONTAL_CENTER],
+            [
+                'key' => fn($c) => $c->is_active ? 'Active' : 'Inactive',
+                'header' => 'Status',
+                'width' => 12,
+                'type' => 'badge',
+                'align' => Alignment::HORIZONTAL_CENTER,
+                'badgeColors' => fn($val) => $val === 'Active' ? ['bg' => 'DCFCE7', 'fg' => '15803D'] : ['bg' => 'FEE2E2', 'fg' => 'B91C1C']
+            ],
+        ];
+
+        $summaryConfig = [
+            'col' => 'A',
+            'mergeTo' => 'H',
+            'label' => 'PORTFOLIO TOTALS',
+            'align' => Alignment::HORIZONTAL_RIGHT,
+        ];
+
+        return $exporter->export(
+            'Doctor Portfolio & Clinic Directory',
+            $metadata,
+            $kpiCards,
+            $columns,
+            $contacts,
+            'doctors-directory-' . date('Y-m-d') . '.xlsx',
+            [
+                'col' => 'A',
+                'mergeTo' => 'H',
+                'label' => 'TOTAL PORTFOLIO CONTACTS',
+                'align' => Alignment::HORIZONTAL_RIGHT,
+            ]
+        );
     }
 
     public function create()

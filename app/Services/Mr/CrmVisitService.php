@@ -39,6 +39,22 @@ class CrmVisitService
      */
     public function submitCheckIn(int $mrId, array $data): Visit
     {
+        // Enforce: Representative can only have ONE active ongoing visit at a time
+        $ongoingVisit = Visit::with('contact')
+            ->where('mr_id', $mrId)
+            ->whereNull('checkout_at')
+            ->latest('checkin_at')
+            ->first();
+
+        if ($ongoingVisit) {
+            $currentDoctor = $ongoingVisit->contact?->name ?? 'another doctor';
+            throw new \DomainException(
+                app()->getLocale() === 'ar'
+                    ? "لديك زيارة جارية حالياً مع الطبيب ({$currentDoctor}). يجب إنهاء وتسجيل الانصراف من الزيارة الأولى قبل بدء أي زيارة جديدة."
+                    : "You already have an active visit in progress with Dr. {$currentDoctor}. Please complete and check out from your current visit before starting a new one."
+            );
+        }
+
         $contactId = (int) ($data['contact_id'] ?? 0);
         $contact = Contact::findOrFail($contactId);
 
@@ -121,7 +137,9 @@ class CrmVisitService
      *   'lat' => ?float,
      *   'lng' => ?float,
      *   'outcome' => ?string,
-     *   'notes' => ?string
+     *   'notes' => string,
+     *   'product_ids' => ?array,
+     *   'product_id' => ?int
      * ]
      * @return Visit
      */
@@ -138,7 +156,33 @@ class CrmVisitService
         $checkoutLat = isset($data['lat']) ? (float) $data['lat'] : null;
         $checkoutLng = isset($data['lng']) ? (float) $data['lng'] : null;
         $outcome = $data['outcome'] ?? 'completed';
-        $notes = $data['notes'] ?? null;
+        
+        $notes = trim($data['notes'] ?? '');
+        if (empty($notes)) {
+            throw new InvalidArgumentException(
+                app()->getLocale() === 'ar'
+                    ? "ملاحظات الزيارة وملاحظات الطبيب مطلوبة لحفظ وإنهاء الزيارة."
+                    : "Meeting notes and doctor feedback are required to complete the visit."
+            );
+        }
+
+        // Parse discussed product(s)
+        $productIds = [];
+        if (!empty($data['product_ids']) && is_array($data['product_ids'])) {
+            $productIds = array_values(array_unique(array_filter(array_map('intval', $data['product_ids']))));
+        } elseif (!empty($data['product_id'])) {
+            $productIds = [(int) $data['product_id']];
+        }
+
+        if (empty($productIds)) {
+            throw new InvalidArgumentException(
+                app()->getLocale() === 'ar'
+                    ? "يرجى اختيار المنتج أو المنتجات التي تمت مناقشتها مع الطبيب."
+                    : "Please select the product(s) discussed with the doctor."
+            );
+        }
+
+        $primaryProductId = $productIds[0] ?? null;
 
         $visit->update([
             'checkout_at' => $checkoutAt,
@@ -147,7 +191,11 @@ class CrmVisitService
             'duration_minutes' => $durationMinutes,
             'outcome' => $outcome,
             'notes' => $notes,
+            'product_id' => $primaryProductId,
         ]);
+
+        // Sync discussed products
+        $visit->products()->sync($productIds);
 
         if ($visit->scheduled_visit_id) {
             ScheduledVisit::where('id', $visit->scheduled_visit_id)->update([
@@ -155,6 +203,6 @@ class CrmVisitService
             ]);
         }
 
-        return $visit->fresh();
+        return $visit->fresh(['product', 'products']);
     }
 }

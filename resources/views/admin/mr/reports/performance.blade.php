@@ -7,12 +7,19 @@
     ]"
 >
     <x-slot name="actions">
-        <a href="{{ request()->fullUrlWithQuery(['recalculate' => 1]) }}" class="btn btn-secondary text-sm font-semibold">
-            <i class="fa-solid fa-arrows-rotate mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'إعادة احتساب المؤشرات الآن' : 'Recalculate Snapshot' }}
-        </a>
-        <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-primary text-sm font-bold shadow-sm">
-            <i class="fa-solid fa-file-excel mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تصدير (CSV / Excel)' : 'Export CSV / Excel' }}
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'xlsx']) }}" class="btn btn-primary text-sm font-bold shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-file-excel text-emerald-300"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'تصدير إكسيل احترافي (.xlsx)' : 'Export Excel (.xlsx)' }}</span>
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-secondary text-sm font-medium shadow-sm flex items-center gap-1.5" title="Export CSV">
+                <i class="fa-solid fa-file-csv text-gray-400"></i>
+                <span class="hidden sm:inline">CSV</span>
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['recalculate' => 1]) }}" class="btn btn-secondary text-sm font-semibold">
+                <i class="fa-solid fa-arrows-rotate mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'إعادة احتساب المؤشرات' : 'Recalculate Snapshot' }}
+            </a>
+        </div>
     </x-slot>
 
     <!-- Cycle Selector Bar -->
@@ -40,7 +47,7 @@
     <!-- Scorecard Table matching §8 Spec -->
     <div class="card p-0 overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 mb-8">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm table bz-sortable-table" data-table-sortable="true">
                 <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-300 font-semibold border-b border-gray-200 dark:border-gray-700 text-xs">
                     <tr>
                         <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'اسم المندوب' : 'Rep Name' }}</th>

@@ -67,6 +67,10 @@ class VisitResource extends Resource
                 Tables\Columns\TextColumn::make('outcome')
                     ->label('Outcome')
                     ->badge(),
+                Tables\Columns\TextColumn::make('products.name_en')
+                    ->label('Discussed Products')
+                    ->badge()
+                    ->separator(', '),
                 Tables\Columns\TextColumn::make('checkout_at')
                     ->label('Check-Out')
                     ->dateTime()

@@ -6,6 +6,15 @@
         (app()->getLocale() === 'ar' ? 'دورات الزيارات' : 'Visit Cycles') => route('admin.mr.cycles.index')
     ]"
 >
+    <x-slot name="actions">
+        <div class="flex items-center gap-2">
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'xlsx']) }}" class="btn btn-secondary text-sm font-bold shadow-sm flex items-center gap-2" title="Export Visit Cycles">
+                <i class="fa-solid fa-file-excel text-emerald-500"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'تصدير إكسيل (.xlsx)' : 'Export Excel (.xlsx)' }}</span>
+            </a>
+        </div>
+    </x-slot>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Cycles Table (2 Cols) -->
         <div class="lg:col-span-2 card p-0 overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
@@ -18,7 +27,7 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="w-full text-left text-sm table bz-sortable-table" data-table-sortable="true">
                     <thead class="bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 font-semibold border-b border-gray-200 dark:border-gray-700 text-xs">
                         <tr>
                             <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'اسم الدورة' : 'Cycle Name' }}</th>
@@ -27,7 +36,7 @@
                             <th class="px-5 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
                             <th class="px-5 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'التكليفات' : 'Assignments' }}</th>
                             <th class="px-5 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'الزيارات' : 'Visits' }}</th>
-                            <th class="px-5 py-3.5 text-right">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                            <th class="px-5 py-3.5 text-right no-sort" data-no-sort>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

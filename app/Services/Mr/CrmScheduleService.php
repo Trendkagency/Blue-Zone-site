@@ -30,6 +30,125 @@ class CrmScheduleService
     }
 
     /**
+     * Automatically generate scheduled visits for a batch of contact assignments.
+     * Supports Weekly, Monthly, and Daily cadence, ensuring visits for today are generated immediately.
+     *
+     * @param array<ContactAssignment|int> $assignments
+     * @param array $options [cadence, start_date, schedule_today, time, notes]
+     * @return int Count of scheduled visits created
+     */
+    public function generateAutoScheduleForAssignments(array $assignments, array $options = []): int
+    {
+        $cadence = $options['cadence'] ?? 'weekly';
+        $startDateInput = $options['start_date'] ?? now()->toDateString();
+        $baseDate = Carbon::parse($startDateInput)->startOfDay();
+        $scheduleToday = (bool) ($options['schedule_today'] ?? true);
+        $includeWeekends = (bool) ($options['include_weekends'] ?? $options['daily_all_days'] ?? false);
+        $baseTime = $options['time'] ?? '09:30';
+        $notes = $options['notes'] ?? 'Auto-scheduled assignment visit';
+
+        // Parse hour & minute
+        $timeParts = explode(':', $baseTime);
+        $startHour = (int) ($timeParts[0] ?? 9);
+        $startMinute = (int) ($timeParts[1] ?? 30);
+
+        $createdCount = 0;
+        $daySlots = [];
+
+        foreach ($assignments as $item) {
+            $assignment = $item instanceof ContactAssignment
+                ? $item
+                : ContactAssignment::with(['contact.classification', 'cycle'])->find($item);
+
+            if (!$assignment) {
+                continue;
+            }
+
+            $contact = $assignment->contact;
+            $class = $contact?->classification;
+            $neededVisits = $class ? (int) $class->required_visits : (int) $assignment->target_visits;
+            if (!empty($options['daily_count'])) {
+                $neededVisits = max(1, (int) $options['daily_count']);
+            }
+            $neededVisits = max(1, $neededVisits);
+
+            $cycle = $assignment->cycle;
+            $cycleEnd = $cycle?->end_date ? Carbon::parse($cycle->end_date)->endOfDay() : null;
+
+            for ($visitIndex = 0; $visitIndex < $neededVisits; $visitIndex++) {
+                $targetDate = $baseDate->copy();
+
+                if ($visitIndex === 0 && $scheduleToday) {
+                    // Initial visit set to today so MR sees it immediately in Today's Field Agenda
+                    $targetDate = now()->startOfDay();
+                } else {
+                    $offset = $visitIndex;
+                    if ($scheduleToday && !$baseDate->isToday() && $visitIndex > 0) {
+                        $offset = $visitIndex - 1;
+                    }
+
+                    if ($cadence === 'daily') {
+                        $targetDate->addDays($offset);
+                        // Skip Friday/Saturday if weekend and not configured for all days
+                        if (!$includeWeekends) {
+                            if ($targetDate->isFriday()) {
+                                $targetDate->addDays(2);
+                            } elseif ($targetDate->isSaturday()) {
+                                $targetDate->addDays(1);
+                            }
+                        }
+                    } elseif ($cadence === 'weekly') {
+                        $targetDate->addWeeks($offset);
+                    } elseif ($cadence === 'monthly') {
+                        $daysStep = max(7, (int) round(28 / max(1, $neededVisits)));
+                        $targetDate->addDays($offset * $daysStep);
+                    }
+                }
+
+                // Clamp if beyond cycle end
+                if ($cycleEnd && $targetDate->gt($cycleEnd) && $cycleEnd->gt(now())) {
+                    $targetDate = $cycleEnd->copy()->subDays($visitIndex % 3);
+                }
+
+                // Stagger daytime hours on this date
+                $dateKey = $targetDate->toDateString();
+                $slotOnThisDay = $daySlots[$dateKey] ?? 0;
+                $daySlots[$dateKey] = $slotOnThisDay + 1;
+
+                $slotMinutesOffset = ($slotOnThisDay % 6) * 60;
+                if ($startHour * 60 + $startMinute + $slotMinutesOffset >= 780 && $slotOnThisDay >= 3) {
+                    $slotMinutesOffset += 30;
+                }
+
+                $visitDateTime = $targetDate->copy()
+                    ->setTime($startHour, $startMinute)
+                    ->addMinutes($slotMinutesOffset);
+
+                // Check duplicate planned visit on same day
+                $alreadyExists = ScheduledVisit::where('assignment_id', $assignment->id)
+                    ->whereDate('scheduled_at', $visitDateTime->toDateString())
+                    ->where('status', 'planned')
+                    ->exists();
+
+                if (!$alreadyExists) {
+                    ScheduledVisit::create([
+                        'assignment_id' => $assignment->id,
+                        'mr_id' => $assignment->mr_id,
+                        'contact_id' => $assignment->contact_id,
+                        'cycle_id' => $assignment->cycle_id,
+                        'scheduled_at' => $visitDateTime,
+                        'status' => 'planned',
+                        'notes' => $notes . " (Visit #" . ($visitIndex + 1) . "/{$neededVisits} • " . ucfirst($cadence) . ")",
+                    ]);
+                    $createdCount++;
+                }
+            }
+        }
+
+        return $createdCount;
+    }
+
+    /**
      * Reschedule an existing planned visit slot
      */
     public function rescheduleVisit(int $scheduledVisitId, string|Carbon $newDateTime, ?string $notes = null): ScheduledVisit

@@ -26,9 +26,9 @@
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Doctor Status</label>
                     <select wire:model.live="filterStatus" class="text-sm rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white py-1.5 px-3">
                         <option value="all">All Doctors</option>
-                        <option value="unvisited">🚨 Unvisited (0 Visits)</option>
-                        <option value="behind">⚠️ Behind Frequency</option>
-                        <option value="completed">✅ Target Met</option>
+                        <option value="unvisited">Unvisited (0 Visits)</option>
+                        <option value="behind">Behind Frequency</option>
+                        <option value="completed">Target Met</option>
                     </select>
                 </div>
             </div>

@@ -233,9 +233,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{id}', [MrCycleController::class, 'destroy'])->name('destroy');
             });
 
-            // Executed Visits & GPS Log
+            // Executed Visits & GPS Log / Daily Agenda Management
             Route::prefix('visits')->name('visits.')->group(function () {
                 Route::get('/', [MrVisitController::class, 'index'])->name('index');
+                Route::post('/schedule', [MrVisitController::class, 'schedule'])->name('schedule');
+                Route::post('/record-direct', [MrVisitController::class, 'recordDirectVisit'])->name('record-direct');
+                Route::delete('/schedule/{id}', [MrVisitController::class, 'cancelSchedule'])->name('cancel-schedule');
                 Route::get('/{id}', [MrVisitController::class, 'show'])->name('show');
             });
 

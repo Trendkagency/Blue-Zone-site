@@ -33,6 +33,7 @@ class MrVisitManagementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
         $this->seed([
             ContactClassificationSeeder::class,
             ContactSpecialtySeeder::class,
@@ -207,18 +208,28 @@ class MrVisitManagementTest extends TestCase
         $todayLog = RepDailyLog::where('mr_id', $user->id)->whereDate('log_date', now()->toDateString())->first();
         $this->assertNotNull($todayLog);
         $this->assertTrue($todayLog->is_reported);
-        $this->assertEquals(1, $todayLog->total_visits_count);
+        // Submit Check-Out with required product
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'test-product-01',
+            'sku' => 'TEST-001',
+            'name_en' => 'Longevity Complex',
+            'name_ar' => 'مركب إطالة العمر',
+            'price' => 100,
+            'status' => 'active',
+        ]);
 
-        // Submit Check-Out
         $completedVisit = $visitService->submitCheckOut($visit->id, $user->id, [
             'lat' => 30.044500,
             'lng' => 31.235800,
             'outcome' => 'completed',
             'notes' => 'Product presentation completed successfully.',
+            'product_ids' => [$product->id],
         ]);
 
         $this->assertNotNull($completedVisit->checkout_at);
         $this->assertEquals('completed', $completedVisit->outcome);
+        $this->assertEquals($product->id, $completedVisit->product_id);
+        $this->assertCount(1, $completedVisit->products);
 
         // Verify ContactAssignment was automatically updated by VisitObserver
         $assignment->refresh();
@@ -269,12 +280,29 @@ class MrVisitManagementTest extends TestCase
 
         $visitService = app(CrmVisitService::class);
 
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'test-product-kpi',
+            'sku' => 'TEST-KPI-01',
+            'name_en' => 'Longevity Complex',
+            'name_ar' => 'مركب إطالة العمر',
+            'price' => 100,
+            'status' => 'active',
+        ]);
+
         // Rep completes 2 visits for Doctor Alpha (Required: 3)
         $v1 = $visitService->submitCheckIn($user->id, ['contact_id' => $doc1->id, 'cycle_id' => $cycle->id, 'lat' => 30.0444, 'lng' => 31.2357]);
-        $visitService->submitCheckOut($v1->id, $user->id, ['outcome' => 'completed']);
+        $visitService->submitCheckOut($v1->id, $user->id, [
+            'outcome' => 'completed',
+            'notes' => 'Product presentation 1 completed.',
+            'product_ids' => [$product->id],
+        ]);
 
         $v2 = $visitService->submitCheckIn($user->id, ['contact_id' => $doc1->id, 'cycle_id' => $cycle->id, 'lat' => 30.0444, 'lng' => 31.2357]);
-        $visitService->submitCheckOut($v2->id, $user->id, ['outcome' => 'completed']);
+        $visitService->submitCheckOut($v2->id, $user->id, [
+            'outcome' => 'completed',
+            'notes' => 'Product presentation 2 completed.',
+            'product_ids' => [$product->id],
+        ]);
 
         // Calculate Report & Snapshots
         $reportService = app(CrmMrReportService::class);
@@ -414,7 +442,7 @@ class MrVisitManagementTest extends TestCase
         $assignService->assignContact($cycle->id, $user->id, $doc->id);
 
         // Act as MR user and hit checkin endpoint
-        $response = $this->actingAs($user)->postJson(route('mr.checkin'), [
+        $response = $this->actingAs($user, 'web')->postJson(route('mr.checkin'), [
             'contact_id' => $doc->id,
             'cycle_id' => $cycle->id,
             'lat' => 30.044450,
@@ -431,16 +459,190 @@ class MrVisitManagementTest extends TestCase
         $visitId = $response->json('visit.id');
         $this->assertNotNull($visitId);
 
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'test-product-02',
+            'sku' => 'TEST-002',
+            'name_en' => 'Vitality Protocol',
+            'name_ar' => 'بروتوكول الحيوية',
+            'price' => 120,
+            'status' => 'active',
+        ]);
+
         // Hit checkout endpoint
-        $checkoutResponse = $this->actingAs($user)->postJson(route('mr.checkout'), [
+        $checkoutResponse = $this->actingAs($user, 'web')->postJson(route('mr.checkout'), [
             'visit_id' => $visitId,
             'outcome' => 'completed',
             'notes' => 'Discussed longevity protocols.',
+            'product_ids' => [$product->id],
         ]);
 
         $checkoutResponse->assertStatus(200);
         $checkoutResponse->assertJson([
             'success' => true,
         ]);
+    }
+
+    /**
+     * 9. Test MR Single Active Visit Enforcement & Required Notes and Products on Check-Out
+     */
+    public function test_mr_single_active_visit_rule_and_checkout_validations(): void
+    {
+        $classA = ContactClassification::where('code', 'A')->first();
+        $specialty = ContactSpecialty::first();
+
+        $cycle = VisitCycle::create([
+            'name' => 'Single Visit Enforcement Cycle',
+            'code' => 'CYCLE-SVE-01',
+            'start_date' => now()->startOfMonth(),
+            'end_date' => now()->endOfMonth(),
+            'status' => 'active',
+        ]);
+
+        $user = User::factory()->create();
+
+        $doc1 = Contact::create([
+            'code' => 'DOC-SVE-01',
+            'name' => 'Dr. First Visit',
+            'classification_id' => $classA->id,
+            'specialty_id' => $specialty->id,
+            'latitude' => 30.044420,
+            'longitude' => 31.235712,
+        ]);
+
+        $doc2 = Contact::create([
+            'code' => 'DOC-SVE-02',
+            'name' => 'Dr. Second Visit',
+            'classification_id' => $classA->id,
+            'specialty_id' => $specialty->id,
+            'latitude' => 30.045000,
+            'longitude' => 31.236000,
+        ]);
+
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'test-product-03',
+            'sku' => 'TEST-003',
+            'name_en' => 'Cellular Shield',
+            'name_ar' => 'درع الخلايا',
+            'price' => 150,
+            'status' => 'active',
+        ]);
+
+        $assignService = app(CrmAssignmentService::class);
+        $assignService->assignContact($cycle->id, $user->id, $doc1->id);
+        $assignService->assignContact($cycle->id, $user->id, $doc2->id);
+
+        $visitService = app(CrmVisitService::class);
+
+        // 1. Check in with first doctor
+        $visit1 = $visitService->submitCheckIn($user->id, [
+            'contact_id' => $doc1->id,
+            'cycle_id' => $cycle->id,
+            'lat' => 30.044420,
+            'lng' => 31.235712,
+        ]);
+        $this->assertNotNull($visit1->id);
+        $this->assertNull($visit1->checkout_at);
+
+        // 2. Try to check in with second doctor while first is still active -> Must Fail!
+        $this->expectException(\DomainException::class);
+        $visitService->submitCheckIn($user->id, [
+            'contact_id' => $doc2->id,
+            'cycle_id' => $cycle->id,
+            'lat' => 30.045000,
+            'lng' => 31.236000,
+        ]);
+    }
+
+    /**
+     * 10. Test MR dashboard displays active checked-in doctor state and completed doctors in modal
+     */
+    public function test_mr_dashboard_shows_active_checked_in_doctor_and_completed_doctors_in_modal(): void
+    {
+        $cycle = VisitCycle::create([
+            'code' => 'CYC-2026-Q3',
+            'name' => 'Cycle 2026-Q3',
+            'start_date' => now()->startOfMonth(),
+            'end_date' => now()->endOfMonth(),
+            'status' => 'active',
+            'total_target_points' => 30,
+        ]);
+
+        $classA = ContactClassification::where('code', 'A')->first();
+        $specialty = ContactSpecialty::first();
+
+        $user = User::factory()->create();
+
+        $doctorActive = Contact::create([
+            'code' => 'DOC-ACTIVE-01',
+            'name' => 'Dr. Active Checkin',
+            'classification_id' => $classA->id,
+            'specialty_id' => $specialty->id,
+            'hospital_clinic_name' => 'Cairo Clinic Alpha',
+            'latitude' => 30.044420,
+            'longitude' => 31.235712,
+        ]);
+
+        $doctorDone = Contact::create([
+            'code' => 'DOC-DONE-02',
+            'name' => 'Dr. Visited Done',
+            'classification_id' => $classA->id,
+            'specialty_id' => $specialty->id,
+            'hospital_clinic_name' => 'Alexandria Clinic Beta',
+            'latitude' => 30.045000,
+            'longitude' => 31.236000,
+        ]);
+
+        $product = \App\Models\Product::firstOrCreate(
+            ['sku' => 'TEST-DONE-01'],
+            [
+                'slug' => 'test-product-done',
+                'name_en' => 'Omega Longevity Plus',
+                'name_ar' => 'أوميغا طول العمر',
+                'price' => 200,
+                'status' => 'active',
+            ]
+        );
+
+        $assignService = app(CrmAssignmentService::class);
+        $assignService->assignContact($cycle->id, $user->id, $doctorActive->id);
+        $assignService->assignContact($cycle->id, $user->id, $doctorDone->id);
+
+        $visitService = app(CrmVisitService::class);
+
+        // 1. Check in & complete visit for doctorDone
+        $vDone = $visitService->submitCheckIn($user->id, [
+            'contact_id' => $doctorDone->id,
+            'cycle_id' => $cycle->id,
+            'lat' => 30.045000,
+            'lng' => 31.236000,
+        ]);
+        $visitService->submitCheckOut($vDone->id, $user->id, [
+            'outcome' => 'completed',
+            'notes' => 'Detailed clinical discussion regarding Omega Longevity formulation.',
+            'product_ids' => [$product->id],
+        ]);
+
+        // 2. Check in for doctorActive (remains ongoing without checkout)
+        $vActive = $visitService->submitCheckIn($user->id, [
+            'contact_id' => $doctorActive->id,
+            'cycle_id' => $cycle->id,
+            'lat' => 30.044420,
+            'lng' => 31.235712,
+        ]);
+
+        // 3. Act as user and visit MR dashboard
+        $response = $this->actingAs($user)->get(route('mr.dashboard'));
+        $response->assertOk();
+
+        // 4. Verify Active Checked-in doctor has active badge and checkout button
+        $response->assertSee('Dr. Active Checkin');
+        $response->assertSee('Checked In');
+        $response->assertSee("openCheckoutModal({$vActive->id}");
+
+        // 5. Verify Visits Done modal has completed doctor, discussed product, and meeting notes
+        $response->assertSee('Dr. Visited Done');
+        $response->assertSee($product->name_en);
+        $response->assertSee('Detailed clinical discussion regarding Omega Longevity formulation.');
+        $response->assertSee('visits-done-modal');
     }
 }

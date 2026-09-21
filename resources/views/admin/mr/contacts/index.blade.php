@@ -7,9 +7,15 @@
     ]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.mr.contacts.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-user-plus mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'إضافة طبيب جديد' : 'Add New Doctor' }}
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'xlsx']) }}" class="btn btn-secondary text-sm font-bold shadow-sm flex items-center gap-2" title="Export Filtered Doctors List">
+                <i class="fa-solid fa-file-excel text-emerald-500"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'تصدير إكسيل (.xlsx)' : 'Export Excel (.xlsx)' }}</span>
+            </a>
+            <a href="{{ route('admin.mr.contacts.create') }}" class="btn btn-primary font-bold shadow-sm">
+                <i class="fa-solid fa-user-plus mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'إضافة طبيب جديد' : 'Add New Doctor' }}
+            </a>
+        </div>
     </x-slot>
 
     <!-- Toolbar & Filter Card -->
@@ -62,7 +68,7 @@
     <!-- Doctors Table -->
     <div class="card p-0 overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm table bz-sortable-table" data-table-sortable="true">
                 <thead class="bg-gray-50/75 dark:bg-gray-800/60 text-gray-600 dark:text-gray-300 font-semibold border-b border-gray-200 dark:border-gray-700">
                     <tr>
                         <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'الكود' : 'Code' }}</th>
@@ -73,7 +79,7 @@
                         <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'الهاتف' : 'Contact' }}</th>
                         <th class="px-5 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'إحداثيات GPS' : 'GPS Coords' }}</th>
                         <th class="px-5 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'الزيارات' : 'Visits' }}</th>
-                        <th class="px-5 py-3.5 text-right">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
+                        <th class="px-5 py-3.5 text-right no-sort" data-no-sort>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
