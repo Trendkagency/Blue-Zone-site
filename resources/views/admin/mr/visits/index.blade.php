@@ -7,15 +7,20 @@
     ]"
 >
     <x-slot name="actions">
+        @php
+            $currentUser = auth()->user();
+            $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+            $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+        @endphp
         <div class="flex items-center gap-2 flex-wrap">
             <button type="button" onclick="openScheduleModal()" class="btn btn-primary text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white">
                 <i class="fa-solid fa-calendar-plus"></i>
-                <span>{{ app()->getLocale() === 'ar' ? 'جدولة زيارة لمندوب' : 'Schedule Visit for Rep' }}</span>
+                <span>{{ $isRep ? (app()->getLocale() === 'ar' ? 'جدولة زيارة جديدة' : 'Schedule Visit') : (app()->getLocale() === 'ar' ? 'جدولة زيارة لمندوب' : 'Schedule Visit for Rep') }}</span>
             </button>
 
             <button type="button" onclick="openRecordModal()" class="btn btn-outline text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2">
                 <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل زيارة منفذة' : 'Record Direct Visit' }}</span>
+                <span>{{ $isRep ? (app()->getLocale() === 'ar' ? 'تسجيل زيارة منفذة' : 'Record My Visit') : (app()->getLocale() === 'ar' ? 'تسجيل زيارة منفذة' : 'Record Direct Visit') }}</span>
             </button>
 
             <a href="{{ request()->fullUrlWithQuery(['export' => 'xlsx']) }}" class="btn btn-secondary text-xs sm:text-sm font-bold shadow-sm flex items-center gap-2">
@@ -114,14 +119,22 @@
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                             {{ app()->getLocale() === 'ar' ? 'المندوب الطبي' : 'Medical Representative' }}
                         </label>
-                        <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
-                            <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Representatives' }}</option>
-                            @foreach($medicalReps as $rep)
-                                <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                    {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if($isRep)
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-bold text-xs rounded border border-cyan-200 dark:border-cyan-800">
+                                <i class="fa-solid fa-user-check"></i>
+                                <span>{{ $currentUser->name }}</span>
+                            </div>
+                            <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                        @else
+                            <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
+                                <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Representatives' }}</option>
+                                @foreach($medicalReps as $rep)
+                                    <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                        {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
 
                     <div>
@@ -352,14 +365,22 @@
                         <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                             {{ app()->getLocale() === 'ar' ? 'المندوب الطبي' : 'Medical Representative' }}
                         </label>
-                        <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
-                            <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Reps' }}</option>
-                            @foreach($medicalReps as $rep)
-                                <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                    {{ $rep->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if($isRep)
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-bold text-xs rounded border border-cyan-200 dark:border-cyan-800">
+                                <i class="fa-solid fa-user-check"></i>
+                                <span>{{ $currentUser->name }}</span>
+                            </div>
+                            <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                        @else
+                            <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
+                                <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Reps' }}</option>
+                                @foreach($medicalReps as $rep)
+                                    <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                        {{ $rep->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
 
                     <div>
@@ -541,14 +562,32 @@
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
                                 {{ app()->getLocale() === 'ar' ? 'المندوب الطبي الميداني *' : 'Medical Representative *' }}
                             </label>
-                            <select name="mr_id" required class="form-select text-sm w-full">
-                                <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
-                                @foreach($medicalReps as $rep)
-                                    <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                        {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            @if($isRep)
+                                <div class="p-2.5 rounded-lg border border-cyan-200 dark:border-cyan-800 bg-cyan-50/60 dark:bg-cyan-950/30 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-cyan-600 text-white flex items-center justify-center font-bold text-xs">
+                                            {{ strtoupper(substr($currentUser->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $currentUser->name }}</span>
+                                            <span class="text-[10px] text-cyan-600 dark:text-cyan-400 block">{{ app()->getLocale() === 'ar' ? 'أنت (المندوب الطبي المسجل)' : 'You (Logged-in Representative)' }}</span>
+                                        </div>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-100 text-cyan-700 dark:bg-cyan-900/60 dark:text-cyan-300">
+                                        {{ app()->getLocale() === 'ar' ? 'حسابك' : 'My Account' }}
+                                    </span>
+                                </div>
+                                <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                            @else
+                                <select name="mr_id" required class="form-select text-sm w-full">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
+                                    @foreach($medicalReps as $rep)
+                                        <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                            {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @endif
                         </div>
 
                         <div>
@@ -632,12 +671,20 @@
                                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
                                     {{ app()->getLocale() === 'ar' ? 'المندوب الطبي *' : 'Medical Representative *' }}
                                 </label>
-                                <select name="mr_id" id="record-mr-id" required class="form-select text-sm w-full">
-                                    <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
-                                    @foreach($medicalReps as $rep)
-                                        <option value="{{ $rep->id }}">{{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}</option>
-                                    @endforeach
-                                </select>
+                                @if($isRep)
+                                    <div class="p-2 rounded border border-cyan-200 dark:border-cyan-800 bg-cyan-50/60 dark:bg-cyan-950/30 flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-900 dark:text-white">{{ $currentUser->name }}</span>
+                                        <span class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold">{{ app()->getLocale() === 'ar' ? 'أنت' : 'You' }}</span>
+                                    </div>
+                                    <input type="hidden" name="mr_id" id="record-mr-id" value="{{ $currentUser->id }}">
+                                @else
+                                    <select name="mr_id" id="record-mr-id" required class="form-select text-sm w-full">
+                                        <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المندوب' : 'Select Representative' }}</option>
+                                        @foreach($medicalReps as $rep)
+                                            <option value="{{ $rep->id }}">{{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}</option>
+                                        @endforeach
+                                    </select>
+                                @endif
                             </div>
 
                             <div>

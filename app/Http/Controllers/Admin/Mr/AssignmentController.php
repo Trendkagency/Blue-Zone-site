@@ -21,6 +21,10 @@ class AssignmentController extends Controller
 
     public function index(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $cycles = VisitCycle::latest('start_date')->get();
         $selectedCycleId = $request->integer('cycle_id') ?: ($cycles->firstWhere('status', 'active')?->id ?? $cycles->first()?->id);
 
@@ -36,7 +40,9 @@ class AssignmentController extends Controller
             $query->where('cycle_id', $selectedCycleId);
         }
 
-        if ($request->filled('mr_id')) {
+        if ($isRep) {
+            $query->where('mr_id', $currentUser->id);
+        } elseif ($request->filled('mr_id')) {
             $query->where('mr_id', $request->integer('mr_id'));
         }
 
@@ -55,9 +61,13 @@ class AssignmentController extends Controller
 
         $assignments = $query->latest()->paginate(15)->withQueryString();
 
-        $medicalReps = User::whereHas('role', function ($q) {
-            $q->where('name', 'mr');
-        })->orWhere('role_id', 2)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        if ($isRep) {
+            $medicalReps = User::where('id', $currentUser->id)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        } else {
+            $medicalReps = User::whereHas('role', function ($q) {
+                $q->where('name', 'mr');
+            })->orWhere('role_id', 2)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        }
 
         $availableDoctors = Contact::where('is_active', true)
             ->with(['specialty', 'classification'])
@@ -65,11 +75,16 @@ class AssignmentController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.mr.assignments.index', compact('assignments', 'cycles', 'selectedCycleId', 'medicalReps', 'availableDoctors'));
+        return view('admin.mr.assignments.index', compact('assignments', 'cycles', 'selectedCycleId', 'medicalReps', 'availableDoctors', 'isRep', 'isManager', 'currentUser'));
     }
 
     public function store(Request $request)
     {
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->isMedicalRep() && !$currentUser->canManageAllMr()) {
+            abort(403, 'Unauthorized. Medical representatives cannot manage doctor assignments.');
+        }
+
         $validated = $request->validate([
             'cycle_id' => 'required|exists:mr_visit_cycles,id',
             'mr_id' => 'required|exists:users,id',
@@ -120,6 +135,11 @@ class AssignmentController extends Controller
 
     public function destroy(int $id)
     {
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->isMedicalRep() && !$currentUser->canManageAllMr()) {
+            abort(403, 'Unauthorized. Medical representatives cannot remove assignments.');
+        }
+
         $assignment = ContactAssignment::findOrFail($id);
         $cycleId = $assignment->cycle_id;
         $assignment->delete();

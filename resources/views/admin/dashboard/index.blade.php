@@ -2,6 +2,9 @@
     :pageTitle="__('admin.menu.dashboard')" 
     :pageSubtitle="__('admin.dashboard.subtitle')"
 >
+    <!-- TOP VIEW SWITCHER (Only visible for Admins / Line Managers) -->
+    @include('admin.dashboard.partials.view_switcher', ['currentView' => 'executive'])
+
     <!-- KPI Overview Cards -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <div class="card stat-card stat-accent">

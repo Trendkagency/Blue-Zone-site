@@ -25,9 +25,13 @@ class MrReportController extends Controller
      */
     public function coverage(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $cycles = VisitCycle::latest('start_date')->get();
         $selectedCycleId = $request->integer('cycle_id') ?: ($cycles->firstWhere('status', 'active')?->id ?? $cycles->first()?->id);
-        $selectedMrId = $request->filled('mr_id') ? $request->integer('mr_id') : null;
+        $selectedMrId = $isRep ? $currentUser->id : ($request->filled('mr_id') ? $request->integer('mr_id') : null);
         $filterStatus = $request->get('status', 'all');
 
         $rows = $this->reportService->getUnvisitedCoverageReport($selectedCycleId, $selectedMrId);
@@ -55,11 +59,15 @@ class MrReportController extends Controller
             return app(DoctorCoverageExcelExporter::class)->export($rows, $selectedCycleId, $selectedMrId, $filterStatus);
         }
 
-        $medicalReps = User::whereHas('role', function ($q) {
-            $q->where('name', 'mr');
-        })->orWhere('role_id', 2)->select('id', 'name')->get();
+        if ($isRep) {
+            $medicalReps = User::where('id', $currentUser->id)->select('id', 'name')->get();
+        } else {
+            $medicalReps = User::whereHas('role', function ($q) {
+                $q->where('name', 'mr');
+            })->orWhere('role_id', 2)->select('id', 'name')->get();
+        }
 
-        return view('admin.mr.reports.coverage', compact('rows', 'cycles', 'selectedCycleId', 'selectedMrId', 'filterStatus', 'medicalReps'));
+        return view('admin.mr.reports.coverage', compact('rows', 'cycles', 'selectedCycleId', 'selectedMrId', 'filterStatus', 'medicalReps', 'isRep', 'isManager', 'currentUser'));
     }
 
     /**
@@ -67,25 +75,40 @@ class MrReportController extends Controller
      */
     public function performance(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $cycles = VisitCycle::latest('start_date')->get();
         $selectedCycleId = $request->integer('cycle_id') ?: ($cycles->firstWhere('status', 'active')?->id ?? $cycles->first()?->id);
 
         if ($request->has('recalculate') && $selectedCycleId) {
-            $this->reportService->recalculateAllSnapshotsForCycle($selectedCycleId);
+            if ($isRep) {
+                $this->reportService->recalculateForRepAndCycle($currentUser->id, $selectedCycleId);
+            } else {
+                $this->reportService->recalculateAllSnapshotsForCycle($selectedCycleId);
+            }
             return redirect()->route('admin.mr.reports.performance', ['cycle_id' => $selectedCycleId])
                 ->with('success', __('admin.mr.kpis_recalculated_successfully'));
         }
 
-        $snapshots = RepPerformanceSnapshot::with(['representative', 'cycle'])
-            ->where('cycle_id', $selectedCycleId)
-            ->get();
+        $query = RepPerformanceSnapshot::with(['representative', 'cycle'])
+            ->where('cycle_id', $selectedCycleId);
+
+        if ($isRep) {
+            $query->where('mr_id', $currentUser->id);
+        }
+
+        $snapshots = $query->get();
 
         // If no snapshots yet, generate on the fly
         if ($snapshots->isEmpty() && $selectedCycleId) {
-            $this->reportService->recalculateAllSnapshotsForCycle($selectedCycleId);
-            $snapshots = RepPerformanceSnapshot::with(['representative', 'cycle'])
-                ->where('cycle_id', $selectedCycleId)
-                ->get();
+            if ($isRep) {
+                $this->reportService->recalculateForRepAndCycle($currentUser->id, $selectedCycleId);
+            } else {
+                $this->reportService->recalculateAllSnapshotsForCycle($selectedCycleId);
+            }
+            $snapshots = $query->get();
         }
 
         if ($request->has('export')) {
@@ -95,7 +118,7 @@ class MrReportController extends Controller
             return $this->exportPerformanceExcel($snapshots, $selectedCycleId);
         }
 
-        return view('admin.mr.reports.performance', compact('snapshots', 'cycles', 'selectedCycleId'));
+        return view('admin.mr.reports.performance', compact('snapshots', 'cycles', 'selectedCycleId', 'isRep', 'isManager', 'currentUser'));
     }
 
     protected function exportPerformanceExcel($snapshots, ?int $cycleId)

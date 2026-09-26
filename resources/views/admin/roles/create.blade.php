@@ -1,66 +1,172 @@
 <x-layouts.admin 
     :pageTitle="__('admin.roles.create_title')" 
     :pageSubtitle="__('admin.roles.create_subtitle')"
-    :breadcrumbs="[__('admin.menu.roles') => route('admin.roles.index'), __('app.actions.create') => route('admin.roles.create')]"
+    :breadcrumbs="[
+        (__('admin.menu.roles') ?? 'Roles') => route('admin.roles.index'),
+        (app()->getLocale() === 'ar' ? 'مصفوفة الصلاحيات' : 'Permission Matrix') => route('admin.roles.matrix'),
+        (__('app.actions.create') ?? 'Create') => route('admin.roles.create')
+    ]"
 >
     <form method="POST" action="{{ route('admin.roles.store') }}">
         @csrf
 
-        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-bottom: 1.5rem;">
-            <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">{{ __('app.actions.cancel') }}</a>
-            <button type="submit" class="btn btn-primary font-bold shadow-sm">
-                <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i> {{ __('admin.roles.save_role') }}
-            </button>
+        <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.roles.matrix') }}" class="btn btn-secondary text-xs sm:text-sm font-bold">
+                    <i class="fa-solid fa-table-cells mr-1.5 ml-1.5 text-sky-500"></i>
+                    {{ app()->getLocale() === 'ar' ? 'عرض مصفوفة الصلاحيات' : 'View Full Matrix' }}
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary text-xs sm:text-sm">{{ __('app.actions.cancel') }}</a>
+                <button type="submit" class="btn btn-primary font-bold text-xs sm:text-sm shadow-sm bg-[#0A4F78] hover:bg-[#062B49] text-white">
+                    <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i> {{ __('admin.roles.save_role') }}
+                </button>
+            </div>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
-            <!-- Role Core -->
-            <div class="card" style="padding: 2rem;">
-                <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+        <div class="space-y-6">
+            <!-- 1. Role Identity Card -->
+            <div class="card p-6 border border-slate-200/80 dark:border-[#15456E] bg-white dark:bg-[#062B49] rounded-2xl shadow-sm transition-colors">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2 border-b border-slate-100 dark:border-[#15456E] pb-3 mb-4 m-0">
+                    <i class="fa-solid fa-id-badge text-[#0A4F78] dark:text-sky-400"></i>
                     {{ __('admin.roles.role_identity') }}
                 </h3>
 
-                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
-                    <x-forms.input name="name" :label="__('admin.roles.role_name')" placeholder="e.g. Regional Fulfillment Lead" :value="old('name')" required />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            {{ __('admin.roles.role_name') }} *
+                        </label>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="e.g. Senior Medical Representative" required class="form-control text-sm w-full font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            {{ __('admin.roles.description') }}
+                        </label>
+                        <input type="text" name="description" value="{{ old('description') }}" class="form-control text-sm w-full" placeholder="{{ app()->getLocale() === 'ar' ? 'وصف طبيعة عمل هذا الدور والصلاحيات...' : 'Describe what staff with this role are authorized to do...' }}">
+                    </div>
                 </div>
 
-                <x-forms.textarea name="description" :label="__('admin.roles.description')" rows="2" placeholder="Authorized to oversee logistics transfers and packing verifications across regional hubs..." :value="old('description')" />
+                <!-- Wildcard Super Authority Toggle -->
+                <div class="mt-4 p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-xs text-amber-900 dark:text-amber-200 block">
+                            {{ app()->getLocale() === 'ar' ? 'صلاحية المدير العام الشاملة (*)' : 'Super Admin Root Authority (*)' }}
+                        </span>
+                        <span class="text-[11px] text-amber-700 dark:text-amber-400">
+                            {{ app()->getLocale() === 'ar' ? 'تفعيل هذا الخيار يمنح المستخدمين التابعين لهذا الدور صلاحيات كاملة وتلقائية لكافة الشاشات الحالية والمستقبلية.' : 'Grants full, automatic authority across every current and future module in the application.' }}
+                        </span>
+                    </div>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="is_wildcard" id="isWildcardToggle" value="1" class="form-check-input" onchange="handleWildcardToggle(this.checked)">
+                        <span class="text-xs font-bold text-amber-900 dark:text-amber-200">{{ app()->getLocale() === 'ar' ? 'شامل (*)' : 'Wildcard (*)' }}</span>
+                    </label>
+                </div>
             </div>
 
-            <!-- Granular Permission Matrix -->
-            <div class="card" style="padding: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
+            <!-- 2. Preset Role Templates Bar -->
+            <div class="card p-4 border border-slate-200/80 dark:border-[#15456E] bg-white dark:bg-[#062B49] rounded-2xl shadow-sm transition-colors">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1 ml-1"></i>
+                    {{ app()->getLocale() === 'ar' ? 'البدء بقالب صلاحيات جاهز:' : 'Start with a Preset Role Template:' }}
+                </span>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    @foreach($templates as $tmplKey => $tmpl)
+                        <button type="button" onclick="applyTemplate('{{ $tmplKey }}')" class="p-2.5 rounded-xl text-left rtl:text-right border border-slate-200/80 dark:border-[#15456E] hover:border-[#0A4F78] hover:bg-sky-50/60 dark:hover:bg-[#031827] transition-all cursor-pointer">
+                            <span class="font-bold text-xs text-slate-900 dark:text-white block">{{ app()->getLocale() === 'ar' ? $tmpl['name_ar'] : $tmpl['name'] }}</span>
+                            <span class="text-[10px] text-slate-400 line-clamp-1 mt-0.5">{{ $tmpl['description'] }}</span>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- 3. Granular Permission Matrix -->
+            <div class="card p-6 border border-slate-200/80 dark:border-[#15456E] bg-white dark:bg-[#062B49] rounded-2xl shadow-sm transition-colors" id="matrixSection">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#15456E] pb-3 mb-6 flex-wrap gap-2">
                     <div>
-                        <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0 0 0.25rem 0;">{{ __('admin.roles.permission_matrix') }}</h3>
-                        <p class="text-xs text-muted" style="margin: 0;">{{ app()->getLocale() == 'ar' ? 'حدد الصلاحيات والوظائف المسموحة لهذا الدور الأمني.' : 'Check individual module capabilities for this role.' }}</p>
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white m-0 flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells text-[#0A4F78] dark:text-sky-400"></i>
+                            {{ __('admin.roles.permission_matrix') }}
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-0">
+                            {{ app()->getLocale() === 'ar' ? 'حدد الصلاحيات الدقيقة لهذا الدور عبر كافة أقسام ووظائف النظام:' : 'Configure precise CRUD privileges for this role across all system modules:' }}
+                        </p>
                     </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = true);">{{ __('admin.roles.select_all') }}</button>
-                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = false);">{{ __('admin.roles.deselect_all') }}</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" class="btn btn-secondary btn-sm text-xs font-bold" onclick="document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = true);">
+                            {{ __('admin.roles.select_all') }}
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm text-xs font-bold" onclick="document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = false);">
+                            {{ __('admin.roles.deselect_all') }}
+                        </button>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                    @php
-                        $actions = [
-                            'view' => app()->getLocale() === 'ar' ? 'عرض السجلات' : 'View Records',
-                            'create' => app()->getLocale() === 'ar' ? 'إنشاء جديد' : 'Create / Add',
-                            'edit' => app()->getLocale() === 'ar' ? 'تعديل وحفظ' : 'Edit / Update',
-                            'delete' => app()->getLocale() === 'ar' ? 'حذف وأرشفة' : 'Delete / Archive',
-                        ];
-                    @endphp
+                <!-- Domain Accordions -->
+                <div class="space-y-6">
+                    @foreach($categorizedModules as $domainKey => $domainMeta)
+                        <div class="border border-slate-200/80 dark:border-[#15456E] rounded-2xl overflow-hidden bg-white dark:bg-[#062B49]">
+                            <!-- Domain Header Bar -->
+                            <div class="bg-slate-50 dark:bg-[#031827] px-5 py-3 flex items-center justify-between border-b border-slate-200/80 dark:border-[#15456E]">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-lg bg-[#0A4F78] text-white flex items-center justify-center text-xs">
+                                        <i class="fa-solid {{ $domainMeta['icon'] }}"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
+                                            {{ app()->getLocale() === 'ar' ? $domainMeta['label']['ar'] : $domainMeta['label']['en'] }}
+                                        </span>
+                                        <span class="text-[11px] text-slate-400 block font-normal">
+                                            {{ count($domainMeta['modules']) }} {{ app()->getLocale() === 'ar' ? 'أقسام مدمجة' : 'modules' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="toggleDomain('{{ $domainKey }}', true)" class="text-[11px] font-bold text-[#0A4F78] dark:text-sky-400 hover:underline cursor-pointer">
+                                        {{ app()->getLocale() === 'ar' ? 'تحديد الكل' : 'Select All' }}
+                                    </button>
+                                    <span class="text-slate-300 dark:text-slate-600">|</span>
+                                    <button type="button" onclick="toggleDomain('{{ $domainKey }}', false)" class="text-[11px] font-bold text-slate-500 hover:underline cursor-pointer">
+                                        {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Clear' }}
+                                    </button>
+                                </div>
+                            </div>
 
-                    @foreach($modules as $moduleKey => $moduleLabel)
-                        <div style="background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
-                            <h4 style="font-size: 1rem; font-weight: 800; color: var(--color-primary); margin-bottom: 0.75rem;">
-                                {{ $moduleLabel }}
-                            </h4>
-                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                @foreach($actions as $actionKey => $actionLabel)
-                                    <label class="form-check flex items-center gap-2">
-                                        <input type="checkbox" name="permissions[{{ $moduleKey }}][{{ $actionKey }}]" class="form-check-input matrix-checkbox" value="1">
-                                        <span class="text-xs font-semibold">{{ $actionLabel }}</span>
-                                    </label>
+                            <!-- Modules Grid inside Domain -->
+                            <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach($domainMeta['modules'] as $moduleKey => $moduleMeta)
+                                    <div class="p-3.5 rounded-xl bg-slate-50/80 dark:bg-[#031827]/70 border border-slate-200/70 dark:border-[#15456E]/70 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-start justify-between gap-1 mb-1">
+                                                <h4 class="font-bold text-xs text-slate-900 dark:text-white m-0">
+                                                    {{ app()->getLocale() === 'ar' ? $moduleMeta['name_ar'] : $moduleMeta['name_en'] }}
+                                                </h4>
+                                                <span class="text-[9px] font-mono text-slate-400">admin.{{ $moduleKey }}</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mb-2 line-clamp-2">
+                                                {{ app()->getLocale() === 'ar' ? $moduleMeta['desc_ar'] : $moduleMeta['desc_en'] }}
+                                            </p>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/60 dark:border-[#15456E]/60 text-xs">
+                                            @foreach($actions as $actionKey => $actionMeta)
+                                                <label class="form-check flex items-center gap-1.5 cursor-pointer">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        name="permissions[{{ $moduleKey }}][{{ $actionKey }}]" 
+                                                        class="form-check-input matrix-checkbox domain-cb-{{ $domainKey }} cb-{{ $moduleKey }}-{{ $actionKey }}" 
+                                                        value="1"
+                                                    >
+                                                    <span class="text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                                                        {{ app()->getLocale() === 'ar' ? $actionMeta['ar'] : $actionMeta['en'] }}
+                                                    </span>
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -69,4 +175,75 @@
             </div>
         </div>
     </form>
+
+    @push('scripts')
+    <script>
+        const TEMPLATES = @json($templates);
+
+        function handleWildcardToggle(checked) {
+            if (checked) {
+                document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = true);
+            }
+        }
+
+        function toggleDomain(domainKey, status) {
+            document.querySelectorAll('.domain-cb-' + domainKey).forEach(cb => cb.checked = status);
+        }
+
+        function applyTemplate(templateKey) {
+            const tmpl = TEMPLATES[templateKey];
+            if (!tmpl || !tmpl.permissions) return;
+
+            document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = false);
+            const wildcardCb = document.getElementById('isWildcardToggle');
+
+            const isWildcard = (Array.isArray(tmpl.permissions) && tmpl.permissions.includes('*')) ||
+                               tmpl.permissions === '*' ||
+                               (typeof tmpl.permissions === 'object' && tmpl.permissions !== null && tmpl.permissions['*']);
+
+            if (isWildcard) {
+                if (wildcardCb) wildcardCb.checked = true;
+                document.querySelectorAll('.matrix-checkbox').forEach(cb => cb.checked = true);
+                return;
+            }
+
+            if (wildcardCb) wildcardCb.checked = false;
+
+            if (Array.isArray(tmpl.permissions)) {
+                tmpl.permissions.forEach(p => {
+                    if (typeof p === 'string' && p.includes('.')) {
+                        const parts = p.split('.');
+                        const m = parts[0];
+                        const a = parts[1];
+                        if (a === '*') {
+                            document.querySelectorAll('[class*="cb-' + m + '-"]').forEach(cb => cb.checked = true);
+                        } else {
+                            const target = document.querySelector('.cb-' + m + '-' + a);
+                            if (target) target.checked = true;
+                        }
+                    } else if (typeof p === 'string') {
+                        document.querySelectorAll('[class*="cb-' + p + '-"]').forEach(cb => cb.checked = true);
+                    }
+                });
+                return;
+            }
+
+            if (typeof tmpl.permissions === 'object' && tmpl.permissions !== null) {
+                for (const modKey in tmpl.permissions) {
+                    const actions = tmpl.permissions[modKey];
+                    if (actions && typeof actions === 'object') {
+                        for (const actKey in actions) {
+                            if (actions[actKey]) {
+                                const targetCb = document.querySelector('.cb-' + modKey + '-' + actKey);
+                                if (targetCb) targetCb.checked = true;
+                            }
+                        }
+                    } else if (actions === true) {
+                        document.querySelectorAll('[class*="cb-' + modKey + '-"]').forEach(cb => cb.checked = true);
+                    }
+                }
+            }
+        }
+    </script>
+    @endpush
 </x-layouts.admin>

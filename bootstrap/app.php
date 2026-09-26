@@ -35,6 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
             'auth.customer' => \App\Http\Middleware\AuthenticateCustomer::class,
+            'mr.manager' => \App\Http\Middleware\EnsureCanManageMr::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

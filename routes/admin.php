@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\Mr\ClassificationController as MrClassificationCo
 use App\Http\Controllers\Admin\Mr\ContactController as MrContactController;
 use App\Http\Controllers\Admin\Mr\CycleController as MrCycleController;
 use App\Http\Controllers\Admin\Mr\GpsConfigController as MrGpsConfigController;
+use App\Http\Controllers\Admin\Mr\MrDashboardController;
 use App\Http\Controllers\Admin\Mr\MrMapController;
 use App\Http\Controllers\Admin\Mr\MrReportController;
 use App\Http\Controllers\Admin\Mr\SpecialtyController as MrSpecialtyController;
@@ -205,8 +206,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Native Medical Representative (MR) Visit Management System
         Route::prefix('mr')->name('mr.')->group(function () {
-            // Live Ops Map
-            Route::get('/map', [MrMapController::class, 'index'])->name('live-map');
+            // Main CRM Executive Dashboard & Scheduling Command Center
+            Route::get('/', [MrDashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard', [MrDashboardController::class, 'index'])->name('dashboard.alt');
+            Route::post('/schedules/quick-create', [MrDashboardController::class, 'quickSchedule'])->name('schedules.quick-create');
+            Route::post('/schedules/bulk-create', [MrDashboardController::class, 'bulkSchedule'])->name('schedules.bulk-create');
+            Route::post('/schedules/{id}/status', [MrDashboardController::class, 'quickUpdateStatus'])->name('schedules.update-status');
+            Route::post('/schedules/{id}/reschedule', [MrDashboardController::class, 'reschedule'])->name('schedules.reschedule');
+            Route::delete('/schedules/{id}', [MrDashboardController::class, 'deleteSchedule'])->name('schedules.delete');
+            Route::get('/reps/{id}/details-json', [MrDashboardController::class, 'repDetails'])->name('reps.details-json');
+            Route::post('/visits/quick-record', [MrDashboardController::class, 'quickRecordVisit'])->name('visits.quick-record');
+            Route::get('/calendar-feed', [MrDashboardController::class, 'calendarFeed'])->name('calendar-feed');
+
+            // Live Ops Map (Admin & Line Managers Only)
+            Route::get('/map', [MrMapController::class, 'index'])->name('live-map')->middleware('mr.manager');
 
             // Doctors & Clinics (Contacts)
             Route::prefix('contacts')->name('contacts.')->group(function () {
@@ -221,7 +234,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
             // Doctor Classifications (A+/A/B/C)
-            Route::prefix('classifications')->name('classifications.')->group(function () {
+            Route::prefix('classifications')->name('classifications.')->middleware('mr.manager')->group(function () {
                 Route::get('/', [MrClassificationController::class, 'index'])->name('index');
                 Route::post('/', [MrClassificationController::class, 'store'])->name('store');
                 Route::put('/{id}', [MrClassificationController::class, 'update'])->name('update');
@@ -229,7 +242,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
             // Medical Specialties
-            Route::prefix('specialties')->name('specialties.')->group(function () {
+            Route::prefix('specialties')->name('specialties.')->middleware('mr.manager')->group(function () {
                 Route::get('/', [MrSpecialtyController::class, 'index'])->name('index');
                 Route::post('/', [MrSpecialtyController::class, 'store'])->name('store');
                 Route::put('/{id}', [MrSpecialtyController::class, 'update'])->name('update');
@@ -244,7 +257,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
             // Visit Cycles
-            Route::prefix('cycles')->name('cycles.')->group(function () {
+            Route::prefix('cycles')->name('cycles.')->middleware('mr.manager')->group(function () {
                 Route::get('/', [MrCycleController::class, 'index'])->name('index');
                 Route::post('/', [MrCycleController::class, 'store'])->name('store');
                 Route::put('/{id}', [MrCycleController::class, 'update'])->name('update');
@@ -267,7 +280,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
             // GPS Geofence & Rules Config
-            Route::prefix('gps-config')->name('gps-config.')->group(function () {
+            Route::prefix('gps-config')->name('gps-config.')->middleware('mr.manager')->group(function () {
                 Route::get('/', [MrGpsConfigController::class, 'index'])->name('index');
                 Route::post('/global', [MrGpsConfigController::class, 'updateGlobal'])->name('update-global');
                 Route::post('/rep', [MrGpsConfigController::class, 'storeRepConfig'])->name('store-rep');
@@ -275,7 +288,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
 
             // Territories & Areas Management
-            Route::prefix('areas')->name('areas.')->group(function () {
+            Route::prefix('areas')->name('areas.')->middleware('mr.manager')->group(function () {
                 Route::get('/', [AreaController::class, 'index'])->name('index');
                 Route::post('/', [AreaController::class, 'store'])->name('store');
                 Route::put('/{id}', [AreaController::class, 'update'])->name('update');
@@ -298,7 +311,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/rep-performance-report', fn () => redirect()->route('admin.mr.reports.performance'))->name('rep-performance-report');
 
         Route::prefix('mr-crm')->name('mr-crm.')->group(function () {
-            Route::get('/', fn () => redirect()->route('admin.mr.reports.performance'))->name('dashboard');
+            Route::get('/', fn () => redirect()->route('admin.mr.dashboard'))->name('dashboard');
             Route::get('/live-map', fn () => redirect()->route('admin.mr.live-map'))->name('live-map');
             Route::get('/contacts', fn () => redirect()->route('admin.mr.contacts.index'))->name('contacts');
             Route::get('/assignments', fn () => redirect()->route('admin.mr.assignments.index'))->name('assignments');
@@ -422,10 +435,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [UserController::class, 'destroy'])->middleware('permission:users.delete')->name('destroy');
             Route::post('/{id}/restore', [UserController::class, 'restore'])->middleware('permission:users.delete')->name('restore');
             Route::delete('/{id}/force-delete', [UserController::class, 'forceDelete'])->middleware('permission:users.delete')->name('force-delete');
+            Route::post('/{id}/impersonate', [UserController::class, 'impersonate'])->middleware('permission:users.view')->name('impersonate');
+            Route::post('/{id}/attendance', [UserController::class, 'recordAttendance'])->middleware('permission:users.edit')->name('attendance.record');
         });
+
+        // Impersonation Exit Route (Accessible to all authenticated users)
+        Route::match(['GET', 'POST'], '/impersonate/leave', [UserController::class, 'leaveImpersonation'])->name('impersonate.leave');
+
+        // Self-Service Attendance Check-in / Check-out (Any authenticated staff)
+        Route::post('/attendance/check-in', [UserController::class, 'selfCheckIn'])->name('attendance.self-checkin');
+        Route::post('/attendance/check-out', [UserController::class, 'selfCheckOut'])->name('attendance.self-checkout');
 
         Route::prefix('roles')->name('roles.')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->middleware('permission:roles.view')->name('index');
+            Route::get('/matrix', [RoleController::class, 'matrix'])->middleware('permission:roles.view')->name('matrix');
+            Route::post('/matrix/update', [RoleController::class, 'updateMatrix'])->middleware('permission:roles.edit')->name('matrix.update');
             Route::get('/create', [RoleController::class, 'create'])->middleware('permission:roles.create')->name('create');
             Route::post('/', [RoleController::class, 'store'])->middleware('permission:roles.create')->name('store');
             Route::get('/{id}/edit', [RoleController::class, 'edit'])->middleware('permission:roles.edit')->name('edit');

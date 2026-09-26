@@ -20,22 +20,41 @@ class VisitController extends Controller
 {
     public function index(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $activeTab = $request->input('tab', 'today');
         $selectedDate = $request->input('date', now()->toDateString());
-        $selectedMrId = $request->filled('mr_id') ? $request->integer('mr_id') : null;
+        $selectedMrId = $isRep ? $currentUser->id : ($request->filled('mr_id') ? $request->integer('mr_id') : null);
 
         $cycles = VisitCycle::latest('start_date')->get();
         $selectedCycleId = $request->integer('cycle_id');
 
-        $medicalReps = User::whereHas('role', function ($q) {
-            $q->where('name', 'mr');
-        })->orWhere('role_id', 2)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        if ($isRep) {
+            $medicalReps = User::where('id', $currentUser->id)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        } else {
+            $medicalReps = User::whereHas('role', function ($q) {
+                $q->where('name', 'mr');
+            })->orWhere('role_id', 2)->with(['area', 'city'])->select('id', 'name', 'country_id', 'city_id', 'area_id')->get();
+        }
 
-        $availableDoctors = Contact::where('is_active', true)
-            ->with(['specialty', 'classification', 'city'])
-            ->select('id', 'name', 'code', 'hospital_clinic_name', 'specialty_id', 'classification_id', 'city_id')
-            ->orderBy('name')
-            ->get();
+        if ($isRep) {
+            $assignedDoctorIds = ContactAssignment::where('mr_id', $currentUser->id)->pluck('contact_id');
+            $availableDoctorsQuery = Contact::where('is_active', true)
+                ->with(['specialty', 'classification', 'city'])
+                ->select('id', 'name', 'code', 'hospital_clinic_name', 'specialty_id', 'classification_id', 'city_id');
+            if ($assignedDoctorIds->isNotEmpty()) {
+                $availableDoctorsQuery->whereIn('id', $assignedDoctorIds);
+            }
+            $availableDoctors = $availableDoctorsQuery->orderBy('name')->get();
+        } else {
+            $availableDoctors = Contact::where('is_active', true)
+                ->with(['specialty', 'classification', 'city'])
+                ->select('id', 'name', 'code', 'hospital_clinic_name', 'specialty_id', 'classification_id', 'city_id')
+                ->orderBy('name')
+                ->get();
+        }
 
         $products = Product::where('is_active', true)
             ->select('id', 'name_en', 'name_ar')
@@ -122,8 +141,12 @@ class VisitController extends Controller
 
     public function schedule(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $validated = $request->validate([
-            'mr_id' => 'required|exists:users,id',
+            'mr_id' => $isRep ? 'nullable|exists:users,id' : 'required|exists:users,id',
             'contact_id' => 'required|exists:mr_contacts,id',
             'scheduled_date' => 'required|date',
             'scheduled_time' => 'required|string',
@@ -131,7 +154,7 @@ class VisitController extends Controller
             'cycle_id' => 'nullable|exists:mr_visit_cycles,id',
         ]);
 
-        $mrId = (int) $validated['mr_id'];
+        $mrId = $isRep ? $currentUser->id : (int) $validated['mr_id'];
         $contactId = (int) $validated['contact_id'];
         $dateTimeStr = $validated['scheduled_date'] . ' ' . $validated['scheduled_time'];
         $scheduledAt = Carbon::parse($dateTimeStr);
@@ -176,7 +199,7 @@ class VisitController extends Controller
             'cycle_id' => $cycle->id,
             'scheduled_at' => $scheduledAt,
             'status' => 'planned',
-            'notes' => $validated['notes'] ?? 'Scheduled by administrator',
+            'notes' => $validated['notes'] ?? 'Scheduled visit',
         ]);
 
         $user = User::find($mrId);
@@ -210,8 +233,12 @@ class VisitController extends Controller
 
     public function recordDirectVisit(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $validated = $request->validate([
-            'mr_id' => 'required|exists:users,id',
+            'mr_id' => $isRep ? 'nullable|exists:users,id' : 'required|exists:users,id',
             'contact_id' => 'required|exists:mr_contacts,id',
             'scheduled_visit_id' => 'nullable|exists:mr_scheduled_visits,id',
             'visited_at' => 'required|date',
@@ -221,7 +248,7 @@ class VisitController extends Controller
             'product_ids.*' => 'exists:products,id',
         ]);
 
-        $mrId = (int) $validated['mr_id'];
+        $mrId = $isRep ? $currentUser->id : (int) $validated['mr_id'];
         $contactId = (int) $validated['contact_id'];
         $visitedAt = Carbon::parse($validated['visited_at']);
         $productIds = array_values(array_unique(array_map('intval', $validated['product_ids'])));
@@ -250,6 +277,12 @@ class VisitController extends Controller
         );
 
         $scheduledVisitId = $validated['scheduled_visit_id'] ?? null;
+        if ($scheduledVisitId && $isRep) {
+            $checkSch = ScheduledVisit::find($scheduledVisitId);
+            if ($checkSch && (int)$checkSch->mr_id !== (int)$currentUser->id) {
+                abort(403, 'Unauthorized access to this schedule.');
+            }
+        }
 
         $visit = Visit::create([
             'scheduled_visit_id' => $scheduledVisitId,
@@ -288,7 +321,15 @@ class VisitController extends Controller
 
     public function cancelSchedule(int $id)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $scheduledVisit = ScheduledVisit::findOrFail($id);
+        if ($isRep && (int)$scheduledVisit->mr_id !== (int)$currentUser->id) {
+            abort(403, 'Unauthorized.');
+        }
+
         $scheduledVisit->update(['status' => 'cancelled']);
 
         return back()->with('success', app()->getLocale() === 'ar' ? 'تم إلغاء الزيارة المجدولة بنجاح.' : 'Scheduled visit cancelled successfully.');
@@ -402,6 +443,10 @@ class VisitController extends Controller
 
     public function show(int $id)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $visit = Visit::with([
             'representative',
             'contact.specialty',
@@ -411,6 +456,10 @@ class VisitController extends Controller
             'products',
             'product',
         ])->findOrFail($id);
+
+        if ($isRep && (int)$visit->mr_id !== (int)$currentUser->id) {
+            abort(403, 'Unauthorized access to this visit report.');
+        }
 
         return view('admin.mr.visits.show', compact('visit'));
     }

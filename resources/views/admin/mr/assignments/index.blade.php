@@ -12,9 +12,11 @@
                 <i class="fa-solid fa-file-excel text-emerald-500"></i>
                 <span>{{ app()->getLocale() === 'ar' ? 'تصدير إكسيل (.xlsx)' : 'Export Excel (.xlsx)' }}</span>
             </a>
+            @if(empty($isRep) || !$isRep)
             <button type="button" onclick="openAssignModal()" class="btn btn-primary font-bold text-sm shadow-sm">
                 <i class="fa-solid fa-user-plus mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تكليف أطباء لمندوب' : 'Assign Doctors to Rep' }}
             </button>
+            @endif
         </div>
     </x-slot>
 
@@ -39,14 +41,22 @@
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                         {{ app()->getLocale() === 'ar' ? 'المندوب الطبي' : 'Medical Representative' }}
                     </label>
-                    <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
-                        <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
-                        @foreach($medicalReps as $rep)
-                            <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(!empty($isRep) && $isRep)
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-bold text-xs rounded border border-cyan-200 dark:border-cyan-800">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>{{ $currentUser->name }}</span>
+                        </div>
+                        <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                    @else
+                        <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
+                            <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
+                            @foreach($medicalReps as $rep)
+                                <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                    {{ $rep->name }}{{ $rep->area ? ' (📍 ' . $rep->area->name . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
 
                 <div>
@@ -63,11 +73,13 @@
                 </div>
             </form>
 
+            @if(empty($isRep) || !$isRep)
             <div>
                 <button type="button" onclick="openAssignModal()" class="btn btn-primary font-bold text-sm shadow-sm">
                     <i class="fa-solid fa-user-plus mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'تكليف أطباء لمندوب' : 'Assign Doctors to Rep' }}
                 </button>
             </div>
+            @endif
         </div>
     </div>
 
@@ -137,6 +149,7 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-right">
+                                @if(empty($isRep) || !$isRep)
                                 <form method="POST" action="{{ route('admin.mr.assignments.destroy', $a->id) }}" onsubmit="return confirm('Remove doctor from rep assignment for this cycle?')" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -144,6 +157,9 @@
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
                                 </form>
+                                @else
+                                <span class="text-xs text-gray-400">—</span>
+                                @endif
                             </td>
                         </tr>
                     @empty

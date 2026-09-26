@@ -124,15 +124,71 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && (int)$this->role_id === 1);
+        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && (int)$this->role_id === 3);
     }
 
     /**
-     * Check if user is an Admin.
+     * Check if user is an Admin or Manager.
      */
     public function isAdmin(): bool
     {
-        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && in_array((int)$this->role_id, [1, 2], true));
+        return $this->isSuperAdmin() || $this->hasRole(['admin', 'administrator']);
+    }
+
+    /**
+     * Check if user is an Operations Manager.
+     */
+    public function isOperationsManager(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 4) || $this->hasRole(['operations_manager', 'operations']);
+    }
+
+    /**
+     * Check if user is an Inventory Officer.
+     */
+    public function isInventoryOfficer(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 6) || $this->hasRole(['inventory_officer', 'inventory', 'warehouse_officer']);
+    }
+
+    /**
+     * Check if user is an HR Manager.
+     */
+    public function isHrManager(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 7) || $this->hasRole(['hr_manager', 'hr', 'human_resources']);
+    }
+
+    /**
+     * Check if user is a Commercial Accounts Rep (B2B Corporate Sales).
+     */
+    public function isCommercialRep(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 5) || $this->hasRole(['commercial_accounts_rep', 'commercial_rep', 'commercial_sales', 'commercial']);
+    }
+
+    /**
+     * Check if user is a Medical Representative (Field Agent).
+     */
+    public function isMedicalRep(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 1) || $this->hasRole(['mr', 'medical_rep', 'medical_representative']);
+    }
+
+    /**
+     * Check if user is an MR Line Manager.
+     */
+    public function isMrLineManager(): bool
+    {
+        return (isset($this->role_id) && (int)$this->role_id === 2) || $this->hasRole(['mr_line_manager', 'line_manager']);
+    }
+
+    /**
+     * Check if user has administrative authority over all MRs.
+     */
+    public function canManageAllMr(): bool
+    {
+        return $this->isSuperAdmin() || $this->isAdmin() || $this->isMrLineManager();
     }
 
     /**
@@ -157,15 +213,25 @@ class User extends Authenticatable implements FilamentUser
 
         $permissions = (array) ($rawPermissions ?? []);
 
+        // Flatten permissions supporting both flat strings, keys with bools, and wildcards
+        $flatPermissions = [];
+        foreach ($permissions as $k => $v) {
+            if (is_int($k) && is_string($v)) {
+                $flatPermissions[] = strtolower(trim($v));
+            } elseif (is_string($k) && !empty($v)) {
+                $flatPermissions[] = strtolower(trim($k));
+            }
+        }
+
         // 1. Root wildcard check
-        if (in_array('*', $permissions, true) || in_array('all', $permissions, true) || isset($permissions['*']) || isset($permissions['all'])) {
+        if (in_array('*', $flatPermissions, true) || in_array('all', $flatPermissions, true) || isset($permissions['*']) || isset($permissions['all'])) {
             return true;
         }
 
         $normalized = strtolower(trim($permission));
 
         // 2. Direct string match in flat permission list
-        if (in_array($normalized, $permissions, true)) {
+        if (in_array($normalized, $flatPermissions, true)) {
             return true;
         }
 
@@ -195,37 +261,90 @@ class User extends Authenticatable implements FilamentUser
             'user', 'staff', 'admin' => 'users',
             'role' => 'roles',
             'notification', 'notifications' => 'notifications',
+            'employee', 'employees' => 'hr_employees',
+            'attendance' => 'hr_attendance',
+            'department', 'departments', 'position', 'positions' => 'hr_departments',
+            'payroll', 'advance', 'advances', 'loan', 'loans' => 'hr_payroll',
+            'lead', 'leads' => 'crm_leads',
+            'opportunity', 'opportunities', 'deal', 'deals' => 'crm_opportunities',
+            'activity', 'activities' => 'crm_activities',
+            'visit', 'visits' => 'mr_visits',
+            'contact', 'contacts' => 'mr_contacts',
+            'assignment', 'assignments' => 'mr_assignments',
+            'territory', 'territories' => 'mr_territories',
             default => $module,
         };
 
+        // Determine all potential keys for this module (canonical + legacy aliases)
+        $moduleKeys = [$module];
+        if (str_starts_with($module, 'hr_')) {
+            $moduleKeys[] = substr($module, 3);
+        }
+        if (str_starts_with($module, 'crm_')) {
+            $moduleKeys[] = substr($module, 4);
+        }
+        if (str_starts_with($module, 'mr_')) {
+            $moduleKeys[] = substr($module, 3);
+        }
+
         // Check flat wildcard for module: e.g. "products.*" or "products"
-        if (in_array("{$module}.*", $permissions, true) || in_array($module, $permissions, true)) {
-            return true;
-        }
-
-        // Check flat action permission: e.g. "products.view"
-        if ($action && in_array("{$module}.{$action}", $permissions, true)) {
-            return true;
-        }
-
-        // Check matrix structure: e.g. $permissions['products']['view']
-        if (isset($permissions[$module]) && is_array($permissions[$module])) {
-            $modPerms = $permissions[$module];
-
-            // If specific action is requested
-            if ($action) {
-                return !empty($modPerms[$action]);
+        foreach ($moduleKeys as $mKey) {
+            if (in_array("{$mKey}.*", $flatPermissions, true) || in_array($mKey, $flatPermissions, true)) {
+                return true;
             }
+        }
 
-            // If general module access is checked (e.g. "products" or "manage_products"):
-            // Grant access if ANY action (view, create, edit, delete) is allowed
-            foreach (['view', 'create', 'edit', 'delete'] as $act) {
-                if (!empty($modPerms[$act])) {
+        // Domain-level wildcards (e.g., 'mr.*' covers 'mr_visits', 'mr_contacts', etc.)
+        if (str_starts_with($module, 'mr_') && (in_array('mr.*', $flatPermissions, true) || in_array('mr', $flatPermissions, true))) {
+            return true;
+        }
+        if (str_starts_with($module, 'crm_') && (in_array('crm.*', $flatPermissions, true) || in_array('crm', $flatPermissions, true))) {
+            return true;
+        }
+        if (str_starts_with($module, 'hr_') && (in_array('hr.*', $flatPermissions, true) || in_array('hr', $flatPermissions, true))) {
+            return true;
+        }
+
+        // Check flat action permission: e.g. "products.view" or "employees.view"
+        if ($action) {
+            foreach ($moduleKeys as $mKey) {
+                if (in_array("{$mKey}.{$action}", $flatPermissions, true)) {
+                    return true;
+                }
+                // Handle aliases like 'manage' or 'update' for 'edit'
+                if ($action === 'edit' && (in_array("{$mKey}.update", $flatPermissions, true) || in_array("{$mKey}.manage", $flatPermissions, true))) {
                     return true;
                 }
             }
+        } else {
+            // If checking module without specific action (e.g. hasPermission('crm_leads')),
+            // grant if user has any action on this module
+            foreach ($moduleKeys as $mKey) {
+                foreach ($flatPermissions as $fp) {
+                    if ($fp === $mKey || str_starts_with($fp, "{$mKey}.")) {
+                        return true;
+                    }
+                }
+            }
+        }
 
-            return !empty($modPerms);
+        // Check matrix structure: e.g. $permissions['products']['view']
+        foreach ($moduleKeys as $mKey) {
+            if (isset($permissions[$mKey]) && is_array($permissions[$mKey])) {
+                $modPerms = $permissions[$mKey];
+
+                if ($action) {
+                    return !empty($modPerms[$action]);
+                }
+
+                foreach (['view', 'create', 'edit', 'delete'] as $act) {
+                    if (!empty($modPerms[$act])) {
+                        return true;
+                    }
+                }
+
+                return !empty($modPerms);
+            }
         }
 
         return false;

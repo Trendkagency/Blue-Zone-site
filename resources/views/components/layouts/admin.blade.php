@@ -49,122 +49,141 @@
                     $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
                 @endphp
 
+                @php
+                    $canManageMr = $u ? $u->canManageAllMr() : false;
+                @endphp
                 <!-- Medical Representative (MR) CRM Dropdown -->
-                <div class="sidebar-dropdown-group {{ $isMrActive ? 'is-open' : '' }}" id="group-mr-crm">
-                    <button type="button" class="sidebar-dropdown-btn {{ $isMrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-mr-crm')">
-                        <div class="sidebar-dropdown-label">
-                            <i class="fa-solid fa-user-doctor sidebar-link-icon text-cyan-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'نظام المندوب الطبي (MR CRM)' : 'Medical Rep CRM (MR)' }}</span>
+                @if($u && ($u->hasPermission('mr.view') || $u->hasPermission('mr') || $u->hasPermission('mr_visits') || $u->hasPermission('mr_dashboard') || $u->isMedicalRep() || $u->canManageAllMr()))
+                    <div class="sidebar-dropdown-group {{ $isMrActive ? 'is-open' : '' }}" id="group-mr-crm">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isMrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-mr-crm')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-user-doctor sidebar-link-icon text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'نظام CRM' : 'CRM' }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.mr.dashboard') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.dashboard') || request()->routeIs('admin.mr.dashboard.alt') ? 'active' : '' }}">
+                                <i class="fa-solid fa-gauge-high text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم CRM' : 'CRM dashboard' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.live-map') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.live-map') ? 'active' : '' }}">
+                                <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة (Live Map)' : 'Live Ops Field Map' }}</span>
+                            </a>
+                            @if($canManageMr)
+                            <a href="{{ route('admin.mr.areas.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.areas.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-map-location-dot text-xs text-teal-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات (Territories & Areas)' : 'Territories & Areas' }}</span>
+                            </a>
+                            @endif
+                            <a href="{{ route('admin.mr.contacts.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.contacts.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-stethoscope text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الأطباء والعيادات (Contacts)' : 'Doctors & Clinics (Contacts)' }}</span>
+                            </a>
+                            @if($canManageMr)
+                            <a href="{{ route('admin.mr.classifications.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.classifications.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-ranking-star text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تصنيفات الأطباء' : 'Doctor Classes' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.specialties.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.specialties.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-heart-pulse text-xs text-rose-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التخصصات الطبية' : 'Medical Specialties' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.assignments.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.assignments.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-clipboard-check text-xs text-indigo-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'توزيع وتعيين الأطباء' : 'Doctor Assignments' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.cycles.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.cycles.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-calendar-days text-xs text-purple-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'دورات الزيارات (Cycles)' : 'Visit Cycles' }}</span>
+                            </a>
+                            @endif
+                            <a href="{{ route('admin.mr.visits.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.visits.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-location-dot text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية (GPS)' : 'Executed Visits & GPS Log' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.reports.coverage') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.coverage') ? 'active' : '' }}">
+                                <i class="fa-solid fa-chart-column text-xs text-teal-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تقرير التغطية والأطباء غير المزارين' : 'Doctor Coverage Report' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.reports.performance') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.performance') ? 'active' : '' }}">
+                                <i class="fa-solid fa-trophy text-xs text-yellow-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بطاقة أداء المناديب (Scorecard)' : 'Rep Performance Scorecard' }}</span>
+                            </a>
+                            @if($canManageMr)
+                            <a href="{{ route('admin.mr.gps-config.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.gps-config.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-satellite-dish text-xs text-purple-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وقواعد الـ GPS' : 'GPS Geofence & Rules' }}</span>
+                            </a>
+                            @endif
+                            <a href="{{ url('/mr') }}" target="_blank"
+                                class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg">
+                                <i class="fa-solid fa-mobile-screen-button text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية (MR Portal) ↗' : 'MR Mobile Portal ↗' }}</span>
+                            </a>
                         </div>
-                        <div class="sidebar-dropdown-meta">
-                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
-                        </div>
-                    </button>
-                    <div class="sidebar-submenu">
-                        <a href="{{ route('admin.mr.live-map') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.live-map') ? 'active' : '' }}">
-                            <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة (Live Map)' : 'Live Ops Field Map' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.areas.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.areas.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-map-location-dot text-xs text-teal-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات (Territories & Areas)' : 'Territories & Areas' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.contacts.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.contacts.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-stethoscope text-xs text-sky-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الأطباء والعيادات (Contacts)' : 'Doctors & Clinics (Contacts)' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.classifications.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.classifications.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-ranking-star text-xs text-amber-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'تصنيفات الأطباء (A+/A/B/C)' : 'Doctor Classes (A+/A/B/C)' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.specialties.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.specialties.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-heart-pulse text-xs text-rose-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'التخصصات الطبية' : 'Medical Specialties' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.assignments.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.assignments.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-clipboard-check text-xs text-indigo-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'توزيع وتعيين الأطباء' : 'Doctor Assignments' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.cycles.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.cycles.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-calendar-days text-xs text-purple-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'دورات الزيارات (Cycles)' : 'Visit Cycles' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.visits.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.visits.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-location-dot text-xs text-cyan-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية (GPS)' : 'Executed Visits & GPS Log' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.reports.coverage') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.coverage') ? 'active' : '' }}">
-                            <i class="fa-solid fa-chart-column text-xs text-teal-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'تقرير التغطية والأطباء غير المزارين' : 'Doctor Coverage Report' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.reports.performance') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.performance') ? 'active' : '' }}">
-                            <i class="fa-solid fa-trophy text-xs text-yellow-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'بطاقة أداء المناديب (Scorecard)' : 'Rep Performance Scorecard' }}</span>
-                        </a>
-                        <a href="{{ route('admin.mr.gps-config.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.mr.gps-config.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-satellite-dish text-xs text-purple-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وقواعد الـ GPS' : 'GPS Geofence & Rules' }}</span>
-                        </a>
-                        <a href="{{ url('/mr') }}" target="_blank"
-                            class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg">
-                            <i class="fa-solid fa-mobile-screen-button text-xs text-cyan-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية (MR Portal) ↗' : 'MR Mobile Portal ↗' }}</span>
-                        </a>
                     </div>
-                </div>
+                @endif
 
                 <!-- Commercial Sales CRM Dropdown -->
-                <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-sales-crm">
-                    <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales-crm')">
-                        <div class="sidebar-dropdown-label">
-                            <i class="fa-solid fa-briefcase sidebar-link-icon text-amber-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء (Sales CRM)' : 'Commercial Sales CRM' }}</span>
+                @if($u && ($u->hasPermission('crm.view') || $u->hasPermission('crm') || $u->hasPermission('crm_leads') || $u->hasPermission('crm_opportunities') || $u->hasPermission('crm_activities')))
+                    <div class="sidebar-dropdown-group {{ $isCrmActive ? 'is-open' : '' }}" id="group-sales-crm">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales-crm')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-briefcase sidebar-link-icon text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء (Sales CRM)' : 'Commercial Sales CRM' }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.crm.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
+                                <i class="fa-solid fa-chart-pie text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الـ CRM' : 'CRM Dashboard' }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.leads.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-user-tag text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'العملاء المحتملين (Leads)' : 'Leads Pipeline' }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.opportunities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-handshake text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الصفقات والفرص (Deals)' : 'Deals & Kanban' }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.activities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-list-check text-xs text-purple-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المهام والأنشطة' : 'Activities & Tasks' }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.companies.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-building text-xs text-indigo-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'حسابات الشركات (B2B)' : 'Corporate Accounts' }}</span>
+                            </a>
+                            <a href="{{ route('admin.crm.campaigns.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الحملات التسويقية' : 'Marketing Campaigns' }}</span>
+                            </a>
                         </div>
-                        <div class="sidebar-dropdown-meta">
-                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
-                        </div>
-                    </button>
-                    <div class="sidebar-submenu">
-                        <a href="{{ route('admin.crm.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
-                            <i class="fa-solid fa-chart-pie text-xs text-amber-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الـ CRM' : 'CRM Dashboard' }}</span>
-                        </a>
-                        <a href="{{ route('admin.crm.leads.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-user-tag text-xs text-sky-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'العملاء المحتملين (Leads)' : 'Leads Pipeline' }}</span>
-                        </a>
-                        <a href="{{ route('admin.crm.opportunities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-handshake text-xs text-emerald-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الصفقات والفرص (Deals)' : 'Deals & Kanban' }}</span>
-                        </a>
-                        <a href="{{ route('admin.crm.activities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-list-check text-xs text-purple-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'المهام والأنشطة' : 'Activities & Tasks' }}</span>
-                        </a>
-                        <a href="{{ route('admin.crm.companies.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-building text-xs text-indigo-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'حسابات الشركات (B2B)' : 'Corporate Accounts' }}</span>
-                        </a>
-                        <a href="{{ route('admin.crm.campaigns.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الحملات التسويقية' : 'Marketing Campaigns' }}</span>
-                        </a>
                     </div>
-                </div>
+                @endif
 
                 <!-- Human Resources (HR) Dropdown -->
-                <div class="sidebar-dropdown-group {{ $isHrActive ? 'is-open' : '' }}" id="group-hr">
+                @if($u && ($u->hasPermission('hr.view') || $u->hasPermission('hr') || $u->hasPermission('hr_employees') || $u->hasPermission('employees.view') || $u->hasPermission('departments.view') || $u->hasPermission('payroll.view')))
+                    <div class="sidebar-dropdown-group {{ $isHrActive ? 'is-open' : '' }}" id="group-hr">
                     <button type="button" class="sidebar-dropdown-btn {{ $isHrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-hr')">
                         <div class="sidebar-dropdown-label">
                             <i class="fa-solid fa-people-roof sidebar-link-icon text-pink-400"></i>
@@ -289,6 +308,7 @@
                         </a>
                     </div>
                 </div>
+                @endif
 
                 <!-- 1. Catalog & Formulations Dropdown -->
                 @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products') || $u->hasPermission('products.create') || $u->hasPermission('products.edit')))
@@ -482,9 +502,14 @@
                             @endif
                             @if($u->hasPermission('roles.view') || $u->hasPermission('roles'))
                                 <a href="{{ route('admin.roles.index') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                                    class="sidebar-sublink {{ request()->routeIs('admin.roles.index') || request()->routeIs('admin.roles.create') || request()->routeIs('admin.roles.edit') ? 'active' : '' }}">
                                     <i class="fa-solid fa-id-badge text-xs"></i>
                                     <span>{{ __('admin.menu.roles') }}</span>
+                                </a>
+                                <a href="{{ route('admin.roles.matrix') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.roles.matrix') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-table-cells text-xs text-sky-400"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'مصفوفة الصلاحيات' : 'Permission Matrix' }}</span>
                                 </a>
                             @endif
                         </div>
@@ -492,18 +517,18 @@
                 @endif
 
                 <!-- 6. Settings & System Control Dropdown -->
-                <div class="sidebar-dropdown-group {{ $isSettingsActive ? 'is-open' : '' }}" id="group-settings">
-                    <button type="button" class="sidebar-dropdown-btn {{ $isSettingsActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-settings')">
-                        <div class="sidebar-dropdown-label">
-                            <i class="fa-solid fa-sliders sidebar-link-icon text-violet-400"></i>
-                            <span>{{ __('admin.menu.settings') }}</span>
-                        </div>
-                        <div class="sidebar-dropdown-meta">
-                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
-                        </div>
-                    </button>
-                    <div class="sidebar-submenu">
-                        @if($u && ($u->hasPermission('settings.view') || $u->hasPermission('settings')))
+                @if($u && ($u->hasPermission('settings.view') || $u->hasPermission('settings') || $u->isSuperAdmin() || $u->isAdmin()))
+                    <div class="sidebar-dropdown-group {{ $isSettingsActive ? 'is-open' : '' }}" id="group-settings">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isSettingsActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-settings')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-sliders sidebar-link-icon text-violet-400"></i>
+                                <span>{{ __('admin.menu.settings') }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
                             <a href="{{ route('admin.settings.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.settings.index') && !str_contains(request()->fullUrl(), '#tab-typography') ? 'active' : '' }}">
                                 <i class="fa-solid fa-gear text-xs"></i>
@@ -520,19 +545,55 @@
                                 <i class="fa-solid fa-font text-xs text-sky-400"></i>
                                 <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة (Live)' : 'Typography & Fonts (Live)' }}</span>
                             </a>
-                        @endif
-                        <a href="{{ route('admin.profile.index') }}"
-                            class="sidebar-sublink {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-user-gear text-xs"></i>
-                            <span>{{ __('admin.profile.title') }}</span>
-                        </a>
+                            <a href="{{ route('admin.profile.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-user-gear text-xs"></i>
+                                <span>{{ __('admin.profile.title') }}</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @else
+                    <a href="{{ route('admin.profile.index') }}"
+                        class="sidebar-link {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}"
+                        title="{{ __('admin.profile.title') }}">
+                        <i class="fa-solid fa-user-gear sidebar-link-icon text-violet-400"></i>
+                        <span>{{ __('admin.profile.title') }}</span>
+                    </a>
+                @endif
             </nav>
         </aside>
 
         <!-- Admin Content Shell (Section Main) -->
         <main class="admin-main" id="adminMain" role="main">
+            <!-- Impersonation Active Banner (Blue Zone Brand Theme Adaptive) -->
+            @if(session()->has('impersonated_by'))
+                <div class="bg-[#062B49] dark:bg-[#031827] text-white px-4 py-2.5 text-xs sm:text-sm font-medium flex items-center justify-between shadow-lg relative z-[99999] border-b border-[#0A4F78]/60 dark:border-[#15456E] transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center text-sm shadow-xs flex-shrink-0 animate-pulse">
+                            <i class="fa-solid fa-user-secret"></i>
+                        </span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                {{ app()->getLocale() === 'ar' ? 'جلسة محاكاة نشطة' : 'Impersonation Mode' }}
+                            </span>
+                            <span class="text-slate-200">
+                                {{ app()->getLocale() === 'ar' ? 'أنت مسجل حالياً كالموظف:' : 'You are currently logged in as:' }}
+                                <strong class="text-white font-bold">{{ auth()->user()?->name ?? 'Staff' }}</strong>
+                                <span class="text-slate-400 text-xs">({{ app()->getLocale() === 'ar' ? 'بواسطة ' : 'by ' }}<span class="text-slate-200 font-semibold">{{ session('impersonator_name', 'Admin') }}</span>)</span>
+                            </span>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('admin.impersonate.leave') }}" class="m-0 p-0 flex-shrink-0">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-md hover:scale-[1.02] cursor-pointer">
+                            <i class="fa-solid fa-arrow-right-from-bracket rtl:rotate-180"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إنهاء المحاكاة والعودة لحسابي' : 'Leave & Return to Admin' }}</span>
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             <!-- Header -->
             <header class="admin-header">
                 <div class="header-left">
@@ -810,6 +871,15 @@
                             </div>
 
                             <div style="padding: 0.5rem; border-top: 1px solid var(--color-border);">
+                                @if(session()->has('impersonated_by'))
+                                    <form method="POST" action="{{ route('admin.impersonate.leave') }}" style="margin: 0; padding-bottom: 0.35rem;">
+                                        @csrf
+                                        <button type="submit" class="admin-dropdown-item font-bold text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 w-full text-start cursor-pointer">
+                                            <i class="fa-solid fa-arrow-right-from-bracket rtl:rotate-180" style="width: 18px; color: #d97706;"></i>
+                                            <span style="color: #d97706;">{{ app()->getLocale() === 'ar' ? 'إنهاء المحاكاة والعودة لحسابي' : 'Leave Impersonation' }}</span>
+                                        </button>
+                                    </form>
+                                @endif
                                 <form method="POST" action="{{ route('admin.logout') }}" id="adminLogoutForm"
                                     style="margin: 0;">
                                     @csrf

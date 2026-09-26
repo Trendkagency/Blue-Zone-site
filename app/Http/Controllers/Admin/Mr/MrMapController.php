@@ -15,6 +15,10 @@ class MrMapController extends Controller
      */
     public function index(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $activeCycle = VisitCycle::where('status', 'active')->latest()->first();
 
         // Latest 50 check-ins with coordinates for the map
@@ -27,7 +31,9 @@ class MrMapController extends Controller
           ->whereNotNull('checkin_lng')
           ->latest('checkin_at');
 
-        if ($request->filled('mr_id')) {
+        if ($isRep) {
+            $visitsQuery->where('mr_id', $currentUser->id);
+        } elseif ($request->filled('mr_id')) {
             $visitsQuery->where('mr_id', $request->integer('mr_id'));
         }
 
@@ -38,9 +44,13 @@ class MrMapController extends Controller
         $latestVisits = $visitsQuery->take(50)->get();
 
         // Medical Reps list for filtering
-        $medicalReps = User::whereHas('role', function ($q) {
-            $q->where('name', 'mr');
-        })->orWhere('role_id', 2)->select('id', 'name')->get();
+        if ($isRep) {
+            $medicalReps = User::where('id', $currentUser->id)->select('id', 'name')->get();
+        } else {
+            $medicalReps = User::whereHas('role', function ($q) {
+                $q->where('name', 'mr');
+            })->orWhere('role_id', 2)->select('id', 'name')->get();
+        }
 
         // Format geojson/markers payload
         $markers = $latestVisits->map(function ($visit) {
@@ -63,6 +73,6 @@ class MrMapController extends Controller
             ];
         });
 
-        return view('admin.mr.map', compact('latestVisits', 'markers', 'medicalReps', 'activeCycle'));
+        return view('admin.mr.map', compact('latestVisits', 'markers', 'medicalReps', 'activeCycle', 'isRep', 'isManager', 'currentUser'));
     }
 }

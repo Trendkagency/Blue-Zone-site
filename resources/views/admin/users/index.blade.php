@@ -73,7 +73,7 @@
                         <th>{{ __('admin.users.role') }}</th>
                         <th>{{ __('admin.users.status') }}</th>
                         <th>{{ __('admin.users.last_login') }}</th>
-                        <th style="text-align: center;">{{ __('app.actions.title') ?? 'Actions' }}</th>
+                        <th style="text-align: center;">{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,6 +145,15 @@
                                         @endif
 
                                         @if(auth()->id() !== $uId)
+                                            @if($uStatus === 'active')
+                                                <form method="POST" action="{{ route('admin.users.impersonate', $uId) }}" class="inline m-0 p-0" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من تسجيل الدخول كالموظف: ' . addslashes($uName) . '؟' : 'Are you sure you want to login as staff user: ' . addslashes($uName) . '?' }}')">
+                                                    @csrf
+                                                    <button type="submit" class="action-btn text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 dark:hover:bg-cyan-900/30 cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'تسجيل الدخول كالموظف (' . $uName . ')' : 'Login as ' . $uName }}">
+                                                        <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                             <form method="POST" action="{{ route('admin.users.toggle-status', $uId) }}" class="inline m-0 p-0">
                                                 @csrf
                                                 @if($uStatus === 'active')

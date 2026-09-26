@@ -4,26 +4,37 @@
     :breadcrumbs="[__('admin.menu.access_control') => route('admin.roles.index'), __('admin.menu.roles') => route('admin.roles.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('admin.roles.create_title') }}
-        </a>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.roles.matrix') }}" class="btn btn-secondary font-bold text-xs sm:text-sm">
+                <i class="fa-solid fa-table-cells mr-1.5 ml-1.5 text-sky-500"></i> {{ app()->getLocale() === 'ar' ? 'مصفوفة الصلاحيات الشاملة' : 'Permission Matrix' }}
+            </a>
+            <a href="{{ route('admin.roles.create') }}" class="btn btn-primary font-bold text-xs sm:text-sm shadow-sm bg-[#0A4F78] hover:bg-[#062B49] text-white">
+                <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('admin.roles.create_title') }}
+            </a>
+        </div>
     </x-slot>
 
     <!-- Filter Tabs & Search -->
     <div class="mb-6 space-y-4">
-        <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-3 flex-wrap">
+        <div class="flex items-center gap-2 border-b border-slate-200 dark:border-[#15456E] pb-3 flex-wrap">
             <a href="{{ route('admin.roles.index') }}" 
-               class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ !$isTrashed ? 'bg-[#0A4F78] text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+               class="px-4 py-2 rounded-xl text-sm font-bold transition-all {{ !$isTrashed ? 'bg-[#0A4F78] text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#062B49]' }}">
                 <i class="fa-solid fa-shield-halved mr-1.5 ml-1.5"></i>
                 {{ app()->getLocale() === 'ar' ? 'الأدوار النشطة' : 'Active Roles' }}
-                <span class="ml-1.5 mr-1.5 px-2 py-0.5 text-xs rounded-full {{ !$isTrashed ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">{{ $activeCount }}</span>
+                <span class="ml-1.5 mr-1.5 px-2 py-0.5 text-xs rounded-full {{ !$isTrashed ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-[#031827] text-slate-700 dark:text-slate-300' }}">{{ $activeCount }}</span>
+            </a>
+
+            <a href="{{ route('admin.roles.matrix') }}" 
+               class="px-4 py-2 rounded-xl text-sm font-bold transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#062B49] flex items-center gap-1.5">
+                <i class="fa-solid fa-table-cells text-sky-500"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'مصفوفة الصلاحيات المتقدمة' : 'Granular Permission Matrix' }}</span>
             </a>
 
             <a href="{{ route('admin.roles.index', ['status' => 'trashed']) }}" 
-               class="px-4 py-2 rounded-lg text-sm font-bold transition-colors {{ $isTrashed ? 'bg-red-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20' }}">
+               class="px-4 py-2 rounded-xl text-sm font-bold transition-all {{ $isTrashed ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950/20' }}">
                 <i class="fa-solid fa-trash-can mr-1.5 ml-1.5"></i>
                 {{ app()->getLocale() === 'ar' ? 'سلة المحذوفات' : 'Trash Archive' }}
-                <span class="ml-1.5 mr-1.5 px-2 py-0.5 text-xs rounded-full {{ $isTrashed ? 'bg-white/20 text-white' : 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' }}">{{ $trashedCount }}</span>
+                <span class="ml-1.5 mr-1.5 px-2 py-0.5 text-xs rounded-full {{ $isTrashed ? 'bg-white/20 text-white' : 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300' }}">{{ $trashedCount }}</span>
             </a>
         </div>
     </div>

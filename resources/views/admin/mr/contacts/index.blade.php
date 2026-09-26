@@ -149,6 +149,7 @@
                                     <a href="{{ route('admin.mr.contacts.edit', $doc->id) }}" class="btn btn-sm btn-ghost p-1.5 text-gray-500 hover:text-amber-500" title="Edit Doctor">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
+                                    @if(empty($isRep) || !$isRep)
                                     <form method="POST" action="{{ route('admin.mr.contacts.destroy', $doc->id) }}" onsubmit="return confirm('Delete this doctor?')" class="inline">
                                         @csrf
                                         @method('DELETE')
@@ -156,6 +157,7 @@
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

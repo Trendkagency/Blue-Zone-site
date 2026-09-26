@@ -15,8 +15,17 @@ class ContactController extends Controller
 {
     public function index(Request $request)
     {
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
+
         $query = Contact::with(['specialty', 'classification', 'city', 'country'])
             ->withCount(['assignments', 'visits']);
+
+        if ($isRep) {
+            $assignedContactIds = \App\Models\Mr\ContactAssignment::where('mr_id', $currentUser->id)->pluck('contact_id');
+            $query->whereIn('id', $assignedContactIds);
+        }
 
         if ($request->filled('search')) {
             $s = trim($request->search);
@@ -54,7 +63,7 @@ class ContactController extends Controller
         $classifications = ContactClassification::where('is_active', true)->orderBy('sort_order')->get();
         $cities = City::where('is_active', true)->orderBy('name_en')->get();
 
-        return view('admin.mr.contacts.index', compact('contacts', 'specialties', 'classifications', 'cities'));
+        return view('admin.mr.contacts.index', compact('contacts', 'specialties', 'classifications', 'cities', 'isRep', 'isManager', 'currentUser'));
     }
 
     protected function exportContacts($contacts, Request $request)
@@ -183,18 +192,38 @@ class ContactController extends Controller
 
     public function show(int $id)
     {
-        $contact = Contact::with([
-            'specialty',
-            'classification',
-            'city',
-            'country',
-            'assignments.cycle',
-            'assignments.representative',
-            'visits.representative',
-            'visits.cycle'
-        ])->findOrFail($id);
+        $currentUser = auth()->user();
+        $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
+        $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
 
-        return view('admin.mr.contacts.show', compact('contact'));
+        if ($isRep) {
+            $hasAssignment = \App\Models\Mr\ContactAssignment::where('mr_id', $currentUser->id)->where('contact_id', $id)->exists();
+            if (!$hasAssignment) {
+                abort(403, 'Unauthorized. This doctor is not in your assigned portfolio.');
+            }
+
+            $contact = Contact::with([
+                'specialty',
+                'classification',
+                'city',
+                'country',
+                'assignments' => fn($q) => $q->where('mr_id', $currentUser->id)->with('cycle'),
+                'visits' => fn($q) => $q->where('mr_id', $currentUser->id)->with('cycle'),
+            ])->findOrFail($id);
+        } else {
+            $contact = Contact::with([
+                'specialty',
+                'classification',
+                'city',
+                'country',
+                'assignments.cycle',
+                'assignments.representative',
+                'visits.representative',
+                'visits.cycle'
+            ])->findOrFail($id);
+        }
+
+        return view('admin.mr.contacts.show', compact('contact', 'isRep', 'isManager', 'currentUser'));
     }
 
     public function edit(int $id)
@@ -240,6 +269,11 @@ class ContactController extends Controller
 
     public function destroy(int $id)
     {
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->isMedicalRep() && !$currentUser->canManageAllMr()) {
+            abort(403, 'Unauthorized. Medical representatives cannot delete contacts.');
+        }
+
         $contact = Contact::findOrFail($id);
         $name = $contact->name;
         $contact->delete();

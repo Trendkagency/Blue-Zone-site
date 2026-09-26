@@ -56,12 +56,12 @@
 
         <div class="card stat-card stat-danger">
             <div class="stat-header">
-                <span class="stat-label">{{ app()->getLocale() === 'ar' ? 'إجمالي المناديب النشطين' : 'Active Medical Reps' }}</span>
+                <span class="stat-label">{{ !empty($isRep) && $isRep ? (app()->getLocale() === 'ar' ? 'حساب المندوب' : 'My Status') : (app()->getLocale() === 'ar' ? 'إجمالي المناديب النشطين' : 'Active Medical Reps') }}</span>
                 <span class="stat-icon"><i class="fa-solid fa-user-doctor text-rose-400"></i></span>
             </div>
-            <div class="stat-value text-2xl font-bold">{{ $medicalReps->count() }}</div>
+            <div class="stat-value text-2xl font-bold">{{ !empty($isRep) && $isRep ? 1 : $medicalReps->count() }}</div>
             <div class="stat-footer text-xs text-muted">
-                {{ app()->getLocale() === 'ar' ? 'مندوبين مصرح لهم بالميدان' : 'Field agents on duty' }}
+                {{ !empty($isRep) && $isRep ? ($currentUser->name ?? 'MR') : (app()->getLocale() === 'ar' ? 'مندوبين مصرح لهم بالميدان' : 'Field agents on duty') }}
             </div>
         </div>
     </div>
@@ -74,14 +74,22 @@
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                         {{ app()->getLocale() === 'ar' ? 'تصفية حسب المندوب' : 'Filter by Rep' }}
                     </label>
-                    <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
-                        <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
-                        @foreach($medicalReps as $rep)
-                            <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
-                                {{ $rep->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(!empty($isRep) && $isRep)
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-bold text-xs rounded border border-cyan-200 dark:border-cyan-800">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>{{ $currentUser->name }}</span>
+                        </div>
+                        <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                    @else
+                        <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
+                            <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
+                            @foreach($medicalReps as $rep)
+                                <option value="{{ $rep->id }}" {{ request('mr_id') == $rep->id ? 'selected' : '' }}>
+                                    {{ $rep->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
 
                 <div>

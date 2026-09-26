@@ -40,14 +40,22 @@
                     <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                         {{ app()->getLocale() === 'ar' ? 'المندوب الطبي' : 'Medical Representative' }}
                     </label>
-                    <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
-                        <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
-                        @foreach($medicalReps as $rep)
-                            <option value="{{ $rep->id }}" {{ $selectedMrId == $rep->id ? 'selected' : '' }}>
-                                {{ $rep->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @if(!empty($isRep) && $isRep)
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 font-bold text-xs rounded border border-cyan-200 dark:border-cyan-800">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>{{ $currentUser->name }}</span>
+                        </div>
+                        <input type="hidden" name="mr_id" value="{{ $currentUser->id }}">
+                    @else
+                        <select name="mr_id" onchange="this.form.submit()" class="form-select text-sm py-1.5 px-3">
+                            <option value="">{{ app()->getLocale() === 'ar' ? 'جميع المناديب' : 'All Medical Reps' }}</option>
+                            @foreach($medicalReps as $rep)
+                                <option value="{{ $rep->id }}" {{ $selectedMrId == $rep->id ? 'selected' : '' }}>
+                                    {{ $rep->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @endif
                 </div>
 
                 <div>
