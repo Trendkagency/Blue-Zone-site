@@ -6,6 +6,58 @@
         (app()->getLocale() === 'ar' ? 'لوحة المندوب' : 'MR Overview') => route('admin.dashboard')
     ]"
 >
+@php
+    $visitsDetailsData = $todayScheduledVisits->map(function($v) {
+        $c = $v->contact;
+        $q = $c ? ($c->quota_info ?? $c->getVisitQuotaStatus($v->cycle_id)) : null;
+        $exec = $v->visit;
+        return [
+            'id' => $v->id,
+            'status' => $v->status,
+            'scheduled_at' => $v->scheduled_at ? \Carbon\Carbon::parse($v->scheduled_at)->format('Y-m-d h:i A') : '—',
+            'scheduled_date' => $v->scheduled_at ? \Carbon\Carbon::parse($v->scheduled_at)->format('Y-m-d') : now()->toDateString(),
+            'scheduled_time' => $v->scheduled_at ? \Carbon\Carbon::parse($v->scheduled_at)->format('H:i') : now()->format('H:i'),
+            'notes' => $v->notes ?? '',
+            'cycle_name' => $v->cycle?->name ?? 'Active Cycle',
+            'has_executed' => (bool)$exec,
+            'checkin_at' => $exec && $exec->checkin_at ? \Carbon\Carbon::parse($exec->checkin_at)->format('Y-m-d h:i A') : null,
+            'checkout_at' => $exec && $exec->checkout_at ? \Carbon\Carbon::parse($exec->checkout_at)->format('Y-m-d h:i A') : null,
+            'duration_minutes' => $exec ? (int)$exec->duration_minutes : null,
+            'gps_verified' => $exec ? (bool)$exec->gps_verified : null,
+            'gps_flag' => $exec ? $exec->gps_flag : null,
+            'distance_m' => $exec ? (int)$exec->distance_from_contact_m : null,
+            'outcome' => $exec ? $exec->outcome : null,
+            'exec_notes' => $exec ? $exec->notes : null,
+            'products' => $exec && $exec->products ? $exec->products->map(fn($p) => $p->name_en ?? $p->name)->toArray() : [],
+            'doctor' => $c ? [
+                'id' => $c->id,
+                'name' => $c->name,
+                'phone' => $c->phone ?? '—',
+                'email' => $c->email ?? '—',
+                'specialty' => $c->specialty?->name ?? 'General Practice',
+                'workplace' => $c->workplace_name ?? ($c->hospital_clinic_name ?? ($c->city?->name ?? 'Private Clinic')),
+                'city' => $c->city?->name ?? '—',
+                'address' => $c->address ?? '—',
+                'class_code' => $c->classification?->code ?? 'C',
+                'dossier_url' => route('admin.mr.contacts.show', $c->id),
+                'quota' => $q,
+            ] : null,
+        ];
+    });
+
+    $doctorsCatalogData = $assignedDoctorsList->map(function($d) {
+        return [
+            'id' => $d->id,
+            'name' => $d->name,
+            'class_code' => $d->classification?->code ?? 'C',
+            'specialty' => $d->specialty?->name ?? 'General Practice',
+            'workplace' => $d->workplace_name ?? ($d->hospital_clinic_name ?? ($d->city?->name ?? 'Clinic')),
+            'phone' => $d->phone ?? '',
+            'quota' => $d->quota_info ?? $d->getVisitQuotaStatus($activeCycle?->id),
+        ];
+    });
+@endphp
+
     <!-- TOP VIEW SWITCHER (Only visible for Admins / Line Managers who can manage MRs) -->
     @include('admin.dashboard.partials.view_switcher', ['currentView' => 'mr'])
 
@@ -26,11 +78,7 @@
     @endif
 
     <!-- 1. HERO REP COMMAND BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#062B49] via-[#0A4F78] to-[#15456E] text-white p-6 sm:p-7 mb-6 shadow-md border border-[#15456E]">
-        <!-- Decorative Ambient Glows -->
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
+    <div class="bz-hero-banner">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <!-- Left Info -->
             <div class="flex items-start sm:items-center gap-4">
@@ -53,12 +101,12 @@
                         <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white mb-0">
                             {{ $repUser->name }}
                         </h2>
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-cyan-400/20 text-cyan-200 border border-cyan-300/30">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-black bg-cyan-400/25 text-cyan-200 border border-cyan-300/40">
                             <i class="fa-solid fa-user-doctor text-[10px]"></i>
                             {{ app()->getLocale() === 'ar' ? 'مندوب دعاية طبية' : 'Medical Representative' }}
                         </span>
                         @if($activeCycle)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 text-white border border-white/15">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/15 text-white border border-white/20">
                                 <i class="fa-solid fa-arrows-rotate text-[10px] text-cyan-300"></i>
                                 {{ $activeCycle->name }}
                             </span>
@@ -71,14 +119,14 @@
                             {{ $territoryName }}
                         </span>
                         <span>•</span>
-                        <span class="inline-flex items-center gap-1 text-white/80">
+                        <span class="inline-flex items-center gap-1 text-white/90">
                             <i class="fa-regular fa-calendar text-cyan-300"></i>
                             {{ now()->translatedFormat('l, d F Y') }}
                         </span>
                     </p>
 
                     <!-- Shift Attendance Chip -->
-                    <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 text-xs">
+                    <div class="mt-3 bz-hero-chip">
                         <i class="fa-solid fa-clock text-cyan-300"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'سجل دوام اليوم:' : 'Attendance Today:' }}</span>
                         @if($todayAttendance && $todayAttendance->check_in)
@@ -89,7 +137,7 @@
                             @if(!$todayAttendance->check_out)
                                 <form method="POST" action="{{ route('admin.attendance.self-checkout') }}" class="inline m-0">
                                     @csrf
-                                    <button type="submit" class="btn btn-xs bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-[10px] px-2 py-0.5 ml-1 mr-1 border-0">
+                                    <button type="submit" class="btn btn-xs bg-red-500/90 hover:bg-red-600 text-white rounded-lg text-[10px] px-2 py-0.5 ml-1 mr-1 border-0 shadow-xs font-bold">
                                         <i class="fa-solid fa-right-from-bracket mr-1 ml-1"></i>
                                         {{ app()->getLocale() === 'ar' ? 'تسجيل انصراف' : 'Punch Out' }}
                                     </button>
@@ -102,7 +150,7 @@
                         @else
                             <form method="POST" action="{{ route('admin.attendance.self-checkin') }}" class="inline m-0">
                                 @csrf
-                                <button type="submit" class="btn btn-xs bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg text-[10px] px-2.5 py-0.5 border-0 font-bold shadow-xs">
+                                <button type="submit" class="btn btn-xs bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] px-2.5 py-0.5 border-0 font-bold shadow-xs">
                                     <i class="fa-solid fa-fingerprint mr-1 ml-1"></i>
                                     {{ app()->getLocale() === 'ar' ? 'تسجيل الحضور الآن' : 'Clock In Now' }}
                                 </button>
@@ -114,19 +162,19 @@
 
             <!-- Right Fast CTAs -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <a href="{{ route('admin.mr.visits.index') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.mr.visits.index') }}" class="bz-hero-btn-primary">
                     <i class="fa-solid fa-list-check"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات والتقارير' : 'Visits History & Entry' }}</span>
                 </a>
 
-                <a href="{{ route('admin.mr.dashboard') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.mr.dashboard') }}" class="bz-hero-btn-secondary">
                     <i class="fa-solid fa-calendar-days text-cyan-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'جدول المواعيد' : 'Field Schedules' }}</span>
                 </a>
 
                 @if(auth()->user() && auth()->user()->canManageAllMr())
-                <a href="{{ route('admin.mr.live-map') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-amber-300"></i>
+                <a href="{{ route('admin.mr.live-map') }}" class="bz-hero-btn-accent">
+                    <i class="fa-solid fa-earth-americas text-amber-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'خريطة السير' : 'Route Map' }}</span>
                 </a>
                 @endif
@@ -134,14 +182,14 @@
         </div>
 
         <!-- Today's Route Progress Bar -->
-        <div class="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div class="mt-5 pt-4 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-2">
                 <span class="font-bold text-white">{{ app()->getLocale() === 'ar' ? 'مسار زيارات اليوم:' : "Today's Route Progress:" }}</span>
-                <span class="text-cyan-200 font-extrabold">{{ $todayCompletedCount }} / {{ $todayPlannedCount }} {{ app()->getLocale() === 'ar' ? 'زيارات منجزة' : 'visits completed' }}</span>
-                <span class="text-white/60">({{ $todayProgressRate }}%)</span>
+                <span class="text-emerald-300 font-black">{{ $todayCompletedCount }} / {{ $todayPlannedCount }} {{ app()->getLocale() === 'ar' ? 'زيارات منجزة' : 'visits completed' }}</span>
+                <span class="text-white/80 font-bold">({{ $todayProgressRate }}%)</span>
             </div>
-            <div class="w-full sm:w-64 bg-black/30 rounded-full h-2 overflow-hidden border border-white/10">
-                <div class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-2 rounded-full transition-all duration-700" style="width: {{ $todayProgressRate }}%"></div>
+            <div class="w-full sm:w-64 bz-progress-track">
+                <div class="bz-progress-bar" style="width: {{ $todayProgressRate }}%"></div>
             </div>
         </div>
     </div>
@@ -280,6 +328,10 @@
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <button type="button" onclick="openScheduleModal()" class="btn btn-primary text-xs font-bold px-3.5 py-1.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white flex items-center gap-1.5 shadow-sm transition-all hover:shadow">
+                            <i class="fa-solid fa-calendar-plus text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'جدولة زيارة طبيب' : 'Schedule Visit' }}</span>
+                        </button>
                         <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-secondary text-xs font-bold px-3 py-1.5 rounded-xl">
                             <i class="fa-solid fa-calendar mr-1 ml-1 text-cyan-500"></i>
                             {{ app()->getLocale() === 'ar' ? 'عرض التقويم' : 'Open Calendar' }}
@@ -296,6 +348,7 @@
                                     $isDone = $visit->status === 'completed';
                                     $isInProg = $visit->status === 'in_progress';
                                     $classCode = $doc?->classification?->code ?? 'A';
+                                    $quota = $doc?->quota_info;
                                 @endphp
                                 <div class="p-4 rounded-2xl border transition-all duration-200 {{ $isDone ? 'bg-emerald-50/40 dark:bg-emerald-950/10 border-emerald-200/80 dark:border-emerald-900/50' : ($isInProg ? 'bg-cyan-50/60 dark:bg-cyan-950/20 border-cyan-300 dark:border-cyan-800 ring-2 ring-cyan-500/20' : 'bg-slate-50/60 dark:bg-[#031827]/70 border-slate-200 dark:border-[#15456E] hover:border-[#0A4F78]') }}">
                                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -313,14 +366,24 @@
 
                                             <div>
                                                 <div class="flex items-center gap-2 flex-wrap">
-                                                    <h4 class="text-sm font-black text-slate-900 dark:text-white mb-0">
-                                                        {{ $doc?->name ?? 'Doctor Name' }}
-                                                    </h4>
+                                                    <button type="button" onclick="openVisitDetailsModal({{ $visit->id }})" class="text-sm font-black text-slate-900 dark:text-white hover:text-[#0A4F78] dark:hover:text-cyan-400 text-left rtl:text-right transition-colors flex items-center gap-1.5 cursor-pointer">
+                                                        <span>{{ $doc?->name ?? 'Doctor Name' }}</span>
+                                                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+                                                    </button>
 
                                                     <!-- Classification Badge -->
-                                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black {{ $classCode === 'A+' ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : ($classCode === 'A' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300') }}">
+                                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black {{ $classCode === 'A+' ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : ($classCode === 'A' ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : ($classCode === 'B' ? 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300')) }}">
                                                         Class {{ $classCode }}
                                                     </span>
+
+                                                    <!-- Quota Progress Indicator -->
+                                                    @if($quota)
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold {{ $quota['can_schedule'] ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300' }}" title="{{ $quota['can_schedule'] ? ($quota['remaining_visits'] . ' visits remaining this cycle') : 'Visit quota reached for Class ' . $quota['class_code'] }}">
+                                                            <i class="fa-solid fa-bullseye text-[9px]"></i>
+                                                            <span>{{ $quota['current_count'] }}/{{ $quota['max_visits'] }}</span>
+                                                            <span class="hidden md:inline">{{ app()->getLocale() === 'ar' ? 'زيارات' : 'visits' }}</span>
+                                                        </span>
+                                                    @endif
 
                                                     <!-- Specialty Badge -->
                                                     @if($doc?->specialty)
@@ -372,13 +435,30 @@
                                                 </span>
                                             @endif
 
-                                            <div class="flex items-center gap-1.5">
+                                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                                <!-- Full Details Trigger -->
+                                                <button type="button" onclick="openVisitDetailsModal({{ $visit->id }})" class="btn btn-secondary text-xs px-2.5 py-1 rounded-lg flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0A4F78] dark:hover:text-cyan-400 border border-slate-200 dark:border-[#15456E]" title="{{ app()->getLocale() === 'ar' ? 'عرض التفاصيل الكاملة' : 'View Full Details' }}">
+                                                    <i class="fa-solid fa-circle-info text-cyan-600 dark:text-cyan-400 text-xs"></i>
+                                                    <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'التفاصيل' : 'Details' }}</span>
+                                                </button>
+
+                                                <!-- Schedule Next Visit for This Doctor -->
+                                                @if($doc)
+                                                    <button type="button" onclick="openScheduleModalForDoctor({{ $doc->id }})" class="btn btn-secondary text-xs px-2.5 py-1 rounded-lg flex items-center gap-1 text-[#0A4F78] dark:text-cyan-400 border border-[#0A4F78]/30 dark:border-cyan-800 hover:bg-[#0A4F78]/10" title="{{ app()->getLocale() === 'ar' ? 'جدولة زيارة لهذا الطبيب' : 'Schedule Visit For This Doctor' }}">
+                                                        <i class="fa-solid fa-calendar-plus text-xs"></i>
+                                                        <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'جدولة' : 'Schedule' }}</span>
+                                                    </button>
+                                                @endif
+
+                                                <!-- Start Visit Execution CTA -->
                                                 @if(!$isDone)
-                                                    <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-primary text-xs font-bold px-3 py-1 rounded-lg bg-[#0A4F78] hover:bg-[#062B49] text-white">
-                                                        <i class="fa-solid fa-play mr-1 ml-1 text-[9px]"></i>
+                                                    <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-primary text-xs font-bold px-3 py-1 rounded-lg bg-[#0A4F78] hover:bg-[#062B49] text-white flex items-center gap-1">
+                                                        <i class="fa-solid fa-play text-[9px]"></i>
                                                         {{ app()->getLocale() === 'ar' ? 'بدء الزيارة' : 'Start Visit' }}
                                                     </a>
                                                 @endif
+
+                                                <!-- Doctor Dossier Profile Link -->
                                                 @if($doc)
                                                     <a href="{{ route('admin.mr.contacts.show', $doc->id) }}" class="btn btn-secondary text-xs px-2.5 py-1 rounded-lg" title="{{ app()->getLocale() === 'ar' ? 'ملف الطبيب 360°' : 'Doctor Dossier' }}">
                                                         <i class="fa-solid fa-id-card text-slate-500"></i>
@@ -403,13 +483,13 @@
                                 {{ app()->getLocale() === 'ar' ? 'يمكنك جدولة مواعيد جديدة مع أطباء منطقتك أو تسجيل زيارة ميدانية مباشرة.' : 'You can schedule new appointments from your doctor portfolio or log a direct walk-in visit.' }}
                             </p>
                             <div class="flex items-center justify-center gap-3">
-                                <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-primary text-xs font-bold px-4 py-2 rounded-xl bg-[#0A4F78] text-white">
-                                    <i class="fa-solid fa-plus-circle mr-1.5 ml-1.5"></i>
-                                    {{ app()->getLocale() === 'ar' ? 'تسجيل زيارة مباشرة' : 'Direct Visit Entry' }}
-                                </a>
-                                <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-secondary text-xs font-bold px-4 py-2 rounded-xl">
+                                <button type="button" onclick="openScheduleModal()" class="btn btn-primary text-xs font-bold px-4 py-2 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white">
                                     <i class="fa-solid fa-calendar-plus mr-1.5 ml-1.5"></i>
-                                    {{ app()->getLocale() === 'ar' ? 'جدولة موعد في التقويم' : 'Schedule on Calendar' }}
+                                    {{ app()->getLocale() === 'ar' ? 'جدولة زيارة طبيب' : 'Schedule Doctor Visit' }}
+                                </button>
+                                <a href="{{ route('admin.mr.dashboard') }}" class="btn btn-secondary text-xs font-bold px-4 py-2 rounded-xl">
+                                    <i class="fa-solid fa-calendar mr-1.5 ml-1.5 text-cyan-500"></i>
+                                    {{ app()->getLocale() === 'ar' ? 'عرض التقويم' : 'Open Calendar' }}
                                 </a>
                             </div>
                         </div>
@@ -533,15 +613,23 @@
 
                 <div class="divide-y divide-slate-100 dark:divide-[#15456E]/40 max-h-80 overflow-y-auto pr-1 scrollbar-thin">
                     @forelse($assignedDoctorsList as $assignedDoc)
+                        @php
+                            $aq = $assignedDoc->quota_info ?? null;
+                        @endphp
                         <div class="py-2.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
                             <div class="min-w-0">
-                                <div class="flex items-center gap-1.5">
+                                <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="font-bold text-xs text-slate-900 dark:text-white truncate block">
                                         {{ $assignedDoc->name }}
                                     </span>
                                     @if($assignedDoc->classification)
                                         <span class="px-1.5 py-0.2 rounded text-[9px] font-black bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">
                                             {{ $assignedDoc->classification->code }}
+                                        </span>
+                                    @endif
+                                    @if($aq)
+                                        <span class="px-1.5 py-0.2 rounded text-[9px] font-black {{ $aq['can_schedule'] ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' }}" title="{{ $aq['can_schedule'] ? ($aq['remaining_visits'] . ' visits remaining this cycle') : 'Cycle quota reached for Class ' . $aq['class_code'] }}">
+                                            {{ $aq['current_count'] }}/{{ $aq['max_visits'] }}
                                         </span>
                                     @endif
                                 </div>
@@ -555,9 +643,9 @@
                                         <i class="fa-solid fa-phone"></i>
                                     </a>
                                 @endif
-                                <a href="{{ route('admin.mr.dashboard') }}" class="w-7 h-7 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-[#0A4F78] dark:text-cyan-300 flex items-center justify-center text-xs hover:bg-[#0A4F78] hover:text-white transition-colors" title="{{ app()->getLocale() === 'ar' ? 'جدولة موعد' : 'Schedule Visit' }}">
+                                <button type="button" onclick="openScheduleModalForDoctor({{ $assignedDoc->id }})" class="w-7 h-7 rounded-lg bg-cyan-50 dark:bg-cyan-950 text-[#0A4F78] dark:text-cyan-300 flex items-center justify-center text-xs hover:bg-[#0A4F78] hover:text-white transition-colors cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'جدولة موعد لهذا الطبيب' : 'Schedule Visit For This Doctor' }}">
                                     <i class="fa-solid fa-calendar-plus"></i>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     @empty
@@ -606,4 +694,501 @@
         </div>
 
     </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 1: FULL DOCTOR & VISIT 360° DETAILS MODAL                           -->
+    <!-- ========================================================================= -->
+    <div id="visit-details-modal" class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 p-3 sm:p-4 hidden backdrop-blur-sm" onclick="if(event.target === this) closeVisitDetailsModal()">
+        <div class="min-h-full flex items-center justify-center p-0">
+            <div class="card max-w-2xl w-full p-0 shadow-2xl relative flex flex-col max-h-[90vh] border border-slate-200 dark:border-[#15456E] rounded-3xl overflow-hidden bg-white dark:bg-[#062B49]">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#15456E] px-6 py-4 flex-shrink-0 bg-slate-50/70 dark:bg-[#031827]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-[#0A4F78]/10 dark:bg-cyan-950/80 text-[#0A4F78] dark:text-cyan-400 flex items-center justify-center text-lg flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 id="vdm-doc-name" class="font-black text-base text-slate-900 dark:text-white mb-0">Doctor Details</h3>
+                                <span id="vdm-doc-class" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300">Class A+</span>
+                            </div>
+                            <p id="vdm-doc-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mb-0">Specialty • Facility</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeVisitDetailsModal()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-[#15456E] transition-colors">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    
+                    <!-- Doctor Classification & Quota Card -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-[#031827] border border-slate-200 dark:border-[#15456E]">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-bullseye text-cyan-600 dark:text-cyan-400"></i>
+                                {{ app()->getLocale() === 'ar' ? 'حالة حصة الزيارات في الدورة الحالية (Classification Quota)' : 'Current Cycle Visit Quota & Limit' }}
+                            </span>
+                            <span id="vdm-quota-count" class="text-xs font-black text-[#0A4F78] dark:text-cyan-400">0 / 0 Visits</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+                            <div id="vdm-quota-bar" class="h-2 rounded-full transition-all duration-300 bg-[#0A4F78]" style="width: 0%"></div>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                            <span id="vdm-quota-rule">Class limit rule</span>
+                            <span id="vdm-quota-remaining" class="font-bold">0 visits remaining</span>
+                        </div>
+                        <div id="vdm-quota-alert" class="mt-2.5 p-2 rounded-xl text-xs font-semibold hidden"></div>
+                    </div>
+
+                    <!-- Visit Status & Schedule Info -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#031827]/70 border border-slate-200/80 dark:border-[#15456E]">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                                {{ app()->getLocale() === 'ar' ? 'حالة الزيارة' : 'Visit Status' }}
+                            </span>
+                            <div id="vdm-status-badge">
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700">Planned</span>
+                            </div>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#031827]/70 border border-slate-200/80 dark:border-[#15456E]">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                                {{ app()->getLocale() === 'ar' ? 'الموعد المجدول' : 'Scheduled Time' }}
+                            </span>
+                            <span id="vdm-scheduled-at" class="text-xs font-black text-slate-900 dark:text-white">—</span>
+                        </div>
+                    </div>
+
+                    <!-- Detailing Objectives & Notes -->
+                    <div class="p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-slate-200 dark:border-[#15456E]">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                            <i class="fa-solid fa-note-sticky text-amber-500"></i>
+                            {{ app()->getLocale() === 'ar' ? 'أهداف الزيارة والملاحظات الميدانية' : 'Detailing Objectives & Field Notes' }}
+                        </h4>
+                        <p id="vdm-notes" class="text-xs text-slate-700 dark:text-slate-300 italic mb-0 leading-relaxed">
+                            No notes specified for this visit.
+                        </p>
+                    </div>
+
+                    <!-- Doctor Contact & Workplace Directory Details -->
+                    <div class="p-4 rounded-2xl bg-slate-50 dark:bg-[#031827] border border-slate-200 dark:border-[#15456E] space-y-2.5">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-address-card text-cyan-600 dark:text-cyan-400"></i>
+                            {{ app()->getLocale() === 'ar' ? 'بيانات التواصل والعيادة / المركز الطبي' : 'Clinic & Contact Information' }}
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'الهاتف:' : 'Phone:' }}</span>
+                                <span id="vdm-phone" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني:' : 'Email:' }}</span>
+                                <span id="vdm-email" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'المنشأة الطبية:' : 'Workplace:' }}</span>
+                                <span id="vdm-workplace" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'المدينة / المنطقة:' : 'City / Area:' }}</span>
+                                <span id="vdm-city" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execution Telemetry (if executed) -->
+                    <div id="vdm-exec-section" class="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 space-y-3 hidden">
+                        <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-2">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            {{ app()->getLocale() === 'ar' ? 'بيانات تنفيذ الزيارة والتحقق من الموقع (GPS)' : 'Execution & GPS Verification Telemetry' }}
+                        </h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'وقت تسجيل الدخول:' : 'Check-In:' }}</span>
+                                <span id="vdm-checkin" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'وقت الخروج:' : 'Check-Out:' }}</span>
+                                <span id="vdm-checkout" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px]">{{ app()->getLocale() === 'ar' ? 'المدة الزمنية:' : 'Duration:' }}</span>
+                                <span id="vdm-duration" class="font-bold text-slate-800 dark:text-white">—</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2 border-t border-emerald-200/60 dark:border-emerald-900/40">
+                            <span class="text-xs text-slate-500">{{ app()->getLocale() === 'ar' ? 'التحقق الميداني:' : 'GPS Status:' }}</span>
+                            <span id="vdm-gps-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Verified</span>
+                            <span id="vdm-distance" class="text-xs text-slate-500"></span>
+                        </div>
+                        <div id="vdm-products-wrapper" class="pt-2 hidden">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1">{{ app()->getLocale() === 'ar' ? 'المنتجات التي تم تقديمها:' : 'Detailed Products:' }}</span>
+                            <div id="vdm-products-list" class="flex items-center gap-1.5 flex-wrap"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="border-t border-slate-100 dark:border-[#15456E] px-6 py-4 flex items-center justify-between flex-wrap gap-3 bg-slate-50/70 dark:bg-[#031827]">
+                    <a id="vdm-dossier-btn" href="#" class="btn btn-secondary text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5">
+                        <i class="fa-solid fa-id-card text-cyan-600 dark:text-cyan-400"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الملف الشامل للطبيب' : 'Doctor Dossier' }}</span>
+                    </a>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeVisitDetailsModal()" class="btn btn-secondary text-xs font-bold px-4 py-2 rounded-xl">
+                            {{ app()->getLocale() === 'ar' ? 'إغلاق' : 'Close' }}
+                        </button>
+                        <button id="vdm-schedule-btn" type="button" onclick="scheduleFromDetailsModal()" class="btn btn-primary text-xs font-bold px-4 py-2 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'جدولة زيارة لهذا الطبيب' : 'Schedule Next Visit' }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL 2: SCHEDULE DOCTOR VISIT MODAL (WITH STRICT CLASS QUOTA LOGIC)      -->
+    <!-- ========================================================================= -->
+    <div id="schedule-doctor-modal" class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 p-3 sm:p-4 hidden backdrop-blur-sm" onclick="if(event.target === this) closeScheduleModal()">
+        <div class="min-h-full flex items-center justify-center p-0">
+            <div class="card max-w-xl w-full p-0 shadow-2xl relative flex flex-col max-h-[90vh] border border-slate-200 dark:border-[#15456E] rounded-3xl overflow-hidden bg-white dark:bg-[#062B49]">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-[#15456E] px-6 py-4 flex-shrink-0 bg-slate-50/70 dark:bg-[#031827]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-[#0A4F78]/10 dark:bg-cyan-950/80 text-[#0A4F78] dark:text-cyan-400 flex items-center justify-center text-lg flex-shrink-0">
+                            <i class="fa-solid fa-calendar-plus"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-base text-slate-900 dark:text-white mb-0">
+                                {{ app()->getLocale() === 'ar' ? 'جدولة موعد زيارة طبيب' : 'Schedule Doctor Visit' }}
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-0">
+                                {{ app()->getLocale() === 'ar' ? 'الالتزام بحصة الزيارات المحددة لكل تصنيف (A+, A, B, C)' : 'Visits strictly restricted by doctor classification quotas' }}
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeScheduleModal()" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-[#15456E] transition-colors">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+
+                <!-- Schedule Form -->
+                <form id="schedule-doctor-form" method="POST" action="{{ route('admin.mr.visits.schedule') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    @csrf
+                    <input type="hidden" name="mr_id" value="{{ $repId }}">
+
+                    <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                        
+                        <!-- Doctor Selector -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                {{ app()->getLocale() === 'ar' ? 'اختر الطبيب المستهدف *' : 'Target Doctor *' }}
+                            </label>
+                            <select id="sch-doctor-select" name="contact_id" required onchange="onDoctorSelected(this.value)" class="form-select text-xs w-full py-2.5 px-3 rounded-xl border-slate-200 dark:border-[#15456E] dark:bg-[#031827] dark:text-white">
+                                <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الطبيب --' : '-- Select Doctor --' }}</option>
+                                @foreach($assignedDoctorsList as $docItem)
+                                    <option value="{{ $docItem->id }}" data-class="{{ $docItem->classification?->code ?? 'C' }}">
+                                        {{ $docItem->name }} (Class {{ $docItem->classification?->code ?? 'C' }} - {{ $docItem->specialty?->name ?? 'General' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- LIVE QUOTA EVALUATION CARD -->
+                        <div id="sch-quota-box" class="p-4 rounded-2xl border transition-all duration-200 bg-slate-50 dark:bg-[#031827] border-slate-200 dark:border-[#15456E]">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span id="sch-quota-class-badge" class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300">Class -</span>
+                                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ app()->getLocale() === 'ar' ? 'مؤشر الحصة الميدانية للدورة' : 'Cycle Quota Status' }}</span>
+                                </div>
+                                <span id="sch-quota-stat" class="text-xs font-black text-slate-800 dark:text-white">0 / 0</span>
+                            </div>
+                            <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+                                <div id="sch-quota-bar" class="h-2 rounded-full bg-[#0A4F78] transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p id="sch-quota-feedback" class="text-[11px] text-slate-500 dark:text-slate-400 mb-0">
+                                {{ app()->getLocale() === 'ar' ? 'حدد طبيباً للتحقق من الحصة المتاحة بناءً على تصنيفه.' : 'Select a doctor to verify remaining visit quota.' }}
+                            </p>
+                            <!-- Alert Message if Quota is Reached -->
+                            <div id="sch-quota-warning" class="mt-2.5 p-3 rounded-xl text-xs font-bold hidden"></div>
+                        </div>
+
+                        <!-- Visit Cycle Selection -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                {{ app()->getLocale() === 'ar' ? 'دورة الزيارات' : 'Visit Cycle' }}
+                            </label>
+                            <select id="sch-cycle-select" name="cycle_id" class="form-select text-xs w-full py-2.5 px-3 rounded-xl border-slate-200 dark:border-[#15456E] dark:bg-[#031827] dark:text-white">
+                                @foreach($allCycles as $c)
+                                    <option value="{{ $c->id }}" {{ $activeCycle && $activeCycle->id == $c->id ? 'selected' : '' }}>
+                                        {{ $c->name }} ({{ $c->start_date }} &rarr; {{ $c->end_date }}) {{ $c->status === 'active' ? '★ Active' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Date & Time Row -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                    {{ app()->getLocale() === 'ar' ? 'تاريخ الزيارة *' : 'Visit Date *' }}
+                                </label>
+                                <input type="date" name="scheduled_date" id="sch-date-input" required value="{{ now()->toDateString() }}" class="form-input text-xs w-full py-2.5 px-3 rounded-xl border-slate-200 dark:border-[#15456E] dark:bg-[#031827] dark:text-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                    {{ app()->getLocale() === 'ar' ? 'وقت الزيارة *' : 'Visit Time *' }}
+                                </label>
+                                <input type="time" name="scheduled_time" id="sch-time-input" required value="{{ now()->addHour()->format('H:00') }}" class="form-input text-xs w-full py-2.5 px-3 rounded-xl border-slate-200 dark:border-[#15456E] dark:bg-[#031827] dark:text-white">
+                            </div>
+                        </div>
+
+                        <!-- Detailing Objectives & Notes -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">
+                                {{ app()->getLocale() === 'ar' ? 'الهدف التسويقي وملاحظات الزيارة' : 'Detailing Objectives & Notes' }}
+                            </label>
+                            <textarea name="notes" id="sch-notes-input" rows="3" class="form-textarea text-xs w-full p-3 rounded-xl border-slate-200 dark:border-[#15456E] dark:bg-[#031827] dark:text-white" placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل أهداف المقابلة الطبية أو المنتجات المستهدفة...' : 'Key talking points, product indications, or follow-up notes...' }}"></textarea>
+                        </div>
+
+                    </div>
+
+                    <!-- Modal Actions -->
+                    <div class="border-t border-slate-100 dark:border-[#15456E] px-6 py-4 flex items-center justify-end gap-3 bg-slate-50/70 dark:bg-[#031827]">
+                        <button type="button" onclick="closeScheduleModal()" class="btn btn-secondary text-xs font-bold px-4 py-2 rounded-xl">
+                            {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
+                        </button>
+                        <button id="sch-submit-btn" type="submit" class="btn btn-primary text-xs font-bold px-5 py-2.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white flex items-center gap-1.5 shadow-sm transition-all">
+                            <i class="fa-solid fa-check"></i>
+                            <span id="sch-submit-label">{{ app()->getLocale() === 'ar' ? 'تأكيد وحفظ الجدولة' : 'Confirm & Schedule Visit' }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- CLIENT JAVASCRIPT: DATA STORES, MODALS & LIVE CLASSIFICATION QUOTA LOGIC  -->
+    <!-- ========================================================================= -->
+    <script>
+        const VISITS_DATA = @json($visitsDetailsData);
+        const DOCTORS_DATA = @json($doctorsCatalogData);
+        let selectedDoctorIdForSchedule = null;
+
+        function openVisitDetailsModal(visitId) {
+            const v = VISITS_DATA.find(item => item.id === visitId);
+            if (!v) return;
+
+            const doc = v.doctor || {};
+            const q = doc.quota || {};
+
+            // Header
+            document.getElementById('vdm-doc-name').textContent = doc.name || 'Doctor';
+            document.getElementById('vdm-doc-class').textContent = 'Class ' + (doc.class_code || 'C');
+            document.getElementById('vdm-doc-subtitle').textContent = (doc.specialty || 'General') + ' • ' + (doc.workplace || 'Clinic');
+
+            // Quota
+            const maxV = q.max_visits || 1;
+            const curV = q.current_count || 0;
+            const remV = q.remaining_visits !== undefined ? q.remaining_visits : 0;
+            const pct = Math.min(100, Math.round((curV / maxV) * 100));
+
+            document.getElementById('vdm-quota-count').textContent = curV + ' / ' + maxV + ' {{ app()->getLocale() === "ar" ? "زيارات الدورة" : "Visits in Cycle" }}';
+            document.getElementById('vdm-quota-bar').style.width = pct + '%';
+            document.getElementById('vdm-quota-rule').textContent = 'Class ' + (doc.class_code || 'C') + ' Quota: ' + maxV + ' {{ app()->getLocale() === "ar" ? "زيارات لكل دورة" : "visits per cycle" }}';
+            document.getElementById('vdm-quota-remaining').textContent = remV + ' {{ app()->getLocale() === "ar" ? "متبقية" : "remaining" }}';
+
+            const alertEl = document.getElementById('vdm-quota-alert');
+            if (!q.can_schedule) {
+                alertEl.className = 'mt-2.5 p-2 rounded-xl text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-900 block';
+                alertEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ app()->getLocale() === "ar" ? "تم الوصول للحد الأقصى للزيارات لهذا الطبيب في الدورة الحالية بناءً على تصنيفه." : "Visit quota reached for this doctor in current cycle based on classification limit." }}';
+            } else {
+                alertEl.className = 'mt-2.5 p-2 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-900 block';
+                alertEl.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> {{ app()->getLocale() === "ar" ? "الحصة الميدانية متاحة للزيارة القادمة." : "Quota available for scheduling." }}';
+            }
+
+            // Status Badge
+            const statusContainer = document.getElementById('vdm-status-badge');
+            if (v.status === 'completed') {
+                statusContainer.innerHTML = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300"><i class="fa-solid fa-check"></i> {{ app()->getLocale() === "ar" ? "تمت الزيارة" : "Completed" }}</span>';
+            } else if (v.status === 'in_progress') {
+                statusContainer.innerHTML = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-300"><i class="fa-solid fa-spinner fa-spin"></i> {{ app()->getLocale() === "ar" ? "جارية الآن" : "In Progress" }}</span>';
+            } else {
+                statusContainer.innerHTML = '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300"><i class="fa-regular fa-clock"></i> {{ app()->getLocale() === "ar" ? "مجدولة" : "Planned" }}</span>';
+            }
+
+            document.getElementById('vdm-scheduled-at').textContent = v.scheduled_at || '—';
+            document.getElementById('vdm-notes').textContent = v.notes ? ('"' + v.notes + '"') : '{{ app()->getLocale() === "ar" ? "لا توجد ملاحظات مسجلة." : "No detailing notes specified." }}';
+
+            // Contact Info
+            document.getElementById('vdm-phone').textContent = doc.phone || '—';
+            document.getElementById('vdm-email').textContent = doc.email || '—';
+            document.getElementById('vdm-workplace').textContent = doc.workplace || '—';
+            document.getElementById('vdm-city').textContent = (doc.city || '—') + (doc.address ? (' (' + doc.address + ')') : '');
+
+            // Execution Telemetry
+            const execSec = document.getElementById('vdm-exec-section');
+            if (v.has_executed) {
+                execSec.classList.remove('hidden');
+                document.getElementById('vdm-checkin').textContent = v.checkin_at || '—';
+                document.getElementById('vdm-checkout').textContent = v.checkout_at || 'In Progress';
+                document.getElementById('vdm-duration').textContent = v.duration_minutes ? (v.duration_minutes + ' min') : '—';
+                
+                const gpsBadge = document.getElementById('vdm-gps-badge');
+                if (v.gps_verified) {
+                    gpsBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+                    gpsBadge.textContent = 'GPS Verified';
+                } else {
+                    gpsBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+                    gpsBadge.textContent = 'GPS Flagged';
+                }
+                document.getElementById('vdm-distance').textContent = v.distance_m ? ('(' + v.distance_m + 'm from clinic)') : '';
+
+                const prodWrapper = document.getElementById('vdm-products-wrapper');
+                const prodList = document.getElementById('vdm-products-list');
+                if (v.products && v.products.length > 0) {
+                    prodWrapper.classList.remove('hidden');
+                    prodList.innerHTML = v.products.map(p => '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800">' + p + '</span>').join('');
+                } else {
+                    prodWrapper.classList.add('hidden');
+                }
+            } else {
+                execSec.classList.add('hidden');
+            }
+
+            // Dossier button
+            document.getElementById('vdm-dossier-btn').href = doc.dossier_url || '#';
+            selectedDoctorIdForSchedule = doc.id || null;
+
+            document.getElementById('visit-details-modal').classList.remove('hidden');
+        }
+
+        function closeVisitDetailsModal() {
+            document.getElementById('visit-details-modal').classList.add('hidden');
+        }
+
+        function scheduleFromDetailsModal() {
+            closeVisitDetailsModal();
+            if (selectedDoctorIdForSchedule) {
+                openScheduleModalForDoctor(selectedDoctorIdForSchedule);
+            } else {
+                openScheduleModal();
+            }
+        }
+
+        function openScheduleModal() {
+            const selectEl = document.getElementById('sch-doctor-select');
+            if (selectEl && selectEl.options.length > 1 && !selectEl.value) {
+                selectEl.selectedIndex = 1;
+                onDoctorSelected(selectEl.value);
+            }
+            document.getElementById('schedule-doctor-modal').classList.remove('hidden');
+        }
+
+        function openScheduleModalForDoctor(doctorId) {
+            const selectEl = document.getElementById('sch-doctor-select');
+            if (selectEl) {
+                selectEl.value = doctorId;
+                onDoctorSelected(doctorId);
+            }
+            document.getElementById('schedule-doctor-modal').classList.remove('hidden');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('schedule-doctor-modal').classList.add('hidden');
+        }
+
+        function onDoctorSelected(doctorId) {
+            if (!doctorId) {
+                updateQuotaDisplay(null);
+                return;
+            }
+
+            const doc = DOCTORS_DATA.find(d => String(d.id) === String(doctorId));
+            if (doc && doc.quota) {
+                updateQuotaDisplay(doc.quota);
+            } else {
+                // Live server fallback
+                fetch(`/admin/mr/contacts/${doctorId}/quota`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.quota) {
+                            updateQuotaDisplay(data.quota);
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
+
+        function updateQuotaDisplay(quota) {
+            const box = document.getElementById('sch-quota-box');
+            const classBadge = document.getElementById('sch-quota-class-badge');
+            const statEl = document.getElementById('sch-quota-stat');
+            const barEl = document.getElementById('sch-quota-bar');
+            const feedbackEl = document.getElementById('sch-quota-feedback');
+            const warningEl = document.getElementById('sch-quota-warning');
+            const submitBtn = document.getElementById('sch-submit-btn');
+            const submitLabel = document.getElementById('sch-submit-label');
+
+            if (!quota) {
+                classBadge.textContent = 'Class -';
+                statEl.textContent = '0 / 0';
+                barEl.style.width = '0%';
+                feedbackEl.textContent = '{{ app()->getLocale() === "ar" ? "حدد طبيباً للتحقق من الحصة المتاحة." : "Select a doctor to verify quota." }}';
+                warningEl.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                return;
+            }
+
+            const cur = quota.current_count || 0;
+            const max = quota.max_visits || 1;
+            const rem = quota.remaining_visits !== undefined ? quota.remaining_visits : 0;
+            const code = quota.class_code || 'C';
+            const canSchedule = Boolean(quota.can_schedule);
+            const pct = Math.min(100, Math.round((cur / max) * 100));
+
+            classBadge.textContent = 'Class ' + code;
+            statEl.textContent = cur + ' / ' + max + ' {{ app()->getLocale() === "ar" ? "زيارات" : "visits" }}';
+            barEl.style.width = pct + '%';
+
+            if (!canSchedule) {
+                box.className = 'p-4 rounded-2xl border transition-all duration-200 bg-rose-50 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900';
+                barEl.className = 'h-2 rounded-full bg-rose-500 transition-all duration-300';
+                feedbackEl.textContent = '{{ app()->getLocale() === "ar" ? "تم استنفاد الحد الأقصى للزيارات لهذا الطبيب." : "Doctor visit quota reached for this cycle." }}';
+                
+                warningEl.className = 'mt-2.5 p-3 rounded-xl text-xs font-black bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-900 block';
+                warningEl.innerHTML = '<i class="fa-solid fa-ban mr-1.5"></i> {{ app()->getLocale() === "ar" ? "تنبيه: لا يمكن جدولة الزيارة! تم الوصول للحد الأقصى لتصنيف Class " : "Notice: Cannot schedule visit! Maximum limit reached for Class " }}' + code + ' (' + cur + '/' + max + ' {{ app()->getLocale() === "ar" ? "زيارات)" : "visits)" }}';
+
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitLabel.textContent = '{{ app()->getLocale() === "ar" ? "تم استنفاد الحصة المسموحة" : "Quota Reached (Blocked)" }}';
+            } else {
+                box.className = 'p-4 rounded-2xl border transition-all duration-200 bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-900';
+                barEl.className = 'h-2 rounded-full bg-emerald-500 transition-all duration-300';
+                feedbackEl.textContent = rem + ' {{ app()->getLocale() === "ar" ? "زيارات متبقية مسموح بها في هذه الدورة." : "visits remaining allowed in this cycle." }}';
+
+                warningEl.className = 'mt-2.5 p-3 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-900 block';
+                warningEl.innerHTML = '<i class="fa-solid fa-circle-check mr-1.5"></i> {{ app()->getLocale() === "ar" ? "الحصة متاحة: يمكنك جدولة الزيارة الآن بنجاح." : "Quota available: You can schedule this visit." }}';
+
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitLabel.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد وحفظ الجدولة" : "Confirm & Schedule Visit" }}';
+            }
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVisitDetailsModal();
+                closeScheduleModal();
+            }
+        });
+    </script>
 </x-layouts.admin>

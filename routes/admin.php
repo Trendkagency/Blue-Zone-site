@@ -228,6 +228,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/', [MrContactController::class, 'store'])->name('store');
                 Route::post('/resolve-map-url', [MrContactController::class, 'resolveMapUrl'])->name('resolve_map_url');
                 Route::get('/{id}', [MrContactController::class, 'show'])->name('show');
+                Route::get('/{id}/quota', [MrContactController::class, 'quotaJson'])->name('quota');
                 Route::get('/{id}/edit', [MrContactController::class, 'edit'])->name('edit');
                 Route::put('/{id}', [MrContactController::class, 'update'])->name('update');
                 Route::delete('/{id}', [MrContactController::class, 'destroy'])->name('destroy');

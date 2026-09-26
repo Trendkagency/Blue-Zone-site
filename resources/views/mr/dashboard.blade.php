@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" class="dark">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الطبي الميدانية' : 'MR Field Operations Portal' }} — BLUE ZONE™</title>
     
@@ -64,9 +64,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <style>
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
         [dir="ar"] body { font-family: 'Cairo', sans-serif; }
         
@@ -101,8 +105,10 @@
             animation: radarSweep 3s linear infinite;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Custom scrollbar & no-scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: rgba(226, 232, 240, 0.5); }
         .dark ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.8); border-radius: 999px; }
@@ -110,7 +116,7 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 1); }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-white antialiased transition-colors duration-200">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-white antialiased transition-colors duration-200 overflow-x-hidden">
 
     <!-- Ambient Glow Backdrops -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -121,61 +127,61 @@
     <div class="relative z-10 flex flex-col min-h-screen">
         
         {{-- ================= Top Navigation Bar ================= --}}
-        <header class="sticky top-0 z-40 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 lg:px-8 py-3.5 transition-all">
-            <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 transition-all">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
                 
                 <!-- Logo & Brand -->
-                <div class="flex items-center gap-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 flex-shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 flex items-center justify-center font-black text-white text-sm sm:text-base shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 flex-shrink-0">
                         BZ
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h1 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">
-                                {{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية' : 'MR Field Portal' }}
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5 sm:gap-2">
+                            <h1 class="text-xs sm:text-base font-extrabold text-slate-900 dark:text-white tracking-tight leading-none truncate">
+                                {{ app()->getLocale() === 'ar' ? 'بوابة المندوب' : 'MR Field Portal' }}
                             </h1>
-                            <span class="hidden sm:inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25">
+                            <span class="hidden sm:inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/25">
                                 BZ-OS
                             </span>
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 font-medium">
-                            <i class="fa-regular fa-calendar-check text-sky-500 dark:text-sky-400 text-[11px]"></i>
-                            <span>{{ $activeCycle->name ?? (app()->getLocale() === 'ar' ? 'الدورة النشطة' : 'Active Cycle') }}</span>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1 font-medium truncate">
+                            <i class="fa-regular fa-calendar-check text-sky-500 text-[10px]"></i>
+                            <span class="truncate">{{ $activeCycle->name ?? (app()->getLocale() === 'ar' ? 'الدورة النشطة' : 'Active Cycle') }}</span>
                             @if($activeCycle)
-                                <span class="text-slate-400 dark:text-slate-600">•</span>
+                                <span class="text-slate-400 dark:text-slate-600 hidden md:inline">•</span>
                                 <span class="text-[11px] text-slate-500 hidden md:inline">{{ $activeCycle->start_date->format('d M') }} — {{ $activeCycle->end_date->format('d M Y') }}</span>
                             @endif
                         </p>
                     </div>
                 </div>
 
-                <!-- Right Controls: GPS Status Pill, Theme Toggle, & User -->
-                <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Right Controls: GPS Status, Theme Toggle, Profile & Admin -->
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                     
                     <!-- Interactive GPS Status & Config Button -->
-                    <button type="button" onclick="openGpsConfigModal()" id="top-gps-indicator" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'إعدادات وصلاحيات الـ GPS' : 'GPS Geofence Settings & Permissions' }}">
+                    <button type="button" onclick="openGpsConfigModal()" id="top-gps-indicator" class="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 shadow-sm hover:scale-105 active:scale-95 transition cursor-pointer" title="{{ app()->getLocale() === 'ar' ? 'إعدادات وصلاحيات الـ GPS' : 'GPS Geofence Settings & Permissions' }}">
                         <span id="top-gps-pulse" class="relative flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                         </span>
-                        <span id="top-gps-label" class="hidden xs:inline text-[11px] font-bold">
+                        <span id="top-gps-label" class="hidden sm:inline text-[11px] font-bold">
                             {{ app()->getLocale() === 'ar' ? 'GPS نشط' : 'GPS Active' }}
                         </span>
                     </button>
 
                     <!-- Theme Mode Toggle Button (Light/Dark) -->
-                    <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-200 transition text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Toggle Light/Dark Theme">
-                        <i id="theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
+                    <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" class="w-8 h-8 sm:w-auto p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-200 transition text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Toggle Light/Dark Theme">
+                        <i id="theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-xs sm:text-sm"></i>
                         <span id="theme-toggle-text" class="hidden md:inline text-[11px]">Light Mode</span>
                     </button>
 
                     <!-- User Profile Pill -->
-                    <div class="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+                    <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
                         <div class="w-6 h-6 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-[11px]">
                             <i class="fa-solid fa-user-doctor"></i>
                         </div>
                         <div class="flex flex-col">
-                            <span class="font-bold text-slate-800 dark:text-slate-200 max-w-[140px] truncate leading-tight">{{ $user->name ?? 'Medical Rep' }}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200 max-w-[120px] truncate leading-tight">{{ $user->name ?? 'Medical Rep' }}</span>
                             @if(!empty($user->area))
                                 <span class="text-[10px] text-sky-600 dark:text-sky-400 font-semibold leading-tight flex items-center gap-0.5">
                                     <i class="fa-solid fa-location-dot text-[9px]"></i> {{ $user->area->name }}
@@ -185,15 +191,15 @@
                     </div>
 
                     <!-- Language Switcher -->
-                    <a href="{{ route('locale.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}" class="p-2 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs font-bold flex items-center gap-1.5" title="Switch Language">
+                    <a href="{{ route('locale.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}" class="w-8 h-8 sm:w-auto p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs font-bold flex items-center justify-center gap-1.5" title="Switch Language">
                         <i class="fa-solid fa-language text-sky-500 dark:text-sky-400"></i>
-                        <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}</span>
+                        <span class="hidden sm:inline">{{ app()->getLocale() === 'ar' ? 'EN' : 'عربي' }}</span>
                     </a>
 
                     <!-- Back to Admin Dashboard -->
-                    <a href="{{ route('admin.dashboard') }}" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Admin Overview">
+                    <a href="{{ route('admin.dashboard') }}" class="w-8 h-8 sm:w-auto p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Admin Overview">
                         <i class="fa-solid fa-arrow-up-right-from-square text-cyan-600 dark:text-cyan-400 text-xs"></i>
-                        <span class="hidden md:inline">{{ app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Admin' }}</span>
+                        <span class="hidden lg:inline">{{ app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Admin' }}</span>
                     </a>
                 </div>
 
@@ -248,14 +254,14 @@
             </div>
 
             {{-- 1. Hero Performance & Milestone Banner --}}
-            <div class="glass-card rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
                 <!-- Background Accent Glow -->
                 <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
                     
                     <!-- Rep Greeting & Milestone (5 Cols on Desktop/Tablet) -->
-                    <div class="lg:col-span-5 space-y-3">
+                    <div class="lg:col-span-5 space-y-2.5 sm:space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
                                 {{ app()->getLocale() === 'ar' ? 'الميدان الطبي' : 'Field Operations' }}
@@ -265,18 +271,18 @@
                             </span>
                         </div>
 
-                        <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                        <h2 class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                             {{ app()->getLocale() === 'ar' ? 'أهلاً بك، ' : 'Welcome, ' }} {{ $user->name ?? 'Dr. Rep' }}
                         </h2>
 
-                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             {{ app()->getLocale() === 'ar' 
                                 ? 'لوحة متابعة الزيارات الميدانية، التحقق من النطاق الجغرافي للعيادات، وتحقيق مستهدف النقاط للدورة الحالية.' 
                                 : 'Live field execution, GPS-verified clinic check-ins, and cycle frequency compliance.' }}
                         </p>
 
                         <!-- Points Target Milestone Progress -->
-                        <div class="pt-2">
+                        <div class="pt-1 sm:pt-2">
                             <div class="flex items-center justify-between text-xs font-bold mb-1.5">
                                 <span class="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                                     <i class="fa-solid fa-trophy text-amber-500 dark:text-amber-400"></i>
@@ -294,14 +300,14 @@
                     </div>
 
                     <!-- 4 High-Impact KPI Stat Cards (7 Cols on Desktop/Tablet) -->
-                    <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                         
                         <!-- KPI 1: Coverage Rate -->
-                        <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 mx-auto mb-2">
-                                <i class="fa-solid fa-chart-pie text-sm"></i>
+                        <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm h-full">
+                            <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 mx-auto mb-1.5 sm:mb-2">
+                                <i class="fa-solid fa-chart-pie text-xs sm:text-sm"></i>
                             </div>
-                            <div class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                            <div class="text-lg sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                                 {{ $snapshot->coverage_rate_pct ?? 0 }}%
                             </div>
                             <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
@@ -313,48 +319,48 @@
                         </div>
 
                         <!-- KPI 2: Completed Visits (Clickable -> Opens Doctors Done Modal) -->
-                        <div onclick="openVisitsDoneModal()" class="cursor-pointer group p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 active:scale-95 transition-all shadow-sm relative overflow-hidden" title="{{ app()->getLocale() === 'ar' ? 'اضغط لعرض تفاصيل الأطباء الذين تمت زيارتهم' : 'Click to view visited doctors' }}">
+                        <div onclick="openVisitsDoneModal()" class="cursor-pointer group p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-0.5 active:scale-95 transition-all shadow-sm relative overflow-hidden h-full" title="{{ app()->getLocale() === 'ar' ? 'اضغط لعرض تفاصيل الأطباء الذين تمت زيارتهم' : 'Click to view visited doctors' }}">
                             <div class="absolute top-2 right-2 rtl:right-auto rtl:left-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                <span class="p-1 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                                <span class="p-1 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px]">
                                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 </span>
                             </div>
-                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto mb-2 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                                <i class="fa-solid fa-calendar-check text-sm"></i>
+                            <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mx-auto mb-1.5 sm:mb-2 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-calendar-check text-xs sm:text-sm"></i>
                             </div>
-                            <div class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
+                            <div class="text-lg sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">
                                 {{ $snapshot->visits_done ?? 0 }} <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">/ {{ $snapshot->planned_visits ?? 0 }}</span>
                             </div>
-                            <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1 flex items-center justify-center gap-1">
-                                <span>{{ app()->getLocale() === 'ar' ? 'الزيارات المنفذة' : 'Visits Done' }}</span>
+                            <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'الزيارات المنفذة' : 'Visits Done' }}
                             </div>
-                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 group-hover:underline flex items-center justify-center gap-1">
-                                <span>{{ app()->getLocale() === 'ar' ? 'عرض الأطباء المكتملين 👈' : 'View Doctors Done 👈' }}</span>
+                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 group-hover:underline">
+                                {{ app()->getLocale() === 'ar' ? 'عرض المكتملين' : 'View Visited' }} &rarr;
                             </div>
                         </div>
 
                         <!-- KPI 3: Achieved Points -->
-                        <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mx-auto mb-2">
-                                <i class="fa-solid fa-ranking-star text-sm"></i>
+                        <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm h-full">
+                            <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mx-auto mb-1.5 sm:mb-2">
+                                <i class="fa-solid fa-ranking-star text-xs sm:text-sm"></i>
                             </div>
-                            <div class="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">
+                            <div class="text-lg sm:text-2xl font-black text-indigo-600 dark:text-indigo-400 tracking-tight">
                                 {{ $snapshot->achieved_points ?? 0 }}
                             </div>
                             <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
                                 {{ app()->getLocale() === 'ar' ? 'النقاط المكتسبة' : 'Points Earned' }}
                             </div>
                             <div class="text-[10px] text-slate-500 mt-0.5">
-                                {{ app()->getLocale() === 'ar' ? 'محتسبة بنظام الفئات' : 'Capped tier points' }}
+                                {{ app()->getLocale() === 'ar' ? 'محتسبة بنظام الفئات' : 'Capped tier pts' }}
                             </div>
                         </div>
 
                         <!-- KPI 4: GPS Accuracy -->
-                        <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-                            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 mx-auto mb-2">
-                                <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                        <div class="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 text-center flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm h-full">
+                            <div class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 mx-auto mb-1.5 sm:mb-2">
+                                <i class="fa-solid fa-location-crosshairs text-xs sm:text-sm"></i>
                             </div>
-                            <div class="text-xl sm:text-2xl font-black text-cyan-600 dark:text-cyan-400 tracking-tight">
+                            <div class="text-lg sm:text-2xl font-black text-cyan-600 dark:text-cyan-400 tracking-tight">
                                 {{ $snapshot->gps_accuracy_pct ?? 0 }}%
                             </div>
                             <div class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
@@ -413,80 +419,151 @@
                 <div class="lg:col-span-8 space-y-6">
 
                     {{-- Today's Agenda Section --}}
-                    <div class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-3.5">
+                    <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-3.5 flex-wrap gap-2">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center text-sm">
+                                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center text-sm flex-shrink-0">
                                     <i class="fa-solid fa-list-check"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">
                                         {{ app()->getLocale() === 'ar' ? 'جدول زيارات اليوم' : "Today's Field Agenda" }}
                                     </h3>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ count($todayVisits) }} {{ app()->getLocale() === 'ar' ? 'زيارات مجدولة' : 'scheduled appointments' }}</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ count($todayVisits) }} {{ app()->getLocale() === 'ar' ? 'زيارات مجدولة' : 'scheduled appointments' }}</p>
                                 </div>
                             </div>
 
-                            <button onclick="openScheduleModal()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 border border-slate-300 dark:border-slate-700/60 shadow-sm">
-                                <i class="fa-solid fa-plus text-sky-500 dark:text-sky-400"></i>
+                            <button onclick="openScheduleModal()" class="px-3 py-1.5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-plus text-xs"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'جدولة زيارة' : 'Schedule Visit' }}</span>
                             </button>
                         </div>
 
                         <div class="space-y-3">
                             @forelse($todayVisits as $sv)
-                                <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm">
-                                    <div class="flex items-start gap-3.5">
-                                        <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex flex-col items-center justify-center text-sky-600 dark:text-sky-400 flex-shrink-0">
-                                            <span class="text-xs font-black">{{ $sv->scheduled_at->format('H:i') }}</span>
-                                            <span class="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold">{{ $sv->scheduled_at->format('A') }}</span>
-                                        </div>
-                                        <div>
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ $sv->contact?->name }}</h4>
-                                                @if($sv->contact?->classification)
-                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-black {{ $sv->contact->classification->code === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' }}">
-                                                        Class {{ $sv->contact->classification->code }}
-                                                    </span>
+                                @php
+                                    $c = $sv->contact;
+                                    $cl = $c?->classification;
+                                    $quota = $c?->quota_info;
+                                    $isCompleted = ($sv->status === 'completed');
+                                    $isOngoing = ($activeOngoingVisit && $activeOngoingVisit->contact_id == $sv->contact_id);
+                                @endphp
+                                <div class="p-3.5 sm:p-4 rounded-2xl bg-white/90 dark:bg-slate-900/80 border {{ $isCompleted ? 'border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/20' : ($isOngoing ? 'border-amber-400 dark:border-amber-800 ring-2 ring-amber-500/20' : 'border-slate-200 dark:border-slate-800/90') }} hover:border-slate-300 dark:hover:border-slate-700 transition shadow-sm space-y-3">
+                                    
+                                    <!-- Top Row: Time, Identity & Badges -->
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="flex items-start gap-3 min-w-0">
+                                            <!-- Time Badge -->
+                                            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl {{ $isCompleted ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-800 text-sky-600 dark:text-sky-400' }} border border-slate-200 dark:border-slate-700/80 flex flex-col items-center justify-center flex-shrink-0">
+                                                <span class="text-xs font-black">{{ $sv->scheduled_at->format('H:i') }}</span>
+                                                <span class="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-bold">{{ $sv->scheduled_at->format('A') }}</span>
+                                            </div>
+
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                                                    <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">
+                                                        {{ $c?->name }}
+                                                    </h4>
+                                                    @if($cl)
+                                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-black {{ $cl->code === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : ($cl->code === 'A' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300') }}">
+                                                            Class {{ $cl->code }}
+                                                        </span>
+                                                    @endif
+                                                    @if($quota)
+                                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $quota['can_schedule'] ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' }}" title="{{ $quota['current_count'] }}/{{ $quota['max_visits'] }} visits in cycle">
+                                                            <i class="fa-solid fa-bullseye text-[9px]"></i>
+                                                            {{ $quota['current_count'] }}/{{ $quota['max_visits'] }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+
+                                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                                    {{ $c?->hospital_clinic_name }} • {{ $c?->specialty?->name }}
+                                                </p>
+
+                                                @if($c?->phone)
+                                                    <a href="tel:{{ $c->phone }}" class="inline-flex items-center gap-1 text-[11px] text-sky-600 dark:text-sky-400 font-medium hover:underline mt-0.5">
+                                                        <i class="fa-solid fa-phone text-[9px]"></i>
+                                                        <span>{{ $c->phone }}</span>
+                                                    </a>
                                                 @endif
                                             </div>
-                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                {{ $sv->contact?->hospital_clinic_name }} • {{ $sv->contact?->specialty?->name }}
-                                            </p>
+                                        </div>
+
+                                        <!-- Status Badge (Desktop) -->
+                                        <div class="hidden sm:block flex-shrink-0">
+                                            @if($isCompleted)
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                                    <i class="fa-solid fa-check-double text-[10px]"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'تمت الزيارة' : 'Completed' }}
+                                                </span>
+                                            @elseif($isOngoing)
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 animate-pulse">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                                                    {{ app()->getLocale() === 'ar' ? 'جارية الآن' : 'In Progress' }}
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                    <i class="fa-regular fa-clock text-[10px]"></i>
+                                                    {{ app()->getLocale() === 'ar' ? 'مجدولة' : 'Planned' }}
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                                        @if($sv->status === 'completed')
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                                <i class="fa-solid fa-check-double"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'تمت الزيارة' : 'Completed' }}
-                                            </span>
-                                        @elseif($activeOngoingVisit && $activeOngoingVisit->contact_id == $sv->contact_id)
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 animate-pulse">
-                                                <span class="w-2 h-2 rounded-full bg-amber-500 inline-block animate-ping"></span>
-                                                <i class="fa-solid fa-circle-check"></i>
-                                                {{ app()->getLocale() === 'ar' ? 'تم تسجيل الحضور' : 'Checked In (Active)' }}
-                                            </span>
-                                            <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($sv->contact?->name ?? 'Doctor') }}')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs active:scale-95 transition shadow-md shadow-amber-500/20 flex items-center gap-1.5">
-                                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل انصراف' : 'Check Out' }}</span>
-                                            </button>
-                                        @else
-                                            @if($sv->contact?->latitude && $sv->contact?->longitude)
-                                                <a href="https://www.google.com/maps?q={{ $sv->contact->latitude }},{{ $sv->contact->longitude }}" target="_blank" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition text-xs border border-slate-200 dark:border-slate-700/60" title="Directions">
-                                                    <i class="fa-solid fa-diamond-turn-right text-sky-500 dark:text-sky-400"></i>
+                                    @if(!empty($sv->notes))
+                                        <div class="text-[11px] text-slate-600 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                                            "{{ Str::limit($sv->notes, 80) }}"
+                                        </div>
+                                    @endif
+
+                                    <!-- Bottom Action Controls -->
+                                    <div class="flex items-center justify-between sm:justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                                        <!-- Status indicator on Mobile -->
+                                        <div class="sm:hidden">
+                                            @if($isCompleted)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                                                    <i class="fa-solid fa-check text-[9px]"></i> {{ app()->getLocale() === 'ar' ? 'تمت' : 'Done' }}
+                                                </span>
+                                            @elseif($isOngoing)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                                                    {{ app()->getLocale() === 'ar' ? 'جارية' : 'Active' }}
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                                    {{ app()->getLocale() === 'ar' ? 'مجدولة' : 'Planned' }}
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex items-center gap-1.5 flex-1 sm:flex-none justify-end">
+                                            @if($c?->latitude && $c?->longitude)
+                                                <a href="https://www.google.com/maps?q={{ $c->latitude }},{{ $c->longitude }}" target="_blank" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 flex items-center justify-center text-xs border border-slate-200 dark:border-slate-700/60 transition" title="Directions">
+                                                    <i class="fa-solid fa-diamond-turn-right text-sky-500"></i>
                                                 </a>
                                             @endif
-                                            <button onclick="triggerCheckIn({{ $sv->contact_id }}, '{{ addslashes($sv->contact?->name ?? 'Doctor') }}', {{ $sv->assignment_id }}, {{ $sv->id }})" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs active:scale-95 transition shadow-md shadow-sky-600/20 flex items-center gap-1.5">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                                <span>{{ app()->getLocale() === 'ar' ? 'تسجيل وصول' : 'Check In' }}</span>
-                                            </button>
-                                        @endif
+
+                                            @if($isCompleted)
+                                                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 px-2 py-1">
+                                                    <i class="fa-solid fa-circle-check"></i> {{ app()->getLocale() === 'ar' ? 'تم التوثيق' : 'Verified' }}
+                                                </span>
+                                            @elseif($isOngoing)
+                                                <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs active:scale-95 transition shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5">
+                                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل انصراف' : 'Check Out' }}</span>
+                                                </button>
+                                            @else
+                                                <button onclick="triggerCheckIn({{ $sv->contact_id }}, '{{ addslashes($c?->name ?? 'Doctor') }}', {{ $sv->assignment_id }}, {{ $sv->id }})" class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs active:scale-95 transition shadow-md shadow-sky-600/20 flex items-center justify-center gap-1.5">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'تسجيل وصول' : 'Start Visit' }}</span>
+                                                </button>
+                                            @endif
+                                        </div>
                                     </div>
+
                                 </div>
                             @empty
-                                <div class="p-8 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 text-center">
+                                <div class="p-8 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 text-center">
                                     <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 flex items-center justify-center mx-auto mb-2 text-xl">
                                         <i class="fa-regular fa-calendar-xmark"></i>
                                     </div>
@@ -501,8 +578,8 @@
                         </div>
                     </div>
 
-                    {{-- Doctor Portfolio Hub Section (Tablet Grid) --}}
-                    <div class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+                    {{-- Doctor Portfolio Hub Section (Responsive Mobile-First Cards) --}}
+                    <div class="glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                             <div>
                                 <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -516,42 +593,42 @@
                             </div>
 
                             <!-- Fast Search Box -->
-                            <div class="relative min-w-[240px]">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500"></i>
+                            <div class="relative w-full sm:w-72">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3.5 rtl:left-auto rtl:right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500 pointer-events-none"></i>
                                 <input type="text" id="doctor-search-input" onkeyup="filterDoctors()" placeholder="{{ app()->getLocale() === 'ar' ? 'بحث باسم الطبيب، المركز، الفئة...' : 'Filter doctors, clinic, specialty...' }}" class="w-full pl-9 rtl:pl-3 rtl:pr-9 pr-3 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-sky-500 transition shadow-sm">
                             </div>
                         </div>
 
-                        <!-- Filter Chips -->
-                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                            <button onclick="filterByClass('all')" class="chip-filter active px-3 py-1.5 rounded-lg bg-sky-600 text-white font-bold transition shadow-sm">
+                        <!-- Filter Chips (Touch Scrollable) -->
+                        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar flex-nowrap -mx-1 px-1">
+                            <button onclick="filterByClass('all')" class="chip-filter active px-3 py-1.5 rounded-xl bg-sky-600 text-white font-bold transition shadow-sm whitespace-nowrap flex-shrink-0">
                                 {{ app()->getLocale() === 'ar' ? 'الكل' : 'All' }} ({{ count($allAssignments) }})
                             </button>
-                            <button onclick="filterByClass('A+')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60">
+                            <button onclick="filterByClass('A+')" class="chip-filter px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 whitespace-nowrap flex-shrink-0">
                                 Class A+
                             </button>
-                            <button onclick="filterByClass('A')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60">
+                            <button onclick="filterByClass('A')" class="chip-filter px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 whitespace-nowrap flex-shrink-0">
                                 Class A
                             </button>
-                            <button onclick="filterByClass('B')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60">
+                            <button onclick="filterByClass('B')" class="chip-filter px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 whitespace-nowrap flex-shrink-0">
                                 Class B
                             </button>
-                            <button onclick="filterByClass('C')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60">
+                            <button onclick="filterByClass('C')" class="chip-filter px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 whitespace-nowrap flex-shrink-0">
                                 Class C
                             </button>
-                            <button onclick="filterByStatus('done')" class="chip-filter px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 flex items-center gap-1">
+                            <button onclick="filterByStatus('done')" class="chip-filter px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold transition border border-slate-300 dark:border-slate-700/60 flex items-center gap-1 whitespace-nowrap flex-shrink-0">
                                 <i class="fa-solid fa-circle-check text-emerald-500"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'تمت زيارتهم' : 'Visited' }}</span>
                             </button>
                             @if($activeOngoingVisit)
-                                <button onclick="filterByStatus('active')" class="chip-filter px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 font-bold transition border border-amber-500/40 flex items-center gap-1 animate-pulse">
+                                <button onclick="filterByStatus('active')" class="chip-filter px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300 hover:bg-amber-500/25 font-bold transition border border-amber-500/40 flex items-center gap-1 animate-pulse whitespace-nowrap flex-shrink-0">
                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'مسجل حضور الآن' : 'Checked In Now' }}</span>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'مسجل حضور الآن' : 'Checked In' }}</span>
                                 </button>
                             @endif
                         </div>
 
-                        <!-- Doctor Cards: Vertical stacked cards (card under card), full responsive design -->
+                        <!-- Doctor Cards: Vertical stacked cards with responsive actions -->
                         <div id="doctors-container" class="space-y-3.5 pt-1">
                             @foreach($allAssignments as $item)
                                 @php
@@ -560,9 +637,10 @@
                                     $req = $cl ? (int)$cl->required_visits : (int)$item->target_visits;
                                     $done = (int)$item->visits_done;
                                     $pct = $req > 0 ? min(100, round(($done / $req) * 100)) : 0;
+                                    $quota = $c?->quota_info;
                                     $isCurrentlyCheckedIn = ($activeOngoingVisit && $activeOngoingVisit->contact_id === $c?->id);
                                 @endphp
-                                <div class="doctor-card p-4 sm:p-5 rounded-2xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/50 shadow-lg shadow-amber-500/10' : 'bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800/80 hover:border-sky-500/40 dark:hover:border-sky-500/40' }} transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
+                                <div class="doctor-card p-4 sm:p-5 rounded-2xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500/10 dark:bg-amber-950/30 border-amber-500 ring-2 ring-amber-500/50 shadow-lg shadow-amber-500/10' : 'bg-white/90 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800/80 hover:border-sky-500/40 dark:hover:border-sky-500/40' }} transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 shadow-sm"
                                      data-name="{{ strtolower($c?->name ?? '') }}"
                                      data-clinic="{{ strtolower($c?->hospital_clinic_name ?? '') }}"
                                      data-specialty="{{ strtolower($c?->specialty?->name ?? '') }}"
@@ -571,7 +649,7 @@
                                     
                                     <!-- Left Section: Doctor Identity & Meta -->
                                     <div class="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
-                                        <div class="w-12 h-12 rounded-xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : ($done >= $req ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20') }} flex items-center justify-center font-black text-base flex-shrink-0">
+                                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl {{ $isCurrentlyCheckedIn ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20' : ($done >= $req ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20') }} flex items-center justify-center font-black text-base flex-shrink-0">
                                             @if($isCurrentlyCheckedIn)
                                                 <i class="fa-solid fa-user-check animate-pulse"></i>
                                             @else
@@ -580,59 +658,42 @@
                                         </div>
 
                                         <div class="min-w-0 flex-1">
-                                            <div class="flex items-center gap-2 flex-wrap">
+                                            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                                                 <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white hover:text-sky-600 dark:hover:text-sky-400 transition truncate">
                                                     {{ $c?->name }}
                                                 </h4>
-                                                @if($c?->code)
-                                                    <span class="text-[10px] text-slate-400 font-mono hidden sm:inline">({{ $c->code }})</span>
-                                                @endif
                                                 @if($cl)
                                                     <span class="px-2 py-0.5 rounded text-[10px] font-black {{ $cl->code === 'A+' ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30' : ($cl->code === 'A' ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-500/30' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700') }}">
                                                         Class {{ $cl->code }}
                                                     </span>
                                                 @endif
-                                                @if($isCurrentlyCheckedIn)
-                                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 shadow-sm animate-pulse">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-950 inline-block animate-ping"></span>
-                                                        <i class="fa-solid fa-circle-check"></i>
-                                                        {{ app()->getLocale() === 'ar' ? 'مسجل وصول حالياً' : 'Checked In (Active)' }}
+                                                @if($quota)
+                                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {{ $quota['can_schedule'] ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' }}" title="{{ $quota['current_count'] }}/{{ $quota['max_visits'] }} visits in cycle">
+                                                        {{ $quota['current_count'] }}/{{ $quota['max_visits'] }}
                                                     </span>
-                                                @elseif($done >= $req)
-                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                                                        <i class="fa-solid fa-circle-check text-[9px]"></i>
-                                                        {{ app()->getLocale() === 'ar' ? 'اكتملت الخطة' : 'Target Completed' }}
+                                                @endif
+                                                @if($isCurrentlyCheckedIn)
+                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 shadow-sm animate-pulse">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                        {{ app()->getLocale() === 'ar' ? 'نشط الآن' : 'Active' }}
                                                     </span>
                                                 @endif
                                             </div>
 
                                             <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                                                {{ $c?->hospital_clinic_name }}
+                                                {{ $c?->hospital_clinic_name }} • {{ $c?->specialty?->name ?? 'General' }}
                                             </p>
 
-                                            <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-1.5 flex-wrap">
-                                                <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/50">
-                                                    {{ $c?->specialty?->name ?? 'General' }}
+                                            @if($c?->city)
+                                                <span class="text-[11px] text-slate-400 truncate block">
+                                                    {{ $c->city->name }} {{ $c->address ? '• ' . $c->address : '' }}
                                                 </span>
-                                                @if($c?->city)
-                                                    <span>•</span>
-                                                    <span>{{ $c->city->name }}</span>
-                                                @endif
-                                                @if($c?->region)
-                                                    <span>•</span>
-                                                    <span class="text-slate-400">{{ $c->region }}</span>
-                                                @endif
-                                                @if($done > 0 && $done < $req)
-                                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/25">
-                                                        <i class="fa-solid fa-check text-[9px]"></i> {{ $done }}/{{ $req }} {{ app()->getLocale() === 'ar' ? 'زيارات تمت' : 'done' }}
-                                                    </span>
-                                                @endif
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
 
                                     <!-- Center Section: Progress & Frequency Bar -->
-                                    <div class="w-full md:w-56 flex-shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                    <div class="w-full md:w-52 flex-shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
                                         <div class="flex items-center justify-between text-xs font-semibold mb-1">
                                             <span class="text-slate-500 dark:text-slate-400">
                                                 {{ app()->getLocale() === 'ar' ? 'الزيارات:' : 'Visits:' }} 
@@ -647,33 +708,41 @@
                                         </div>
                                         <div class="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                                             <span>{{ $pct }}% {{ app()->getLocale() === 'ar' ? 'مكتمل' : 'completed' }}</span>
-                                            @if($done > 0)
-                                                <span class="text-emerald-500 font-semibold">{{ $done }} {{ app()->getLocale() === 'ar' ? 'زيارة تمت' : 'done' }}</span>
+                                            @if($done >= $req)
+                                                <span class="text-emerald-500 font-bold">✓ {{ app()->getLocale() === 'ar' ? 'اكتملت الخطة' : 'Goal met' }}</span>
+                                            @elseif($done > 0)
+                                                <span class="text-sky-500 font-semibold">{{ $done }} {{ app()->getLocale() === 'ar' ? 'زيارة' : 'done' }}</span>
                                             @else
                                                 <span class="text-slate-400">{{ app()->getLocale() === 'ar' ? 'لم تبدأ' : 'Not started' }}</span>
                                             @endif
                                         </div>
                                     </div>
 
-                                    <!-- Right Section: Actions Row -->
-                                    <div class="flex items-center gap-2 w-full md:w-auto justify-end flex-shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                    <!-- Right Section: Actions Row (Touch Friendly) -->
+                                    <div class="flex items-center gap-1.5 sm:gap-2 w-full md:w-auto justify-end flex-shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-slate-200/60 dark:border-slate-800/60">
+                                        @if($c?->phone)
+                                            <a href="tel:{{ $c->phone }}" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm transition" title="Call">
+                                                <i class="fa-solid fa-phone"></i>
+                                            </a>
+                                        @endif
+
                                         @if($c?->latitude && $c?->longitude)
-                                            <a href="https://www.google.com/maps?q={{ $c->latitude }},{{ $c->longitude }}" target="_blank" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm" title="Open Google Maps">
+                                            <a href="https://www.google.com/maps?q={{ $c->latitude }},{{ $c->longitude }}" target="_blank" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm transition" title="Open Google Maps">
                                                 <i class="fa-solid fa-location-arrow text-sky-500 dark:text-sky-400"></i>
                                             </a>
                                         @endif
 
-                                        <button onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm" title="Schedule appointment">
+                                        <button onclick="openScheduleModal({{ $item->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center justify-center text-xs border border-slate-200 dark:border-slate-700/50 shadow-sm transition" title="Schedule appointment">
                                             <i class="fa-regular fa-calendar-plus"></i>
                                         </button>
 
                                         @if($isCurrentlyCheckedIn)
-                                            <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="flex-1 md:flex-initial py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                            <button onclick="openCheckoutModal({{ $activeOngoingVisit->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}')" class="flex-1 md:flex-initial py-2 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
                                                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                                <span>{{ app()->getLocale() === 'ar' ? 'إنهاء الزيارة (تسجيل انصراف)' : 'Check Out & Finish' }}</span>
+                                                <span>{{ app()->getLocale() === 'ar' ? 'إنهاء الزيارة' : 'Check Out' }}</span>
                                             </button>
                                         @else
-                                            <button onclick="triggerCheckIn({{ $c->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}', {{ $item->id }})" class="flex-1 md:flex-initial py-2.5 px-5 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
+                                            <button onclick="triggerCheckIn({{ $c->id }}, '{{ addslashes($c?->name ?? 'Doctor') }}', {{ $item->id }})" class="flex-1 md:flex-initial py-2 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1.5 whitespace-nowrap">
                                                 <i class="fa-solid fa-location-dot"></i>
                                                 <span>{{ app()->getLocale() === 'ar' ? 'تسجيل زيارة' : 'Visit Now' }}</span>
                                             </button>
@@ -817,8 +886,8 @@
     </div>
 
     {{-- ================= Professional GPS Configuration & Permission Modal ================= --}}
-    <div id="gps-config-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative max-h-[90vh] overflow-y-auto">
+    <div id="gps-config-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl w-full max-w-lg p-4 sm:p-8 space-y-5 sm:space-y-6 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative max-h-[90vh] overflow-y-auto">
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -947,8 +1016,8 @@
     </div>
 
     {{-- ================= Interactive Check-In Modal ================= --}}
-    <div id="checkin-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative">
+    <div id="checkin-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-4 sm:p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
                     <i class="fa-solid fa-location-dot text-cyan-500 dark:text-cyan-400"></i>
@@ -982,14 +1051,14 @@
     </div>
 
     {{-- ================= Active Visit In Progress Warning Modal ================= --}}
-    <div id="active-visit-warning-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl border border-amber-500/40 text-center relative">
+    <div id="active-visit-warning-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-4 sm:p-6 space-y-4 shadow-2xl border border-amber-500/40 text-center relative">
             <button onclick="closeActiveVisitWarning()" class="absolute top-4 right-4 rtl:right-auto rtl:left-4 text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
 
-            <div class="w-16 h-16 rounded-2xl bg-amber-500/15 text-amber-500 dark:text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-500/30">
-                <i class="fa-solid fa-hand text-3xl animate-bounce"></i>
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/15 text-amber-500 dark:text-amber-400 flex items-center justify-center mx-auto text-2xl border border-amber-500/30">
+                <i class="fa-solid fa-hand text-2xl sm:text-3xl animate-bounce"></i>
             </div>
 
             <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">
@@ -1020,8 +1089,8 @@
     </div>
 
     {{-- ================= Interactive Check-Out Modal ================= --}}
-    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative my-auto max-h-[92vh] flex flex-col">
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg p-4 sm:p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative my-auto max-h-[92vh] flex flex-col">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-shrink-0">
                 <div>
                     <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
@@ -1232,9 +1301,9 @@
         </div>
     </div>
 
-    {{-- ================= Schedule Appointment Modal ================= --}}
-    <div id="schedule-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md hidden flex items-center justify-center p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative">
+    {{-- ================= Schedule Appointment Modal (With Live Quota Logic) ================= --}}
+    <div id="schedule-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-700/80 relative">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2">
                     <i class="fa-solid fa-calendar-plus text-sky-500 dark:text-sky-400"></i>
@@ -1249,13 +1318,38 @@
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     {{ app()->getLocale() === 'ar' ? 'اختر الطبيب *' : 'Doctor Assignment *' }}
                 </label>
-                <select id="schedule-assignment-id" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-sky-500">
+                <select id="schedule-assignment-id" onchange="onMrScheduleDoctorSelected(this.value)" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-sky-500">
                     @foreach($allAssignments as $assign)
-                        <option value="{{ $assign->id }}">
-                            {{ $assign->contact?->name }} (Class {{ $assign->contact?->classification?->code }}) — {{ $assign->contact?->hospital_clinic_name }}
+                        @php
+                            $c = $assign->contact;
+                            $q = $c?->quota_info;
+                            $code = $c?->classification?->code ?? 'C';
+                        @endphp
+                        <option value="{{ $assign->id }}" 
+                                data-contact-id="{{ $c?->id }}" 
+                                data-name="{{ $c?->name }}"
+                                data-class="{{ $code }}"
+                                data-can-schedule="{{ $q && $q['can_schedule'] ? '1' : '0' }}"
+                                data-count="{{ $q['current_count'] ?? 0 }}"
+                                data-max="{{ $q['max_visits'] ?? 1 }}"
+                                data-rem="{{ $q['remaining_visits'] ?? 0 }}">
+                            {{ $c?->name }} (Class {{ $code }}) — {{ $c?->hospital_clinic_name }}
                         </option>
                     @endforeach
                 </select>
+            </div>
+
+            <!-- LIVE QUOTA EVALUATION BOX -->
+            <div id="mr-sch-quota-box" class="p-3.5 rounded-xl border transition-all duration-200 bg-slate-50 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span id="mr-sch-quota-badge" class="px-2 py-0.5 rounded text-[10px] font-black bg-sky-500/20 text-sky-700 dark:text-sky-300">Class -</span>
+                    <span id="mr-sch-quota-stat" class="text-xs font-black text-slate-800 dark:text-white">0 / 0</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden mb-1.5">
+                    <div id="mr-sch-quota-bar" class="h-1.5 rounded-full bg-sky-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p id="mr-sch-quota-feedback" class="text-[11px] text-slate-500 dark:text-slate-400 mb-0"></p>
+                <div id="mr-sch-quota-warning" class="mt-2 p-2 rounded-lg text-xs font-bold hidden"></div>
             </div>
 
             <div>
@@ -1269,16 +1363,16 @@
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     {{ app()->getLocale() === 'ar' ? 'ملاحظات الموعد' : 'Appointment Notes' }}
                 </label>
-                <textarea id="schedule-notes" rows="2" placeholder="Specific items to present..." class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-sky-500"></textarea>
+                <textarea id="schedule-notes" rows="2" placeholder="{{ app()->getLocale() === 'ar' ? 'أدخل أهداف الزيارة أو المنتجات المستهدفة...' : 'Specific items to present...' }}" class="w-full text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white p-3 focus:outline-none focus:border-sky-500"></textarea>
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-2">
                 <button type="button" onclick="closeScheduleModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition border border-slate-200 dark:border-transparent">
                     {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                 </button>
-                <button onclick="submitScheduleForm()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs active:scale-95 transition shadow-lg shadow-sky-600/30 flex items-center gap-2">
+                <button id="mr-sch-submit-btn" onclick="submitScheduleForm()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs active:scale-95 transition shadow-lg shadow-sky-600/30 flex items-center gap-2">
                     <i class="fa-solid fa-check"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'تأكيد الحجز' : 'Schedule Appointment' }}</span>
+                    <span id="mr-sch-submit-label">{{ app()->getLocale() === 'ar' ? 'تأكيد الحجز' : 'Schedule Appointment' }}</span>
                 </button>
             </div>
         </div>
@@ -1286,7 +1380,7 @@
 
     {{-- ================= Visits Done / Completed Doctors Modal ================= --}}
     <div id="visits-done-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+        <div class="glass-card bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 flex-shrink-0">
@@ -2285,10 +2379,14 @@
             }
         }
 
-        // Schedule Modal flow
+        // Schedule Modal flow with strict Class Quota validation
         function openScheduleModal(assignmentId = null, doctorName = null) {
-            if (assignmentId) {
-                document.getElementById('schedule-assignment-id').value = assignmentId;
+            const selectEl = document.getElementById('schedule-assignment-id');
+            if (assignmentId && selectEl) {
+                selectEl.value = assignmentId;
+            }
+            if (selectEl && selectEl.value) {
+                onMrScheduleDoctorSelected(selectEl.value);
             }
             document.getElementById('schedule-modal').classList.remove('hidden');
         }
@@ -2297,13 +2395,70 @@
             document.getElementById('schedule-modal').classList.add('hidden');
         }
 
+        function onMrScheduleDoctorSelected(assignmentId) {
+            const selectEl = document.getElementById('schedule-assignment-id');
+            if (!selectEl) return;
+            const opt = selectEl.selectedOptions[0];
+            if (!opt) return;
+
+            const canSchedule = opt.getAttribute('data-can-schedule') === '1';
+            const cur = parseInt(opt.getAttribute('data-count') || '0', 10);
+            const max = parseInt(opt.getAttribute('data-max') || '1', 10);
+            const rem = parseInt(opt.getAttribute('data-rem') || '0', 10);
+            const code = opt.getAttribute('data-class') || 'C';
+            const docName = opt.getAttribute('data-name') || 'Doctor';
+
+            const box = document.getElementById('mr-sch-quota-box');
+            const badge = document.getElementById('mr-sch-quota-badge');
+            const stat = document.getElementById('mr-sch-quota-stat');
+            const bar = document.getElementById('mr-sch-quota-bar');
+            const feedback = document.getElementById('mr-sch-quota-feedback');
+            const warning = document.getElementById('mr-sch-quota-warning');
+            const submitBtn = document.getElementById('mr-sch-submit-btn');
+            const submitLabel = document.getElementById('mr-sch-submit-label');
+
+            badge.textContent = 'Class ' + code;
+            stat.textContent = cur + ' / ' + max + ' {{ app()->getLocale() === "ar" ? "زيارات" : "visits" }}';
+            const pct = Math.min(100, Math.round((cur / max) * 100));
+            bar.style.width = pct + '%';
+
+            if (!canSchedule) {
+                box.className = 'p-3.5 rounded-xl border transition-all duration-200 bg-rose-50 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900';
+                bar.className = 'h-1.5 rounded-full bg-rose-500 transition-all duration-300';
+                feedback.textContent = '{{ app()->getLocale() === "ar" ? "تم الوصول للحد الأقصى للزيارات لهذا الطبيب." : "Quota reached for this doctor in this cycle." }}';
+                warning.className = 'mt-2 p-2 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-900 block';
+                warning.innerHTML = '<i class="fa-solid fa-ban mr-1"></i> {{ app()->getLocale() === "ar" ? "لا يمكن الجدولة: تم استنفاد الحد الأقصى لتصنيف Class " : "Notice: Quota reached for Class " }}' + code + ' (' + cur + '/' + max + ')';
+                
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                submitLabel.textContent = '{{ app()->getLocale() === "ar" ? "الحصة مكتملة" : "Quota Reached" }}';
+            } else {
+                box.className = 'p-3.5 rounded-xl border transition-all duration-200 bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-900';
+                bar.className = 'h-1.5 rounded-full bg-emerald-500 transition-all duration-300';
+                feedback.textContent = rem + ' {{ app()->getLocale() === "ar" ? "زيارات متبقية مسموحة في هذه الدورة." : "visits remaining in this cycle." }}';
+                warning.className = 'mt-2 p-2 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-900 block';
+                warning.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> {{ app()->getLocale() === "ar" ? "الحصة متاحة: يمكنك جدولة الزيارة." : "Quota available: You can schedule this visit." }}';
+
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitLabel.textContent = '{{ app()->getLocale() === "ar" ? "تأكيد الحجز" : "Schedule Appointment" }}';
+            }
+        }
+
         async function submitScheduleForm() {
-            const assignmentId = document.getElementById('schedule-assignment-id').value;
+            const selectEl = document.getElementById('schedule-assignment-id');
+            const assignmentId = selectEl ? selectEl.value : null;
             const datetime = document.getElementById('schedule-datetime').value;
             const notes = document.getElementById('schedule-notes').value;
 
             if (!assignmentId || !datetime) {
-                showToast('Please select doctor and date/time slot', 'error');
+                showToast('{{ app()->getLocale() === "ar" ? "يرجى اختيار الطبيب وتاريخ/وقت الزيارة" : "Please select doctor and date/time slot" }}', 'error');
+                return;
+            }
+
+            const opt = selectEl.selectedOptions[0];
+            if (opt && opt.getAttribute('data-can-schedule') === '0') {
+                showToast('{{ app()->getLocale() === "ar" ? "لا يمكن جدولة الزيارة لأن الطبيب استنفد حده الأقصى للزيارات في هذه الدورة" : "Cannot schedule: Doctor has reached maximum visit quota for this cycle" }}', 'error');
                 return;
             }
 

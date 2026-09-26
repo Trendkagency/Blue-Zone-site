@@ -10,10 +10,7 @@
     @include('admin.dashboard.partials.view_switcher', ['currentView' => 'operations'])
 
     <!-- 1. HERO OPERATIONS COMMAND BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#062B49] via-[#0A4F78] to-[#115e59] text-white p-6 sm:p-7 mb-6 shadow-md border border-[#15456E]">
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
+    <div class="bz-hero-banner">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <!-- Left Info -->
             <div class="flex items-start sm:items-center gap-4">
@@ -49,7 +46,7 @@
                     </p>
 
                     <!-- Shift Attendance Chip -->
-                    <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 text-xs">
+                    <div class="mt-3 bz-hero-chip">
                         <i class="fa-solid fa-clock text-emerald-300"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'حالة الدوام اليوم:' : 'Attendance Today:' }}</span>
                         @if($todayAttendance && $todayAttendance->check_in)
@@ -85,17 +82,17 @@
 
             <!-- Right Fast Operations CTAs -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <a href="{{ route('admin.orders.index') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.orders.index') }}" class="bz-hero-btn-primary">
                     <i class="fa-solid fa-truck-fast"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'معالجة وتجهيز الطلبات' : 'Fulfill Orders' }}</span>
                 </a>
 
-                <a href="{{ route('admin.inventory.index') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.inventory.index') }}" class="bz-hero-btn-secondary">
                     <i class="fa-solid fa-dolly text-emerald-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'سجل المخزون والأرصدة' : 'Stock Inventory' }}</span>
                 </a>
 
-                <a href="{{ route('admin.products.index') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.products.index') }}" class="bz-hero-btn-secondary">
                     <i class="fa-solid fa-barcode text-cyan-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'كتالوج المنتجات' : 'Products' }}</span>
                 </a>

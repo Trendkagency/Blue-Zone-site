@@ -541,6 +541,16 @@ class MrDashboardController extends Controller
         }
 
         $contact = Contact::findOrFail($contactId);
+
+        // Enforce doctor visit quota based on classification
+        $quota = $contact->getVisitQuotaStatus($cycle->id);
+        if (!$quota['can_schedule']) {
+            $msg = app()->getLocale() === 'ar'
+                ? "لا يمكن جدولة زيارة جديدة للطبيب ({$contact->name}). لقد تم استنفاد الحد الأقصى للزيارات المسموحة في هذه الدورة ({$quota['current_count']}/{$quota['max_visits']} زيارات لتصنيف Class {$quota['class_code']})."
+                : "Cannot schedule visit for Dr. {$contact->name}. Maximum visit quota reached for this cycle ({$quota['current_count']}/{$quota['max_visits']} visits for Class {$quota['class_code']}).";
+            return $this->respondError($msg, $request);
+        }
+
         $class = $contact->classification;
         $targetVisits = $class ? (int) $class->required_visits : 1;
         $targetPoints = $class ? ((int) $class->points * $targetVisits) : 3;
@@ -819,6 +829,12 @@ class MrDashboardController extends Controller
             foreach ($contactIds as $contactId) {
                 $contact = Contact::find($contactId);
                 if (!$contact) {
+                    continue;
+                }
+
+                // Check quota per classification
+                $quota = $contact->getVisitQuotaStatus($cycle->id);
+                if (!$quota['can_schedule']) {
                     continue;
                 }
 

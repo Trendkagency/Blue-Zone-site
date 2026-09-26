@@ -10,10 +10,7 @@
     @include('admin.dashboard.partials.view_switcher', ['currentView' => 'mr_manager'])
 
     <!-- 1. HERO MR MANAGER COMMAND BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#062B49] via-[#0A4F78] to-[#0e7490] text-white p-6 sm:p-7 mb-6 shadow-md border border-[#15456E]">
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
-
+    <div class="bz-hero-banner">
         <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <!-- Left Info -->
             <div class="flex items-start sm:items-center gap-4">
@@ -51,7 +48,7 @@
                     </p>
 
                     <!-- Shift Attendance Chip -->
-                    <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-black/20 backdrop-blur-sm border border-white/10 text-xs">
+                    <div class="mt-3 bz-hero-chip">
                         <i class="fa-solid fa-clock text-cyan-300"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'حالة دوامك اليوم:' : 'Attendance Today:' }}</span>
                         @if($todayAttendance && $todayAttendance->check_in)
@@ -87,17 +84,17 @@
 
             <!-- Right Fast CTAs: Highlights LIVE OPS MAP -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <a href="{{ route('admin.mr.live-map') }}" class="btn font-black text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white border-0 transition-all flex items-center gap-2 animate-pulse">
+                <a href="{{ route('admin.mr.live-map') }}" class="bz-hero-btn-accent animate-pulse">
                     <i class="fa-solid fa-earth-americas text-white"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات الميدانية المباشرة' : 'Live Ops Field Map' }}</span>
                 </a>
 
-                <a href="{{ route('admin.mr.dashboard') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/15 hover:bg-white/25 text-white border border-white/20 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.mr.dashboard') }}" class="bz-hero-btn-secondary">
                     <i class="fa-solid fa-calendar-check text-cyan-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'جداول الزيارات' : 'Visit Schedules' }}</span>
                 </a>
 
-                <a href="{{ route('admin.mr.contacts.index') }}" class="btn font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm bg-white/10 hover:bg-white/20 text-white border border-white/15 transition-all flex items-center gap-2">
+                <a href="{{ route('admin.mr.contacts.index') }}" class="bz-hero-btn-secondary">
                     <i class="fa-solid fa-user-doctor text-emerald-300"></i>
                     <span>{{ app()->getLocale() === 'ar' ? 'دليل الأطباء' : 'Doctors Portfolio' }}</span>
                 </a>

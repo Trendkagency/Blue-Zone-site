@@ -15,8 +15,15 @@ class CrmScheduleService
      */
     public function scheduleVisit(int $assignmentId, string|Carbon $dateTime, ?string $notes = null): ScheduledVisit
     {
-        $assignment = ContactAssignment::with(['contact', 'cycle'])->findOrFail($assignmentId);
+        $assignment = ContactAssignment::with(['contact.classification', 'cycle'])->findOrFail($assignmentId);
         $scheduledAt = Carbon::parse($dateTime);
+
+        $quota = $assignment->contact->getVisitQuotaStatus($assignment->cycle_id);
+        if (!$quota['can_schedule']) {
+            throw new \DomainException(
+                "Doctor {$assignment->contact->name} has already reached the maximum visit quota ({$quota['current_count']}/{$quota['max_visits']} visits for Class {$quota['class_code']})."
+            );
+        }
 
         return ScheduledVisit::create([
             'assignment_id' => $assignment->id,

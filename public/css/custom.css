@@ -1983,3 +1983,241 @@ footer a.bz-footer-social-link.bz-micro:hover {
 [x-show*="Modal"] > div {
   z-index: 100000 !important;
 }
+
+/* ==========================================================================
+   BLUE ZONE™ Hero Command Banner System (Light & Dark Mode Full Compliance)
+   ========================================================================== */
+
+.bz-hero-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem !important;
+  padding: 1.5rem 1.75rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 10px 25px -5px rgba(3, 24, 39, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: linear-gradient(135deg, #031827 0%, #062B49 45%, #0A4F78 100%) !important;
+  color: #FFFFFF !important;
+}
+
+.dark .bz-hero-banner {
+  background: linear-gradient(135deg, #02101B 0%, #062B49 50%, #0D3E61 100%) !important;
+  border-color: #15456E !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.bz-hero-btn-primary {
+  background: linear-gradient(135deg, #67B34A 0%, #4D9A32 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  font-weight: 700 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.55rem 1rem !important;
+  font-size: 0.8125rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  box-shadow: 0 4px 12px rgba(103, 179, 74, 0.3) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.bz-hero-btn-primary:hover {
+  background: linear-gradient(135deg, #55993C 0%, #3F8226 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(103, 179, 74, 0.4) !important;
+  color: #FFFFFF !important;
+}
+
+.bz-hero-btn-secondary {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  font-weight: 700 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.55rem 1rem !important;
+  font-size: 0.8125rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  backdrop-filter: blur(8px) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.bz-hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  transform: translateY(-1px) !important;
+  color: #FFFFFF !important;
+}
+
+.bz-hero-btn-accent {
+  background: linear-gradient(135deg, #2A8FC2 0%, #1B6E98 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  font-weight: 700 !important;
+  border-radius: 0.75rem !important;
+  padding: 0.55rem 1rem !important;
+  font-size: 0.8125rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  box-shadow: 0 4px 12px rgba(42, 143, 194, 0.3) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.bz-hero-btn-accent:hover {
+  background: linear-gradient(135deg, #1E75A1 0%, #155577 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(42, 143, 194, 0.4) !important;
+  color: #FFFFFF !important;
+}
+
+.bz-hero-chip {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 0.75rem !important;
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.75rem !important;
+  color: #FFFFFF !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+.bz-progress-track {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 9999px !important;
+  height: 0.5rem !important;
+  overflow: hidden !important;
+}
+
+.bz-progress-bar {
+  background: linear-gradient(90deg, #2A8FC2 0%, #67B34A 100%) !important;
+  height: 100% !important;
+  border-radius: 9999px !important;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ==========================================================================
+   BLUE ZONE™ Theme Harmonization (Light & Dark System-Wide Standards)
+   ========================================================================== */
+
+/* Universal Dark Mode Neutral Mapping */
+html.dark .bg-gray-800,
+html.dark .dark\:bg-gray-800,
+html.dark .bg-slate-800,
+html.dark .dark\:bg-slate-800 {
+  background-color: #062B49 !important;
+}
+
+html.dark .bg-gray-900,
+html.dark .dark\:bg-gray-900,
+html.dark .bg-slate-900,
+html.dark .dark\:bg-slate-900 {
+  background-color: #031827 !important;
+}
+
+html.dark .border-gray-700,
+html.dark .dark\:border-gray-700,
+html.dark .border-slate-700,
+html.dark .dark\:border-slate-700,
+html.dark .border-gray-800,
+html.dark .dark\:border-gray-800 {
+  border-color: #15456E !important;
+}
+
+html.dark .text-gray-100,
+html.dark .dark\:text-gray-100,
+html.dark .text-slate-100,
+html.dark .dark\:text-slate-100,
+html.dark .text-white,
+html.dark .dark\:text-white {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-gray-400,
+html.dark .dark\:text-gray-400,
+html.dark .text-slate-400,
+html.dark .dark\:text-slate-400 {
+  color: #94A3B8 !important;
+}
+
+/* Light Mode System Harmonization */
+html:not(.dark) body {
+  background-color: #F6F5EF !important;
+  color: #031827 !important;
+}
+
+html:not(.dark) .card {
+  background-color: #FFFFFF;
+  border-color: #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(3, 24, 39, 0.05), 0 1px 2px -1px rgba(3, 24, 39, 0.05);
+}
+
+html:not(.dark) .table th {
+  background-color: #EDF2F7;
+  color: #4A5568;
+  border-color: #E2E8F0;
+}
+
+html:not(.dark) .table td {
+  border-color: #E2E8F0;
+  color: #031827;
+}
+
+/* Dark Mode Card & Table Defaults */
+html.dark .card {
+  background-color: #062B49;
+  border-color: #15456E;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .table th {
+  background-color: #093961;
+  color: #CBD5E1;
+  border-color: #15456E;
+}
+
+html.dark .table td {
+  border-color: #15456E;
+  color: #F8FAFC;
+}
+
+/* Brand Button Overrides for 100% Brand Consistency */
+.btn-primary {
+  background: linear-gradient(135deg, #0A4F78 0%, #062B49 100%) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2A8FC2 0%, #0A4F78 100%) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, #2A8FC2 0%, #1E75A1 100%) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+.btn-accent:hover {
+  background: linear-gradient(135deg, #4FB0E6 0%, #2A8FC2 100%) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #67B34A 0%, #4D9A32 100%) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #78CB56 0%, #67B34A 100%) !important;
+  color: #FFFFFF !important;
+}

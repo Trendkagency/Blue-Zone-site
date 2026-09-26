@@ -175,6 +175,25 @@ class VisitController extends Controller
         }
 
         $contact = Contact::findOrFail($contactId);
+
+        // Enforce doctor visit quota based on classification
+        $quota = $contact->getVisitQuotaStatus($cycle->id);
+        if (!$quota['can_schedule']) {
+            $errorMessage = app()->getLocale() === 'ar'
+                ? "لا يمكن جدولة زيارة جديدة للطبيب ({$contact->name}). لقد تم استنفاد الحد الأقصى للزيارات المسموحة في هذه الدورة ({$quota['current_count']}/{$quota['max_visits']} زيارات لتصنيف Class {$quota['class_code']})."
+                : "Cannot schedule visit for Dr. {$contact->name}. Maximum visit quota reached for this cycle ({$quota['current_count']}/{$quota['max_visits']} visits for Class {$quota['class_code']}).";
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage,
+                    'quota' => $quota,
+                ], 422);
+            }
+
+            return back()->with('error', $errorMessage)->withInput();
+        }
+
         $class = $contact->classification;
         $targetVisits = $class ? (int) $class->required_visits : 1;
         $targetPoints = $class ? ((int) $class->points * $targetVisits) : 3;
@@ -221,8 +240,21 @@ class VisitController extends Controller
         }
 
         $msg = app()->getLocale() === 'ar'
-            ? "تمت جدولة الزيارة بنجاح للمندوب ({$user?->name}) مع الطبيب ({$contact->name}) ليوم " . $scheduledAt->format('Y-m-d H:i') . " وتظهر فوراً في أجندة المندوب بالبوابة."
-            : "Visit scheduled successfully for rep {$user?->name} with Dr. {$contact->name} on " . $scheduledAt->format('Y-m-d H:i') . " and is now active on the MR Portal agenda.";
+            ? "تمت جدولة الزيارة بنجاح للمندوب ({$user?->name}) مع الطبيب ({$contact->name}) ليوم " . $scheduledAt->format('Y-m-d H:i') . " وتظهر فوراً في أجندة المندوب."
+            : "Visit scheduled successfully for rep {$user?->name} with Dr. {$contact->name} on " . $scheduledAt->format('Y-m-d H:i') . " and is now active on the agenda.";
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'visit' => $scheduledVisit,
+                'quota' => $contact->getVisitQuotaStatus($cycle->id),
+            ]);
+        }
+
+        if ($request->input('redirect_to') === 'overview') {
+            return redirect()->route('admin.dashboard', ['view' => 'mr', 'mr_id' => $mrId])->with('success', $msg);
+        }
 
         return redirect()->route('admin.mr.visits.index', [
             'tab' => 'today',

@@ -352,4 +352,30 @@ class ContactController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get live quota status and details for a contact
+     */
+    public function quotaJson(int $id, Request $request)
+    {
+        $contact = Contact::with(['specialty', 'classification', 'city', 'area'])->findOrFail($id);
+        $cycleId = $request->integer('cycle_id') ?: null;
+        $quota = $contact->getVisitQuotaStatus($cycleId);
+
+        return response()->json([
+            'success' => true,
+            'contact' => [
+                'id' => $contact->id,
+                'name' => $contact->name,
+                'specialty' => $contact->specialty?->name,
+                'classification' => $contact->classification?->code ?? 'A',
+                'classification_label' => $contact->classification?->label ?? 'Class A',
+                'workplace' => $contact->hospital_clinic_name,
+                'address' => $contact->address,
+                'phone' => $contact->phone,
+                'city' => $contact->city?->name,
+            ],
+            'quota' => $quota,
+        ]);
+    }
 }

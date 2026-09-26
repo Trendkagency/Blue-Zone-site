@@ -61,6 +61,12 @@ class MrDashboardController extends Controller
                 ->orderBy('scheduled_at')
                 ->get();
 
+            foreach ($todayVisits as $tv) {
+                if ($tv->contact) {
+                    $tv->contact->quota_info = $tv->contact->getVisitQuotaStatus($tv->cycle_id ?: $activeCycle?->id);
+                }
+            }
+
             // Check if there is an active check-in without checkout
             $activeOngoingVisit = Visit::with(['contact.specialty', 'contact.classification'])
                 ->where('mr_id', $user->id)
@@ -83,6 +89,12 @@ class MrDashboardController extends Controller
                 ->where('cycle_id', $activeCycle->id)
                 ->where('is_active', true)
                 ->get();
+
+            foreach ($allAssignments as $assign) {
+                if ($assign->contact) {
+                    $assign->contact->quota_info = $assign->contact->getVisitQuotaStatus($activeCycle->id);
+                }
+            }
         }
 
         // 5. Completed Visits / Doctors Done (with relations: contact, products, product)

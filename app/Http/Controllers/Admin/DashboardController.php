@@ -432,12 +432,20 @@ class DashboardController extends Controller
             'contact.classification',
             'contact.city',
             'contact.area',
-            'visit',
+            'visit.products',
+            'visit.product',
+            'cycle',
         ])
         ->where('mr_id', $repId)
         ->whereDate('scheduled_at', Carbon::today())
         ->orderBy('scheduled_at')
         ->get();
+
+        foreach ($todayScheduledVisits as $sv) {
+            if ($sv->contact) {
+                $sv->contact->quota_info = $sv->contact->getVisitQuotaStatus($cycleId ?: ($sv->cycle_id ?: $activeCycle?->id));
+            }
+        }
 
         $todayPlannedCount = $todayScheduledVisits->count();
         $todayCompletedCount = $todayScheduledVisits->where('status', 'completed')->count();
@@ -469,9 +477,13 @@ class DashboardController extends Controller
         if ($assignedDoctorsList->isEmpty()) {
             $assignedDoctorsList = Contact::with(['specialty', 'classification', 'city'])
                 ->where('is_active', true)
-                ->take(6)
+                ->take(8)
                 ->get();
             $assignedDoctorsCount = $assignedDoctorsList->count();
+        }
+
+        foreach ($assignedDoctorsList as $doc) {
+            $doc->quota_info = $doc->getVisitQuotaStatus($cycleId ?: $activeCycle?->id);
         }
 
         // 7. Doctor Classification Breakdown
@@ -508,12 +520,15 @@ class DashboardController extends Controller
 
         $avgVisitMinutes = 25;
         $focusProducts = Product::take(4)->get();
+        $availableProducts = Product::where('is_active', true)->select('id', 'name_en', 'name_ar')->orderBy('name_en')->get();
+        $allCycles = VisitCycle::latest('id')->get();
 
         return view('admin.mr.overview', [
             'repId' => $repId,
             'repUser' => $repUser,
             'medicalReps' => $medicalReps,
             'activeCycle' => $activeCycle,
+            'allCycles' => $allCycles,
             'daysRemainingInCycle' => $daysRemainingInCycle,
             'territoryName' => $territoryName,
             'todayAttendance' => $todayAttendance,
@@ -532,6 +547,7 @@ class DashboardController extends Controller
             'avgVisitMinutes' => $avgVisitMinutes,
             'recentExecutedVisits' => $executedVisits,
             'focusProducts' => $focusProducts,
+            'availableProducts' => $availableProducts,
             'currentView' => 'mr',
         ]);
     }
