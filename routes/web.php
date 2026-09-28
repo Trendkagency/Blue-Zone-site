@@ -80,3 +80,79 @@ Route::get('/clear-cache', function () {
         ], 500);
     }
 });
+
+// Fresh Default Products Utility Route (Truncates and puts the 4 default products with full Science Details)
+Route::get('/fresh-products', function () {
+    try {
+        $seeder = new \Database\Seeders\ProductSeeder();
+        $seeder->seedCategories();
+
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        \App\Models\Product::truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+
+        $seeder->seedProducts();
+
+        Artisan::call('optimize:clear');
+
+        $products = \App\Models\Product::with('category')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Fresh default 4 Blue Zone products created successfully with science details.',
+            'count' => $products->count(),
+            'products' => $products->map(fn ($p) => [
+                'id' => $p->id,
+                'slug' => $p->slug,
+                'sku' => $p->sku,
+                'name_en' => $p->name_en,
+                'name_ar' => $p->name_ar,
+                'category' => $p->category?->name_en,
+                'price' => $p->price,
+                'science_url' => url('/science/' . $p->slug),
+                'product_url' => url('/products/' . $p->slug),
+            ]),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to create fresh default products.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+})->name('products.fresh');
+
+// Seed/Update Default Products Utility Route (Updates/creates without wiping other data)
+Route::get('/seed-products', function () {
+    try {
+        $seeder = new \Database\Seeders\ProductSeeder();
+        $seeder->run();
+
+        Artisan::call('optimize:clear');
+
+        $products = \App\Models\Product::with('category')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Default 4 Blue Zone products seeded/updated successfully with science details.',
+            'count' => $products->count(),
+            'products' => $products->map(fn ($p) => [
+                'id' => $p->id,
+                'slug' => $p->slug,
+                'sku' => $p->sku,
+                'name_en' => $p->name_en,
+                'name_ar' => $p->name_ar,
+                'category' => $p->category?->name_en,
+                'price' => $p->price,
+                'science_url' => url('/science/' . $p->slug),
+                'product_url' => url('/products/' . $p->slug),
+            ]),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to seed default products.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+})->name('products.seed');

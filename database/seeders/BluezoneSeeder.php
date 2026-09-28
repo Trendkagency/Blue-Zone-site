@@ -217,60 +217,7 @@ class BluezoneSeeder extends Seeder
 
     private function seedProducts(): void
     {
-        foreach ($this->getProductsData() as $p) {
-            $category = Category::where('name_en', $p['category_en'] ?? '')->first();
-
-            Product::updateOrCreate(
-                ['slug' => $p['slug']],
-                [
-                    'slug'                 => $p['slug'],
-                    'sku'                  => $p['sku'],
-                    'barcode'              => $p['barcode'] ?? null,
-                    'name_en'              => $p['name_en'],
-                    'name_ar'              => $p['name_ar'],
-                    'tagline_en'           => $p['tagline_en'] ?? null,
-                    'tagline_ar'           => $p['tagline_ar'] ?? null,
-                    'category_id'          => $category?->id,
-                    'subcategory_en'       => $p['subcategory_en'] ?? null,
-                    'subcategory_ar'       => $p['subcategory_ar'] ?? null,
-                    'brand'                => $p['brand'] ?? 'Blue Zone Bioceuticals',
-                    'price'                => $p['price'],
-                    'sale_price'           => $p['sale_price'] ?? null,
-                    'cost_price'           => $p['cost_price'] ?? null,
-                    'is_featured'          => $p['is_featured'] ?? false,
-                    'is_best_seller'       => $p['is_best_seller'] ?? false,
-                    'is_new'               => $p['is_new'] ?? false,
-                    'is_active'            => true,
-                    'status'               => $p['status'] ?? 'active',
-                    'rating'               => $p['rating'] ?? 0,
-                    'reviews_count'        => $p['reviews_count'] ?? 0,
-                    'image'                => $p['image'] ?? null,
-                    'images'               => $p['images'] ?? null,
-                    'stock_online'         => $p['stock_online'] ?? 0,
-                    'stock_offline'        => $p['stock_offline'] ?? 0,
-                    'low_stock_threshold'  => $p['low_stock_threshold'] ?? 15,
-                    'short_description_en' => $p['short_description_en'] ?? null,
-                    'short_description_ar' => $p['short_description_ar'] ?? null,
-                    'description_en'       => $p['description_en'] ?? null,
-                    'description_ar'       => $p['description_ar'] ?? null,
-                    'usage_en'             => $p['usage_en'] ?? null,
-                    'usage_ar'             => $p['usage_ar'] ?? null,
-                    'science_en'           => $p['science_en'] ?? null,
-                    'science_ar'           => $p['science_ar'] ?? null,
-                    'benefits_en'          => $p['benefits_en'] ?? null,
-                    'benefits_ar'          => $p['benefits_ar'] ?? null,
-                    'ingredients'          => $p['ingredients'] ?? null,
-                    'clinical_mechanism'   => $p['professional_info']['clinical_mechanism'] ?? null,
-                    'formula_details'      => $p['professional_info']['formula_details'] ?? null,
-                    'contraindications'    => $p['professional_info']['contraindications'] ?? null,
-                    'warnings'             => $p['professional_info']['warnings'] ?? null,
-                    'target_gender'        => $p['gender'] ?? 'Unisex',
-                    'age_group'            => $p['age_group'] ?? '18+',
-                    'product_size'         => $p['package_size_en'] ?? null,
-                    'sort_order'           => $p['id'] ?? 0,
-                ]
-            );
-        }
+        (new ProductSeeder())->seedProducts();
     }
 
     /* ================================================================== */
