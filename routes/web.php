@@ -29,6 +29,12 @@ Route::post('/api/fcm/register-token', [\App\Http\Controllers\Admin\Notification
 Route::get('/api/geo/countries/{id}/cities', [\App\Http\Controllers\Admin\CityController::class, 'getCitiesByCountry'])
     ->name('api.geo.cities');
 
+// Public Order & Invoice Verification & QR Tracking Routes
+Route::get('/orders/track/{order}', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('orders.track');
+Route::get('/orders/verify/{order}', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('orders.verify');
+Route::get('/invoice/verify/{order}', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('invoice.verify');
+Route::get('/orders/{order}/download-invoice', [\App\Http\Controllers\OrderTrackingController::class, 'downloadInvoice'])->name('orders.download-invoice');
+
 // Load Customer, Admin, and MR Routes
 require __DIR__ . '/customer.php';
 require __DIR__ . '/admin.php';

@@ -841,26 +841,38 @@
                                             <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
                                         </button>
                                         <div x-show="open" @click.away="open = false" x-cloak class="origin-top-right absolute right-0 rtl:right-auto rtl:left-0 mt-1 w-48 rounded-xl shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-20 py-1 divide-y divide-gray-100 dark:divide-gray-700 text-xs">
-                                            <div class="py-1">
-                                                <button type="button" onclick="updateScheduleStatus({{ $visit->id }}, 'completed')" class="w-full text-start px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer">
-                                                    <i class="fa-solid fa-circle-check"></i>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'اعتماد كمكتملة' : 'Mark Completed' }}</span>
-                                                </button>
-                                                <button type="button" onclick="updateScheduleStatus({{ $visit->id }}, 'in_progress')" class="w-full text-start px-3 py-1.5 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 flex items-center gap-2 cursor-pointer">
-                                                    <i class="fa-solid fa-person-walking"></i>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'جارية بالميدان' : 'Mark In Progress' }}</span>
-                                                </button>
-                                                <button type="button" onclick="openRescheduleModal({{ $visit->id }}, '{{ $contact?->name }}', '{{ $visit->scheduled_at?->format('Y-m-d') }}', '{{ $visit->scheduled_at?->format('H:i') }}')" class="w-full text-start px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 flex items-center gap-2 cursor-pointer">
-                                                    <i class="fa-solid fa-calendar-days"></i>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'إعادة جدولة التاريخ/الوقت' : 'Reschedule Date/Time' }}</span>
-                                                </button>
-                                            </div>
-                                            <div class="py-1">
-                                                <button type="button" onclick="updateScheduleStatus({{ $visit->id }}, 'cancelled')" class="w-full text-start px-3 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer">
-                                                    <i class="fa-solid fa-ban"></i>
-                                                    <span>{{ app()->getLocale() === 'ar' ? 'إلغاء الموعد' : 'Cancel Visit' }}</span>
-                                                </button>
-                                            </div>
+                                            @if($visit->status === 'completed')
+                                                <div class="px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 flex items-center gap-2">
+                                                    <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'الزيارة مكتملة وموثقة' : 'Visit Completed & Verified' }}</span>
+                                                </div>
+                                            @elseif($visit->status === 'cancelled')
+                                                <div class="px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 flex items-center gap-2">
+                                                    <i class="fa-solid fa-ban text-rose-600"></i>
+                                                    <span>{{ app()->getLocale() === 'ar' ? 'الزيارة ملغاة' : 'Visit Cancelled' }}</span>
+                                                </div>
+                                            @else
+                                                <div class="py-1">
+                                                    <button type="button" onclick="openCompleteVisitModal({{ $visit->id }}, {{ $visit->mr_id }}, {{ $contact?->id ?? 0 }}, '{{ addslashes($contact?->name ?? '') }}', '{{ addslashes($contact?->hospital_clinic_name ?? '') }}', '{{ addslashes($contact?->specialty?->name ?? '') }}', '{{ $contact?->classification?->code ?? 'A' }}', '{{ $visit->scheduled_at?->format('Y-m-d') }}', '{{ $visit->scheduled_at?->format('H:i') }}')" class="w-full text-start px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 cursor-pointer font-bold">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                        <span>{{ app()->getLocale() === 'ar' ? 'اعتماد وتوثيق الزيارة' : 'Mark Completed & Log' }}</span>
+                                                    </button>
+                                                    <button type="button" onclick="updateScheduleStatus({{ $visit->id }}, 'in_progress')" class="w-full text-start px-3 py-1.5 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 flex items-center gap-2 cursor-pointer">
+                                                        <i class="fa-solid fa-person-walking"></i>
+                                                        <span>{{ app()->getLocale() === 'ar' ? 'جارية بالميدان' : 'Mark In Progress' }}</span>
+                                                    </button>
+                                                    <button type="button" onclick="openRescheduleModal({{ $visit->id }}, '{{ addslashes($contact?->name ?? '') }}', '{{ $visit->scheduled_at?->format('Y-m-d') }}', '{{ $visit->scheduled_at?->format('H:i') }}')" class="w-full text-start px-3 py-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 flex items-center gap-2 cursor-pointer">
+                                                        <i class="fa-solid fa-calendar-days"></i>
+                                                        <span>{{ app()->getLocale() === 'ar' ? 'إعادة جدولة التاريخ/الوقت' : 'Reschedule Date/Time' }}</span>
+                                                    </button>
+                                                </div>
+                                                <div class="py-1">
+                                                    <button type="button" onclick="updateScheduleStatus({{ $visit->id }}, 'cancelled')" class="w-full text-start px-3 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 cursor-pointer">
+                                                        <i class="fa-solid fa-ban"></i>
+                                                        <span>{{ app()->getLocale() === 'ar' ? 'إلغاء الموعد' : 'Cancel Visit' }}</span>
+                                                    </button>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -1176,102 +1188,208 @@
     @endif
 
     <!-- ==================== OPERATIONAL INTELLIGENCE & FIELD ACTIVITY WIDGETS ==================== -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <!-- 1. Doctor Classification & Coverage Breakdown -->
-        <div class="card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
-                <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-ranking-star text-amber-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'توزيع الأطباء حسب التصنيف' : 'Doctor Classification Distribution' }}</span>
-                </h3>
-                <a href="{{ route('admin.mr.classifications.index') }}" class="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline">
-                    {{ app()->getLocale() === 'ar' ? 'إدارة' : 'Manage' }}
-                </a>
-            </div>
-
-            <div class="space-y-3">
-                @foreach($classDistribution as $cls)
-                    <div class="p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs {{ $cls->code === 'A+' ? 'bg-amber-100 text-amber-900 border border-amber-300' : ($cls->code === 'A' ? 'bg-sky-100 text-sky-900' : 'bg-gray-100 text-gray-800') }}">
-                                {{ $cls->code }}
-                            </span>
-                            <div>
-                                <span class="font-bold text-xs text-gray-900 dark:text-white block">{{ $cls->label ?: 'Class ' . $cls->code }}</span>
-                                <span class="text-[10px] text-gray-500">{{ $cls->required_visits }} {{ app()->getLocale() === 'ar' ? 'زيارات مطلوبة' : 'required visits' }} • {{ $cls->points }} {{ app()->getLocale() === 'ar' ? 'نقاط' : 'pts' }}</span>
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <span class="text-sm font-black text-gray-900 dark:text-white">{{ $cls->contacts_count }}</span>
-                            <span class="text-[10px] text-gray-400 block">{{ app()->getLocale() === 'ar' ? 'طبيب' : 'doctors' }}</span>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- 2. Recent Live GPS Field Check-ins Feed -->
-        <div class="lg:col-span-2 card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl">
-            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                        <i class="fa-solid fa-satellite-dish text-emerald-500"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'آخر تسجيلات الوصول المباشرة في الميدان (Live GPS Stream)' : 'Real-Time Field Check-In Feed (GPS Audit)' }}</span>
+    @if(!$isRep)
+        <!-- ADMIN & LINE MANAGER VIEW: Global Doctor Classification Breakdown & Real-Time Live GPS Stream -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- 1. Doctor Classification & Coverage Breakdown -->
+            <div class="card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-amber-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'توزيع الأطباء حسب التصنيف' : 'Doctor Classification Distribution' }}</span>
                     </h3>
+                    <a href="{{ route('admin.mr.classifications.index') }}" class="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline">
+                        {{ app()->getLocale() === 'ar' ? 'إدارة' : 'Manage' }}
+                    </a>
                 </div>
-                <a href="{{ route('admin.mr.visits.index') }}" class="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline">
-                    {{ app()->getLocale() === 'ar' ? 'سجل الزيارات الكامل ↗' : 'View Full Visits Log ↗' }}
-                </a>
-            </div>
 
-            @if($recentCheckins->isEmpty())
-                <div class="text-center py-10 text-gray-400 text-xs italic">
-                    {{ app()->getLocale() === 'ar' ? 'لا توجد تسجيلات وصول ميدانية مسجلة حتى الآن' : 'No field check-ins recorded yet.' }}
-                </div>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    @foreach($recentCheckins as $chk)
-                        <div class="p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex items-start justify-between gap-2 text-xs">
-                            <div>
-                                <div class="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                                    <i class="fa-solid fa-user-doctor text-cyan-500 text-[11px]"></i>
-                                    <span>{{ preg_match('/^(dr\.|د\.|د\/|dr )/i', trim($chk->contact?->name ?? '')) ? $chk->contact?->name : 'Dr. ' . ($chk->contact?->name ?? 'Doctor') }}</span>
-                                </div>
-                                <div class="text-[11px] text-gray-500 mt-0.5 flex items-center gap-1">
-                                    <span>Rep:</span>
-                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $chk->representative?->name }}</span>
-                                    <span>•</span>
-                                    <span>{{ $chk->contact?->city?->name }}</span>
-                                </div>
-                                <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
-                                    <i class="fa-regular fa-clock"></i>
-                                    <span>{{ $chk->checkin_at ? $chk->checkin_at->diffForHumans() : '—' }}</span>
+                <div class="space-y-3">
+                    @foreach($classDistribution as $cls)
+                        <div class="p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs {{ $cls->code === 'A+' ? 'bg-amber-100 text-amber-900 border border-amber-300' : ($cls->code === 'A' ? 'bg-sky-100 text-sky-900' : 'bg-gray-100 text-gray-800') }}">
+                                    {{ $cls->code }}
+                                </span>
+                                <div>
+                                    <span class="font-bold text-xs text-gray-900 dark:text-white block">{{ $cls->label ?: 'Class ' . $cls->code }}</span>
+                                    <span class="text-[10px] text-gray-500">{{ $cls->required_visits }} {{ app()->getLocale() === 'ar' ? 'زيارات مطلوبة' : 'required visits' }} • {{ $cls->points }} {{ app()->getLocale() === 'ar' ? 'نقاط' : 'pts' }}</span>
                                 </div>
                             </div>
-
-                            <div class="text-end flex-shrink-0">
-                                @if($chk->gps_verified)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                                        <i class="fa-solid fa-circle-check text-[9px]"></i>
-                                        <span>GPS Verified</span>
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                                        <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
-                                        <span>Manual/Flag</span>
-                                    </span>
-                                @endif
-                                @if($chk->distance_from_contact_m)
-                                    <span class="text-[10px] text-gray-400 block mt-1">{{ round($chk->distance_from_contact_m) }}m away</span>
-                                @endif
+                            <div class="text-end">
+                                <span class="text-sm font-black text-gray-900 dark:text-white">{{ $cls->contacts_count }}</span>
+                                <span class="text-[10px] text-gray-400 block">{{ app()->getLocale() === 'ar' ? 'طبيب' : 'doctors' }}</span>
                             </div>
                         </div>
                     @endforeach
                 </div>
-            @endif
+            </div>
+
+            <!-- 2. Recent Live GPS Field Check-ins Feed -->
+            <div class="lg:col-span-2 card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-satellite-dish text-emerald-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'آخر تسجيلات الوصول المباشرة في الميدان' : 'Real-Time Field Check-In Feed' }}</span>
+                        </h3>
+                    </div>
+                    <a href="{{ route('admin.mr.visits.index') }}" class="text-xs text-cyan-600 dark:text-cyan-400 font-bold hover:underline">
+                        {{ app()->getLocale() === 'ar' ? 'سجل الزيارات الكامل ↗' : 'View Full Visits Log ↗' }}
+                    </a>
+                </div>
+
+                @if($recentCheckins->isEmpty())
+                    <div class="text-center py-10 text-gray-400 text-xs italic">
+                        {{ app()->getLocale() === 'ar' ? 'لا توجد تسجيلات وصول ميدانية مسجلة حتى الآن' : 'No field check-ins recorded yet.' }}
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @foreach($recentCheckins as $chk)
+                            <div class="p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex items-start justify-between gap-2 text-xs">
+                                <div>
+                                    <div class="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                        <i class="fa-solid fa-user-doctor text-cyan-500 text-[11px]"></i>
+                                        <span>{{ preg_match('/^(dr\.|د\.|د\/|dr )/i', trim($chk->contact?->name ?? '')) ? $chk->contact?->name : 'Dr. ' . ($chk->contact?->name ?? 'Doctor') }}</span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-500 mt-0.5 flex items-center gap-1">
+                                        <span>Rep:</span>
+                                        <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $chk->representative?->name }}</span>
+                                        <span>•</span>
+                                        <span>{{ $chk->contact?->city?->name }}</span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>{{ $chk->checkin_at ? $chk->checkin_at->diffForHumans() : '—' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="text-end flex-shrink-0">
+                                    @if($chk->gps_verified)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                            <i class="fa-solid fa-circle-check text-[9px]"></i>
+                                            <span>GPS Verified</span>
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                                            <i class="fa-solid fa-triangle-exclamation text-[9px]"></i>
+                                            <span>Manual/Flag</span>
+                                        </span>
+                                    @endif
+                                    @if($chk->distance_from_contact_m)
+                                        <span class="text-[10px] text-gray-400 block mt-1">{{ round($chk->distance_from_contact_m) }}m away</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
-    </div>
+    @else
+        <!-- MEDICAL REPRESENTATIVE (MR) VIEW: Personal Portfolio Breakdown & Personal Completed Visits Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- 1. MR Personal Assigned Portfolio Progress by Class -->
+            <div class="card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-user-doctor text-indigo-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'توزيع محفظة أطبائي حسب التصنيف' : 'My Portfolio by Classification' }}</span>
+                    </h3>
+                    <span class="text-xs font-black px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300">
+                        {{ $kpis['cycle_total_assigned'] ?? 0 }} {{ app()->getLocale() === 'ar' ? 'طبيب معين' : 'Doctors' }}
+                    </span>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach($repClassDistribution as $cls)
+                        <div class="p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/40">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs {{ $cls->code === 'A+' ? 'bg-amber-100 text-amber-900 border border-amber-300' : ($cls->code === 'A' ? 'bg-sky-100 text-sky-900' : 'bg-gray-100 text-gray-800') }}">
+                                        {{ $cls->code }}
+                                    </span>
+                                    <div>
+                                        <span class="font-bold text-xs text-gray-900 dark:text-white block">{{ $cls->label ?: 'Class ' . $cls->code }}</span>
+                                        <span class="text-[10px] text-gray-500">{{ $cls->doctors_count }} {{ app()->getLocale() === 'ar' ? 'أطباء معينين' : 'assigned doctors' }} • {{ $cls->points }} {{ app()->getLocale() === 'ar' ? 'نقاط' : 'pts' }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-xs font-black text-gray-900 dark:text-white">{{ $cls->visits_done }} / {{ $cls->target_visits }}</span>
+                                    <span class="text-[10px] font-bold text-cyan-600 dark:text-cyan-400 block">{{ $cls->compliance_pct }}%</span>
+                                </div>
+                            </div>
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-cyan-500 to-indigo-600 h-1.5 rounded-full transition-all duration-500" style="width: {{ min(100, $cls->compliance_pct) }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- 2. MR Personal Recent Completed Visits Feed & Detailing Highlights -->
+            <div class="lg:col-span-2 card p-5 bg-white dark:bg-gray-800 shadow-sm rounded-2xl border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <h3 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-clipboard-check text-emerald-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل زياراتي الميدانية المنفذة حديثاً' : 'My Recent Executed Field Visits' }}</span>
+                        </h3>
+                    </div>
+                    <button type="button" onclick="openRecordDirectModal('{{ $currentUser->id }}')" class="btn btn-primary text-xs py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-1 font-bold cursor-pointer">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'تسجيل زيارة مباشرة' : 'Log Direct Visit' }}</span>
+                    </button>
+                </div>
+
+                @if($recentCheckins->isEmpty())
+                    <div class="text-center py-10 text-gray-400 text-xs italic">
+                        <i class="fa-solid fa-notes-medical text-2xl text-gray-300 dark:text-gray-600 mb-2 block"></i>
+                        {{ app()->getLocale() === 'ar' ? 'لم تقم بتسجيل زيارات منفذة بعد في هذه الدورة' : 'No executed visits logged yet for this cycle.' }}
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @foreach($recentCheckins as $chk)
+                            <div class="p-3.5 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex flex-col justify-between text-xs hover:border-cyan-400 transition-colors">
+                                <div>
+                                    <div class="flex items-start justify-between gap-2 mb-1.5">
+                                        <div class="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                                            <i class="fa-solid fa-user-doctor text-cyan-500 text-[11px]"></i>
+                                            <span>{{ preg_match('/^(dr\.|د\.|د\/|dr )/i', trim($chk->contact?->name ?? '')) ? $chk->contact?->name : 'Dr. ' . ($chk->contact?->name ?? 'Doctor') }}</span>
+                                        </div>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                            {{ ucfirst(str_replace('_', ' ', $chk->outcome ?: 'Completed')) }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[11px] text-gray-500">
+                                        {{ $chk->contact?->hospital_clinic_name }} • {{ $chk->contact?->specialty?->name }}
+                                    </div>
+                                    @if($chk->notes)
+                                        <div class="text-[10px] text-gray-600 dark:text-gray-400 italic mt-1 line-clamp-1 bg-white dark:bg-gray-800/80 p-1.5 rounded-md border border-gray-100 dark:border-gray-700">
+                                            "{{ $chk->notes }}"
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="flex items-center justify-between pt-2 mt-2 border-t border-gray-100 dark:border-gray-700/60 text-[10px] text-gray-400">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>{{ $chk->checkin_at ? $chk->checkin_at->format('Y-m-d H:i') : '—' }}</span>
+                                    </span>
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-check-circle"></i>
+                                        <span>+{{ $chk->contact?->classification?->points ?? 100 }} {{ app()->getLocale() === 'ar' ? 'نقطة' : 'pts' }}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
 
     <!-- ==================== MODALS, SLIDE-OVERS & CONTEXT MENUS ==================== -->
 
@@ -1314,7 +1432,10 @@
                     <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-700">
                         <div class="flex items-center justify-between mb-1">
                             <span id="calModalDoctor" class="font-black text-sm text-gray-900 dark:text-white">Doctor Name</span>
-                            <span id="calModalClass" class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-900">Class</span>
+                            <div class="flex items-center gap-1.5">
+                                <span id="calModalStatusBadge" class="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900">Planned</span>
+                                <span id="calModalClass" class="px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-900">Class</span>
+                            </div>
                         </div>
                         <div id="calModalClinic" class="text-gray-500 text-[11px]">Clinic</div>
                         <div id="calModalSpecialty" class="text-cyan-600 font-semibold text-[11px] mt-0.5">Specialty</div>
@@ -1339,8 +1460,14 @@
                         "<span id="calModalNotes">Notes</span>"
                     </div>
 
+                    <!-- Completed Banner -->
+                    <div id="calModalCompletedBanner" class="hidden py-2.5 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-200 dark:border-emerald-800 shadow-sm">
+                        <i class="fa-solid fa-circle-check text-sm text-emerald-600"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'الزيارة مسجلة وموثقة كمكتملة بالكامل' : 'This visit is already recorded as completed' }}</span>
+                    </div>
+
                     <!-- Action Buttons -->
-                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <div id="calModalActionsWrap" class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
                         <button type="button" id="calModalDoneBtn" class="btn btn-primary text-xs py-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1.5 cursor-pointer">
                             <i class="fa-solid fa-check"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'اعتماد كمكتمل' : 'Mark Completed' }}</span>
@@ -1767,44 +1894,62 @@
         </div>
     </div>
 
-    <!-- MODAL 4: DIRECT VISIT ENTRY LOGGER -->
+    <!-- MODAL 4: DIRECT VISIT ENTRY & SCHEDULED VISIT COMPLETION LOGGER -->
     <div id="recordDirectModal" class="fixed inset-0 overflow-y-auto hidden" style="z-index: 99999;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity cursor-pointer" onclick="closeRecordDirectModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
             <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left rtl:text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-200 dark:border-gray-700">
-                <form action="{{ route('admin.mr.visits.quick-record') }}" method="POST">
+                <form action="{{ route('admin.mr.visits.quick-record') }}" method="POST" id="recordDirectForm">
                     @csrf
+                    <input type="hidden" name="scheduled_visit_id" id="directRecordScheduledVisitId" value="">
+
                     <div class="p-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-xl"></i>
-                            <h3 class="text-base font-black">{{ app()->getLocale() === 'ar' ? 'تسجيل واعتماد زيارة ميدانية منفذة' : 'Log Direct Executed Visit' }}</h3>
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center font-black text-white text-base shadow-sm">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                            <div>
+                                <h3 id="recordDirectModalTitle" class="text-base font-black">{{ app()->getLocale() === 'ar' ? 'تسجيل وتوثيق الزيارة الميدانية' : 'Complete & Document Visit Report' }}</h3>
+                                <p id="recordDirectModalSubtitle" class="text-xs text-emerald-100">{{ app()->getLocale() === 'ar' ? 'توثيق مخرجات المقابلة والأصناف المروجة واحتساب النقاط' : 'Record detailing outcomes, promoted products, and credit points' }}</p>
+                            </div>
                         </div>
-                        <button type="button" onclick="closeRecordDirectModal()" class="text-white/80 hover:text-white cursor-pointer">
+                        <button type="button" onclick="closeRecordDirectModal()" class="text-white/80 hover:text-white cursor-pointer p-1">
                             <i class="fa-solid fa-xmark text-lg"></i>
                         </button>
                     </div>
 
-                    <div class="p-6 space-y-4">
+                    <div class="p-6 space-y-4 text-xs sm:text-sm">
+                        <!-- Prefilled Doctor Card (Shown when completing a specific visit) -->
+                        <div id="directRecordDoctorCard" class="hidden p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+                            <div class="flex items-center justify-between mb-1">
+                                <span id="directRecordDoctorName" class="font-black text-sm text-gray-900 dark:text-white">Doctor Name</span>
+                                <span id="directRecordDoctorClass" class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-900">Class A+</span>
+                            </div>
+                            <div id="directRecordDoctorClinic" class="text-gray-600 dark:text-gray-300 text-xs">Clinic</div>
+                            <div id="directRecordDoctorSpecialty" class="text-cyan-600 dark:text-cyan-400 font-semibold text-xs mt-0.5">Specialty</div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3">
+                            <!-- Rep Selection -->
                             @if($isRep)
                                 <input type="hidden" name="mr_id" id="directRecordRepSelect" value="{{ $currentUser->id }}">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                                         {{ app()->getLocale() === 'ar' ? 'المندوب الطبي' : 'Representative' }}
                                     </label>
-                                    <div class="p-2 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                    <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
                                         <span class="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">{{ substr($currentUser->name, 0, 1) }}</span>
-                                        <span>{{ $currentUser->name }}</span>
+                                        <span class="truncate">{{ $currentUser->name }}</span>
                                     </div>
                                 </div>
                             @else
-                                <div>
+                                <div id="directRecordRepSelectWrap">
                                     <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                                         {{ app()->getLocale() === 'ar' ? 'المندوب الطبي *' : 'Representative *' }}
                                     </label>
                                     <select name="mr_id" id="directRecordRepSelect" required class="form-select w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
-                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر --' : '-- Select --' }}</option>
+                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المندوب --' : '-- Select --' }}</option>
                                         @foreach($medicalReps as $rep)
                                             <option value="{{ $rep->id }}" {{ $selectedMrId == $rep->id ? 'selected' : '' }}>
                                                 {{ $rep->name }}
@@ -1813,59 +1958,68 @@
                                     </select>
                                 </div>
                             @endif
+
                             <div>
                                 <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                                     {{ app()->getLocale() === 'ar' ? 'تاريخ ووقت الزيارة *' : 'Visit Timestamp *' }}
                                 </label>
-                                <input type="datetime-local" name="visited_at" value="{{ now()->format('Y-m-d\TH:i') }}" required class="form-input w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
+                                <input type="datetime-local" name="visited_at" id="directRecordVisitedAt" value="{{ now()->format('Y-m-d\TH:i') }}" required class="form-input w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
                             </div>
                         </div>
 
-                        <div>
+                        <!-- Doctor Select Wrap (Used for direct visit creation) -->
+                        <div id="directRecordDoctorSelectWrap">
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
                                 {{ app()->getLocale() === 'ar' ? 'الطبيب المزار *' : 'Visited Doctor *' }}
                             </label>
-                            <select name="contact_id" required class="form-select w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
+                            <select name="contact_id" id="directRecordDoctorSelect" required class="form-select w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
                                 <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الطبيب --' : '-- Select Doctor --' }}</option>
                                 @foreach($availableDoctors as $doc)
                                     <option value="{{ $doc->id }}">
-                                        {{ preg_match('/^(dr\.|د\.|د\/|dr )/i', trim($doc->name)) ? $doc->name : 'Dr. ' . $doc->name }} ({{ $doc->hospital_clinic_name }})
+                                        {{ preg_match('/^(dr\.|د\.|د\/|dr )/i', trim($doc->name)) ? $doc->name : 'Dr. ' . $doc->name }} ({{ $doc->specialty?->name ?? 'Spec' }} - Class {{ $doc->classification?->code ?? 'C' }}) - {{ $doc->hospital_clinic_name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
+                        <!-- Outcome Selection -->
                         <div>
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                {{ app()->getLocale() === 'ar' ? 'نتيجة الزيارة *' : 'Visit Outcome *' }}
+                                {{ app()->getLocale() === 'ar' ? 'نتيجة وتجاوب الطبيب *' : 'Visit Outcome *' }}
                             </label>
-                            <select name="outcome" required class="form-select w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900">
-                                <option value="successful">ناجحة ومفيدة (Successful)</option>
-                                <option value="doctor_interested">الطبيب مهتم ومتحمس (Doctor Interested)</option>
-                                <option value="order_placed">تم طلب كمية / طلبية (Order Placed)</option>
-                                <option value="neutral">عادية / محايدة (Neutral)</option>
-                                <option value="doctor_busy">الطبيب كان مشغولاً (Doctor Busy)</option>
+                            <select name="outcome" id="directRecordOutcome" required class="form-select w-full text-xs py-2 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 font-bold text-emerald-800 dark:text-emerald-300">
+                                <option value="successful">✨ {{ app()->getLocale() === 'ar' ? 'ناجحة ومفيدة جداً (دعاية وموافقة الطبيب)' : 'Successful (High Detailing & Acceptance)' }}</option>
+                                <option value="doctor_interested" selected>👍 {{ app()->getLocale() === 'ar' ? 'الطبيب مهتم بالصنف ومتحمس' : 'Doctor Interested' }}</option>
+                                <option value="order_placed">📦 {{ app()->getLocale() === 'ar' ? 'تم تأكيد طلبية / روشتات فعلية' : 'Order Placed / Prescribed' }}</option>
+                                <option value="neutral">⚖️ {{ app()->getLocale() === 'ar' ? 'عادية / محايدة' : 'Neutral' }}</option>
+                                <option value="doctor_busy">⏳ {{ app()->getLocale() === 'ar' ? 'الطبيب كان مشغولاً / مقابلة سريعة' : 'Doctor Busy / Short Visit' }}</option>
                             </select>
                         </div>
 
                         <!-- Sample Products Promoted -->
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                {{ app()->getLocale() === 'ar' ? 'الأصناف المروجة / العينات المسلمة *' : 'Promoted Products / Samples *' }}
-                            </label>
-                            <select name="product_ids[]" multiple required class="form-select w-full text-xs py-1.5 rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 h-20">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                                    {{ app()->getLocale() === 'ar' ? 'الأصناف المروجة / العينات المسلمة *' : 'Promoted Products / Samples *' }}
+                                </label>
+                                <span class="text-[10px] text-gray-400">{{ app()->getLocale() === 'ar' ? 'حدد المنتجات التي تمت مناقشتها' : 'Select presented products' }}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/40" id="directRecordProductCheckboxes">
                                 @foreach($products as $prod)
-                                    <option value="{{ $prod->id }}">{{ $prod->name_en }} ({{ $prod->name_ar }})</option>
+                                    <label class="flex items-center gap-2 p-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-emerald-400 cursor-pointer text-xs">
+                                        <input type="checkbox" name="product_ids[]" value="{{ $prod->id }}" class="direct-product-checkbox rounded text-emerald-600 focus:ring-emerald-500" {{ $loop->first ? 'checked' : '' }}>
+                                        <span class="truncate font-semibold text-gray-800 dark:text-gray-200">{{ $prod->name_en }}</span>
+                                    </label>
                                 @endforeach
-                            </select>
-                            <span class="text-[10px] text-gray-400 block mt-1">{{ app()->getLocale() === 'ar' ? 'اضغط Ctrl لاختيار أكثر من صنف' : 'Hold Ctrl to select multiple products' }}</span>
+                            </div>
                         </div>
 
+                        <!-- Notes & Detailing Feedback -->
                         <div>
                             <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
-                                {{ app()->getLocale() === 'ar' ? 'تقرير وملاحظات المقابلة *' : 'Feedback Notes *' }}
+                                {{ app()->getLocale() === 'ar' ? 'تقرير وملاحظات المقابلة التفصيلية *' : 'Feedback Notes *' }}
                             </label>
-                            <textarea name="notes" rows="2" required placeholder="{{ app()->getLocale() === 'ar' ? 'ملخص ما تم في الزيارة وتجاوب الطبيب...' : 'Summary of doctor discussion...' }}" class="form-input w-full text-xs rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"></textarea>
+                            <textarea name="notes" id="directRecordNotes" rows="2.5" required placeholder="{{ app()->getLocale() === 'ar' ? 'ملخص ما تم في الزيارة وتجاوب الطبيب والملاحظات السريرية...' : 'Summary of clinical discussion, doctor feedback, and agreement...' }}" class="form-input w-full text-xs rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"></textarea>
                         </div>
                     </div>
 
@@ -1873,8 +2027,9 @@
                         <button type="button" onclick="closeRecordDirectModal()" class="btn btn-secondary text-xs font-bold py-2 px-4 cursor-pointer">
                             {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                         </button>
-                        <button type="submit" class="btn btn-primary text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-5 shadow-sm cursor-pointer">
-                            <i class="fa-solid fa-check mr-1"></i> {{ app()->getLocale() === 'ar' ? 'تسجيل واعتماد' : 'Record & Verify' }}
+                        <button type="submit" class="btn btn-primary text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-5 shadow-sm cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-check"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'اعتماد واحتساب النقاط' : 'Submit & Credit Points' }}</span>
                         </button>
                     </div>
                 </form>
@@ -1993,15 +2148,77 @@
             document.body.style.overflow = '';
         }
 
-        function openRecordDirectModal(repId = null, dateVal = null) {
+        function openRecordDirectModal(repId = null, dateVal = null, timeVal = null) {
+            document.getElementById('directRecordScheduledVisitId').value = '';
+            document.getElementById('directRecordDoctorCard').classList.add('hidden');
+            document.getElementById('directRecordDoctorSelectWrap').classList.remove('hidden');
+            const docSel = document.getElementById('directRecordDoctorSelect');
+            if (docSel) docSel.required = true;
+            document.getElementById('directRecordModalTitle').textContent = '{{ app()->getLocale() === "ar" ? "تسجيل واعتماد زيارة ميدانية منفذة" : "Log Direct Executed Visit" }}';
+            document.getElementById('directRecordNotes').value = '';
+
             if (repId) {
                 const sel = document.getElementById('directRecordRepSelect');
                 if (sel) sel.value = repId;
             }
+
+            const now = new Date();
+            const datePart = dateVal || now.toISOString().split('T')[0];
+            const timePart = timeVal || String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const visitedAtInput = document.getElementById('directRecordVisitedAt');
+            if (visitedAtInput) visitedAtInput.value = `${datePart}T${timePart}`;
+
             document.getElementById('recordDirectModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             closeContextMenu();
         }
+
+        function openCompleteVisitModal(visitId, mrId = null, contactId = null, doctorName = '', clinicName = '', specialty = '', classification = '', scheduledDate = '', scheduledTime = '') {
+            closeCalendarEventModal();
+            closeContextMenu();
+
+            document.getElementById('directRecordScheduledVisitId').value = visitId;
+            
+            const docCard = document.getElementById('directRecordDoctorCard');
+            const docSelectWrap = document.getElementById('directRecordDoctorSelectWrap');
+            const docSelect = document.getElementById('directRecordDoctorSelect');
+
+            if (contactId && docSelect) {
+                docSelect.value = contactId;
+            }
+
+            if (doctorName) {
+                const cleanDoc = doctorName.startsWith('Dr.') || doctorName.startsWith('د.') ? doctorName : 'Dr. ' + doctorName;
+                document.getElementById('directRecordDoctorName').textContent = cleanDoc;
+                document.getElementById('directRecordDoctorClinic').textContent = clinicName || 'Clinic';
+                document.getElementById('directRecordDoctorSpecialty').textContent = specialty || '';
+                document.getElementById('directRecordDoctorClass').textContent = 'Class ' + (classification || 'A');
+                docCard.classList.remove('hidden');
+                docSelectWrap.classList.add('hidden');
+                if (docSelect) docSelect.required = false;
+            } else {
+                docCard.classList.add('hidden');
+                docSelectWrap.classList.remove('hidden');
+                if (docSelect) docSelect.required = true;
+            }
+
+            document.getElementById('directRecordModalTitle').textContent = '{{ app()->getLocale() === "ar" ? "اعتماد وتوثيق تقرير الزيارة المكتملة" : "Complete & Document Visit Report" }}';
+
+            if (mrId) {
+                const repSelect = document.getElementById('directRecordRepSelect');
+                if (repSelect) repSelect.value = mrId;
+            }
+
+            const now = new Date();
+            const datePart = scheduledDate || now.toISOString().split('T')[0];
+            const timePart = scheduledTime || String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const visitedAtInput = document.getElementById('directRecordVisitedAt');
+            if (visitedAtInput) visitedAtInput.value = `${datePart}T${timePart}`;
+
+            document.getElementById('recordDirectModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
         function closeRecordDirectModal() {
             document.getElementById('recordDirectModal').classList.add('hidden');
             document.body.style.overflow = '';
@@ -2361,6 +2578,10 @@
         // Event Details Modal Handlers
         function openCalendarEventModal(event) {
             const p = event.extendedProps || {};
+            const status = (p.status || 'planned').toLowerCase();
+            const isCompleted = status === 'completed';
+            const isCancelled = status === 'cancelled';
+
             document.getElementById('calModalTitle').textContent = event.title;
             document.getElementById('calModalTime').textContent = (p.scheduled_date || '') + ' • ' + (p.time_formatted || '');
             document.getElementById('calModalDoctor').textContent = p.doctor_name || event.title;
@@ -2371,6 +2592,20 @@
             document.getElementById('calModalRepName').textContent = p.mr_name || 'Rep';
             document.getElementById('calModalRepTerritory').textContent = p.rep_territory || 'Territory';
             
+            const statusBadge = document.getElementById('calModalStatusBadge');
+            if (statusBadge) {
+                statusBadge.textContent = (p.status || 'planned').toUpperCase();
+                if (isCompleted) {
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+                } else if (status === 'in_progress') {
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300';
+                } else if (isCancelled) {
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+                } else {
+                    statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+                }
+            }
+
             if (p.notes) {
                 document.getElementById('calModalNotes').textContent = p.notes;
                 document.getElementById('calModalNotesWrap').style.display = 'block';
@@ -2378,10 +2613,38 @@
                 document.getElementById('calModalNotesWrap').style.display = 'none';
             }
 
+            // Completed Banner & Action Buttons visibility logic
+            const completedBanner = document.getElementById('calModalCompletedBanner');
+            const actionsWrap = document.getElementById('calModalActionsWrap');
+            const cancelBtn = document.getElementById('calModalCancelBtn');
+
+            if (isCompleted) {
+                if (completedBanner) completedBanner.classList.remove('hidden');
+                if (actionsWrap) actionsWrap.style.display = 'none';
+                if (cancelBtn) cancelBtn.style.display = 'none';
+            } else if (isCancelled) {
+                if (completedBanner) completedBanner.classList.add('hidden');
+                if (actionsWrap) actionsWrap.style.display = 'none';
+                if (cancelBtn) cancelBtn.style.display = 'none';
+            } else {
+                if (completedBanner) completedBanner.classList.add('hidden');
+                if (actionsWrap) actionsWrap.style.display = 'grid';
+                if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            }
+
             // Buttons
             document.getElementById('calModalDoneBtn').onclick = function() {
-                closeCalendarEventModal();
-                updateScheduleStatus(p.visit_id, 'completed');
+                openCompleteVisitModal(
+                    p.visit_id,
+                    p.mr_id,
+                    p.contact_id,
+                    p.doctor_name || event.title,
+                    p.clinic_name,
+                    p.specialty,
+                    p.classification,
+                    p.scheduled_date,
+                    p.scheduled_time
+                );
             };
 
             document.getElementById('calModalRescheduleBtn').onclick = function() {
@@ -2439,22 +2702,31 @@
             const visitId = p.visit_id;
             const docName = p.doctor_name || event.title;
             const mrId = p.mr_id;
-            const status = p.status || 'planned';
+            const status = (p.status || 'planned').toLowerCase();
+            const isCompleted = status === 'completed';
+            const isCancelled = status === 'cancelled';
 
-            let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-${status === 'completed' ? 'emerald' : (status === 'in_progress' ? 'cyan' : 'amber')}-100 text-${status === 'completed' ? 'emerald' : (status === 'in_progress' ? 'cyan' : 'amber')}-800">${status}</span>`;
+            let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-${isCompleted ? 'emerald' : (status === 'in_progress' ? 'cyan' : (isCancelled ? 'rose' : 'amber'))}-100 text-${isCompleted ? 'emerald' : (status === 'in_progress' ? 'cyan' : (isCancelled ? 'rose' : 'amber'))}-800">${status.toUpperCase()}</span>`;
 
-            menu.innerHTML = `
-                <div class="px-3 py-2 bg-gray-50/90 dark:bg-gray-900/70 rounded-t-xl mb-1 flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700/60">
-                    <div class="truncate">
-                        <span class="font-extrabold text-gray-900 dark:text-white block truncate text-xs">${docName}</span>
-                        <span class="text-[10px] text-gray-500 block truncate">${p.clinic_name || ''} ${p.specialty ? '• ' + p.specialty : ''}</span>
-                    </div>
-                    ${statusBadge}
-                </div>
+            let actionSectionHtml = '';
+            if (isCompleted) {
+                actionSectionHtml = `
+                <div class="px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg mx-2 my-1 flex items-center gap-2 border border-emerald-200 dark:border-emerald-800">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'الزيارة مكتملة وموثقة' : 'Visit Completed & Verified' }}</span>
+                </div>`;
+            } else if (isCancelled) {
+                actionSectionHtml = `
+                <div class="px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 rounded-lg mx-2 my-1 flex items-center gap-2 border border-rose-200 dark:border-rose-800">
+                    <i class="fa-solid fa-ban text-rose-600 text-sm"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'الزيارة ملغاة' : 'Visit Cancelled' }}</span>
+                </div>`;
+            } else {
+                actionSectionHtml = `
                 <div class="py-1">
-                    <button type="button" onclick="updateScheduleStatus(${visitId}, 'completed')" class="w-full text-start px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 font-bold cursor-pointer">
+                    <button type="button" onclick="openCompleteVisitModal(${visitId}, ${mrId}, ${p.contact_id || 0}, '${docName.replace(/'/g, "\\'")}', '${(p.clinic_name || '').replace(/'/g, "\\'")}', '${(p.specialty || '').replace(/'/g, "\\'")}', '${p.classification || 'A'}', '${p.scheduled_date || ""}', '${p.scheduled_time || ""}')" class="w-full text-start px-3 py-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 flex items-center gap-2 font-bold cursor-pointer">
                         <i class="fa-solid fa-circle-check text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'اعتماد كمكتملة' : 'Mark Completed' }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اعتماد وتوثيق الزيارة' : 'Mark Completed & Log' }}</span>
                     </button>
                     <button type="button" onclick="updateScheduleStatus(${visitId}, 'in_progress')" class="w-full text-start px-3 py-1.5 text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 flex items-center gap-2 font-bold cursor-pointer">
                         <i class="fa-solid fa-person-walking text-xs"></i>
@@ -2464,8 +2736,42 @@
                         <i class="fa-solid fa-clock-rotate-left text-xs"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'إعادة جدولة التاريخ/الوقت' : 'Reschedule Date/Time' }}</span>
                     </button>
+                </div>`;
+            }
+
+            let dangerSectionHtml = '';
+            if (!isCompleted && !isCancelled) {
+                dangerSectionHtml = `
+                <div class="py-1 border-t border-gray-100 dark:border-gray-700/60">
+                    <button type="button" onclick="updateScheduleStatus(${visitId}, 'cancelled')" class="w-full text-start px-3 py-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 flex items-center gap-2 font-bold cursor-pointer">
+                        <i class="fa-solid fa-ban text-xs"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'إلغاء الموعد' : 'Cancel Visit' }}</span>
+                    </button>
+                    <button type="button" onclick="deleteScheduleAction(${visitId})" class="w-full text-start px-3 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 font-bold cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'حذف الموعد' : 'Delete Visit' }}</span>
+                    </button>
+                </div>`;
+            } else {
+                dangerSectionHtml = `
+                <div class="py-1 border-t border-gray-100 dark:border-gray-700/60">
+                    <button type="button" onclick="deleteScheduleAction(${visitId})" class="w-full text-start px-3 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 font-bold cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'حذف الموعد' : 'Delete Visit' }}</span>
+                    </button>
+                </div>`;
+            }
+
+            menu.innerHTML = `
+                <div class="px-3 py-2 bg-gray-50/90 dark:bg-gray-900/70 rounded-t-xl mb-1 flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700/60">
+                    <div class="truncate">
+                        <span class="font-extrabold text-gray-900 dark:text-white block truncate text-xs">${docName}</span>
+                        <span class="text-[10px] text-gray-500 block truncate">${p.clinic_name || ''} ${p.specialty ? '• ' + p.specialty : ''}</span>
+                    </div>
+                    ${statusBadge}
                 </div>
-                <div class="py-1">
+                ${actionSectionHtml}
+                <div class="py-1 border-t border-gray-100 dark:border-gray-700/60">
                     <button type="button" onclick="openRepDrawer(${mrId})" class="w-full text-start px-3 py-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 flex items-center gap-2 cursor-pointer font-semibold">
                         <i class="fa-solid fa-id-card text-xs text-indigo-500"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'ملف المندوب 360°' : 'Rep 360° Dossier' }}</span>
@@ -2493,16 +2799,7 @@
                     </a>
                     ` : ''}
                 </div>
-                <div class="py-1">
-                    <button type="button" onclick="updateScheduleStatus(${visitId}, 'cancelled')" class="w-full text-start px-3 py-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 flex items-center gap-2 font-bold cursor-pointer">
-                        <i class="fa-solid fa-ban text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'إلغاء الموعد' : 'Cancel Visit' }}</span>
-                    </button>
-                    <button type="button" onclick="deleteScheduleAction(${visitId})" class="w-full text-start px-3 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 font-bold cursor-pointer">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'حذف الموعد' : 'Delete Visit' }}</span>
-                    </button>
-                </div>
+                ${dangerSectionHtml}
             `;
 
             positionContextMenu(e, menu);

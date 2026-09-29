@@ -24,7 +24,7 @@ class VisitObserver
      */
     public function created(Visit $visit): void
     {
-        // 1. Maintain RepDailyLog immediately on check-in
+        // 1. Maintain RepDailyLog immediately
         $logDate = $visit->checkin_at ? $visit->checkin_at->toDateString() : now()->toDateString();
 
         $dailyLog = RepDailyLog::where('mr_id', $visit->mr_id)
@@ -38,6 +38,7 @@ class VisitObserver
                 'log_date' => $logDate,
                 'is_reported' => true,
                 'first_checkin_at' => $visit->checkin_at ?? now(),
+                'last_checkout_at' => $visit->checkout_at,
                 'total_visits_count' => 0,
             ]);
         }
@@ -49,9 +50,30 @@ class VisitObserver
         if (!$dailyLog->first_checkin_at) {
             $dailyLog->first_checkin_at = $visit->checkin_at;
         }
+        if ($visit->checkout_at) {
+            $dailyLog->last_checkout_at = $visit->checkout_at;
+        }
         $dailyLog->save();
 
-        // 2. If GPS unverified, notify Admin / Line Manager via FCM
+        // 2. Recalculate ContactAssignment progress if created directly with checkout_at
+        if ($visit->assignment_id && $visit->checkout_at) {
+            $assignment = ContactAssignment::with('contact.classification')->find($visit->assignment_id);
+            if ($assignment) {
+                $completedVisits = Visit::where('assignment_id', $assignment->id)
+                    ->whereNotNull('checkout_at')
+                    ->whereNotIn('outcome', ['cancelled', 'not_visited', 'did_not_visit', 'doctor_unavailable', 'clinic_closed', 'doctor_refused'])
+                    ->count();
+
+                $achievedPoints = $this->pointStrategy->calculateAchievedPoints($assignment, $completedVisits);
+
+                $assignment->update([
+                    'visits_done' => $completedVisits,
+                    'achieved_points' => $achievedPoints,
+                ]);
+            }
+        }
+
+        // 3. If GPS unverified, notify Admin / Line Manager via FCM
         if (!$visit->gps_verified) {
             $this->notifyAdminGpsAnomaly($visit);
         }
@@ -83,6 +105,7 @@ class VisitObserver
             if ($assignment) {
                 $completedVisits = Visit::where('assignment_id', $assignment->id)
                     ->whereNotNull('checkout_at')
+                    ->whereNotIn('outcome', ['cancelled', 'not_visited', 'did_not_visit', 'doctor_unavailable', 'clinic_closed', 'doctor_refused'])
                     ->count();
 
                 $achievedPoints = $this->pointStrategy->calculateAchievedPoints($assignment, $completedVisits);

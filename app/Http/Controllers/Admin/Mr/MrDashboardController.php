@@ -327,6 +327,41 @@ class MrDashboardController extends Controller
             $q->where('is_active', true);
         }])->orderBy('code')->get();
 
+        // 14. MR Personal Portfolio by Classification Breakdown
+        if ($isRep) {
+            $repAssignments = ContactAssignment::where('mr_id', $currentUser->id)
+                ->when($cycleId, fn ($q) => $q->where('cycle_id', $cycleId))
+                ->where('is_active', true)
+                ->with(['contact.classification', 'contact.specialty'])
+                ->get();
+
+            $repClassDistribution = $classifications->map(function ($cls) use ($repAssignments) {
+                $asgns = $repAssignments->filter(fn ($a) => $a->contact?->classification_id == $cls->id);
+                $totalDocs = $asgns->count();
+                $visitsDone = (int) $asgns->sum('visits_done');
+                $targetVisits = (int) $asgns->sum('target_visits');
+                $achievedPts = (int) $asgns->sum('achieved_points');
+                $targetPts = (int) $asgns->sum('target_points');
+                $compPct = $targetVisits > 0 ? round(($visitsDone / $targetVisits) * 100, 1) : 0;
+
+                return (object) [
+                    'id' => $cls->id,
+                    'code' => $cls->code,
+                    'label' => $cls->label,
+                    'required_visits' => $cls->required_visits,
+                    'points' => $cls->points,
+                    'doctors_count' => $totalDocs,
+                    'visits_done' => $visitsDone,
+                    'target_visits' => $targetVisits,
+                    'achieved_points' => $achievedPts,
+                    'target_points' => $targetPts,
+                    'compliance_pct' => $compPct,
+                ];
+            });
+        } else {
+            $repClassDistribution = collect();
+        }
+
         // Summary KPI bundle
         $kpis = [
             'total_reps' => $isRep ? 1 : $medicalReps->count(),
@@ -382,7 +417,8 @@ class MrDashboardController extends Controller
             'weekMatrix',
             'calendarEvents',
             'recentCheckins',
-            'classDistribution'
+            'classDistribution',
+            'repClassDistribution'
         ));
     }
 
@@ -997,6 +1033,7 @@ class MrDashboardController extends Controller
         $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
 
         $validated = $request->validate([
+            'scheduled_visit_id' => 'nullable|exists:mr_scheduled_visits,id',
             'mr_id' => $isRep ? 'nullable' : 'required|exists:users,id',
             'contact_id' => 'required|exists:mr_contacts,id',
             'visited_at' => 'required|date',
@@ -1010,6 +1047,7 @@ class MrDashboardController extends Controller
         $contactId = (int) $validated['contact_id'];
         $visitedAt = Carbon::parse($validated['visited_at']);
         $productIds = array_values(array_unique(array_map('intval', $validated['product_ids'])));
+        $scheduledVisitId = !empty($validated['scheduled_visit_id']) ? (int) $validated['scheduled_visit_id'] : null;
 
         $cycle = VisitCycle::where('status', 'active')
             ->where('start_date', '<=', $visitedAt->toDateString())
@@ -1035,6 +1073,7 @@ class MrDashboardController extends Controller
         );
 
         $visit = Visit::create([
+            'scheduled_visit_id' => $scheduledVisitId,
             'assignment_id' => $assignment->id,
             'mr_id' => $mrId,
             'contact_id' => $contactId,
@@ -1053,13 +1092,19 @@ class MrDashboardController extends Controller
         $visit->products()->sync($productIds);
 
         // Mark any matching planned scheduled visit for today as completed
-        ScheduledVisit::where('mr_id', $mrId)
-            ->where('contact_id', $contactId)
-            ->whereDate('scheduled_at', $visitedAt->toDateString())
-            ->where('status', 'planned')
-            ->update([
+        if ($scheduledVisitId) {
+            ScheduledVisit::where('id', $scheduledVisitId)->update([
                 'status' => 'completed',
             ]);
+        } else {
+            ScheduledVisit::where('mr_id', $mrId)
+                ->where('contact_id', $contactId)
+                ->whereDate('scheduled_at', $visitedAt->toDateString())
+                ->where('status', 'planned')
+                ->update([
+                    'status' => 'completed',
+                ]);
+        }
 
         $assignment->increment('visits_done');
         $pointsPerVisit = $class ? (int) $class->points : 3;

@@ -24,7 +24,7 @@ class AreaController extends Controller
         $search = $request->query('search');
 
         $query = Area::with(['country', 'city'])
-            ->withCount(['medicalReps', 'contacts']);
+            ->withCount(['medicalReps', 'contacts', 'breaks']);
 
         if ($countryId) {
             $query->where('country_id', $countryId);

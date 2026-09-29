@@ -22,6 +22,182 @@ class CrmVisitService
     }
 
     /**
+     * Record an MR visit directly in one step (Complete / Visited OR Don't Visit / Unvisited)
+     *
+     * @param int $mrId The representative's user ID
+     * @param array $data [
+     *   'contact_id' => int,
+     *   'scheduled_visit_id' => ?int,
+     *   'assignment_id' => ?int,
+     *   'cycle_id' => ?int,
+     *   'visit_type' => ?string ('visited' | 'not_visited' | 'dont_visit'),
+     *   'outcome' => string,
+     *   'notes' => string,
+     *   'product_ids' => ?array,
+     *   'product_id' => ?int,
+     *   'lat' => ?float,
+     *   'lng' => ?float,
+     *   'accuracy_m' => ?float,
+     *   'device_meta' => ?array,
+     *   'duration_minutes' => ?int
+     * ]
+     * @return Visit
+     */
+    public function recordDirectVisit(int $mrId, array $data): Visit
+    {
+        $contactId = (int) ($data['contact_id'] ?? 0);
+        $contact = Contact::findOrFail($contactId);
+
+        // Find or infer active cycle
+        $cycleId = $data['cycle_id'] ?? null;
+        if (!$cycleId) {
+            $cycle = VisitCycle::where('status', 'active')->first();
+            $cycleId = $cycle?->id;
+        }
+
+        if (!$cycleId) {
+            $cycle = VisitCycle::latest('id')->first();
+            $cycleId = $cycle?->id;
+        }
+
+        if (!$cycleId) {
+            throw new InvalidArgumentException("No active visit cycle found.");
+        }
+
+        // Find or infer contact assignment
+        $assignmentId = $data['assignment_id'] ?? null;
+        if (!$assignmentId) {
+            $assignment = ContactAssignment::where('cycle_id', $cycleId)
+                ->where('mr_id', $mrId)
+                ->where('contact_id', $contactId)
+                ->first();
+
+            if (!$assignment) {
+                $class = $contact->classification;
+                $targetVisits = $class ? (int) $class->required_visits : 1;
+                $targetPoints = $class ? ((int) $class->points * $targetVisits) : 3;
+                $assignment = ContactAssignment::create([
+                    'cycle_id' => $cycleId,
+                    'mr_id' => $mrId,
+                    'contact_id' => $contactId,
+                    'target_visits' => $targetVisits,
+                    'target_points' => $targetPoints,
+                    'is_active' => true,
+                ]);
+            }
+            $assignmentId = $assignment?->id;
+        }
+
+        $scheduledVisitId = $data['scheduled_visit_id'] ?? null;
+
+        // Determine outcome & type
+        $outcome = $data['outcome'] ?? 'completed';
+        $visitType = $data['visit_type'] ?? 'visited';
+        $isNonVisit = in_array($visitType, ['not_visited', 'dont_visit']) ||
+                      in_array($outcome, ['cancelled', 'doctor_unavailable', 'clinic_closed', 'doctor_busy', 'doctor_refused', 'not_visited', 'did_not_visit']);
+
+        $notes = trim($data['notes'] ?? '');
+        if (empty($notes)) {
+            throw new InvalidArgumentException(
+                app()->getLocale() === 'ar'
+                    ? "ملاحظات وتفاصيل الزيارة مطلوبة."
+                    : "Visit notes and details are required."
+            );
+        }
+
+        // Parse discussed product(s)
+        $productIds = [];
+        if (!empty($data['product_ids']) && is_array($data['product_ids'])) {
+            $productIds = array_values(array_unique(array_filter(array_map('intval', $data['product_ids']))));
+        } elseif (!empty($data['product_id'])) {
+            $productIds = [(int) $data['product_id']];
+        }
+
+        if (!$isNonVisit && empty($productIds)) {
+            throw new InvalidArgumentException(
+                app()->getLocale() === 'ar'
+                    ? "يرجى اختيار المنتج أو المنتجات التي تمت مناقشتها مع الطبيب."
+                    : "Please select the product(s) discussed with the doctor."
+            );
+        }
+
+        $primaryProductId = $productIds[0] ?? null;
+
+        // Perform GPS validation server-side
+        $lat = isset($data['lat']) && is_numeric($data['lat']) ? (float) $data['lat'] : null;
+        $lng = isset($data['lng']) && is_numeric($data['lng']) ? (float) $data['lng'] : null;
+        $accuracy = isset($data['accuracy_m']) && is_numeric($data['accuracy_m']) ? (float) $data['accuracy_m'] : null;
+        $deviceMeta = $data['device_meta'] ?? [];
+
+        $validation = $this->gpsService->validateCheckIn(
+            $lat,
+            $lng,
+            $contact->latitude ? (float) $contact->latitude : null,
+            $contact->longitude ? (float) $contact->longitude : null,
+            $mrId,
+            $deviceMeta
+        );
+
+        $now = now();
+        $durationMinutes = $isNonVisit ? 5 : (isset($data['duration_minutes']) ? max(1, (int) $data['duration_minutes']) : 15);
+
+        return DB::transaction(function () use (
+            $mrId,
+            $contactId,
+            $cycleId,
+            $assignmentId,
+            $scheduledVisitId,
+            $lat,
+            $lng,
+            $accuracy,
+            $deviceMeta,
+            $validation,
+            $outcome,
+            $notes,
+            $primaryProductId,
+            $productIds,
+            $now,
+            $durationMinutes,
+            $isNonVisit
+        ) {
+            $visit = Visit::create([
+                'scheduled_visit_id' => $scheduledVisitId,
+                'assignment_id' => $assignmentId,
+                'mr_id' => $mrId,
+                'contact_id' => $contactId,
+                'cycle_id' => $cycleId,
+                'product_id' => $primaryProductId,
+                'checkin_at' => $now,
+                'checkin_lat' => $lat,
+                'checkin_lng' => $lng,
+                'checkin_accuracy_m' => $accuracy,
+                'checkout_at' => $now,
+                'checkout_lat' => $lat,
+                'checkout_lng' => $lng,
+                'duration_minutes' => $durationMinutes,
+                'distance_from_contact_m' => $validation['distance_m'],
+                'gps_verified' => (bool) $validation['verified'],
+                'gps_flag' => $validation['flag'],
+                'outcome' => $outcome,
+                'notes' => $notes,
+                'device_meta' => $deviceMeta,
+            ]);
+
+            if (!empty($productIds)) {
+                $visit->products()->sync($productIds);
+            }
+
+            if ($scheduledVisitId) {
+                ScheduledVisit::where('id', $scheduledVisitId)->update([
+                    'status' => $isNonVisit ? 'cancelled' : 'completed',
+                ]);
+            }
+
+            return $visit->fresh(['product', 'products', 'contact']);
+        });
+    }
+
+    /**
      * Submit a Check-In for an MR visit
      *
      * @param int $mrId The representative's user ID

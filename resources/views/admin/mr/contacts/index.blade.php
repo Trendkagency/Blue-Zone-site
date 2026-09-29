@@ -114,8 +114,12 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-xs text-gray-600 dark:text-gray-400">
-                                <div>{{ $doc->city?->name ?? '—' }}</div>
-                                @if($doc->region)
+                                <div class="font-semibold">{{ $doc->city?->name ?? '—' }}</div>
+                                @if($doc->area || $doc->break)
+                                    <div class="text-[11px] text-sky-600 dark:text-sky-400 font-medium">
+                                        {{ $doc->area?->name }} @if($doc->break) › <span class="font-bold text-indigo-500">{{ $doc->break?->name }}</span> @endif
+                                    </div>
+                                @elseif($doc->region)
                                     <div class="text-gray-400 text-[11px]">{{ $doc->region }}</div>
                                 @endif
                             </td>

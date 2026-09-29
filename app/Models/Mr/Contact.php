@@ -24,6 +24,7 @@ class Contact extends Model
         'country_id',
         'city_id',
         'area_id',
+        'break_id',
         'region',
         'address',
         'latitude',
@@ -67,6 +68,11 @@ class Contact extends Model
     public function area(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Area::class);
+    }
+
+    public function break(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\AreaBreak::class, 'break_id');
     }
 
     public function assignments(): HasMany

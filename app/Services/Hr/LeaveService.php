@@ -28,6 +28,9 @@ class LeaveService
             $totalDays = $startDate->diffInDays($endDate) + 1;
             $year = (int) $startDate->year;
 
+            $leaveType = LeaveType::find($data['leave_type_id']);
+            $defaultAllocated = $leaveType ? (float) $leaveType->annual_days : 21.00;
+
             $balance = LeaveBalance::firstOrCreate(
                 [
                     'employee_id' => $employee->id,
@@ -35,10 +38,10 @@ class LeaveService
                     'year' => $year,
                 ],
                 [
-                    'allocated_days' => 21.00,
+                    'allocated_days' => $defaultAllocated,
                     'used_days' => 0.00,
                     'pending_days' => 0.00,
-                    'remaining_days' => 21.00,
+                    'remaining_days' => $defaultAllocated,
                 ]
             );
 

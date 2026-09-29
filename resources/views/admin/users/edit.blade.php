@@ -49,22 +49,27 @@
                 </div>
             </div>
 
-            <!-- Territory & Operational Area Section (Country -> City -> Area) -->
+            <!-- Territory & Operational Area Section (Country -> City -> Area -> Break) -->
             <div class="p-4 rounded-xl border border-sky-100 dark:border-sky-900/60 bg-sky-50/40 dark:bg-sky-950/20 mb-5"
                 x-data="{
                     countryId: '{{ old('country_id', $user['country_id'] ?? '') }}',
                     cityId: '{{ old('city_id', $user['city_id'] ?? '') }}',
                     areaId: '{{ old('area_id', $user['area_id'] ?? '') }}',
+                    breakId: '{{ old('break_id', $user['break_id'] ?? '') }}',
                     cities: {{ Js::from($cities->map(fn($c) => ['id' => $c->id, 'name_en' => $c->name_en, 'name_ar' => $c->name_ar])) }},
                     areas: {{ Js::from($areas->map(fn($a) => ['id' => $a->id, 'name_en' => $a->name_en, 'name_ar' => $a->name_ar])) }},
+                    breaks: {{ Js::from($breaks->map(fn($b) => ['id' => $b->id, 'name_en' => $b->name_en, 'name_ar' => $b->name_ar])) }},
                     loadingCities: false,
                     loadingAreas: false,
+                    loadingBreaks: false,
 
                     async onCountryChange() {
                         this.cityId = '';
                         this.areaId = '';
+                        this.breakId = '';
                         this.cities = [];
                         this.areas = [];
+                        this.breaks = [];
                         if (!this.countryId) return;
 
                         this.loadingCities = true;
@@ -81,7 +86,9 @@
 
                     async onCityChange() {
                         this.areaId = '';
+                        this.breakId = '';
                         this.areas = [];
+                        this.breaks = [];
                         if (!this.cityId) return;
 
                         this.loadingAreas = true;
@@ -94,6 +101,23 @@
                         } finally {
                             this.loadingAreas = false;
                         }
+                    },
+
+                    async onAreaChange() {
+                        this.breakId = '';
+                        this.breaks = [];
+                        if (!this.areaId) return;
+
+                        this.loadingBreaks = true;
+                        try {
+                            const res = await fetch(`{{ url('/admin/api/areas') }}/${this.areaId}/breaks`);
+                            const data = await res.json();
+                            this.breaks = data.breaks || [];
+                        } catch (e) {
+                            console.error('Failed to load breaks:', e);
+                        } finally {
+                            this.loadingBreaks = false;
+                        }
                     }
                 }"
             >
@@ -103,10 +127,10 @@
                     </div>
                     <div>
                         <h4 class="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                            {{ app()->getLocale() === 'ar' ? 'النطاق الجغرافي والمربع الميداني (MR Territory & Area)' : 'Field Territory & Operating Area (MR)' }}
+                            {{ app()->getLocale() === 'ar' ? 'النطاق الجغرافي والمربع الميداني والبريك (MR Territory, Area & Break)' : 'Field Territory, Area & Break (MR)' }}
                         </h4>
                         <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                            {{ app()->getLocale() === 'ar' ? 'تعديل أو تعيين النطاق والمربع الجغرافي المخصص للمندوب الطبي' : 'Update assigned territory and operating area for this user' }}
+                            {{ app()->getLocale() === 'ar' ? 'تعديل أو تعيين النطاق والمربع الجغرافي والبريك المخصص للمندوب الطبي' : 'Update assigned territory, area, and break for this user' }}
                         </p>
                     </div>
                 </div>
@@ -146,17 +170,36 @@
                     <!-- 3. Area / Territory -->
                     <div class="form-group">
                         <label class="form-label font-bold text-xs mb-1 block text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                            <span>{{ app()->getLocale() === 'ar' ? '3. المنطقة / المربع *' : '3. Area / Territory *' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? '3. المنطقة / المربع' : '3. Area / Territory' }}</span>
                             <span x-show="loadingAreas" class="text-[10px] text-sky-500 font-normal">
                                 <i class="fa-solid fa-spinner fa-spin"></i>
                             </span>
                         </label>
-                        <select name="area_id" x-model="areaId" :disabled="!cityId || loadingAreas" class="form-select text-xs w-full rounded-lg disabled:opacity-50 border-sky-300 dark:border-sky-700">
+                        <select name="area_id" x-model="areaId" @change="onAreaChange()" :disabled="!cityId || loadingAreas" class="form-select text-xs w-full rounded-lg disabled:opacity-50 border-sky-300 dark:border-sky-700">
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المنطقة الميدانية --' : '-- Select Field Area --' }}</option>
                             <template x-for="area in areas" :key="area.id">
                                 <option :value="area.id" :selected="area.id == areaId" x-text="'{{ app()->getLocale() }}' === 'ar' ? (area.name_ar || area.name_en) : (area.name_en || area.name_ar)"></option>
                             </template>
                         </select>
+                    </div>
+
+                    <!-- 4. Break / Sub-Sector -->
+                    <div class="form-group">
+                        <label class="form-label font-bold text-xs mb-1 block text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ app()->getLocale() === 'ar' ? '4. البريك / القطاع الفرعي' : '4. Break / Sub-Sector' }}</span>
+                            <span x-show="loadingBreaks" class="text-[10px] text-sky-500 font-normal">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                            </span>
+                        </label>
+                        <select name="break_id" x-model="breakId" :disabled="!areaId || loadingBreaks" class="form-select text-xs w-full rounded-lg disabled:opacity-50 border-sky-300 dark:border-sky-700">
+                            <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر البريك / القطاع --' : '-- Select Break / Sector --' }}</option>
+                            <template x-for="b in breaks" :key="b.id">
+                                <option :value="b.id" :selected="b.id == breakId" x-text="'{{ app()->getLocale() }}' === 'ar' ? (b.name_ar || b.name_en) : (b.name_en || b.name_ar)"></option>
+                            </template>
+                        </select>
+                        <p class="text-[10px] text-slate-500 mt-1" x-show="areaId && breaks.length === 0 && !loadingBreaks">
+                            {{ app()->getLocale() === 'ar' ? 'لا توجد بريكات مسجلة لهذه المنطقة بعد' : 'No breaks defined for this area yet' }}
+                        </p>
                     </div>
                 </div>
             </div>

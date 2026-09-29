@@ -100,4 +100,31 @@ class InvoiceController extends Controller
             'siteInfo' => $siteInfo,
         ]);
     }
+
+    /**
+     * Render specialized Avery / Thermal Shipping & Package Label for invoice.
+     */
+    public function averyLabel(string $id): View
+    {
+        $order = is_numeric($id) 
+            ? Order::with(['items', 'customer'])->find($id) 
+            : Order::with(['items', 'customer'])->where('order_number', $id)->orWhere('invoice_number', $id)->first();
+
+        if (!$order) {
+            $fallback = OrderViewModel::find($id);
+            if ($fallback) {
+                $order = $fallback;
+            } else {
+                abort(404);
+            }
+        }
+
+        $orderNumber = is_array($order) ? ($order['order_number'] ?? $id) : ($order->order_number ?? $id);
+
+        return view('admin.orders.avery-label', [
+            'order' => $order,
+            'orderNumber' => $orderNumber,
+        ]);
+    }
 }
+

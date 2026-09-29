@@ -123,6 +123,7 @@ class UserController extends Controller
             'country_id' => 'nullable|integer|exists:countries,id',
             'city_id' => 'nullable|integer|exists:cities,id',
             'area_id' => 'nullable|integer|exists:areas,id',
+            'break_id' => 'nullable|integer|exists:breaks,id',
             'status' => 'required|string|in:active,inactive,suspended',
         ]);
 
@@ -136,13 +137,15 @@ class UserController extends Controller
             'country_id' => $validated['country_id'] ?? null,
             'city_id' => $validated['city_id'] ?? null,
             'area_id' => $validated['area_id'] ?? null,
+            'break_id' => $validated['break_id'] ?? null,
             'status' => $validated['status'],
         ]);
 
-        if (!empty($validated['area_id'])) {
+        if (!empty($validated['break_id']) || !empty($validated['area_id'])) {
             AreaTerritoryService::getInstance()->assignRepToTerritory(
                 $user,
-                (int)$validated['area_id'],
+                !empty($validated['break_id']) ? (int)$validated['break_id'] : null,
+                !empty($validated['area_id']) ? (int)$validated['area_id'] : null,
                 !empty($validated['city_id']) ? (int)$validated['city_id'] : null,
                 !empty($validated['country_id']) ? (int)$validated['country_id'] : null
             );
@@ -439,7 +442,7 @@ class UserController extends Controller
 
     public function edit(int $id): View
     {
-        $dbUser = User::with(['country', 'city', 'area'])->find($id);
+        $dbUser = User::with(['country', 'city', 'area', 'break'])->find($id);
 
         if ($dbUser) {
             $user = [
@@ -452,6 +455,7 @@ class UserController extends Controller
                 'country_id' => $dbUser->country_id,
                 'city_id' => $dbUser->city_id,
                 'area_id' => $dbUser->area_id,
+                'break_id' => $dbUser->break_id,
                 'territory_label' => $dbUser->territory_label,
                 'status' => $dbUser->status ?? 'active',
                 'avatar' => $dbUser->avatar ?? 'assets/avatars/user-1.jpg',
@@ -464,6 +468,10 @@ class UserController extends Controller
             $areas = $dbUser->city_id 
                 ? Area::where('city_id', $dbUser->city_id)->where('is_active', true)->orderBy('name_en')->get() 
                 : collect();
+
+            $breaks = $dbUser->area_id
+                ? \App\Models\AreaBreak::where('area_id', $dbUser->area_id)->where('is_active', true)->orderBy('name_en')->get()
+                : collect();
         } else {
             $users = UserViewModel::all();
             $user = null;
@@ -475,6 +483,7 @@ class UserController extends Controller
             }
             $cities = collect();
             $areas = collect();
+            $breaks = collect();
         }
 
         $dbRoles = Role::all();
@@ -487,6 +496,7 @@ class UserController extends Controller
             'countries' => $countries,
             'cities' => $cities,
             'areas' => $areas,
+            'breaks' => $breaks,
         ]);
     }
 
@@ -504,6 +514,7 @@ class UserController extends Controller
             'country_id' => 'nullable|integer|exists:countries,id',
             'city_id' => 'nullable|integer|exists:cities,id',
             'area_id' => 'nullable|integer|exists:areas,id',
+            'break_id' => 'nullable|integer|exists:breaks,id',
             'status' => 'required|string|in:active,inactive,suspended',
         ]);
 
@@ -516,6 +527,7 @@ class UserController extends Controller
             'country_id' => $validated['country_id'] ?? null,
             'city_id' => $validated['city_id'] ?? null,
             'area_id' => $validated['area_id'] ?? null,
+            'break_id' => $validated['break_id'] ?? null,
             'status' => $validated['status'],
         ];
 
@@ -525,10 +537,11 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        if (!empty($validated['area_id'])) {
+        if (!empty($validated['break_id']) || !empty($validated['area_id'])) {
             AreaTerritoryService::getInstance()->assignRepToTerritory(
                 $user,
-                (int)$validated['area_id'],
+                !empty($validated['break_id']) ? (int)$validated['break_id'] : null,
+                !empty($validated['area_id']) ? (int)$validated['area_id'] : null,
                 !empty($validated['city_id']) ? (int)$validated['city_id'] : null,
                 !empty($validated['country_id']) ? (int)$validated['country_id'] : null
             );

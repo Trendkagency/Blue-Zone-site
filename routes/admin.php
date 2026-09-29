@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AreaController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BreakController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CityController;
 use App\Http\Controllers\Admin\ContentController;
@@ -55,6 +56,7 @@ use App\Http\Controllers\Admin\Hr\PayrollController as HrPayrollController;
 use App\Http\Controllers\Admin\Hr\PerformanceController as HrPerformanceController;
 use App\Http\Controllers\Admin\Hr\PositionController as HrPositionController;
 use App\Http\Controllers\Admin\Hr\RecruitmentController as HrRecruitmentController;
+use App\Http\Controllers\Admin\Hr\SelfServiceController;
 use App\Http\Controllers\Admin\Hr\TrainingController as HrTrainingController;
 use App\Http\Controllers\Admin\Hr\WorkScheduleController as HrWorkScheduleController;
 use App\Http\Controllers\Admin\WarehouseController;
@@ -169,6 +171,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('orders')->name('orders.')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->middleware('permission:orders.view')->name('index');
             Route::get('/{id}', [OrderController::class, 'show'])->middleware('permission:orders.view')->name('show');
+            Route::get('/{id}/label', [OrderController::class, 'averyLabel'])->middleware('permission:orders.view')->name('label');
             Route::match(['post', 'patch'], '/{id}/status', [OrderController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
             Route::delete('/{id}', [OrderController::class, 'destroy'])->middleware('permission:orders.delete')->name('destroy');
             Route::post('/{id}/restore', [OrderController::class, 'restore'])->middleware('permission:orders.delete')->name('restore');
@@ -179,6 +182,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [InvoiceController::class, 'index'])->middleware('permission:invoices.view')->name('index');
             Route::get('/{id}', [InvoiceController::class, 'show'])->middleware('permission:invoices.view')->name('show');
             Route::get('/{id}/print', [InvoiceController::class, 'print'])->middleware('permission:invoices.view')->name('print');
+            Route::get('/{id}/label', [InvoiceController::class, 'averyLabel'])->middleware('permission:invoices.view')->name('label');
         });
 
         // Offline POS Sales Management
@@ -296,10 +300,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{id}/toggle-status', [AreaController::class, 'toggleStatus'])->name('toggle-status');
                 Route::delete('/{id}', [AreaController::class, 'destroy'])->name('destroy');
             });
+
+            // Territories & Breaks Management
+            Route::prefix('breaks')->name('breaks.')->middleware('mr.manager')->group(function () {
+                Route::get('/', [BreakController::class, 'index'])->name('index');
+                Route::post('/', [BreakController::class, 'store'])->name('store');
+                Route::put('/{id}', [BreakController::class, 'update'])->name('update');
+                Route::post('/{id}/toggle-status', [BreakController::class, 'toggleStatus'])->name('toggle-status');
+                Route::delete('/{id}', [BreakController::class, 'destroy'])->name('destroy');
+            });
         });
 
         // Redirects to Native MR Routes for Backward Compatibility
         Route::get('/areas', fn () => redirect()->route('admin.mr.areas.index'))->name('areas.index');
+        Route::get('/breaks', fn () => redirect()->route('admin.mr.breaks.index'))->name('breaks.index');
         Route::get('/mr-live-ops-map', fn () => redirect()->route('admin.mr.live-map'))->name('mr-live-ops-map');
         Route::get('/contacts', fn () => redirect()->route('admin.mr.contacts.index'))->name('contacts.index');
         Route::get('/contacts/create', fn () => redirect()->route('admin.mr.contacts.create'))->name('contacts.create');
@@ -443,9 +457,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Impersonation Exit Route (Accessible to all authenticated users)
         Route::match(['GET', 'POST'], '/impersonate/leave', [UserController::class, 'leaveImpersonation'])->name('impersonate.leave');
 
-        // Self-Service Attendance Check-in / Check-out (Any authenticated staff)
-        Route::post('/attendance/check-in', [UserController::class, 'selfCheckIn'])->name('attendance.self-checkin');
-        Route::post('/attendance/check-out', [UserController::class, 'selfCheckOut'])->name('attendance.self-checkout');
+        // Self-Service Hub (Attendance Check-In/Out & Leave Request Submission for all logged-in staff)
+        Route::prefix('self-service')->name('self-service.')->group(function () {
+            Route::get('/', [SelfServiceController::class, 'index'])->name('index');
+            Route::get('/status', [SelfServiceController::class, 'status'])->name('status');
+            Route::post('/check-in', [SelfServiceController::class, 'selfCheckIn'])->name('check-in');
+            Route::post('/check-out', [SelfServiceController::class, 'selfCheckOut'])->name('check-out');
+            Route::post('/leave', [SelfServiceController::class, 'submitLeave'])->name('leave');
+        });
+
+        // Convenient Aliases for Check-in / Check-out / Leave Requests
+        Route::post('/attendance/check-in', [SelfServiceController::class, 'selfCheckIn'])->name('attendance.self-checkin');
+        Route::post('/attendance/check-out', [SelfServiceController::class, 'selfCheckOut'])->name('attendance.self-checkout');
+        Route::post('/leave/self-request', [SelfServiceController::class, 'submitLeave'])->name('leave.self-request');
 
         Route::prefix('roles')->name('roles.')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->middleware('permission:roles.view')->name('index');
@@ -658,5 +682,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Dynamic Cascading Geo API Endpoints
         Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
         Route::get('/api/cities/{id}/areas', [AreaController::class, 'getAreasByCity'])->name('api.cities.areas');
+        Route::get('/api/areas/{id}/breaks', [BreakController::class, 'getBreaksByArea'])->name('api.areas.breaks');
     });
 });

@@ -53,8 +53,15 @@ class MrDashboardController extends Controller
 
         // 2. Today's Scheduled Visits
         $todayVisits = [];
-        $activeOngoingVisit = null;
         if ($user) {
+            // Auto-resolve any legacy open check-in visits to maintain clean data integrity
+            Visit::where('mr_id', $user->id)
+                ->whereNull('checkout_at')
+                ->update([
+                    'checkout_at' => now(),
+                    'outcome' => 'completed',
+                ]);
+
             $todayVisits = ScheduledVisit::with(['contact.specialty', 'contact.classification', 'contact.city', 'visit'])
                 ->where('mr_id', $user->id)
                 ->whereDate('scheduled_at', now()->toDateString())
@@ -66,13 +73,6 @@ class MrDashboardController extends Controller
                     $tv->contact->quota_info = $tv->contact->getVisitQuotaStatus($tv->cycle_id ?: $activeCycle?->id);
                 }
             }
-
-            // Check if there is an active check-in without checkout
-            $activeOngoingVisit = Visit::with(['contact.specialty', 'contact.classification'])
-                ->where('mr_id', $user->id)
-                ->whereNull('checkout_at')
-                ->latest('checkin_at')
-                ->first();
         }
 
         // 3. Proactive At-Risk Doctors
@@ -126,7 +126,6 @@ class MrDashboardController extends Controller
             'activeCycle',
             'snapshot',
             'todayVisits',
-            'activeOngoingVisit',
             'atRiskAssignments',
             'allAssignments',
             'completedVisits',
@@ -135,7 +134,71 @@ class MrDashboardController extends Controller
     }
 
     /**
-     * Submit Check-In with GPS Coordinates
+     * Directly record a field visit (Completed / Visited OR Don't Visit / Unvisited)
+     */
+    public function recordVisit(Request $request): JsonResponse
+    {
+        $request->validate([
+            'contact_id' => 'required|integer|exists:mr_contacts,id',
+            'scheduled_visit_id' => 'nullable|integer',
+            'assignment_id' => 'nullable|integer',
+            'cycle_id' => 'nullable|integer',
+            'visit_type' => 'nullable|string',
+            'outcome' => 'required|string',
+            'notes' => 'required|string|min:3|max:2500',
+            'product_ids' => 'nullable|array',
+            'product_ids.*' => 'integer|exists:products,id',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
+            'accuracy_m' => 'nullable|numeric',
+            'device_meta' => 'nullable|array',
+            'duration_minutes' => 'nullable|integer',
+        ], [
+            'notes.required' => app()->getLocale() === 'ar' ? 'تفاصيل وملاحظات الزيارة مطلوبة.' : 'Visit details and notes are required.',
+            'notes.min' => app()->getLocale() === 'ar' ? 'يرجى كتابة 3 أحرف على الأقل في الملاحظات.' : 'Visit notes must be at least 3 characters.',
+        ]);
+
+        $user = Auth::user();
+
+        $isNonVisit = in_array($request->input('visit_type'), ['not_visited', 'dont_visit']) ||
+                      in_array($request->input('outcome'), ['cancelled', 'doctor_unavailable', 'clinic_closed', 'doctor_busy', 'doctor_refused', 'not_visited', 'did_not_visit']);
+
+        if (!$isNonVisit) {
+            $productIds = $request->input('product_ids', []);
+            if (empty($productIds) && !$request->input('product_id')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => app()->getLocale() === 'ar'
+                        ? 'يرجى اختيار المنتج أو المنتجات التي تمت مناقشتها مع الطبيب.'
+                        : 'Please select the product(s) discussed with the doctor.',
+                ], 422);
+            }
+        }
+
+        try {
+            $visit = $this->visitService->recordDirectVisit($user->id, $request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => $isNonVisit
+                    ? (app()->getLocale() === 'ar' ? 'تم تسجيل وتوثيق حالة عدم الزيارة بنجاح.' : 'Non-visit record successfully logged.')
+                    : (app()->getLocale() === 'ar' ? 'تم حفظ واعتماد الزيارة بنجاح!' : 'Visit successfully completed and logged!'),
+                'visit' => $visit,
+                'gps_verified' => $visit->gps_verified,
+                'gps_flag' => $visit->gps_flag,
+                'distance_m' => $visit->distance_from_contact_m,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Submit Check-In with GPS Coordinates (Legacy compatibility wrapper)
      */
     public function checkIn(Request $request): JsonResponse
     {

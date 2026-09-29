@@ -1,9 +1,10 @@
 <x-layouts.admin 
-    :pageTitle="app()->getLocale() === 'ar' ? 'إدارة المناطق والمربعات الميدانية (Territories & Areas)' : 'MR Territories & Field Areas'"
-    :pageSubtitle="app()->getLocale() === 'ar' ? 'تحديد وتوزيع النطاقات الجغرافية والمربعات الميدانية للمناديب والمراكز الطبية' : 'Define geographic zones and territory assignments for reps and clinics'"
+    :pageTitle="app()->getLocale() === 'ar' ? 'إدارة القطاعات الفرعية والبريكات (Territory Breaks)' : 'Territory Breaks & Sub-Sectors'"
+    :pageSubtitle="app()->getLocale() === 'ar' ? 'تحديد وتوزيع البريكات والقطاعات الميدانية التابعة للمناطق للمناديب والمراكز الطبية' : 'Define sub-area breaks and assign field sectors to medical reps and doctors'"
     :breadcrumbs="[
         (app()->getLocale() === 'ar' ? 'نظام المندوب الطبي' : 'MR CRM') => route('admin.mr.assignments.index'),
-        (app()->getLocale() === 'ar' ? 'المناطق والمربعات' : 'Territories & Areas') => route('admin.mr.areas.index')
+        (app()->getLocale() === 'ar' ? 'المناطق' : 'Areas') => route('admin.mr.areas.index'),
+        (app()->getLocale() === 'ar' ? 'البريكات والقطاعات' : 'Breaks') => route('admin.mr.breaks.index')
     ]"
 >
     <div class="space-y-6" x-data="{
@@ -11,15 +12,23 @@
         showEditModal: false,
         showDeleteModal: false,
         selectedCountryForModal: '{{ $countryId ?? ($countries->first()->id ?? '') }}',
+        selectedCityForModal: '{{ $cityId ?? '' }}',
         createCities: [],
-        editArea: { id: null, country_id: '', city_id: '', name_en: '', name_ar: '', code: '', sort_order: 0, is_active: true },
+        createAreas: [],
+        editBreak: { id: null, country_id: '', city_id: '', area_id: '', name_en: '', name_ar: '', code: '', sort_order: 0, is_active: true },
         editCities: [],
+        editAreas: [],
         deleteTarget: { id: null, name: '' },
 
         async loadCities(countryId, target = 'create') {
             if (!countryId) {
-                if (target === 'create') this.createCities = [];
-                else this.editCities = [];
+                if (target === 'create') {
+                    this.createCities = [];
+                    this.createAreas = [];
+                } else {
+                    this.editCities = [];
+                    this.editAreas = [];
+                }
                 return;
             }
             try {
@@ -27,6 +36,7 @@
                 const data = await res.json();
                 if (target === 'create') {
                     this.createCities = data.cities || [];
+                    this.createAreas = [];
                 } else {
                     this.editCities = data.cities || [];
                 }
@@ -35,31 +45,59 @@
             }
         },
 
-        openEdit(area) {
-            this.editArea = { ...area };
-            this.loadCities(area.country_id, 'edit').then(() => {
-                this.editArea.city_id = area.city_id;
-                this.showEditModal = true;
-            });
+        async loadAreas(cityId, target = 'create') {
+            if (!cityId) {
+                if (target === 'create') this.createAreas = [];
+                else this.editAreas = [];
+                return;
+            }
+            try {
+                const res = await fetch(`{{ url('/admin/api/cities') }}/${cityId}/areas`);
+                const data = await res.json();
+                if (target === 'create') {
+                    this.createAreas = data.areas || [];
+                } else {
+                    this.editAreas = data.areas || [];
+                }
+            } catch (err) {
+                console.error('Error loading areas:', err);
+            }
+        },
+
+        async openEdit(item) {
+            this.editBreak = { ...item };
+            await this.loadCities(item.country_id, 'edit');
+            this.editBreak.city_id = item.city_id;
+            await this.loadAreas(item.city_id, 'edit');
+            this.editBreak.area_id = item.area_id;
+            this.showEditModal = true;
         },
 
         confirmDelete(id, name) {
             this.deleteTarget = { id, name };
             this.showDeleteModal = true;
         }
-    }" x-init="loadCities(selectedCountryForModal, 'create')">
+    }" x-init="
+        if (selectedCountryForModal) {
+            loadCities(selectedCountryForModal, 'create').then(() => {
+                if (selectedCityForModal) {
+                    loadAreas(selectedCityForModal, 'create');
+                }
+            });
+        }
+    ">
 
         <!-- Navigation Tabs: Areas vs Breaks -->
         <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-            <a href="{{ route('admin.mr.areas.index') }}" class="px-4 py-2 text-sm font-bold rounded-xl bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-2">
+            <a href="{{ route('admin.mr.areas.index') }}" class="px-4 py-2 text-sm font-bold rounded-xl transition-all text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-2">
                 <i class="fa-solid fa-map-location-dot"></i>
                 <span>{{ app()->getLocale() === 'ar' ? 'المناطق الجغرافية (Areas)' : 'Geographic Areas' }}</span>
-                <span class="px-2 py-0.5 rounded-full bg-white/20 text-xs text-white">{{ $stats['total_areas'] }}</span>
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-400">{{ $stats['total_areas'] }}</span>
             </a>
-            <a href="{{ route('admin.mr.breaks.index') }}" class="px-4 py-2 text-sm font-bold rounded-xl transition-all text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center gap-2">
+            <a href="{{ route('admin.mr.breaks.index') }}" class="px-4 py-2 text-sm font-bold rounded-xl bg-sky-500 text-white shadow-md shadow-sky-500/20 flex items-center gap-2">
                 <i class="fa-solid fa-network-wired"></i>
                 <span>{{ app()->getLocale() === 'ar' ? 'البريكات والقطاعات الفرعية (Breaks)' : 'Territory Breaks' }}</span>
-                <span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-400">{{ $stats['total_breaks'] ?? 0 }}</span>
+                <span class="px-2 py-0.5 rounded-full bg-white/20 text-xs text-white">{{ $stats['total_breaks'] ?? 0 }}</span>
             </a>
         </div>
 
@@ -68,22 +106,22 @@
             <div class="card p-4 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-between shadow-sm">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        {{ app()->getLocale() === 'ar' ? 'إجمالي المناطق' : 'Total Areas' }}
+                        {{ app()->getLocale() === 'ar' ? 'إجمالي البريكات' : 'Total Breaks' }}
                     </span>
-                    <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-1">{{ $stats['total_areas'] }}</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ $stats['covered_cities'] }} {{ app()->getLocale() === 'ar' ? 'مدينة مغطاة' : 'Cities Covered' }}</p>
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-white mt-1">{{ $stats['total_breaks'] ?? 0 }}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ $stats['total_areas'] }} {{ app()->getLocale() === 'ar' ? 'منطقة تابعة' : 'Parent Areas' }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl border border-cyan-100 dark:border-cyan-900">
-                    <i class="fa-solid fa-map-location-dot"></i>
+                    <i class="fa-solid fa-network-wired"></i>
                 </div>
             </div>
 
             <div class="card p-4 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-between shadow-sm">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        {{ app()->getLocale() === 'ar' ? 'المناطق النشطة' : 'Active Areas' }}
+                        {{ app()->getLocale() === 'ar' ? 'البريكات النشطة' : 'Active Breaks' }}
                     </span>
-                    <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ $stats['active_areas'] }}</h3>
+                    <h3 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{{ $stats['active_breaks'] ?? 0 }}</h3>
                     <p class="text-xs text-emerald-500 mt-0.5">{{ app()->getLocale() === 'ar' ? 'جاهزة للتكليف والزيارات' : 'Operational' }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl border border-emerald-100 dark:border-emerald-900">
@@ -94,36 +132,36 @@
             <div class="card p-4 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-between shadow-sm">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        {{ app()->getLocale() === 'ar' ? 'المناديب المكلفين بمناطق' : 'Assigned Reps' }}
+                        {{ app()->getLocale() === 'ar' ? 'المناطق المغطاة' : 'Covered Areas' }}
                     </span>
-                    <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ $stats['assigned_reps_count'] }}</h3>
-                    <p class="text-xs text-indigo-500 mt-0.5">{{ app()->getLocale() === 'ar' ? 'مرتبطين بمربعات جغرافية' : 'Linked to territories' }}</p>
+                    <h3 class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ $stats['total_areas'] }}</h3>
+                    <p class="text-xs text-indigo-500 mt-0.5">{{ app()->getLocale() === 'ar' ? 'موزعة على بريكات' : 'Divided into breaks' }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl border border-indigo-100 dark:border-indigo-900">
-                    <i class="fa-solid fa-user-shield"></i>
+                    <i class="fa-solid fa-map-location-dot"></i>
                 </div>
             </div>
 
             <div class="card p-4 border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl flex items-center justify-between shadow-sm">
                 <div>
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        {{ app()->getLocale() === 'ar' ? 'مناديب بدون منطقة' : 'Unassigned Reps' }}
+                        {{ app()->getLocale() === 'ar' ? 'المناديب المكلفين' : 'Assigned Reps' }}
                     </span>
-                    <h3 class="text-2xl font-black {{ $stats['unassigned_reps_count'] > 0 ? 'text-amber-500' : 'text-slate-400' }} mt-1">{{ $stats['unassigned_reps_count'] }}</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">{{ app()->getLocale() === 'ar' ? 'بحاجة لتحديد المربع' : 'Need territory assignment' }}</p>
+                    <h3 class="text-2xl font-black text-sky-600 dark:text-sky-400 mt-1">{{ $stats['assigned_reps_count'] }}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ app()->getLocale() === 'ar' ? 'مرتبطين بمناطق وبريكات' : 'Assigned to sectors' }}</p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-500 flex items-center justify-center text-xl border border-amber-100 dark:border-amber-900">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl border border-sky-100 dark:border-sky-900">
+                    <i class="fa-solid fa-user-shield"></i>
                 </div>
             </div>
         </div>
 
         <!-- Filter & Search Toolbar -->
         <div class="card p-4 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm">
-            <form method="GET" action="{{ route('admin.mr.areas.index') }}" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <form method="GET" action="{{ route('admin.mr.breaks.index') }}" class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 <div class="flex flex-wrap items-center gap-3">
                     <!-- Country Filter -->
-                    <div class="w-44">
+                    <div class="w-40">
                         <select name="country_id" class="form-select text-xs w-full rounded-xl" onchange="this.form.submit()">
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- كل الدول --' : '-- All Countries --' }}</option>
                             @foreach($countries as $c)
@@ -135,7 +173,7 @@
                     </div>
 
                     <!-- City Filter -->
-                    <div class="w-44">
+                    <div class="w-40">
                         <select name="city_id" class="form-select text-xs w-full rounded-xl" onchange="this.form.submit()">
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- كل المدن --' : '-- All Cities --' }}</option>
                             @foreach($cities as $city)
@@ -146,10 +184,22 @@
                         </select>
                     </div>
 
+                    <!-- Area Filter -->
+                    <div class="w-44">
+                        <select name="area_id" class="form-select text-xs w-full rounded-xl" onchange="this.form.submit()">
+                            <option value="">{{ app()->getLocale() === 'ar' ? '-- كل المناطق --' : '-- All Areas --' }}</option>
+                            @foreach($areas as $a)
+                                <option value="{{ $a->id }}" {{ $areaId == $a->id ? 'selected' : '' }}>
+                                    {{ $a->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- Search Input -->
-                    <div class="relative w-64">
+                    <div class="relative w-56">
                         <input type="text" name="search" value="{{ $search ?? '' }}" 
-                            placeholder="{{ app()->getLocale() === 'ar' ? 'بحث بالاسم أو الكود...' : 'Search by name or code...' }}" 
+                            placeholder="{{ app()->getLocale() === 'ar' ? 'بحث باسم البريك أو الكود...' : 'Search break name or code...' }}" 
                             class="form-input text-xs w-full rounded-xl pl-8 rtl:pr-8 rtl:pl-3">
                         <i class="fa-solid fa-magnifying-glass absolute left-2.5 rtl:right-2.5 rtl:left-auto top-2.5 text-slate-400 text-xs"></i>
                     </div>
@@ -158,8 +208,8 @@
                         <i class="fa-solid fa-filter mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'تصفية' : 'Filter' }}
                     </button>
 
-                    @if($countryId || $cityId || $search)
-                        <a href="{{ route('admin.mr.areas.index') }}" class="text-xs text-rose-500 hover:underline font-bold">
+                    @if($countryId || $cityId || $areaId || $search)
+                        <a href="{{ route('admin.mr.breaks.index') }}" class="text-xs text-rose-500 hover:underline font-bold">
                             {{ app()->getLocale() === 'ar' ? 'إلغاء التصفية' : 'Reset' }}
                         </a>
                     @endif
@@ -169,22 +219,21 @@
                 <div class="flex items-center gap-2">
                     <button type="button" @click="showCreateModal = true" class="btn btn-primary btn-sm rounded-xl font-bold shadow-md shadow-sky-500/10">
                         <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i>
-                        {{ app()->getLocale() === 'ar' ? 'إضافة منطقة جديدة' : 'Add New Area' }}
+                        {{ app()->getLocale() === 'ar' ? 'إضافة بريك جديد' : 'Add New Break' }}
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Areas Table -->
+        <!-- Breaks Table -->
         <div class="card p-0 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left rtl:text-right">
                     <thead class="text-xs uppercase bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-800">
                         <tr>
-                            <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'المنطقة / المربع' : 'Area / Territory' }}</th>
+                            <th class="px-5 py-3.5">{{ app()->getLocale() === 'ar' ? 'البريك / القطاع الفرعي' : 'Break / Sub-Sector' }}</th>
                             <th class="px-4 py-3.5">{{ app()->getLocale() === 'ar' ? 'الكود' : 'Code' }}</th>
-                            <th class="px-4 py-3.5">{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي (الدولة / المدينة)' : 'Hierarchy (Country / City)' }}</th>
-                            <th class="px-4 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'البريكات التابعة' : 'Breaks' }}</th>
+                            <th class="px-4 py-3.5">{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي الكامل (دولة › مدينة › منطقة)' : 'Full Hierarchy (Country › City › Area)' }}</th>
                             <th class="px-4 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'المناديب المسجلين' : 'Assigned MRs' }}</th>
                             <th class="px-4 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'العيادات / الأطباء' : 'Contacts' }}</th>
                             <th class="px-4 py-3.5 text-center">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
@@ -192,88 +241,85 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-medium">
-                        @forelse($areas as $area)
+                        @forelse($breaks as $item)
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                                 <td class="px-5 py-3.5">
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center border border-sky-100 dark:border-sky-900 flex-shrink-0">
-                                            <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                                            <i class="fa-solid fa-network-wired text-sm"></i>
                                         </div>
                                         <div>
-                                            <span class="font-bold text-slate-900 dark:text-white block">{{ $area->name }}</span>
+                                            <span class="font-bold text-slate-900 dark:text-white block">{{ $item->name }}</span>
                                             <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
-                                                {{ $area->name_en }} / {{ $area->name_ar }}
+                                                {{ $item->name_en }} / {{ $item->name_ar }}
                                             </span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5">
-                                    @if($area->code)
+                                    @if($item->code)
                                         <span class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-mono font-bold">
-                                            {{ $area->code }}
+                                            {{ $item->code }}
                                         </span>
                                     @else
                                         <span class="text-xs text-slate-400">-</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3.5">
-                                    <div class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300">
-                                        <span class="font-semibold">{{ $area->country?->name ?? 'N/A' }}</span>
+                                    <div class="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 flex-wrap">
+                                        <span class="font-semibold">{{ $item->country?->name ?? 'N/A' }}</span>
                                         <span class="text-slate-400">›</span>
-                                        <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ $area->city?->name ?? 'N/A' }}</span>
+                                        <span class="font-semibold text-slate-600 dark:text-slate-400">{{ $item->city?->name ?? 'N/A' }}</span>
+                                        <span class="text-slate-400">›</span>
+                                        <span class="font-bold text-sky-600 dark:text-sky-400">{{ $item->area?->name ?? 'N/A' }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3.5 text-center">
-                                    <a href="{{ route('admin.mr.breaks.index', ['country_id' => $area->country_id, 'city_id' => $area->city_id, 'area_id' => $area->id]) }}" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 font-bold text-xs border border-sky-200/60 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors" title="{{ app()->getLocale() === 'ar' ? 'عرض بريكات هذه المنطقة' : 'View Breaks' }}">
-                                        <i class="fa-solid fa-network-wired text-[10px]"></i>
-                                        {{ $area->breaks_count }}
-                                    </a>
-                                </td>
-                                <td class="px-4 py-3.5 text-center">
-                                    @if($area->medical_reps_count > 0)
+                                    @if($item->medical_reps_count > 0)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-xs border border-indigo-200/60 dark:border-indigo-800">
                                             <i class="fa-solid fa-user-doctor text-[10px]"></i>
-                                            {{ $area->medical_reps_count }}
+                                            {{ $item->medical_reps_count }}
                                         </span>
                                     @else
                                         <span class="text-xs text-slate-400 font-normal">0</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3.5 text-center">
-                                    @if($area->contacts_count > 0)
+                                    @if($item->contacts_count > 0)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 font-bold text-xs border border-emerald-200/60 dark:border-emerald-800">
                                             <i class="fa-solid fa-stethoscope text-[10px]"></i>
-                                            {{ $area->contacts_count }}
+                                            {{ $item->contacts_count }}
                                         </span>
                                     @else
                                         <span class="text-xs text-slate-400 font-normal">0</span>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3.5 text-center">
-                                    <form method="POST" action="{{ route('admin.mr.areas.toggle-status', $area->id) }}" class="inline-block">
+                                    <form method="POST" action="{{ route('admin.mr.breaks.toggle-status', $item->id) }}" class="inline-block">
                                         @csrf
-                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all {{ $area->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 hover:bg-emerald-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200' }}">
-                                            <span class="w-1.5 h-1.5 rounded-full {{ $area->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
-                                            {{ $area->is_active ? (app()->getLocale() === 'ar' ? 'نشط' : 'Active') : (app()->getLocale() === 'ar' ? 'معطل' : 'Inactive') }}
+                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all {{ $item->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300 hover:bg-emerald-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200' }}">
+                                            <span class="w-1.5 h-1.5 rounded-full {{ $item->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                                            {{ $item->is_active ? (app()->getLocale() === 'ar' ? 'نشط' : 'Active') : (app()->getLocale() === 'ar' ? 'معطل' : 'Inactive') }}
                                         </button>
                                     </form>
                                 </td>
                                 <td class="px-5 py-3.5 text-right rtl:text-left">
                                     <div class="flex items-center justify-end rtl:justify-start gap-1.5">
                                         <button type="button" @click="openEdit({
-                                            id: {{ $area->id }},
-                                            country_id: {{ $area->country_id }},
-                                            city_id: {{ $area->city_id }},
-                                            name_en: '{{ addslashes($area->name_en) }}',
-                                            name_ar: '{{ addslashes($area->name_ar) }}',
-                                            code: '{{ addslashes($area->code ?? '') }}',
-                                            sort_order: {{ $area->sort_order ?? 0 }},
-                                            is_active: {{ $area->is_active ? 'true' : 'false' }}
+                                            id: {{ $item->id }},
+                                            country_id: {{ $item->country_id }},
+                                            city_id: {{ $item->city_id }},
+                                            area_id: {{ $item->area_id }},
+                                            name_en: '{{ addslashes($item->name_en) }}',
+                                            name_ar: '{{ addslashes($item->name_ar) }}',
+                                            code: '{{ addslashes($item->code ?? '') }}',
+                                            sort_order: {{ $item->sort_order ?? 0 }},
+                                            is_active: {{ $item->is_active ? 'true' : 'false' }}
                                         })" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors" title="{{ app()->getLocale() === 'ar' ? 'تعديل' : 'Edit' }}">
                                             <i class="fa-solid fa-pen-to-square text-xs"></i>
                                         </button>
 
-                                        <button type="button" @click="confirmDelete({{ $area->id }}, '{{ addslashes($area->name) }}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 transition-colors" title="{{ app()->getLocale() === 'ar' ? 'حذف' : 'Delete' }}">
+                                        <button type="button" @click="confirmDelete({{ $item->id }}, '{{ addslashes($item->name) }}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-800 transition-colors" title="{{ app()->getLocale() === 'ar' ? 'حذف' : 'Delete' }}">
                                             <i class="fa-solid fa-trash text-xs"></i>
                                         </button>
                                     </div>
@@ -282,9 +328,9 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
-                                    <i class="fa-solid fa-map-location-dot text-4xl mb-3 block opacity-40"></i>
-                                    <p class="font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد مناطق جغرافية مسجلة حالياً' : 'No areas found matching criteria' }}</p>
-                                    <p class="text-xs mt-1">{{ app()->getLocale() === 'ar' ? 'يمكنك إضافة مربع جغرافي جديد بالنقر على زر الإضافة أعلاه' : 'Click Add New Area above to start mapping territories' }}</p>
+                                    <i class="fa-solid fa-network-wired text-4xl mb-3 block opacity-40"></i>
+                                    <p class="font-bold">{{ app()->getLocale() === 'ar' ? 'لا توجد بريكات أو قطاعات فرعية مسجلة حالياً' : 'No breaks found matching criteria' }}</p>
+                                    <p class="text-xs mt-1">{{ app()->getLocale() === 'ar' ? 'يمكنك إضافة بريك جديد بالنقر على زر الإضافة أعلاه' : 'Click Add New Break above to create sector divisions' }}</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -292,14 +338,14 @@
                 </table>
             </div>
 
-            @if($areas->hasPages())
+            @if($breaks->hasPages())
                 <div class="p-4 border-t border-slate-100 dark:border-slate-800">
-                    {{ $areas->links() }}
+                    {{ $breaks->links() }}
                 </div>
             @endif
         </div>
 
-        <!-- CREATE AREA MODAL -->
+        <!-- CREATE BREAK MODAL -->
         <div x-show="showCreateModal" x-cloak style="display: none;" 
             class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
             @click.self="showCreateModal = false"
@@ -326,10 +372,10 @@
                         </div>
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white">
-                                {{ app()->getLocale() === 'ar' ? 'إضافة منطقة / مربع ميداني جديد' : 'Add New Area / Territory' }}
+                                {{ app()->getLocale() === 'ar' ? 'إضافة بريك / قطاع فرعي جديد' : 'Add New Break / Sector' }}
                             </h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                {{ app()->getLocale() === 'ar' ? 'إنشاء نطاق جغرافي وتحديده داخل المحافظة / المدينة' : 'Define a geographic territory under a designated city' }}
+                                {{ app()->getLocale() === 'ar' ? 'إنشاء قطاع ميداني فرعي وربطه بالمنطقة الجغرافية' : 'Create a field sector and attach it to parent territory' }}
                             </p>
                         </div>
                     </div>
@@ -339,7 +385,7 @@
                 </div>
 
                 <!-- Modal Body -->
-                <form method="POST" action="{{ route('admin.mr.areas.store') }}" class="flex flex-col flex-1 min-h-0">
+                <form method="POST" action="{{ route('admin.mr.breaks.store') }}" class="flex flex-col flex-1 min-h-0">
                     @csrf
                     <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
                         
@@ -350,7 +396,7 @@
                                 <span>{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي للمنطقة' : 'Territory Geographic Hierarchy' }}</span>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <!-- Country -->
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -367,41 +413,54 @@
                                 <!-- City -->
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة' : 'City / Governorate' }} <span class="text-rose-500">*</span>
+                                        {{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة' : 'City' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
-                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- Select City --' }}</option>
+                                    <select name="city_id" x-model="selectedCityForModal" @change="loadAreas(selectedCityForModal, 'create')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- City --' }}</option>
                                         <template x-for="city in createCities" :key="city.id">
                                             <option :value="city.id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Area -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        {{ app()->getLocale() === 'ar' ? 'المنطقة التابعة' : 'Parent Area' }} <span class="text-rose-500">*</span>
+                                    </label>
+                                    <select name="area_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-semibold text-sky-600 dark:text-sky-400">
+                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المنطقة --' : '-- Area --' }}</option>
+                                        <template x-for="area in createAreas" :key="area.id">
+                                            <option :value="area.id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (area.name_ar || area.name_en) : (area.name_en || area.name_ar)"></option>
                                         </template>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. Area Identity Details -->
+                        <!-- 2. Break Information -->
                         <div class="space-y-3.5">
                             <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف المنطقة' : 'Area Identification' }}</span>
+                                <i class="fa-solid fa-network-wired"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف البريك' : 'Break Identification' }}</span>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (عربي)' : 'Area Name (Arabic)' }} <span class="text-rose-500">*</span>
+                                        {{ app()->getLocale() === 'ar' ? 'اسم البريك (عربي)' : 'Break Name (Arabic)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_ar" required placeholder="مثال: المعادي أو النزهة" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
+                                        <input type="text" name="name_ar" required placeholder="مثال: بريك دجلة أو قطاع 1" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
                                         <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">AR</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (إنجليزي)' : 'Area Name (English)' }} <span class="text-rose-500">*</span>
+                                        {{ app()->getLocale() === 'ar' ? 'اسم البريك (إنجليزي)' : 'Break Name (English)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_en" required placeholder="e.g. Maadi or Nozha" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
+                                        <input type="text" name="name_en" required placeholder="e.g. Degla Break or Sector 1" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
                                         <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">EN</span>
                                     </div>
                                 </div>
@@ -410,10 +469,10 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'كود المنطقة / المربع' : 'Area / Territory Code' }}
+                                        {{ app()->getLocale() === 'ar' ? 'كود البريك الفريد' : 'Break Code' }}
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="code" placeholder="e.g. CAI-MAA-01" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
+                                        <input type="text" name="code" placeholder="e.g. MAA-BRK-01" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
                                         <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 text-xs"></i>
                                     </div>
                                 </div>
@@ -434,10 +493,10 @@
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-slate-900 dark:text-white block">
-                                        {{ app()->getLocale() === 'ar' ? 'تفعيل المنطقة فورياً' : 'Activate Territory Immediately' }}
+                                        {{ app()->getLocale() === 'ar' ? 'تفعيل البريك والقطاع فورياً' : 'Activate Break Immediately' }}
                                     </span>
                                     <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                                        {{ app()->getLocale() === 'ar' ? 'متاحة لتكليف المناديب وتعيين البريكات التابعة' : 'Available for representative allocation and sector breaks' }}
+                                        {{ app()->getLocale() === 'ar' ? 'متاح مباشرة للتكليف للمناديب وربط الأطباء' : 'Available for MR assignments and clinic visits' }}
                                     </span>
                                 </div>
                             </div>
@@ -455,14 +514,14 @@
                         </button>
                         <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'حفظ المنطقة' : 'Save Area' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'حفظ البريك' : 'Save Break' }}</span>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- EDIT AREA MODAL -->
+        <!-- EDIT BREAK MODAL -->
         <div x-show="showEditModal" x-cloak style="display: none;" 
             class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
             @click.self="showEditModal = false"
@@ -489,10 +548,10 @@
                         </div>
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white">
-                                {{ app()->getLocale() === 'ar' ? 'تعديل بيانات المنطقة' : 'Edit Area Details' }}
+                                {{ app()->getLocale() === 'ar' ? 'تعديل بيانات البريك' : 'Edit Break Details' }}
                             </h3>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                {{ app()->getLocale() === 'ar' ? 'تحديث مسمى المنطقة ونطاقها الجغرافي وكودها' : 'Update territory naming, city link, and code' }}
+                                {{ app()->getLocale() === 'ar' ? 'تحديث مسمى البريك ونطاقه الجغرافي وكوده' : 'Update break naming, geographic link, and operational code' }}
                             </p>
                         </div>
                     </div>
@@ -502,7 +561,7 @@
                 </div>
 
                 <!-- Modal Body -->
-                <form :action="`{{ url('/admin/mr/areas') }}/${editArea.id}`" method="POST" class="flex flex-col flex-1 min-h-0">
+                <form :action="`{{ url('/admin/mr/breaks') }}/${editBreak.id}`" method="POST" class="flex flex-col flex-1 min-h-0">
                     @csrf
                     @method('PUT')
                     <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
@@ -514,12 +573,12 @@
                                 <span>{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي للمنطقة' : 'Territory Geographic Hierarchy' }}</span>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'الدولة' : 'Country' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="country_id" x-model="editArea.country_id" @change="loadCities(editArea.country_id, 'edit')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="country_id" x-model="editBreak.country_id" @change="loadCities(editBreak.country_id, 'edit')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الدولة --' : '-- Country --' }}</option>
                                         @foreach($countries as $c)
                                             <option value="{{ $c->id }}">{{ $c->flag_emoji }} {{ $c->name }}</option>
@@ -531,39 +590,51 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة' : 'City' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="city_id" x-model="editArea.city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="city_id" x-model="editBreak.city_id" @change="loadAreas(editBreak.city_id, 'edit')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- City --' }}</option>
                                         <template x-for="city in editCities" :key="city.id">
-                                            <option :value="city.id" :selected="city.id == editArea.city_id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
+                                            <option :value="city.id" :selected="city.id == editBreak.city_id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                                        {{ app()->getLocale() === 'ar' ? 'المنطقة التابعة' : 'Parent Area' }} <span class="text-rose-500">*</span>
+                                    </label>
+                                    <select name="area_id" x-model="editBreak.area_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-semibold text-indigo-600 dark:text-indigo-400">
+                                        <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المنطقة --' : '-- Area --' }}</option>
+                                        <template x-for="area in editAreas" :key="area.id">
+                                            <option :value="area.id" :selected="area.id == editBreak.area_id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (area.name_ar || area.name_en) : (area.name_en || area.name_ar)"></option>
                                         </template>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 2. Area Information -->
+                        <!-- 2. Break Information -->
                         <div class="space-y-3.5">
                             <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف المنطقة' : 'Area Identification' }}</span>
+                                <i class="fa-solid fa-network-wired"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف البريك' : 'Break Identification' }}</span>
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (عربي)' : 'Area Name (Arabic)' }} <span class="text-rose-500">*</span>
+                                        {{ app()->getLocale() === 'ar' ? 'اسم البريك (عربي)' : 'Break Name (Arabic)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_ar" x-model="editArea.name_ar" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
+                                        <input type="text" name="name_ar" x-model="editBreak.name_ar" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
                                         <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">AR</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (إنجليزي)' : 'Area Name (English)' }} <span class="text-rose-500">*</span>
+                                        {{ app()->getLocale() === 'ar' ? 'اسم البريك (إنجليزي)' : 'Break Name (English)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_en" x-model="editArea.name_en" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
+                                        <input type="text" name="name_en" x-model="editBreak.name_en" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
                                         <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">EN</span>
                                     </div>
                                 </div>
@@ -572,10 +643,10 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                                        {{ app()->getLocale() === 'ar' ? 'كود المنطقة / المربع' : 'Area / Territory Code' }}
+                                        {{ app()->getLocale() === 'ar' ? 'كود البريك الفريد' : 'Break Code' }}
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="code" x-model="editArea.code" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
+                                        <input type="text" name="code" x-model="editBreak.code" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
                                         <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 text-xs"></i>
                                     </div>
                                 </div>
@@ -583,7 +654,7 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'ترتيب الظهور' : 'Display Sort Order' }}
                                     </label>
-                                    <input type="number" name="sort_order" x-model="editArea.sort_order" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <input type="number" name="sort_order" x-model="editBreak.sort_order" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium">
                                 </div>
                             </div>
                         </div>
@@ -596,15 +667,15 @@
                                 </div>
                                 <div>
                                     <span class="text-xs font-bold text-slate-900 dark:text-white block">
-                                        {{ app()->getLocale() === 'ar' ? 'حالة نشاط المنطقة' : 'Territory Operational Status' }}
+                                        {{ app()->getLocale() === 'ar' ? 'حالة نشاط البريك' : 'Break Operational Status' }}
                                     </span>
                                     <span class="text-[11px] text-slate-500 dark:text-slate-400">
-                                        {{ app()->getLocale() === 'ar' ? 'المنطقة نشطة ومتاحة للتكليف وجدولة الزيارات' : 'Active and open for representative scheduling' }}
+                                        {{ app()->getLocale() === 'ar' ? 'البريك نشط ومتاح للتكليف وجدولة الزيارات' : 'Active and open for representative scheduling' }}
                                     </span>
                                 </div>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" name="is_active" value="1" :checked="editArea.is_active" class="sr-only peer">
+                                <input type="checkbox" name="is_active" value="1" :checked="editBreak.is_active" class="sr-only peer">
                                 <div class="w-11 h-6 bg-slate-200 peer-focus:outline-hidden rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-indigo-600"></div>
                             </label>
                         </div>
@@ -617,7 +688,7 @@
                         </button>
                         <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'تحديث المنطقة' : 'Update Area' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'تحديث البريك' : 'Update Break' }}</span>
                         </button>
                     </div>
                 </form>
@@ -649,15 +720,15 @@
                 </div>
 
                 <h3 class="font-black text-lg text-slate-900 dark:text-white mb-1.5">
-                    {{ app()->getLocale() === 'ar' ? 'تأكيد حذف المنطقة الجغرافية' : 'Confirm Delete Area' }}
+                    {{ app()->getLocale() === 'ar' ? 'تأكيد حذف البريك / القطاع' : 'Confirm Delete Break' }}
                 </h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">
-                    {{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من رغبتك في حذف هذه المنطقة نهائياً من النظام؟' : 'Are you sure you want to permanently remove this geographic area?' }}
+                    {{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من رغبتك في حذف هذا البريك نهائياً من النظام؟' : 'Are you sure you want to permanently remove this sector break?' }}
                 </p>
 
                 <!-- Item Target Preview Card -->
                 <div class="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-900/40 text-rose-900 dark:text-rose-200 text-xs font-bold mb-6 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-rose-500"></i>
+                    <i class="fa-solid fa-network-wired text-rose-500"></i>
                     <span x-text="deleteTarget.name"></span>
                 </div>
 
@@ -666,7 +737,7 @@
                     <button type="button" @click="showDeleteModal = false" class="btn btn-secondary text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer">
                         {{ app()->getLocale() === 'ar' ? 'إلغاء الأمر' : 'Cancel' }}
                     </button>
-                    <form :action="`{{ url('/admin/mr/areas') }}/${deleteTarget.id}`" method="POST" class="inline-block m-0">
+                    <form :action="`{{ url('/admin/mr/breaks') }}/${deleteTarget.id}`" method="POST" class="inline-block m-0">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
@@ -677,5 +748,6 @@
                 </div>
             </div>
         </div>
+
     </div>
 </x-layouts.admin>

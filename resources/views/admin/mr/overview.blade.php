@@ -801,7 +801,7 @@
                     <div id="vdm-exec-section" class="p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 space-y-3 hidden">
                         <h4 class="text-xs font-black uppercase text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 mb-2">
                             <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                            {{ app()->getLocale() === 'ar' ? 'بيانات تنفيذ الزيارة والتحقق من الموقع (GPS)' : 'Execution & GPS Verification Telemetry' }}
+                            {{ app()->getLocale() === 'ar' ? 'بيانات تنفيذ الزيارة والتحقق من الموقع الجغرافي' : 'Execution & GPS Verification Telemetry' }}
                         </h4>
                         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                             <div>

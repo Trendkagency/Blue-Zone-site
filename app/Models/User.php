@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'phone', 'password', 'role_id', 'country_id', 'city_id', 'area_id', 'status', 'avatar', 'bio', 'preferences', 'fcm_token', 'fcm_device_info'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'role_id', 'country_id', 'city_id', 'area_id', 'break_id', 'status', 'avatar', 'bio', 'preferences', 'fcm_token', 'fcm_device_info'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser
 {
@@ -78,6 +78,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Area::class);
     }
 
+    public function break(): BelongsTo
+    {
+        return $this->belongsTo(AreaBreak::class, 'break_id');
+    }
+
     public function getTerritoryLabelAttribute(): string
     {
         $parts = [];
@@ -90,6 +95,9 @@ class User extends Authenticatable implements FilamentUser
         if ($this->area) {
             $parts[] = $this->area->name;
         }
+        if ($this->break) {
+            $parts[] = $this->break->name;
+        }
 
         return !empty($parts) ? implode(' › ', $parts) : (app()->getLocale() === 'ar' ? 'غير محدد' : 'Unassigned');
     }
@@ -97,6 +105,46 @@ class User extends Authenticatable implements FilamentUser
     public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Employee::class);
+    }
+
+    /**
+     * Get or automatically create the associated Employee record for self-service actions.
+     */
+    public function getOrCreateEmployee(): Employee
+    {
+        if ($this->relationLoaded('employee') && $this->employee) {
+            return $this->employee;
+        }
+
+        $existing = Employee::where('user_id', $this->id)->first();
+        if ($existing) {
+            $this->setRelation('employee', $existing);
+            return $existing;
+        }
+
+        $names = explode(' ', trim($this->name), 2);
+        $firstName = $names[0] ?? 'Staff';
+        $lastName = $names[1] ?? 'User';
+
+        $employee = Employee::create([
+            'user_id' => $this->id,
+            'employee_number' => 'EMP-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'first_name_ar' => $this->name,
+            'last_name_ar' => '',
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'country_id' => $this->country_id,
+            'city_id' => $this->city_id,
+            'employment_status' => 'active',
+            'employment_type' => 'full_time',
+            'hire_date' => now()->toDateString(),
+            'basic_salary' => 0.00,
+        ]);
+
+        $this->setRelation('employee', $employee);
+        return $employee;
     }
 
 

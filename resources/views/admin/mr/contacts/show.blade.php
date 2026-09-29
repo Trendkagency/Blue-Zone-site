@@ -76,7 +76,7 @@
             <div>
                 <h3 class="font-bold text-sm text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 pb-2 mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-location-dot text-emerald-500"></i>
-                    {{ app()->getLocale() === 'ar' ? 'موقع العيادة الجغرافي (GPS)' : 'Clinic GPS Coordinates' }}
+                    {{ app()->getLocale() === 'ar' ? 'موقع العيادة الجغرافي' : 'Clinic GPS Coordinates' }}
                 </h3>
 
                 @if($contact->latitude && $contact->longitude)

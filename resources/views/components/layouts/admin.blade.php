@@ -58,7 +58,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isMrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-mr-crm')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-user-doctor sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'نظام CRM' : 'CRM' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المناديب والزيارات' : 'MR & Field CRM' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -68,24 +68,29 @@
                             <a href="{{ route('admin.mr.dashboard') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.dashboard') || request()->routeIs('admin.mr.dashboard.alt') ? 'active' : '' }}">
                                 <i class="fa-solid fa-gauge-high text-xs text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم CRM' : 'CRM dashboard' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم المناديب' : 'MR Dashboard' }}</span>
                             </a>
                             <a href="{{ route('admin.mr.live-map') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.live-map') ? 'active' : '' }}">
                                 <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة (Live Map)' : 'Live Ops Field Map' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة' : 'Live Ops Field Map' }}</span>
                             </a>
                             @if($canManageMr)
                             <a href="{{ route('admin.mr.areas.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.areas.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-map-location-dot text-xs text-teal-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات (Territories & Areas)' : 'Territories & Areas' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات' : 'Territories & Areas' }}</span>
+                            </a>
+                            <a href="{{ route('admin.mr.breaks.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.breaks.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-network-wired text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'البريكات والقطاعات' : 'Territory Breaks' }}</span>
                             </a>
                             @endif
                             <a href="{{ route('admin.mr.contacts.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.contacts.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-stethoscope text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'الأطباء والعيادات (Contacts)' : 'Doctors & Clinics (Contacts)' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الأطباء والعيادات' : 'Doctors & Clinics' }}</span>
                             </a>
                             @if($canManageMr)
                             <a href="{{ route('admin.mr.classifications.index') }}"
@@ -106,13 +111,13 @@
                             <a href="{{ route('admin.mr.cycles.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.cycles.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-calendar-days text-xs text-purple-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'دورات الزيارات (Cycles)' : 'Visit Cycles' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'دورات الزيارات' : 'Visit Cycles' }}</span>
                             </a>
                             @endif
                             <a href="{{ route('admin.mr.visits.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.visits.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-location-dot text-xs text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية (GPS)' : 'Executed Visits & GPS Log' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية' : 'Field Visits Log' }}</span>
                             </a>
                             <a href="{{ route('admin.mr.reports.coverage') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.coverage') ? 'active' : '' }}">
@@ -122,19 +127,19 @@
                             <a href="{{ route('admin.mr.reports.performance') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.reports.performance') ? 'active' : '' }}">
                                 <i class="fa-solid fa-trophy text-xs text-yellow-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'بطاقة أداء المناديب (Scorecard)' : 'Rep Performance Scorecard' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بطاقة أداء المناديب' : 'Rep Performance Scorecard' }}</span>
                             </a>
                             @if($canManageMr)
                             <a href="{{ route('admin.mr.gps-config.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.gps-config.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-satellite-dish text-xs text-purple-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وقواعد الـ GPS' : 'GPS Geofence & Rules' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وقواعد التتبع الجغرافي' : 'GPS Geofence & Rules' }}</span>
                             </a>
                             @endif
                             <a href="{{ url('/mr') }}" target="_blank"
                                 class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg">
                                 <i class="fa-solid fa-mobile-screen-button text-xs text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية (MR Portal) ↗' : 'MR Mobile Portal ↗' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'بوابة المندوب الميدانية' : 'MR Mobile Portal' }} ↗</span>
                             </a>
                         </div>
                     </div>
@@ -146,7 +151,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales-crm')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-briefcase sidebar-link-icon text-amber-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء (Sales CRM)' : 'Commercial Sales CRM' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء' : 'Commercial Sales CRM' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -155,15 +160,15 @@
                         <div class="sidebar-submenu">
                             <a href="{{ route('admin.crm.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.dashboard') ? 'active' : '' }}">
                                 <i class="fa-solid fa-chart-pie text-xs text-amber-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الـ CRM' : 'CRM Dashboard' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم المبيعات' : 'CRM Dashboard' }}</span>
                             </a>
                             <a href="{{ route('admin.crm.leads.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.leads.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-user-tag text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'العملاء المحتملين (Leads)' : 'Leads Pipeline' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'العملاء المحتملون' : 'Leads Pipeline' }}</span>
                             </a>
                             <a href="{{ route('admin.crm.opportunities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.opportunities.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-handshake text-xs text-emerald-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'الصفقات والفرص (Deals)' : 'Deals & Kanban' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الصفقات والفرص' : 'Deals & Kanban' }}</span>
                             </a>
                             <a href="{{ route('admin.crm.activities.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.activities.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-list-check text-xs text-purple-400"></i>
@@ -171,7 +176,7 @@
                             </a>
                             <a href="{{ route('admin.crm.companies.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.companies.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-building text-xs text-indigo-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'حسابات الشركات (B2B)' : 'Corporate Accounts' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'حسابات الشركات' : 'Corporate Accounts' }}</span>
                             </a>
                             <a href="{{ route('admin.crm.campaigns.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.campaigns.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
@@ -187,7 +192,7 @@
                     <button type="button" class="sidebar-dropdown-btn {{ $isHrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-hr')">
                         <div class="sidebar-dropdown-label">
                             <i class="fa-solid fa-people-roof sidebar-link-icon text-pink-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الموارد البشرية (HR)' : 'Human Resources (HR)' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الموارد البشرية' : 'Human Resources' }}</span>
                         </div>
                         <div class="sidebar-dropdown-meta">
                             <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -200,27 +205,11 @@
                             <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'لوحة تحكم الموارد البشرية' : 'HR Dashboard' }}</span>
                         </a>
 
-                        {{-- 1. Organization (Temporarily hidden)
-                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
-                            {{ app()->getLocale() === 'ar' ? 'الهيكل التنظيمي' : 'Organization' }}
-                        </div>
-                        <a href="{{ route('admin.hr.organization.departments.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.departments.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-sitemap text-xs text-teal-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الأقسام (Departments)' : 'Departments' }}</span>
+                        <!-- Self-Service Employee Portal -->
+                        <a href="{{ route('admin.self-service.index') }}" class="sidebar-sublink text-cyan-400 font-bold bg-cyan-950/20 rounded-lg {{ request()->routeIs('admin.self-service.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-clock text-xs text-cyan-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'بوابة الخدمة الذاتية للموظف' : 'Employee Self-Service' }}</span>
                         </a>
-                        <a href="{{ route('admin.hr.organization.positions.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.positions.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-id-card-clip text-xs text-sky-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الوظائف والمهن (Positions)' : 'Positions' }}</span>
-                        </a>
-                        <a href="{{ route('admin.hr.organization.work-schedules.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.work-schedules.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-business-time text-xs text-amber-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'ورديات ومواعيد العمل' : 'Work Schedules' }}</span>
-                        </a>
-                        <a href="{{ Route::has('admin.locations.index') ? route('admin.locations.index') : url('/admin/locations') }}" class="sidebar-sublink {{ request()->routeIs('admin.locations.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-building-circle-check text-xs text-indigo-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'الفروع والمواقع (Branches)' : 'Branches / Hubs' }}</span>
-                        </a>
-                        --}}
 
                         <!-- 2. Employees -->
                         <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
@@ -228,7 +217,7 @@
                         </div>
                         <a href="{{ route('admin.hr.employees.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.employees.index') ? 'active' : '' }}">
                             <i class="fa-solid fa-users text-xs text-sky-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'دليل الموظفين (All Employees)' : 'All Employees' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'دليل الموظفين' : 'All Employees' }}</span>
                         </a>
                         <a href="{{ route('admin.hr.employees.create') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.employees.create') ? 'active' : '' }}">
                             <i class="fa-solid fa-user-plus text-xs text-emerald-400"></i>
@@ -253,7 +242,7 @@
                         </a>
                         <a href="{{ route('admin.hr.attendance.overtime') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.attendance.overtime*') ? 'active' : '' }}">
                             <i class="fa-solid fa-clock-rotate-left text-xs text-purple-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'العمل الإضافي (Overtime)' : 'Overtime Requests' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'العمل الإضافي' : 'Overtime Requests' }}</span>
                         </a>
 
                         <!-- 4. Leave Management -->
@@ -287,7 +276,7 @@
                         </a>
                         <a href="{{ route('admin.hr.payroll.payslips') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.payslips*') ? 'active' : '' }}">
                             <i class="fa-solid fa-receipt text-xs text-sky-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'قسائم الرواتب (Payslips)' : 'Employee Payslips' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'قسائم الرواتب' : 'Employee Payslips' }}</span>
                         </a>
                         <a href="{{ route('admin.hr.payroll.structures') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.payroll.structures*') ? 'active' : '' }}">
                             <i class="fa-solid fa-cubes-stacked text-xs text-purple-400"></i>
@@ -304,7 +293,7 @@
                         </div>
                         <a href="{{ route('admin.hr.settings.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.settings.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-sliders text-xs text-violet-400"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وسياسات الـ HR' : 'HR System Settings' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إعدادات وسياسات الموارد البشرية' : 'HR System Settings' }}</span>
                         </a>
                     </div>
                 </div>
@@ -376,7 +365,7 @@
                             <a href="{{ Route::has('admin.inventory.allocator') ? route('admin.inventory.allocator') : url('/admin/inventory/allocator') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.allocator') ? 'active' : '' }}">
                                 <i class="fa-solid fa-network-wired text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون (Live)' : 'Stock Allocator (Live)' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون المباشر' : 'Stock Allocator (Live)' }}</span>
                             </a>
                             <a href="{{ Route::has('admin.inventory.transfers') ? route('admin.inventory.transfers') : url('/admin/inventory/transfers') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
@@ -421,7 +410,7 @@
                                 <a href="{{ route('admin.offline-sales.create') }}"
                                     class="sidebar-sublink {{ request()->routeIs('admin.offline-sales.create') ? 'active' : '' }}">
                                     <i class="fa-solid fa-calculator text-xs"></i>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'نقطة بيع جديدة (POS)' : 'New POS Sale' }}</span>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نقطة بيع جديدة' : 'New POS Sale' }}</span>
                                 </a>
                             @endif
                             @if($u->hasPermission('invoices.view') || $u->hasPermission('invoices'))
@@ -538,12 +527,12 @@
                                 class="sidebar-sublink {{ request()->routeIs('admin.settings.geo.*') || request()->routeIs('admin.countries.*') ? 'active' : '' }}"
                                 title="{{ app()->getLocale() == 'ar' ? 'إدارة النطاقات الجغرافية والدول والمدن' : 'Countries, Cities & Geographic Hub' }}">
                                 <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
-                                <span>{{ app()->getLocale() == 'ar' ? 'الدول والمدن (Geo)' : 'Countries & Cities' }}</span>
+                                <span>{{ app()->getLocale() == 'ar' ? 'الدول والمدن' : 'Countries & Cities' }}</span>
                             </a>
                             <a href="{{ route('admin.settings.index') }}#tab-typography" class="sidebar-sublink"
                                 title="{{ app()->getLocale() == 'ar' ? 'المعاينة الحية والتحكم في خطوط النظام' : 'Live Interactive Typography Control' }}">
                                 <i class="fa-solid fa-font text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة (Live)' : 'Typography & Fonts (Live)' }}</span>
+                                <span>{{ app()->getLocale() == 'ar' ? 'الخطوط والطباعة' : 'Typography & Fonts' }}</span>
                             </a>
                             <a href="{{ route('admin.profile.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.profile.*') ? 'active' : '' }}">
@@ -639,9 +628,31 @@
                         <i class="fa-solid fa-circle-half-stroke"></i>
                     </button>
 
-                    <!-- Notifications Bell & Dropdown -->
                     @php
                         $authUser = auth()->user();
+                        $headerEmployee = $authUser ? ($authUser->relationLoaded('employee') ? $authUser->employee : $authUser->employee) : null;
+                        $headerTodayAtt = $headerEmployee ? \App\Models\AttendanceRecord::where('employee_id', $headerEmployee->id)->where('attendance_date', now()->toDateString())->first() : null;
+                        $headerCheckedIn = !empty($headerTodayAtt?->check_in);
+                        $headerCheckedOut = !empty($headerTodayAtt?->check_out);
+                    @endphp
+
+                    <!-- Employee Quick Punch / Self-Service Widget Button -->
+                    <button type="button" onclick="openEmployeeSelfServiceModal()" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer border {{ $headerCheckedIn && !$headerCheckedOut ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20' : ($headerCheckedOut ? 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/30 hover:bg-slate-500/20' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20 animate-pulse') }}" title="{{ app()->getLocale() === 'ar' ? 'تسجيل الحضور وتقديم الإجازات' : 'Punch Attendance & Leave Requests' }}">
+                        <span class="w-2 h-2 rounded-full {{ $headerCheckedIn && !$headerCheckedOut ? 'bg-emerald-500 animate-ping' : ($headerCheckedOut ? 'bg-slate-400' : 'bg-amber-500') }}"></span>
+                        <i class="fa-solid {{ $headerCheckedIn && !$headerCheckedOut ? 'fa-user-check' : ($headerCheckedOut ? 'fa-clock-rotate-left' : 'fa-fingerprint') }} text-xs"></i>
+                        <span class="hidden md:inline">
+                            @if($headerCheckedIn && !$headerCheckedOut)
+                                {{ app()->getLocale() === 'ar' ? 'حاضر (' . substr($headerTodayAtt->check_in, 0, 5) . ')' : 'Clocked In (' . substr($headerTodayAtt->check_in, 0, 5) . ')' }}
+                            @elseif($headerCheckedOut)
+                                {{ app()->getLocale() === 'ar' ? 'انصرف' : 'Checked Out' }}
+                            @else
+                                {{ app()->getLocale() === 'ar' ? 'تسجيل حضور' : 'Punch In' }}
+                            @endif
+                        </span>
+                    </button>
+
+                    <!-- Notifications Bell & Dropdown -->
+                    @php
                         $adminNotifications = $authUser ? $authUser->notifications()->latest()->limit(8)->get() : collect();
                         $adminUnreadCount = $authUser ? $authUser->unreadNotifications()->count() : 0;
                     @endphp
@@ -2576,4 +2587,5 @@
             align-items: center;
         }
     </style>
+    <x-employee-self-service-modal />
 </x-layouts.app>

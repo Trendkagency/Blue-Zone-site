@@ -622,10 +622,14 @@ class MrVisitManagementTest extends TestCase
             'product_ids' => [$product->id],
         ]);
 
-        // 2. Check in for doctorActive (remains ongoing without checkout)
-        $vActive = $visitService->submitCheckIn($user->id, [
+        // 2. Direct visit for doctorActive
+        $vActive = $visitService->recordDirectVisit($user->id, [
             'contact_id' => $doctorActive->id,
             'cycle_id' => $cycle->id,
+            'action_type' => 'visited',
+            'outcome' => 'completed',
+            'notes' => 'Product samples handed directly.',
+            'product_ids' => [$product->id],
             'lat' => 30.044420,
             'lng' => 31.235712,
         ]);
@@ -634,10 +638,9 @@ class MrVisitManagementTest extends TestCase
         $response = $this->actingAs($user)->get(route('mr.dashboard'));
         $response->assertOk();
 
-        // 4. Verify Active Checked-in doctor has active badge and checkout button
+        // 4. Verify Doctor has direct visit actions
         $response->assertSee('Dr. Active Checkin');
-        $response->assertSee('Checked In');
-        $response->assertSee("openCheckoutModal({$vActive->id}");
+        $response->assertSee('openDirectVisitModal');
 
         // 5. Verify Visits Done modal has completed doctor, discussed product, and meeting notes
         $response->assertSee('Dr. Visited Done');
@@ -645,4 +648,168 @@ class MrVisitManagementTest extends TestCase
         $response->assertSee('Detailed clinical discussion regarding Omega Longevity formulation.');
         $response->assertSee('visits-done-modal');
     }
+
+    /**
+     * 14. Test Direct Visit Completed Workflow (One-step visit recording)
+     */
+    public function test_record_direct_visit_completed_workflow(): void
+    {
+        $classA = ContactClassification::where('code', 'A')->first(); // 3 pts, 3 visits
+        $specialty = ContactSpecialty::first();
+
+        $contact = Contact::create([
+            'code' => 'DOC-DIRECT-01',
+            'name' => 'Dr. Direct Completed',
+            'classification_id' => $classA->id,
+            'specialty_id' => $specialty->id,
+            'latitude' => 30.044420,
+            'longitude' => 31.235712,
+        ]);
+
+        $cycle = VisitCycle::create([
+            'name' => 'Direct Cycle 2026',
+            'code' => 'CYCLE-DIRECT-01',
+            'start_date' => now()->startOfMonth(),
+            'end_date' => now()->endOfMonth(),
+            'status' => 'active',
+        ]);
+
+        $user = User::factory()->create();
+
+        $assignService = app(CrmAssignmentService::class);
+        $assignment = $assignService->assignContact($cycle->id, $user->id, $contact->id);
+
+        $scheduledVisit = ScheduledVisit::create([
+            'cycle_id' => $cycle->id,
+            'mr_id' => $user->id,
+            'contact_id' => $contact->id,
+            'scheduled_at' => now()->toDateString(),
+            'status' => 'scheduled',
+        ]);
+
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'direct-test-prod',
+            'sku' => 'DIR-001',
+            'name_en' => 'Anti-Aging Serum',
+            'name_ar' => 'سيروم مكافحة الشيخوخة',
+            'price' => 150,
+            'status' => 'active',
+        ]);
+
+        $visitService = app(CrmVisitService::class);
+        $visit = $visitService->recordDirectVisit($user->id, [
+            'contact_id' => $contact->id,
+            'cycle_id' => $cycle->id,
+            'scheduled_visit_id' => $scheduledVisit->id,
+            'action_type' => 'visited',
+            'outcome' => 'completed',
+            'notes' => 'Direct visit finished successfully in one step.',
+            'product_ids' => [$product->id],
+            'lat' => 30.044500,
+            'lng' => 31.235800,
+            'accuracy_m' => 10,
+        ]);
+
+        $this->assertNotNull($visit->id);
+        $this->assertNotNull($visit->checkin_at);
+        $this->assertNotNull($visit->checkout_at);
+        $this->assertEquals('completed', $visit->outcome);
+        $this->assertTrue($visit->gps_verified);
+        $this->assertCount(1, $visit->products);
+
+        // Check Scheduled Visit updated to completed
+        $scheduledVisit->refresh();
+        $this->assertEquals('completed', $scheduledVisit->status);
+
+        // Check Assignment visits_done & points updated by Observer
+        $assignment->refresh();
+        $this->assertEquals(1, $assignment->visits_done);
+        $this->assertEquals(3, $assignment->achieved_points);
+
+        // Check RepDailyLog
+        $dailyLog = RepDailyLog::where('mr_id', $user->id)->whereDate('log_date', now()->toDateString())->first();
+        $this->assertNotNull($dailyLog);
+        $this->assertTrue($dailyLog->is_reported);
+    }
+
+    /**
+     * 15. Test Direct "Don't Visit" Workflow (Does not inflate points or visits done)
+     */
+    public function test_record_direct_dont_visit_workflow(): void
+    {
+        $classB = ContactClassification::where('code', 'B')->first(); // 2 pts, 2 visits
+        $specialty = ContactSpecialty::first();
+
+        $contact = Contact::create([
+            'code' => 'DOC-DONT-01',
+            'name' => 'Dr. Clinic Closed Doctor',
+            'classification_id' => $classB->id,
+            'specialty_id' => $specialty->id,
+            'latitude' => 30.044420,
+            'longitude' => 31.235712,
+        ]);
+
+        $cycle = VisitCycle::create([
+            'name' => 'Dont Visit Cycle 2026',
+            'code' => 'CYCLE-DONT-01',
+            'start_date' => now()->startOfMonth(),
+            'end_date' => now()->endOfMonth(),
+            'status' => 'active',
+        ]);
+
+        $user = User::factory()->create();
+
+        $assignService = app(CrmAssignmentService::class);
+        $assignment = $assignService->assignContact($cycle->id, $user->id, $contact->id);
+
+        $scheduledVisit = ScheduledVisit::create([
+            'cycle_id' => $cycle->id,
+            'mr_id' => $user->id,
+            'contact_id' => $contact->id,
+            'scheduled_at' => now()->toDateString(),
+            'status' => 'scheduled',
+        ]);
+
+        $product = \App\Models\Product::first() ?? \App\Models\Product::create([
+            'slug' => 'target-prod-dont',
+            'sku' => 'DONT-001',
+            'name_en' => 'Target Longevity Drink',
+            'name_ar' => 'مشروب طول العمر المستهدف',
+            'price' => 120,
+            'status' => 'active',
+        ]);
+
+        // API Endpoint test for Don't Visit
+        $response = $this->actingAs($user)->postJson(route('mr.record_visit'), [
+            'contact_id' => $contact->id,
+            'cycle_id' => $cycle->id,
+            'scheduled_visit_id' => $scheduledVisit->id,
+            'action_type' => 'dont_visit',
+            'outcome' => 'clinic_closed',
+            'notes' => 'Clinic was closed due to renovation works.',
+            'product_ids' => [$product->id],
+            'lat' => 30.044500,
+            'lng' => 31.235800,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson(['success' => true]);
+
+        // Scheduled visit marked cancelled
+        $scheduledVisit->refresh();
+        $this->assertEquals('cancelled', $scheduledVisit->status);
+
+        // Verify visit record in DB
+        $visit = Visit::where('contact_id', $contact->id)->where('mr_id', $user->id)->first();
+        $this->assertNotNull($visit);
+        $this->assertEquals('clinic_closed', $visit->outcome);
+        $this->assertStringContainsString('Clinic was closed', $visit->notes);
+        $this->assertCount(1, $visit->products);
+
+        // Crucial: Assignment visits_done & points must remain 0
+        $assignment->refresh();
+        $this->assertEquals(0, $assignment->visits_done);
+        $this->assertEquals(0, $assignment->achieved_points);
+    }
 }
+

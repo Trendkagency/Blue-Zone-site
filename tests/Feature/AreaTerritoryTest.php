@@ -109,11 +109,11 @@ class AreaTerritoryTest extends TestCase
         ]);
 
         $area = Area::firstOrCreate(
-            ['city_id' => $this->city->id, 'name_en' => 'Maadi'],
+            ['city_id' => $this->city->id, 'name_en' => 'Maadi_Unique_Test'],
             [
                 'country_id' => $this->country->id,
-                'name_ar' => 'المعادي',
-                'code' => 'CAI-MAA-TEST',
+                'name_ar' => 'المعادي تجربة',
+                'code' => 'CAI-MAA-TEST-UNIQUE',
                 'is_active' => true,
             ]
         );

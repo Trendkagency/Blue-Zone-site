@@ -97,7 +97,7 @@ class LeaveController extends Controller
         $reason = $request->input('rejection_reason', 'Rejected by administrator.');
 
         try {
-            $this->leaveService->rejectRequest($leaveRequest, auth()->id(), $reason);
+            $this->leaveService->rejectRequest($leaveRequest, $reason, auth()->id());
             return back()->with('success', __('hr.leave_request_rejected', ['default' => 'Leave request rejected.']));
         } catch (\Throwable $e) {
             return back()->withErrors(['error' => $e->getMessage()]);

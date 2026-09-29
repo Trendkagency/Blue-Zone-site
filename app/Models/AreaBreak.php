@@ -9,13 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Area extends Model
+class AreaBreak extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = 'breaks';
 
     protected $fillable = [
         'country_id',
         'city_id',
+        'area_id',
         'name_en',
         'name_ar',
         'code',
@@ -26,6 +29,7 @@ class Area extends Model
     protected $casts = [
         'country_id' => 'integer',
         'city_id' => 'integer',
+        'area_id' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
@@ -40,14 +44,19 @@ class Area extends Model
         return $this->belongsTo(City::class);
     }
 
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(Area::class);
+    }
+
     public function users(): HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'break_id');
     }
 
     public function medicalReps(): HasMany
     {
-        return $this->hasMany(User::class)->where(function ($q) {
+        return $this->hasMany(User::class, 'break_id')->where(function ($q) {
             $q->whereHas('role', function ($rq) {
                 $rq->where('name', 'mr');
             })->orWhere('role_id', 2);
@@ -56,17 +65,7 @@ class Area extends Model
 
     public function contacts(): HasMany
     {
-        return $this->hasMany(Contact::class);
-    }
-
-    public function breaks(): HasMany
-    {
-        return $this->hasMany(AreaBreak::class, 'area_id')->orderBy('sort_order')->orderBy('name_en');
-    }
-
-    public function activeBreaks(): HasMany
-    {
-        return $this->hasMany(AreaBreak::class, 'area_id')->where('is_active', true)->orderBy('sort_order')->orderBy('name_en');
+        return $this->hasMany(Contact::class, 'break_id');
     }
 
     public function getNameAttribute(): string
@@ -79,9 +78,10 @@ class Area extends Model
     {
         $countryName = $this->country?->name ?? '';
         $cityName = $this->city?->name ?? '';
-        $areaName = $this->name;
+        $areaName = $this->area?->name ?? '';
+        $breakName = $this->name;
 
-        return trim("{$countryName} › {$cityName} › {$areaName}", ' ›');
+        return trim("{$countryName} › {$cityName} › {$areaName} › {$breakName}", ' ›');
     }
 
     public function scopeActive($query)

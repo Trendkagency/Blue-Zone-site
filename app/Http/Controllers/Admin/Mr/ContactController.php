@@ -19,7 +19,7 @@ class ContactController extends Controller
         $isManager = $currentUser ? $currentUser->canManageAllMr() : false;
         $isRep = $currentUser ? ($currentUser->isMedicalRep() && !$isManager) : false;
 
-        $query = Contact::with(['specialty', 'classification', 'city', 'country'])
+        $query = Contact::with(['specialty', 'classification', 'city', 'country', 'area', 'break'])
             ->withCount(['assignments', 'visits']);
 
         if ($isRep) {
@@ -153,8 +153,8 @@ class ContactController extends Controller
     {
         $specialties = ContactSpecialty::where('is_active', true)->get();
         $classifications = ContactClassification::where('is_active', true)->orderBy('sort_order')->get();
+        $countries = Country::where('is_active', true)->orderBy('sort_order')->orderBy('name_en')->get();
         $cities = City::where('is_active', true)->orderBy('name_en')->get();
-        $countries = Country::where('is_active', true)->orderBy('name_en')->get();
 
         return view('admin.mr.contacts.create', compact('specialties', 'classifications', 'cities', 'countries'));
     }
@@ -169,6 +169,8 @@ class ContactController extends Controller
             'hospital_clinic_name' => 'nullable|string|max:255',
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
+            'area_id' => 'nullable|exists:areas,id',
+            'break_id' => 'nullable|exists:breaks,id',
             'region' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'latitude' => 'nullable|numeric|between:-90,90',
@@ -207,6 +209,8 @@ class ContactController extends Controller
                 'classification',
                 'city',
                 'country',
+                'area',
+                'break',
                 'assignments' => fn($q) => $q->where('mr_id', $currentUser->id)->with('cycle'),
                 'visits' => fn($q) => $q->where('mr_id', $currentUser->id)->with('cycle'),
             ])->findOrFail($id);
@@ -216,6 +220,8 @@ class ContactController extends Controller
                 'classification',
                 'city',
                 'country',
+                'area',
+                'break',
                 'assignments.cycle',
                 'assignments.representative',
                 'visits.representative',
@@ -228,13 +234,15 @@ class ContactController extends Controller
 
     public function edit(int $id)
     {
-        $contact = Contact::findOrFail($id);
+        $contact = Contact::with(['country', 'city', 'area', 'break'])->findOrFail($id);
         $specialties = ContactSpecialty::where('is_active', true)->get();
         $classifications = ContactClassification::where('is_active', true)->orderBy('sort_order')->get();
-        $cities = City::where('is_active', true)->orderBy('name_en')->get();
-        $countries = Country::where('is_active', true)->orderBy('name_en')->get();
+        $countries = Country::where('is_active', true)->orderBy('sort_order')->orderBy('name_en')->get();
+        $cities = $contact->country_id ? City::where('country_id', $contact->country_id)->where('is_active', true)->orderBy('name_en')->get() : City::where('is_active', true)->orderBy('name_en')->get();
+        $areas = $contact->city_id ? \App\Models\Area::where('city_id', $contact->city_id)->where('is_active', true)->orderBy('name_en')->get() : collect();
+        $breaks = $contact->area_id ? \App\Models\AreaBreak::where('area_id', $contact->area_id)->where('is_active', true)->orderBy('name_en')->get() : collect();
 
-        return view('admin.mr.contacts.edit', compact('contact', 'specialties', 'classifications', 'cities', 'countries'));
+        return view('admin.mr.contacts.edit', compact('contact', 'specialties', 'classifications', 'cities', 'countries', 'areas', 'breaks'));
     }
 
     public function update(Request $request, int $id)
@@ -249,6 +257,8 @@ class ContactController extends Controller
             'hospital_clinic_name' => 'nullable|string|max:255',
             'country_id' => 'nullable|exists:countries,id',
             'city_id' => 'nullable|exists:cities,id',
+            'area_id' => 'nullable|exists:areas,id',
+            'break_id' => 'nullable|exists:breaks,id',
             'region' => 'nullable|string|max:255',
             'address' => 'nullable|string',
             'latitude' => 'nullable|numeric|between:-90,90',

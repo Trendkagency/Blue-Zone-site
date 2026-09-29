@@ -339,10 +339,6 @@ class VisitController extends Controller
             ScheduledVisit::where('id', $scheduledVisitId)->update(['status' => 'completed']);
         }
 
-        $assignment->increment('visits_done');
-        $pointsPerVisit = $class ? (int) $class->points : 3;
-        $assignment->increment('achieved_points', $pointsPerVisit);
-
         $msg = app()->getLocale() === 'ar'
             ? "تم تسجيل زيارة المندوب بنجاح واعتمادها في سجل الزيارات وحساب النقاط."
             : "Visit recorded and verified successfully on behalf of the Medical Representative.";

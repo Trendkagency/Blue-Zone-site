@@ -65,7 +65,7 @@ class MrAutoScheduleAssignmentTest extends TestCase
             'name' => 'Q3 Cycle 2026',
             'code' => 'CYCLE-Q3-2026',
             'start_date' => now()->startOfMonth(),
-            'end_date' => now()->endOfMonth(),
+            'end_date' => now()->addMonths(2)->endOfMonth(),
             'status' => 'active',
         ]);
 

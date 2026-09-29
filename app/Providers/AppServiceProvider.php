@@ -69,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\InventoryMovement::observe(\App\Observers\InventoryMovementObserver::class);
         \App\Models\Mr\Visit::observe(\App\Observers\VisitObserver::class);
         \App\Models\Area::observe(\App\Observers\AreaObserver::class);
+        \App\Models\AreaBreak::observe(\App\Observers\AreaBreakObserver::class);
         \App\Models\Employee::observe(\App\Observers\EmployeeObserver::class);
         \App\Models\LeaveRequest::observe(\App\Observers\LeaveRequestObserver::class);
         \App\Models\EmployeeContract::observe(\App\Observers\EmployeeContractObserver::class);

@@ -473,11 +473,21 @@
         $items = is_array($order) ? ($order['items'] ?? []) : ($order->items ?? []);
     @endphp
 
+    @php
+        $trackUrl = route('orders.track', $ordNum);
+    @endphp
+
     <!-- Screen Toolbar -->
     <div class="no-print-toolbar">
-        <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
             <a href="{{ route('admin.invoices.index') }}" class="btn btn-secondary">
                 <i class="fa-solid fa-arrow-left mr-1.5 ml-1.5"></i> Back to Invoices
+            </a>
+            <a href="{{ route('admin.invoices.label', $invNum) }}" class="btn btn-secondary" title="Print Avery 4x6 / 5163 Shipping Label">
+                <i class="fa-solid fa-tags mr-1.5 ml-1.5 text-sky-600"></i> Avery Shipping Label
+            </a>
+            <a href="{{ $trackUrl }}" target="_blank" class="btn btn-secondary" title="Open Public Tracking Page">
+                <i class="fa-solid fa-arrow-up-right-from-square mr-1.5 ml-1.5 text-teal-600"></i> Open Live Web Details
             </a>
         </div>
         <div class="btn-group">
@@ -622,13 +632,16 @@
             <div>
                 <div class="qr-verification-card">
                     <div class="qr-box">
-                        <!-- ZATCA Dynamic QR Code Generator -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode('BLUE ZONE Bioceuticals | Tax: 31004829100003 | Date: ' . $ordDate . ' | Total: $' . $total . ' | Inv: ' . $invNum) }}" alt="Tax QR Code">
+                        <!-- ZATCA & Web Verification Dynamic QR Code Generator -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($trackUrl) }}" alt="Scan for Order Details">
                     </div>
                     <div class="qr-text">
-                        <strong>ZATCA E-Invoice Verification</strong>
-                        <div>Scan to verify invoice cryptographic compliance and authenticity with Blue Zone Bioceuticals Inc. Central Registry.</div>
-                        <div style="margin-top: 0.35rem; font-family: monospace; font-size: 0.7rem; color: var(--bz-teal);">HASH: {{ md5($invNum . $total) }}</div>
+                        <strong>ZATCA E-Invoice Verification & Live Tracking</strong>
+                        <div>Scan with any smartphone camera to open full order details, live tracking, and digital ledger verification on the web.</div>
+                        <div style="margin-top: 0.35rem; font-family: monospace; font-size: 0.7rem; color: var(--bz-teal);">
+                            <span>HASH: {{ md5($invNum . $total) }}</span> &bull; 
+                            <a href="{{ $trackUrl }}" target="_blank" style="color: var(--bz-teal); text-decoration: underline;">Open Web Verification</a>
+                        </div>
                     </div>
                 </div>
 

@@ -46,13 +46,13 @@ class AreaTerritoryService
     }
 
     /**
-     * Get active countries with cities and areas tree.
+     * Get active countries with cities, areas, and breaks tree.
      */
     public function getActiveHierarchyTree(): Collection
     {
         return Cache::remember('mr_territory_hierarchy_tree', 3600, function () {
             return Country::where('is_active', true)
-                ->with(['activeCities.activeAreas'])
+                ->with(['activeCities.activeAreas.activeBreaks'])
                 ->orderBy('sort_order')
                 ->orderBy('name_en')
                 ->get();
@@ -76,11 +76,42 @@ class AreaTerritoryService
     }
 
     /**
-     * Assign a Medical Representative to a specific Territory (Country, City, Area).
+     * Get breaks for a specific area.
      */
-    public function assignRepToTerritory(User $user, ?int $areaId, ?int $cityId = null, ?int $countryId = null): User
+    public function getBreaksByArea(int $areaId, bool $onlyActive = true): Collection
     {
-        if ($areaId) {
+        $cacheKey = "mr_breaks_by_area_{$areaId}_" . ($onlyActive ? 'active' : 'all');
+
+        return Cache::remember($cacheKey, 1800, function () use ($areaId, $onlyActive) {
+            $query = \App\Models\AreaBreak::where('area_id', $areaId)->orderBy('sort_order')->orderBy('name_en');
+            if ($onlyActive) {
+                $query->where('is_active', true);
+            }
+            return $query->get();
+        });
+    }
+
+    /**
+     * Assign a Medical Representative to a specific Territory (Country, City, Area, Break).
+     */
+    public function assignRepToTerritory(User $user, ?int $breakId = null, ?int $areaId = null, ?int $cityId = null, ?int $countryId = null): User
+    {
+        if ($breakId) {
+            $break = \App\Models\AreaBreak::with('area.city.country')->find($breakId);
+            if ($break) {
+                $areaId = $break->area_id;
+                $cityId = $break->city_id;
+                $countryId = $break->country_id;
+            } else {
+                $possibleArea = Area::with('city.country')->find($breakId);
+                if ($possibleArea) {
+                    $areaId = $possibleArea->id;
+                    $cityId = $possibleArea->city_id;
+                    $countryId = $possibleArea->country_id;
+                    $breakId = null;
+                }
+            }
+        } elseif ($areaId) {
             $area = Area::with('city.country')->find($areaId);
             if ($area) {
                 $cityId = $area->city_id;
@@ -97,13 +128,14 @@ class AreaTerritoryService
             'country_id' => $countryId,
             'city_id' => $cityId,
             'area_id' => $areaId,
+            'break_id' => $breakId,
         ]);
 
-        Log::info("AreaTerritoryService: Assigned MR #{$user->id} ({$user->name}) to Country #{$countryId}, City #{$cityId}, Area #{$areaId}");
+        Log::info("AreaTerritoryService: Assigned MR #{$user->id} ({$user->name}) to Country #{$countryId}, City #{$cityId}, Area #{$areaId}, Break #{$breakId}");
 
         $this->clearTerritoryCache();
 
-        return $user->fresh(['country', 'city', 'area']);
+        return $user->fresh(['country', 'city', 'area', 'break']);
     }
 
     /**
@@ -114,6 +146,8 @@ class AreaTerritoryService
         return [
             'total_areas' => Area::count(),
             'active_areas' => Area::where('is_active', true)->count(),
+            'total_breaks' => \App\Models\AreaBreak::count(),
+            'active_breaks' => \App\Models\AreaBreak::where('is_active', true)->count(),
             'covered_cities' => City::has('areas')->count(),
             'assigned_reps_count' => User::whereNotNull('area_id')->count(),
             'unassigned_reps_count' => User::where(function ($q) {

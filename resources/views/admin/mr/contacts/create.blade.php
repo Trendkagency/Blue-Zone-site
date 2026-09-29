@@ -111,25 +111,144 @@
                         <input type="email" name="email" value="{{ old('email') }}" class="form-control text-sm" placeholder="doctor@clinic.com">
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
-                            {{ app()->getLocale() === 'ar' ? 'المدينة' : 'City' }}
-                        </label>
-                        <select name="city_id" class="form-select text-sm">
-                            <option value="">{{ app()->getLocale() === 'ar' ? 'اختر المدينة' : 'Select City' }}</option>
-                            @foreach($cities as $ct)
-                                <option value="{{ $ct->id }}" {{ old('city_id') == $ct->id ? 'selected' : '' }}>
-                                    {{ $ct->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <!-- Territory Hierarchy Cascading Pickers (Country -> City -> Area -> Break) -->
+                    <div class="md:col-span-2 p-4 rounded-xl border border-sky-100 dark:border-sky-900/60 bg-sky-50/40 dark:bg-sky-950/20"
+                        x-data="{
+                            countryId: '{{ old('country_id', '') }}',
+                            cityId: '{{ old('city_id', '') }}',
+                            areaId: '{{ old('area_id', '') }}',
+                            breakId: '{{ old('break_id', '') }}',
+                            cities: [],
+                            areas: [],
+                            breaks: [],
+                            loadingCities: false,
+                            loadingAreas: false,
+                            loadingBreaks: false,
 
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
-                            {{ app()->getLocale() === 'ar' ? 'المنطقة / الحي' : 'Region / District' }}
-                        </label>
-                        <input type="text" name="region" value="{{ old('region') }}" class="form-control text-sm" placeholder="e.g. Heliopolis, Nasr City">
+                            async onCountryChange() {
+                                this.cityId = '';
+                                this.areaId = '';
+                                this.breakId = '';
+                                this.cities = [];
+                                this.areas = [];
+                                this.breaks = [];
+                                if (!this.countryId) return;
+
+                                this.loadingCities = true;
+                                try {
+                                    const res = await fetch(`{{ url('/admin/api/countries') }}/${this.countryId}/cities`);
+                                    const data = await res.json();
+                                    this.cities = data.cities || [];
+                                } catch (e) {
+                                    console.error('Failed to load cities:', e);
+                                } finally {
+                                    this.loadingCities = false;
+                                }
+                            },
+
+                            async onCityChange() {
+                                this.areaId = '';
+                                this.breakId = '';
+                                this.areas = [];
+                                this.breaks = [];
+                                if (!this.cityId) return;
+
+                                this.loadingAreas = true;
+                                try {
+                                    const res = await fetch(`{{ url('/admin/api/cities') }}/${this.cityId}/areas`);
+                                    const data = await res.json();
+                                    this.areas = data.areas || [];
+                                } catch (e) {
+                                    console.error('Failed to load areas:', e);
+                                } finally {
+                                    this.loadingAreas = false;
+                                }
+                            },
+
+                            async onAreaChange() {
+                                this.breakId = '';
+                                this.breaks = [];
+                                if (!this.areaId) return;
+
+                                this.loadingBreaks = true;
+                                try {
+                                    const res = await fetch(`{{ url('/admin/api/areas') }}/${this.areaId}/breaks`);
+                                    const data = await res.json();
+                                    this.breaks = data.breaks || [];
+                                } catch (e) {
+                                    console.error('Failed to load breaks:', e);
+                                } finally {
+                                    this.loadingBreaks = false;
+                                }
+                            }
+                        }"
+                        x-init="if (countryId) onCountryChange()"
+                    >
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-solid fa-map-location-dot text-sky-600 text-sm"></i>
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                                {{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي والبريك (الدولة › المدينة › المنطقة › البريك)' : 'Territory Hierarchy (Country › City › Area › Break)' }}
+                            </h4>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <!-- 1. Country -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1">
+                                    {{ app()->getLocale() === 'ar' ? '1. الدولة' : '1. Country' }}
+                                </label>
+                                <select name="country_id" x-model="countryId" @change="onCountryChange()" class="form-select text-xs w-full rounded-lg">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الدولة --' : '-- Select Country --' }}</option>
+                                    @foreach($countries as $c)
+                                        <option value="{{ $c->id }}" {{ old('country_id') == $c->id ? 'selected' : '' }}>
+                                            {{ $c->flag_emoji }} {{ $c->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- 2. City -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1 flex items-center justify-between">
+                                    <span>{{ app()->getLocale() === 'ar' ? '2. المدينة' : '2. City' }}</span>
+                                    <span x-show="loadingCities" class="text-[10px] text-sky-500 font-normal"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                </label>
+                                <select name="city_id" x-model="cityId" @change="onCityChange()" :disabled="!countryId || loadingCities" class="form-select text-xs w-full rounded-lg disabled:opacity-50">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- Select City --' }}</option>
+                                    <template x-for="city in cities" :key="city.id">
+                                        <option :value="city.id" :selected="city.id == cityId" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <!-- 3. Area -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1 flex items-center justify-between">
+                                    <span>{{ app()->getLocale() === 'ar' ? '3. المنطقة / المربع' : '3. Area' }}</span>
+                                    <span x-show="loadingAreas" class="text-[10px] text-sky-500 font-normal"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                </label>
+                                <select name="area_id" x-model="areaId" @change="onAreaChange()" :disabled="!cityId || loadingAreas" class="form-select text-xs w-full rounded-lg disabled:opacity-50">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المنطقة --' : '-- Select Area --' }}</option>
+                                    <template x-for="a in areas" :key="a.id">
+                                        <option :value="a.id" :selected="a.id == areaId" x-text="'{{ app()->getLocale() }}' === 'ar' ? (a.name_ar || a.name_en) : (a.name_en || a.name_ar)"></option>
+                                    </template>
+                                </select>
+                            </div>
+
+                            <!-- 4. Break -->
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase mb-1 flex items-center justify-between">
+                                    <span>{{ app()->getLocale() === 'ar' ? '4. البريك / القطاع' : '4. Break' }}</span>
+                                    <span x-show="loadingBreaks" class="text-[10px] text-sky-500 font-normal"><i class="fa-solid fa-spinner fa-spin"></i></span>
+                                </label>
+                                <select name="break_id" x-model="breakId" :disabled="!areaId || loadingBreaks" class="form-select text-xs w-full rounded-lg disabled:opacity-50">
+                                    <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر البريك --' : '-- Select Break --' }}</option>
+                                    <template x-for="b in breaks" :key="b.id">
+                                        <option :value="b.id" :selected="b.id == breakId" x-text="'{{ app()->getLocale() }}' === 'ar' ? (b.name_ar || b.name_en) : (b.name_en || b.name_ar)"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="md:col-span-2">

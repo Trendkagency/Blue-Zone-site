@@ -20,7 +20,7 @@ class AttendanceService
 
         // Check for duplicate attendance
         $existing = AttendanceRecord::where('employee_id', $employeeId)
-            ->where('attendance_date', $attendanceDate)
+            ->whereDate('attendance_date', $attendanceDate)
             ->first();
 
         if ($existing && !empty($existing->check_in)) {
@@ -67,7 +67,7 @@ class AttendanceService
         $checkOutTime = $time ? Carbon::parse($time)->format('H:i:s') : now()->format('H:i:s');
 
         $record = AttendanceRecord::where('employee_id', $employeeId)
-            ->where('attendance_date', $attendanceDate)
+            ->whereDate('attendance_date', $attendanceDate)
             ->firstOrFail();
 
         $employee = Employee::with('workSchedule')->findOrFail($employeeId);

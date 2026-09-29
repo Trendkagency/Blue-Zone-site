@@ -162,9 +162,13 @@
                         <i class="fa-solid fa-city"></i>
                         <span>{{ app()->getLocale() === 'ar' ? 'المدن ومناطق الشحن' : 'Cities & Shipping' }} ({{ $totalCitiesCount }})</span>
                     </button>
-                    <a href="{{ route('admin.mr.areas.index') }}" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                    <a href="{{ route('admin.mr.areas.index') }}" class="px-4 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
                         <i class="fa-solid fa-map-location-dot text-teal-500"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'المناطق والمربعات الميدانية (Areas) ↗' : 'Field Areas (Areas) ↗' }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'المناطق (Areas) ↗' : 'Areas ↗' }}</span>
+                    </a>
+                    <a href="{{ route('admin.mr.breaks.index') }}" class="px-4 py-2.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-network-wired text-sky-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'البريكات (Breaks) ↗' : 'Breaks ↗' }}</span>
                     </a>
                 </div>
 
