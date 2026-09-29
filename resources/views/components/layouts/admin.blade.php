@@ -215,6 +215,23 @@
                             <span>{{ app()->getLocale() === 'ar' ? 'بوابة الخدمة الذاتية للموظف' : 'Employee Self-Service' }}</span>
                         </a>
 
+                        <!-- 1. Organization & Departments -->
+                        <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
+                            {{ app()->getLocale() === 'ar' ? 'الهيكل التنظيمي والأقسام' : 'Organization & Departments' }}
+                        </div>
+                        <a href="{{ route('admin.hr.organization.departments.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.departments*') || request()->routeIs('admin.hr.departments*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-sitemap text-xs text-teal-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'إدارة الأقسام' : 'Departments' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.organization.positions.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.positions*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-id-badge text-xs text-sky-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'المسميات الوظيفية' : 'Job Positions' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.organization.work-schedules.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.hr.organization.work-schedules*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-business-time text-xs text-indigo-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'مواعيد وورديات العمل' : 'Work Schedules' }}</span>
+                        </a>
+
                         <!-- 2. Employees -->
                         <div style="padding: 0.5rem 0.75rem 0.2rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: #64748B; letter-spacing: 0.05em;">
                             {{ app()->getLocale() === 'ar' ? 'إدارة الموظفين' : 'Employees' }}

@@ -301,7 +301,7 @@
 
         <!-- CREATE AREA MODAL -->
         <div x-show="showCreateModal" x-cloak style="display: none;" 
-            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
+            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/75 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
             @click.self="showCreateModal = false"
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0"
@@ -310,7 +310,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0">
             
-            <div class="max-w-xl w-full shadow-2xl relative flex flex-col max-h-[92vh] border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden bg-white dark:bg-slate-900 transition-all transform"
+            <div class="max-w-xl w-full shadow-2xl relative flex flex-col max-h-[92vh] border rounded-3xl overflow-hidden transition-all transform bg-white dark:bg-[#071F33] border-slate-200/90 dark:border-[#133957]"
                 x-transition:enter="ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -319,10 +319,10 @@
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                 
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 px-6 py-4 flex-shrink-0 bg-gradient-to-r from-slate-50 via-white to-sky-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-sky-950/20">
+                <div class="flex items-center justify-between border-b px-6 py-4.5 flex-shrink-0 bg-slate-50/80 dark:bg-[#06243C] border-slate-100 dark:border-[#133957]">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-600 text-white flex items-center justify-center shadow-lg shadow-sky-500/25">
-                            <i class="fa-solid fa-plus text-base"></i>
+                        <div style="background: linear-gradient(135deg, #0A4F78 0%, #0284C7 100%); color: #ffffff;" class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg shadow-sky-500/25 flex-shrink-0">
+                            <i class="fa-solid fa-plus text-base text-white"></i>
                         </div>
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white">
@@ -333,7 +333,7 @@
                             </p>
                         </div>
                     </div>
-                    <button type="button" @click="showCreateModal = false" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer">
+                    <button type="button" @click="showCreateModal = false" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0B2942] dark:hover:bg-[#133957] border border-transparent dark:border-[#1E4E73] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-all cursor-pointer">
                         <i class="fa-solid fa-xmark text-sm"></i>
                     </button>
                 </div>
@@ -341,10 +341,10 @@
                 <!-- Modal Body -->
                 <form method="POST" action="{{ route('admin.mr.areas.store') }}" class="flex flex-col flex-1 min-h-0">
                     @csrf
-                    <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
+                    <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar bg-white dark:bg-[#071F33]">
                         
                         <!-- 1. Geographic Anchor Box -->
-                        <div class="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800 space-y-3.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/90 dark:bg-[#031827]/70 border border-slate-200/90 dark:border-[#133957] space-y-3.5">
                             <div class="flex items-center gap-2 text-xs font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">
                                 <i class="fa-solid fa-earth-americas"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي للمنطقة' : 'Territory Geographic Hierarchy' }}</span>
@@ -356,7 +356,7 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'الدولة' : 'Country' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="country_id" x-model="selectedCountryForModal" @change="loadCities(selectedCountryForModal, 'create')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="country_id" x-model="selectedCountryForModal" @change="loadCities(selectedCountryForModal, 'create')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الدولة --' : '-- Country --' }}</option>
                                         @foreach($countries as $c)
                                             <option value="{{ $c->id }}">{{ $c->flag_emoji }} {{ $c->name }}</option>
@@ -369,7 +369,7 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة' : 'City / Governorate' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- Select City --' }}</option>
                                         <template x-for="city in createCities" :key="city.id">
                                             <option :value="city.id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
@@ -381,7 +381,7 @@
 
                         <!-- 2. Area Identity Details -->
                         <div class="space-y-3.5">
-                            <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
+                            <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">
                                 <i class="fa-solid fa-map-location-dot"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف المنطقة' : 'Area Identification' }}</span>
                             </div>
@@ -392,8 +392,8 @@
                                         {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (عربي)' : 'Area Name (Arabic)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_ar" required placeholder="مثال: المعادي أو النزهة" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
-                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">AR</span>
+                                        <input type="text" name="name_ar" required placeholder="مثال: المعادي أو النزهة" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none pr-9 rtl:pr-3 rtl:pl-9">
+                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 dark:text-slate-500 text-xs font-bold pointer-events-none">AR</span>
                                     </div>
                                 </div>
                                 <div>
@@ -401,8 +401,8 @@
                                         {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (إنجليزي)' : 'Area Name (English)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_en" required placeholder="e.g. Maadi or Nozha" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
-                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">EN</span>
+                                        <input type="text" name="name_en" required placeholder="e.g. Maadi or Nozha" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none pr-9 rtl:pr-3 rtl:pl-9">
+                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 dark:text-slate-500 text-xs font-bold pointer-events-none">EN</span>
                                     </div>
                                 </div>
                             </div>
@@ -413,21 +413,21 @@
                                         {{ app()->getLocale() === 'ar' ? 'كود المنطقة / المربع' : 'Area / Territory Code' }}
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="code" placeholder="e.g. CAI-MAA-01" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
-                                        <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 text-xs"></i>
+                                        <input type="text" name="code" placeholder="e.g. CAI-MAA-01" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none pl-8 rtl:pr-8 rtl:pl-3">
+                                        <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 dark:text-slate-500 text-xs pointer-events-none"></i>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'ترتيب الظهور' : 'Display Sort Order' }}
                                     </label>
-                                    <input type="number" name="sort_order" value="0" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <input type="number" name="sort_order" value="0" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none">
                                 </div>
                             </div>
                         </div>
 
                         <!-- 3. Activation Toggle Box -->
-                        <div class="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/70 dark:border-emerald-900/50 flex items-center justify-between">
+                        <div class="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-200/80 dark:border-emerald-800/40 flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-toggle-on"></i>
@@ -449,13 +449,13 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex-shrink-0 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-end gap-3">
-                        <button type="button" @click="showCreateModal = false" class="btn btn-secondary text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl cursor-pointer">
+                    <div class="border-t px-6 py-4 flex-shrink-0 bg-slate-50/90 dark:bg-[#051A2C] border-slate-100 dark:border-[#133957] flex items-center justify-end gap-3">
+                        <button type="button" @click="showCreateModal = false" class="btn btn-cancel text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl cursor-pointer">
                             {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                         </button>
-                        <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'حفظ المنطقة' : 'Save Area' }}</span>
+                        <button type="submit" class="btn btn-save text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer border-0">
+                            <i class="fa-solid fa-floppy-disk text-white"></i>
+                            <span class="text-white">{{ app()->getLocale() === 'ar' ? 'حفظ المنطقة' : 'Save Area' }}</span>
                         </button>
                     </div>
                 </form>
@@ -464,7 +464,7 @@
 
         <!-- EDIT AREA MODAL -->
         <div x-show="showEditModal" x-cloak style="display: none;" 
-            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
+            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/75 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
             @click.self="showEditModal = false"
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0"
@@ -473,7 +473,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0">
             
-            <div class="max-w-xl w-full shadow-2xl relative flex flex-col max-h-[92vh] border border-slate-200/80 dark:border-slate-800 rounded-3xl overflow-hidden bg-white dark:bg-slate-900 transition-all transform"
+            <div class="max-w-xl w-full shadow-2xl relative flex flex-col max-h-[92vh] border rounded-3xl overflow-hidden transition-all transform bg-white dark:bg-[#071F33] border-slate-200/90 dark:border-[#133957]"
                 x-transition:enter="ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -482,10 +482,10 @@
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                 
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 px-6 py-4 flex-shrink-0 bg-gradient-to-r from-slate-50 via-white to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/20">
+                <div class="flex items-center justify-between border-b px-6 py-4.5 flex-shrink-0 bg-slate-50/80 dark:bg-[#06243C] border-slate-100 dark:border-[#133957]">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-sky-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                            <i class="fa-solid fa-pen-to-square text-base"></i>
+                        <div style="background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%); color: #ffffff;" class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25 flex-shrink-0">
+                            <i class="fa-solid fa-pen-to-square text-base text-white"></i>
                         </div>
                         <div>
                             <h3 class="font-black text-base sm:text-lg text-slate-900 dark:text-white">
@@ -496,7 +496,7 @@
                             </p>
                         </div>
                     </div>
-                    <button type="button" @click="showEditModal = false" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer">
+                    <button type="button" @click="showEditModal = false" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0B2942] dark:hover:bg-[#133957] border border-transparent dark:border-[#1E4E73] flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-all cursor-pointer">
                         <i class="fa-solid fa-xmark text-sm"></i>
                     </button>
                 </div>
@@ -505,10 +505,10 @@
                 <form :action="`{{ url('/admin/mr/areas') }}/${editArea.id}`" method="POST" class="flex flex-col flex-1 min-h-0">
                     @csrf
                     @method('PUT')
-                    <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar">
+                    <div class="p-6 space-y-5 overflow-y-auto flex-1 custom-scrollbar bg-white dark:bg-[#071F33]">
                         
                         <!-- 1. Geographic Anchor Box -->
-                        <div class="p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800 space-y-3.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/90 dark:bg-[#031827]/70 border border-slate-200/90 dark:border-[#133957] space-y-3.5">
                             <div class="flex items-center gap-2 text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
                                 <i class="fa-solid fa-earth-americas"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'التسلسل الجغرافي للمنطقة' : 'Territory Geographic Hierarchy' }}</span>
@@ -519,7 +519,7 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'الدولة' : 'Country' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="country_id" x-model="editArea.country_id" @change="loadCities(editArea.country_id, 'edit')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="country_id" x-model="editArea.country_id" @change="loadCities(editArea.country_id, 'edit')" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر الدولة --' : '-- Country --' }}</option>
                                         @foreach($countries as $c)
                                             <option value="{{ $c->id }}">{{ $c->flag_emoji }} {{ $c->name }}</option>
@@ -531,7 +531,7 @@
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'المدينة / المحافظة' : 'City' }} <span class="text-rose-500">*</span>
                                     </label>
-                                    <select name="city_id" x-model="editArea.city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <select name="city_id" x-model="editArea.city_id" required class="form-select text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none">
                                         <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المدينة --' : '-- City --' }}</option>
                                         <template x-for="city in editCities" :key="city.id">
                                             <option :value="city.id" :selected="city.id == editArea.city_id" x-text="'{{ app()->getLocale() }}' === 'ar' ? (city.name_ar || city.name_en) : (city.name_en || city.name_ar)"></option>
@@ -543,7 +543,7 @@
 
                         <!-- 2. Area Information -->
                         <div class="space-y-3.5">
-                            <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-wider">
+                            <div class="flex items-center gap-2 text-xs font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">
                                 <i class="fa-solid fa-map-location-dot"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'بيانات وتعريف المنطقة' : 'Area Identification' }}</span>
                             </div>
@@ -554,8 +554,8 @@
                                         {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (عربي)' : 'Area Name (Arabic)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_ar" x-model="editArea.name_ar" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
-                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">AR</span>
+                                        <input type="text" name="name_ar" x-model="editArea.name_ar" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none pr-9 rtl:pr-3 rtl:pl-9">
+                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 dark:text-slate-500 text-xs font-bold pointer-events-none">AR</span>
                                     </div>
                                 </div>
                                 <div>
@@ -563,8 +563,8 @@
                                         {{ app()->getLocale() === 'ar' ? 'اسم المنطقة (إنجليزي)' : 'Area Name (English)' }} <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="name_en" x-model="editArea.name_en" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium pr-9 rtl:pr-3 rtl:pl-9">
-                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 text-xs font-bold">EN</span>
+                                        <input type="text" name="name_en" x-model="editArea.name_en" required class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none pr-9 rtl:pr-3 rtl:pl-9">
+                                        <span class="absolute right-3 rtl:right-auto rtl:left-3 top-2.5 text-slate-400 dark:text-slate-500 text-xs font-bold pointer-events-none">EN</span>
                                     </div>
                                 </div>
                             </div>
@@ -575,21 +575,21 @@
                                         {{ app()->getLocale() === 'ar' ? 'كود المنطقة / المربع' : 'Area / Territory Code' }}
                                     </label>
                                     <div class="relative">
-                                        <input type="text" name="code" x-model="editArea.code" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase pl-8 rtl:pr-8 rtl:pl-3">
-                                        <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 text-xs"></i>
+                                        <input type="text" name="code" x-model="editArea.code" class="form-input text-xs sm:text-sm w-full rounded-xl font-mono uppercase border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none pl-8 rtl:pr-8 rtl:pl-3">
+                                        <i class="fa-solid fa-hashtag absolute left-2.5 rtl:right-2.5 rtl:left-auto top-3 text-slate-400 dark:text-slate-500 text-xs pointer-events-none"></i>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                                         {{ app()->getLocale() === 'ar' ? 'ترتيب الظهور' : 'Display Sort Order' }}
                                     </label>
-                                    <input type="number" name="sort_order" x-model="editArea.sort_order" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium">
+                                    <input type="number" name="sort_order" x-model="editArea.sort_order" min="0" class="form-input text-xs sm:text-sm w-full rounded-xl font-medium border border-slate-200 dark:border-[#1E4E73] bg-white dark:bg-[#031827] text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none">
                                 </div>
                             </div>
                         </div>
 
                         <!-- 3. Activation Toggle Box -->
-                        <div class="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-200/70 dark:border-indigo-900/50 flex items-center justify-between">
+                        <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/25 border border-indigo-200/80 dark:border-indigo-800/40 flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm">
                                     <i class="fa-solid fa-toggle-on"></i>
@@ -611,13 +611,13 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex-shrink-0 bg-slate-50/80 dark:bg-slate-900/80 flex items-center justify-end gap-3">
-                        <button type="button" @click="showEditModal = false" class="btn btn-secondary text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl cursor-pointer">
+                    <div class="border-t px-6 py-4 flex-shrink-0 bg-slate-50/90 dark:bg-[#051A2C] border-slate-100 dark:border-[#133957] flex items-center justify-end gap-3">
+                        <button type="button" @click="showEditModal = false" class="btn btn-cancel text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl cursor-pointer">
                             {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                         </button>
-                        <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'تحديث المنطقة' : 'Update Area' }}</span>
+                        <button type="submit" style="background: linear-gradient(135deg, #4338CA 0%, #6366F1 100%) !important;" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl text-white shadow-lg shadow-indigo-900/30 hover:shadow-indigo-800/50 hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 cursor-pointer border-0">
+                            <i class="fa-solid fa-floppy-disk text-white"></i>
+                            <span class="text-white">{{ app()->getLocale() === 'ar' ? 'تحديث المنطقة' : 'Update Area' }}</span>
                         </button>
                     </div>
                 </form>
@@ -626,7 +626,7 @@
 
         <!-- DELETE CONFIRMATION MODAL -->
         <div x-show="showDeleteModal" x-cloak style="display: none;" 
-            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/70 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
+            class="fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/75 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center transition-all duration-300"
             @click.self="showDeleteModal = false"
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0"
@@ -635,7 +635,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0">
             
-            <div class="max-w-md w-full shadow-2xl relative p-6 sm:p-8 border border-rose-200/80 dark:border-rose-900/50 rounded-3xl bg-white dark:bg-slate-900 text-center transition-all transform"
+            <div class="max-w-md w-full shadow-2xl relative p-6 sm:p-8 border rounded-3xl text-center transition-all transform bg-white dark:bg-[#071F33] border-rose-200/90 dark:border-rose-900/50"
                 x-transition:enter="ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -644,8 +644,8 @@
                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                 
                 <!-- Danger Icon -->
-                <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-red-600 text-white flex items-center justify-center text-2xl mx-auto mb-4 shadow-xl shadow-rose-500/25 border-4 border-white dark:border-slate-800">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                <div style="background: linear-gradient(135deg, #B91C1C 0%, #EF4444 100%); color: #ffffff;" class="w-16 h-16 rounded-3xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-xl shadow-rose-500/25 border-4 border-white dark:border-[#071F33]">
+                    <i class="fa-solid fa-triangle-exclamation text-white"></i>
                 </div>
 
                 <h3 class="font-black text-lg text-slate-900 dark:text-white mb-1.5">
@@ -656,22 +656,22 @@
                 </p>
 
                 <!-- Item Target Preview Card -->
-                <div class="p-3.5 rounded-2xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-900/40 text-rose-900 dark:text-rose-200 text-xs font-bold mb-6 flex items-center justify-center gap-2">
+                <div class="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-900/40 text-rose-800 dark:text-rose-300 text-xs font-bold mb-6 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-map-location-dot text-rose-500"></i>
                     <span x-text="deleteTarget.name"></span>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-center gap-3">
-                    <button type="button" @click="showDeleteModal = false" class="btn btn-secondary text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer">
+                    <button type="button" @click="showDeleteModal = false" class="btn btn-cancel text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl cursor-pointer">
                         {{ app()->getLocale() === 'ar' ? 'إلغاء الأمر' : 'Cancel' }}
                     </button>
                     <form :action="`{{ url('/admin/mr/areas') }}/${deleteTarget.id}`" method="POST" class="inline-block m-0">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-lg shadow-rose-500/25 hover:shadow-rose-500/40 hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer border-0">
-                            <i class="fa-solid fa-trash"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'نعم، حذف نهائي' : 'Yes, Delete' }}</span>
+                        <button type="submit" class="btn btn-danger-action text-xs sm:text-sm font-black px-6 py-2.5 rounded-xl flex items-center gap-2 cursor-pointer border-0">
+                            <i class="fa-solid fa-trash text-white"></i>
+                            <span class="text-white">{{ app()->getLocale() === 'ar' ? 'نعم، حذف نهائي' : 'Yes, Delete' }}</span>
                         </button>
                     </form>
                 </div>

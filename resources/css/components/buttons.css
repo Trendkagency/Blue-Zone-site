@@ -118,3 +118,64 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Modal Action Button Variants */
+.btn-save,
+.btn-action-primary {
+  background: linear-gradient(135deg, #0A4F78 0%, #0284C7 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+
+.btn-save:hover,
+.btn-action-primary:hover {
+  background: linear-gradient(135deg, #073D5E 0%, #0275B1 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.btn-cancel,
+.btn-action-secondary {
+  background-color: #F1F5F9 !important;
+  color: #475569 !important;
+  border: 1px solid #CBD5E1 !important;
+  font-weight: 700 !important;
+}
+
+.btn-cancel:hover,
+.btn-action-secondary:hover {
+  background-color: #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+html.dark .btn-cancel,
+html.dark .btn-action-secondary {
+  background-color: #0B2942 !important;
+  color: #CBD5E1 !important;
+  border-color: #1E4E73 !important;
+}
+
+html.dark .btn-cancel:hover,
+html.dark .btn-action-secondary:hover {
+  background-color: #133957 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-danger-action {
+  background: linear-gradient(135deg, #B91C1C 0%, #EF4444 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 800 !important;
+  border: 1px solid transparent !important;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35) !important;
+}
+
+.btn-danger-action:hover {
+  background: linear-gradient(135deg, #991B1B 0%, #DC2626 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+  transform: translateY(-1px);
+}
+

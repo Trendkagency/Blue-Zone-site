@@ -550,7 +550,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/work-schedules', [HrWorkScheduleController::class, 'index'])->name('work-schedules.index');
                 Route::post('/work-schedules', [HrWorkScheduleController::class, 'store'])->name('work-schedules.store');
                 Route::put('/work-schedules/{id}', [HrWorkScheduleController::class, 'update'])->name('work-schedules.update');
-                Route::delete('/work-schedules/{id}', [HrWorkScheduleController::class, 'destroy'])->name('work-schedules.destroy');
+            });
+
+            // Direct alias routes for departments
+            Route::prefix('departments')->name('departments.')->group(function () {
+                Route::get('/', [HrDepartmentController::class, 'index'])->name('index');
+                Route::post('/', [HrDepartmentController::class, 'store'])->name('store');
+                Route::put('/{id}', [HrDepartmentController::class, 'update'])->name('update');
+                Route::delete('/{id}', [HrDepartmentController::class, 'destroy'])->name('destroy');
             });
 
             // Employees

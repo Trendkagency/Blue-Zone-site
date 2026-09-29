@@ -23,6 +23,7 @@
 }
 
 .form-control,
+.form-input,
 .form-select,
 .form-textarea {
   width: 100%;
@@ -38,6 +39,29 @@
   border-radius: var(--radius-md);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   outline: none;
+}
+
+html.dark .form-control,
+html.dark .form-input,
+html.dark .form-select,
+html.dark .form-textarea {
+  background-color: #031827;
+  border-color: #1E4E73;
+  color: #F8FAFC;
+}
+
+html.dark .form-control:focus,
+html.dark .form-input:focus,
+html.dark .form-select:focus,
+html.dark .form-textarea:focus {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+html.dark .form-control::placeholder,
+html.dark .form-input::placeholder,
+html.dark .form-textarea::placeholder {
+  color: #64748B;
 }
 
 .form-control:focus,
