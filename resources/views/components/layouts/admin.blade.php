@@ -182,6 +182,10 @@
                                 <i class="fa-solid fa-bullhorn text-xs text-rose-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'الحملات التسويقية' : 'Marketing Campaigns' }}</span>
                             </a>
+                            <a href="{{ route('admin.crm.excel.index') }}" class="sidebar-sublink {{ request()->routeIs('admin.crm.excel.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-excel text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مركز استيراد وتصدير إكسل' : 'Sales Excel Hub' }}</span>
+                            </a>
                         </div>
                     </div>
                 @endif

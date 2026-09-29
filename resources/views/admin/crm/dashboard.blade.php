@@ -17,6 +17,9 @@
             <a href="{{ route('admin.crm.activities.create') }}" class="btn btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <i class="fa-solid fa-calendar-plus text-xs"></i> {{ __('crm.dashboard.schedule_activity') }}
             </a>
+            <a href="{{ route('admin.crm.excel.index') }}" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-weight: 700;">
+                <i class="fa-solid fa-file-excel text-emerald-600"></i> {{ app()->getLocale() === 'ar' ? 'مركز إكسل واستيراد المبيعات' : 'Sales Excel Hub' }}
+            </a>
             <a href="{{ route('admin.crm.opportunities.index') }}" class="btn btn-ghost btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem;">
                 <i class="fa-solid fa-table-columns text-xs text-indigo-400"></i> {{ __('crm.dashboard.view_pipeline') }}
             </a>

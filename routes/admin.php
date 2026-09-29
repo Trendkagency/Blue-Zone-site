@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CrmLeadImportController;
 use App\Http\Controllers\Admin\CrmOpportunityController;
 use App\Http\Controllers\Admin\CrmPipelineController;
 use App\Http\Controllers\Admin\CrmReportController;
+use App\Http\Controllers\Admin\CrmSalesExcelController;
 use App\Http\Controllers\Admin\CrmSegmentController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -337,6 +338,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('crm')->name('crm.')->middleware('permission:crm.view')->group(function () {
             // Dashboard
             Route::get('/', [CrmController::class, 'index'])->name('dashboard');
+
+            // Sales Excel Hub (Batch Import, Multi-filter Export & Live Manual Spreadsheet Grid)
+            Route::prefix('excel')->name('excel.')->group(function () {
+                Route::get('/', [CrmSalesExcelController::class, 'index'])->name('index');
+                Route::post('/import', [CrmSalesExcelController::class, 'import'])->name('import');
+                Route::post('/preview', [CrmSalesExcelController::class, 'preview'])->name('preview');
+                Route::get('/template', [CrmSalesExcelController::class, 'downloadTemplate'])->name('template');
+                Route::get('/export', [CrmSalesExcelController::class, 'export'])->name('export');
+                Route::post('/manual-save', [CrmSalesExcelController::class, 'saveManualGrid'])->name('manual.save');
+                Route::post('/manual-export', [CrmSalesExcelController::class, 'exportManualGrid'])->name('manual.export');
+            });
+
+            // Backward-compatible routes for Leads import
+            Route::get('leads/import', [CrmSalesExcelController::class, 'index'])->name('leads.import');
+            Route::post('leads/import', [CrmSalesExcelController::class, 'import'])->name('leads.import.process');
+            Route::get('leads/import/template', [CrmSalesExcelController::class, 'downloadTemplate'])->name('leads.import.template');
 
             // Leads
             Route::prefix('leads')->name('leads.')->group(function () {
