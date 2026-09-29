@@ -63,7 +63,22 @@ class ContactController extends Controller
         $classifications = ContactClassification::where('is_active', true)->orderBy('sort_order')->get();
         $cities = City::where('is_active', true)->orderBy('name_en')->get();
 
-        return view('admin.mr.contacts.index', compact('contacts', 'specialties', 'classifications', 'cities', 'isRep', 'isManager', 'currentUser'));
+        $medicalReps = \App\Models\User::where('status', 'active')
+            ->where(function ($q) {
+                $q->whereHas('role', fn ($r) => $r->whereIn('name', ['mr', 'medical_rep', 'medical_representative']))
+                  ->orWhereIn('role_id', [1, 2]);
+            })
+            ->select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        if ($medicalReps->isEmpty()) {
+            $medicalReps = \App\Models\User::where('status', 'active')->select('id', 'name', 'email')->orderBy('name')->limit(20)->get();
+        }
+
+        $activeCycle = \App\Models\Mr\VisitCycle::where('status', 'active')->first() ?? \App\Models\Mr\VisitCycle::latest('start_date')->first();
+
+        return view('admin.mr.contacts.index', compact('contacts', 'specialties', 'classifications', 'cities', 'isRep', 'isManager', 'currentUser', 'medicalReps', 'activeCycle'));
     }
 
     protected function exportContacts($contacts, Request $request)

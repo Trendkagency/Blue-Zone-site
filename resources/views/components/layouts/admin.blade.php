@@ -75,6 +75,12 @@
                                 <i class="fa-solid fa-earth-americas text-xs text-emerald-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'خريطة العمليات المباشرة' : 'Live Ops Field Map' }}</span>
                             </a>
+                            <a href="{{ route('admin.mr.excel.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.mr.excel.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-excel text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مركز إكسل واستيراد الأطباء' : 'MR Excel Hub & Data' }}</span>
+                                <span class="badge badge-emerald text-[10px] py-0 px-1 font-bold">XLSX</span>
+                            </a>
                             @if($canManageMr)
                             <a href="{{ route('admin.mr.areas.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.mr.areas.*') ? 'active' : '' }}">

@@ -310,6 +310,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('/{id}/toggle-status', [BreakController::class, 'toggleStatus'])->name('toggle-status');
                 Route::delete('/{id}', [BreakController::class, 'destroy'])->name('destroy');
             });
+
+            // MR Excel Hub (Doctors & Field Operations Batch Import, Multi-criteria Export & Live Spreadsheet Grid)
+            Route::prefix('excel')->name('excel.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'index'])->name('index');
+                Route::post('/import', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'import'])->name('import');
+                Route::post('/preview', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'preview'])->name('preview');
+                Route::get('/template', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'downloadTemplate'])->name('template');
+                Route::get('/export', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'export'])->name('export');
+                Route::post('/manual-save', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'saveManualGrid'])->name('manual.save');
+                Route::post('/manual-export', [\App\Http\Controllers\Admin\Mr\MrExcelController::class, 'exportManualGrid'])->name('manual.export');
+            });
         });
 
         // Redirects to Native MR Routes for Backward Compatibility
