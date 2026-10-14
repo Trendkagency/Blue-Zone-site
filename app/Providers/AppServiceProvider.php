@@ -36,6 +36,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\Mr\AreaTerritoryService::class, function () {
             return \App\Services\Mr\AreaTerritoryService::getInstance();
         });
+
+        // Singleton pattern: RawMaterialManager for atomic FEFO & batch reservations
+        $this->app->singleton(\App\Services\RawMaterial\RawMaterialManager::class, function () {
+            return \App\Services\RawMaterial\RawMaterialManager::getInstance();
+        });
+
+        // Singleton pattern: VendorEvaluationEngine
+        $this->app->singleton(\App\Services\RawMaterial\VendorEvaluationEngine::class, function () {
+            return \App\Services\RawMaterial\VendorEvaluationEngine::getInstance();
+        });
     }
 
     /**
@@ -43,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Database\Eloquent\Model::preventLazyLoading(! app()->isProduction());
 
         //  Share Localization ISRtl or IsLtr
         Blade::if('isRtl', function () {
@@ -76,6 +87,12 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\EmployeeAssetAssignment::observe(\App\Observers\EmployeeAssetAssignmentObserver::class);
         \App\Models\User::observe(\App\Observers\UserObserver::class);
 
+        // Supply Chain Observers
+        \App\Models\RawMaterialBatch::observe(\App\Observers\RawMaterialBatchObserver::class);
+        \App\Models\QcInspection::observe(\App\Observers\QcInspectionObserver::class);
+        \App\Models\PurchaseOrder::observe(\App\Observers\PurchaseOrderObserver::class);
+        \App\Models\WorkOrder::observe(\App\Observers\WorkOrderObserver::class);
+
         if ($this->app->environment('production') || config('app.env') === 'production' || str_starts_with(config('app.url', ''), 'https://')) {
             URL::forceScheme('https');
         }
@@ -97,6 +114,35 @@ class AppServiceProvider extends ServiceProvider
             'manage_cms',
             'view_reports',
             'manage_settings',
+
+            // Supply Chain permissions
+            'suppliers.view',
+            'suppliers.create',
+            'suppliers.edit',
+            'suppliers.delete',
+            'suppliers.approve',
+            'raw_materials.view',
+            'raw_materials.create',
+            'raw_materials.edit',
+            'raw_materials.delete',
+            'purchase_orders.view',
+            'purchase_orders.create',
+            'purchase_orders.edit',
+            'purchase_orders.delete',
+            'purchase_orders.approve',
+            'goods_receipts.view',
+            'goods_receipts.create',
+            'batches.view',
+            'batches.transfer',
+            'batches.adjust',
+            'qc.view',
+            'qc.create',
+            'qc.verify',
+            'work_orders.view',
+            'work_orders.create',
+            'work_orders.dispense',
+            'work_orders.complete',
+            'supply_chain_reports.view',
         ];
 
         foreach ($permissions as $permission) {

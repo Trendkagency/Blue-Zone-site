@@ -24,9 +24,11 @@
                     {{ __('app.nav.shop') }}
                 </a>
                 --}}
+                {{--
                 <a href="{{ route('customer.pages.science') }}" class="nav-link {{ (request()->routeIs('customer.pages.science*') || request()->is('science*')) ? 'active' : '' }}">
                     {{ __('app.nav.science') }}
                 </a>
+                --}}
                 <a href="{{ route('customer.pages.about') }}" class="nav-link {{ (request()->routeIs('customer.pages.about*') || request()->is('about*')) ? 'active' : '' }}">
                     {{ __('app.nav.about') }}
                 </a>
@@ -123,7 +125,9 @@
                         {{--
                         <a href="{{ route('customer.shop') }}" class="footer-link">{{ __('app.nav.shop') }}</a>
                         --}}
+                        {{--
                         <a href="{{ route('customer.pages.science') }}" class="footer-link">{{ __('app.nav.science') }}</a>
+                        --}}
                         <a href="{{ route('customer.pages.about') }}" class="footer-link">{{ __('app.nav.about') }}</a>
                         {{--
                         <a href="{{ route('customer.pages.team') }}" class="footer-link">{{ __('app.nav.team') }}</a>

@@ -38,7 +38,8 @@
 
                 @php
                     $u = auth()->user();
-                    $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
+                    $isSupplyChainActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
+                    $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*');
                     $isSalesActive = request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
@@ -46,7 +47,7 @@
                     $isCrmActive = request()->routeIs('admin.crm.*');
                     $isHrActive = request()->routeIs('admin.hr.*') || request()->is('admin/hr*');
                     $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
-                    $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*');
+                    $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*') || request()->routeIs('admin.hero-slides.*');
                 @endphp
 
                 @php
@@ -356,6 +357,11 @@
                                 <i class="fa-solid fa-layer-group text-xs"></i>
                                 <span>{{ __('admin.menu.categories') }}</span>
                             </a>
+                            <a href="{{ route('admin.hero-slides.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-images text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة والشرائح' : 'Hero Slider & Carousel' }}</span>
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -403,6 +409,63 @@
                                 class="sidebar-sublink {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
                                 <i class="fa-solid fa-clock-rotate-left text-xs"></i>
                                 <span>{{ __('admin.menu.stock_history') }}</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Supply Chain & cGMP Manufacturing Dropdown -->
+                @if($u && ($u->hasPermission('supply_chain.view') || $u->hasPermission('suppliers.view') || $u->hasPermission('raw_materials.view') || $u->isSuperAdmin() || $u->isAdmin()))
+                    <div class="sidebar-dropdown-group {{ $isSupplyChainActive ? 'is-open' : '' }}" id="group-supply-chain">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isSupplyChainActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-supply-chain')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-flask-vial sidebar-link-icon text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سلاسل الإمداد والتصنيع cGMP' : 'Supply Chain & cGMP' }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.suppliers.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-truck-field text-xs text-sky-400"></i>
+                                <span>{{ __('suppliers.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.raw-materials.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.raw-materials.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-flask text-xs text-emerald-400"></i>
+                                <span>{{ __('raw_materials.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.purchase-orders.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice text-xs text-blue-400"></i>
+                                <span>{{ __('purchase_orders.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.goods-receipts.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.goods-receipts.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-truck-ramp-box text-xs text-purple-400"></i>
+                                <span>{{ __('goods_receipts.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.batches.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.batches.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-boxes-stacked text-xs text-amber-400"></i>
+                                <span>{{ __('batches.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.qc.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.qc.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-microscope text-xs text-pink-400"></i>
+                                <span>{{ __('qc.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.work-orders.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.work-orders.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-industry text-xs text-indigo-400"></i>
+                                <span>{{ __('production.title') }}</span>
+                            </a>
+                            <a href="{{ route('admin.supply-chain-reports.lot-traceability') }}"
+                                class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg {{ request()->routeIs('admin.supply-chain-reports.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-route text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'محرك التتبع والاسترجاع' : 'Recall & Reports (7)' }} ↗</span>
                             </a>
                         </div>
                     </div>
@@ -549,6 +612,12 @@
                                 class="sidebar-sublink {{ request()->routeIs('admin.settings.index') && !str_contains(request()->fullUrl(), '#tab-typography') ? 'active' : '' }}">
                                 <i class="fa-solid fa-gear text-xs"></i>
                                 <span>{{ __('admin.menu.settings') }}</span>
+                            </a>
+                            <a href="{{ route('admin.hero-slides.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}"
+                                title="{{ app()->getLocale() == 'ar' ? 'إدارة وتخصيص سلايدر الواجهة والشرائح والمنتجات' : 'Hero Slider & Product Carousel Manager' }}">
+                                <i class="fa-solid fa-images text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة والمنتجات' : 'Hero Slider & Carousel' }}</span>
                             </a>
                             <a href="{{ Route::has('admin.settings.geo.index') ? route('admin.settings.geo.index') : url('/admin/settings/geo') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.settings.geo.*') || request()->routeIs('admin.countries.*') ? 'active' : '' }}"

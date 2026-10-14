@@ -30,6 +30,7 @@
                 'scienceProducts' => $scienceProducts ?? collect(),
                 'categories' => $categories ?? [],
                 'hero' => $hero ?? [],
+                'heroSlides' => $heroSlides ?? collect(),
                 'zones' => $zones ?? [],
                 'faqs' => $faqs ?? [],
             ])

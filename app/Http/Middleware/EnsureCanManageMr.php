@@ -18,7 +18,7 @@ class EnsureCanManageMr
         $user = $request->user('web') ?? $request->user() ?? auth()->user();
 
         if (! $user) {
-            return redirect()->guest(route('filament.admin.auth.login'));
+            return redirect()->guest(route('admin.login'));
         }
 
         if ($user->isMedicalRep() && ! $user->canManageAllMr()) {

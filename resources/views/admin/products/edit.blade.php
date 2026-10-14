@@ -766,6 +766,99 @@
                     </div>
                 </div>
 
+                <!-- Landing Page Display & Showcase Configuration Card -->
+                <div class="card" style="padding: 2rem; border: 1.5px solid rgba(10, 79, 120, 0.25); background: linear-gradient(135deg, rgba(10, 79, 120, 0.03), var(--color-bg)); border-radius: var(--radius-lg); position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 2.5rem; height: 2.5rem; border-radius: var(--radius-md); background: rgba(10, 79, 120, 0.1); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                                <i class="fa-solid fa-house-chimney-window"></i>
+                            </div>
+                            <div>
+                                <h4 style="font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--color-text-emphasis);">
+                                    {{ app()->getLocale() === 'ar' ? 'إعدادات الظهور في الصفحة الرئيسية (Landing Page Placement)' : 'Landing Page Showcase Configuration' }}
+                                </h4>
+                                <p class="text-xs text-muted" style="margin: 0.15rem 0 0 0;">
+                                    {{ app()->getLocale() === 'ar' ? 'تحكّم في إظهار أو إخفاء هذا المستحضر بالصفحة الرئيسية وترتيب ظهوره وشاراته المميزة' : 'Control whether this formulation is visible in the landing page products section, display priority, and custom badge' }}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="badge {{ !empty($product['show_on_landing']) ? 'badge-success' : 'badge-neutral' }} text-xs font-bold" id="landingVisibilityBadge">
+                            <i class="fa-solid {{ !empty($product['show_on_landing']) ? 'fa-eye' : 'fa-eye-slash' }} mr-1 ml-1"></i>
+                            {{ !empty($product['show_on_landing']) ? (app()->getLocale() === 'ar' ? 'معروض بالواجهة' : 'Visible on Landing') : (app()->getLocale() === 'ar' ? 'مخفي من الواجهة' : 'Hidden from Landing') }}
+                        </span>
+                    </div>
+
+                    <!-- Master Switch for this Product -->
+                    <div style="background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                        <div>
+                            <strong style="font-size: 0.95rem; color: var(--color-text-emphasis); display: block; margin-bottom: 0.25rem;">
+                                {{ app()->getLocale() === 'ar' ? 'عرض هذا المنتج في الصفحة الرئيسية (Landing Page Products Section)' : 'Display this formulation in the Landing Page Products section' }}
+                            </strong>
+                            <p class="text-xs text-muted" style="margin: 0;">
+                                {{ app()->getLocale() === 'ar' ? 'عند التفعيل، سيتم إدراج المستحضر في قسم المنتجات بالصفحة الرئيسية للموقع بناءً على الترتيب المحدد' : 'When enabled, this formulation is included in the landing page formulations showcase.' }}
+                            </p>
+                        </div>
+                        <div style="flex-shrink: 0;">
+                            <x-forms.toggle 
+                                name="show_on_landing" 
+                                :label="app()->getLocale() === 'ar' ? 'إظهار في الصفحة الرئيسية' : 'Show on Landing'" 
+                                :checked="old('show_on_landing', $product['show_on_landing'] ?? true)" 
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Priority & Custom Badges (Fully Responsive) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <x-forms.input 
+                                name="landing_order" 
+                                type="number" 
+                                min="0"
+                                :label="app()->getLocale() === 'ar' ? 'ترتيب الظهور في الواجهة' : 'Landing Display Priority (Order)'" 
+                                :value="old('landing_order', $product['landing_order'] ?? 0)" 
+                                hint="الأرقام الأقل تظهر أولاً (0 = الأولوية الأولى)."
+                            />
+                        </div>
+                        <div>
+                            <x-forms.input 
+                                name="landing_badge_en" 
+                                :label="app()->getLocale() === 'ar' ? 'شارة مخصصة بالإنجليزية (EN)' : 'Custom Landing Badge (EN)'" 
+                                :value="old('landing_badge_en', $product['landing_badge_en'] ?? '')" 
+                                placeholder="e.g. Flagship Cellular Bioactive"
+                                hint="تظهر كشارة عائمة أعلى صورة المنتج في الواجهة."
+                            />
+                        </div>
+                        <div>
+                            <x-forms.input 
+                                name="landing_badge_ar" 
+                                :label="app()->getLocale() === 'ar' ? 'شارة مخصصة بالعربية (AR)' : 'Custom Landing Badge (AR)'" 
+                                :value="old('landing_badge_ar', $product['landing_badge_ar'] ?? '')" 
+                                placeholder="مثال: التركيبة الخلوية الرائدة"
+                                hint="تظهر كشارة عائمة أعلى صورة المنتج في الواجهة."
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Link to Hero Carousel Manager -->
+                    <div style="margin-top: 1.25rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); background: rgba(10, 79, 120, 0.06); border: 1px dashed rgba(10, 79, 120, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i class="fa-solid fa-images text-lg text-primary"></i>
+                            <div>
+                                <strong style="font-size: 0.85rem; color: var(--color-text-emphasis); display: block;">
+                                    {{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة الرئيسي وبطاقات العرض العائمة' : 'Hero Carousel & Floating Showcase Cards' }}
+                                </strong>
+                                <span class="text-xs text-muted">
+                                    {{ app()->getLocale() === 'ar' ? 'يمكنك ربط هذا المنتج بأي شريحة في السلايدر العلوي للواجهة مع بطاقته العائمة' : 'You can feature this formulation in the top hero slider with a custom floating card' }}
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.hero-slides.index') }}" class="btn btn-secondary btn-sm font-bold">
+                            <i class="fa-solid fa-sliders mr-1 ml-1 text-sky-500"></i>
+                            {{ app()->getLocale() === 'ar' ? 'إدارة شرائح السلايدر ➔' : 'Manage Hero Carousel ➔' }}
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Final Verification & Review Card -->
                 <div class="card" style="padding: 2.25rem; background: var(--color-bg-subtle); border: 1px solid var(--color-primary);">
                     <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--color-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">

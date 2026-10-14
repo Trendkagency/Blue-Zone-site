@@ -92,4 +92,8 @@ Artisan::command('hr:daily-checks', function () {
     $this->info('Daily HR lifecycle checks completed successfully.');
 })->purpose('Check and alert for contract/document expirations and probation deadlines');
 
+// Schedule BZ-OS cGMP Supply Chain Nightly Batch Reconciliation & Expiry Risk Scanning
+Schedule::command('bz:reconcile-batches')->dailyAt('01:00');
+Schedule::command('bz:check-expiries')->dailyAt('02:00');
+
 

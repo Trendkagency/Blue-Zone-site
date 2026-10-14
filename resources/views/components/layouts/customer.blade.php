@@ -157,12 +157,15 @@
                     {{ __('app.about') }}
                 </a>
 
+                {{-- [HIDDEN MODULE: OUR SCIENCE] - Can be re-enabled anytime by un-commenting --}}
+                {{--
                 <a href="{{ route('customer.pages.science') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.pages.science*') || request()->is('science*') ? 'active' : 'text-[#031827]/80 dark:text-[#2A8FC2]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">
 
                     {{ __('app.our_science') }}
 
                 </a>
+                --}}
 
                 <a href="{{ route('customer.products') }}"
                     class="nav-link text-xs uppercase tracking-[0.15em] font-bold py-1 transition-colors {{ request()->routeIs('customer.products*') || request()->routeIs('customer.product.*') || request()->is('products*') ? 'active' : 'text-[#031827]/80 dark:text-[#F6F5EF]/80' }} hover:text-[#0A4F78] dark:hover:text-[#2A8FC2]">
@@ -351,11 +354,14 @@
                     <span>ABOUT</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
+                {{-- [HIDDEN MODULE: OUR SCIENCE] - Can be re-enabled anytime by un-commenting --}}
+                {{--
                 <a href="{{ route('customer.pages.science') }}"
                     class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.pages.science*') || request()->is('science*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>OUR SCIENCE</span> <i
                         class="fa-solid fa-arrow-right rtl:rotate-180 text-xs text-[#0A4F78] dark:text-[#2A8FC2]"></i>
                 </a>
+                --}}
                 <a href="{{ route('customer.products') }}"
                     class="mobile-nav-link text-xs font-extrabold uppercase tracking-widest py-2.5 border-b border-[#0A4F78]/10 flex justify-between items-center transition-all {{ request()->routeIs('customer.products*') || request()->routeIs('customer.product.*') || request()->is('products*') ? 'active' : 'text-[#031827] dark:text-[#F6F5EF]' }}">
                     <span>PRODUCTS</span> <i
@@ -604,10 +610,13 @@
                                 {{ __('app.nav.home') ?? 'Home' }}
                             </a>
                         </li>
+                        {{-- [HIDDEN MODULE: OUR SCIENCE] - Can be re-enabled anytime by un-commenting --}}
+                        {{--
                         <li><a href="{{ route('customer.pages.science') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.science') ?? 'Our Science' }}
                             </a></li>
+                        --}}
                         <li><a href="{{ route('customer.products') }}"
                                 class="text-[#031827] hover:text-[#0A4F78] dark:text-[#F6F5EF] dark:hover:text-[#2A8FC2] transition-colors py-1.5 inline-block">
                                 {{ __('app.nav.products') ?? 'Products Overview' }}

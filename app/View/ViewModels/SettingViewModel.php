@@ -111,7 +111,7 @@ class SettingViewModel
             'landing_blue_mind_flagship_enabled' => true,
             'landing_five_blue_zones_enabled' => true,
             'landing_bluemint_preps_enabled' => true,
-            'landing_our_science_enabled' => true,
+            'landing_our_science_enabled' => false,
             'landing_journal_news_enabled' => true,
             'landing_final_cta_enabled' => true,
             

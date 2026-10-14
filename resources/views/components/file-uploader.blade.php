@@ -204,7 +204,7 @@
         }
 
         const pondOptions = {
-            name: '{{ $multiple ? $name . "[]" : $name }}',
+            name: '{{ $name }}',
             storeAsFile: true,
             allowMultiple: {{ $multiple ? 'true' : 'false' }},
             maxFileSize: '{{ $maxSize }}MB',
@@ -212,7 +212,7 @@
             credits: false,
             server: {
                 load: (source, load, error, progress, abort, headers) => {
-                    fetch(source)
+                    fetch(source, { mode: 'cors' })
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error(`HTTP ${response.status}`);
@@ -223,7 +223,7 @@
                             load(blob);
                         })
                         .catch(err => {
-                            console.warn('FilePond local preview load skipped:', source);
+                            // Non-blocking fallback for local preview load
                             abort();
                         });
                 }

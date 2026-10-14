@@ -18,7 +18,7 @@ class EnsureUserHasRole
         $user = $request->user('web') ?? $request->user();
 
         if (! $user) {
-            return redirect()->guest(route('filament.admin.auth.login'));
+            return redirect()->guest(route('admin.login'));
         }
 
         if (! $user->hasRole($roles)) {

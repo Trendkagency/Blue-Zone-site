@@ -60,6 +60,7 @@ class UpdateProductRequest extends FormRequest
             'primary_image' => ['nullable'],
             'gallery' => ['nullable'],
             'gallery.*' => ['nullable'],
+            'removed_gallery_images' => ['nullable', 'array'],
             'documents' => ['nullable'],
             'documents.*' => ['nullable'],
 
@@ -85,6 +86,10 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => ['nullable', 'boolean'],
             'is_best_seller' => ['nullable', 'boolean'],
             'is_new' => ['nullable', 'boolean'],
+            'show_on_landing' => ['nullable', 'boolean'],
+            'landing_order' => ['nullable', 'integer', 'min:0'],
+            'landing_badge_en' => ['nullable', 'string', 'max:150'],
+            'landing_badge_ar' => ['nullable', 'string', 'max:150'],
             'status' => ['required', Rule::in(['active', 'draft', 'inactive'])],
         ];
     }

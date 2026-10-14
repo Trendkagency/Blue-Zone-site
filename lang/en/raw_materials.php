@@ -1,0 +1,31 @@
+<?php
+
+return [
+    'title' => 'Raw Materials Catalog',
+    'subtitle' => 'Active bio-ingredients, excipients, solvents, and primary pharmaceutical packaging.',
+    'create_material' => 'Add New Raw Material',
+    'edit_material' => 'Edit Raw Material',
+    'code' => 'Material Code',
+    'name_en' => 'Name (English)',
+    'name_ar' => 'Name (Arabic)',
+    'inci_name' => 'INCI / Scientific Name',
+    'cas_number' => 'CAS Registry #',
+    'category' => 'Category',
+    'unit_of_measure' => 'Unit of Measure (UOM)',
+    'storage_condition' => 'Storage Condition',
+    'standard_cost' => 'Standard Cost (AED)',
+    'min_reorder_qty' => 'Min Reorder Point',
+    'safety_stock' => 'Safety Stock Buffer',
+    'shelf_life_days' => 'Shelf Life (Days)',
+    'requires_coa' => 'Requires COA Analysis',
+    'default_supplier' => 'Primary Sourcing Partner',
+    'total_stock' => 'Total On-Hand',
+    'available_stock' => 'Available (Approved)',
+    'quarantine_stock' => 'In Quarantine',
+    'used_in_products' => 'Used in Formulations',
+    'messages' => [
+        'created' => 'Raw material added to catalog successfully.',
+        'updated' => 'Raw material updated successfully.',
+        'deleted' => 'Raw material deleted successfully.',
+    ],
+];

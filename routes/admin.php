@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\CrmSalesExcelController;
 use App\Http\Controllers\Admin\CrmSegmentController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\LocationController;
@@ -61,6 +62,14 @@ use App\Http\Controllers\Admin\Hr\SelfServiceController;
 use App\Http\Controllers\Admin\Hr\TrainingController as HrTrainingController;
 use App\Http\Controllers\Admin\Hr\WorkScheduleController as HrWorkScheduleController;
 use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\RawMaterialController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\GoodsReceiptController;
+use App\Http\Controllers\Admin\RawMaterialBatchController;
+use App\Http\Controllers\Admin\QcInspectionController;
+use App\Http\Controllers\Admin\WorkOrderController;
+use App\Http\Controllers\Admin\SupplyChainReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -97,6 +106,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Products & Categories Management
         Route::prefix('products')->name('products.')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->middleware('permission:products.view')->name('index');
+            Route::post('/landing-section-settings', [ProductController::class, 'updateLandingSectionSettings'])->middleware('permission:products.edit')->name('landing-section-settings');
+            Route::post('/{id}/toggle-landing', [ProductController::class, 'toggleLandingVisibility'])->middleware('permission:products.edit')->name('toggle-landing');
             Route::get('/create', [ProductController::class, 'create'])->middleware('permission:products.create')->name('create');
             Route::post('/', [ProductController::class, 'store'])->middleware('permission:products.create')->name('store');
             Route::get('/{id}', [ProductController::class, 'show'])->middleware('permission:products.view')->name('show');
@@ -116,6 +127,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::delete('/{id}', [CategoryController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
             Route::post('/{id}/restore', [CategoryController::class, 'restore'])->middleware('permission:products.delete')->name('restore');
             Route::delete('/{id}/force-delete', [CategoryController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');
+        });
+
+        // Hero Slider & Product Carousel Command Center
+        Route::prefix('hero-slider')->name('hero-slides.')->group(function () {
+            Route::get('/', [HeroSlideController::class, 'index'])->middleware('permission:products.view')->name('index');
+            Route::post('/', [HeroSlideController::class, 'store'])->middleware('permission:products.edit')->name('store');
+            Route::get('/{id}', [HeroSlideController::class, 'show'])->middleware('permission:products.view')->name('show');
+            Route::put('/{id}', [HeroSlideController::class, 'update'])->middleware('permission:products.edit')->name('update');
+            Route::delete('/{id}', [HeroSlideController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
+            Route::post('/{id}/toggle-status', [HeroSlideController::class, 'toggleStatus'])->middleware('permission:products.edit')->name('toggle-status');
+            Route::post('/reorder', [HeroSlideController::class, 'reorder'])->middleware('permission:products.edit')->name('reorder');
+            Route::post('/global-settings', [HeroSlideController::class, 'updateGlobalSettings'])->middleware('permission:products.edit')->name('global-settings');
+            Route::post('/reset-defaults', [HeroSlideController::class, 'resetDefaults'])->middleware('permission:products.edit')->name('reset-defaults');
         });
 
         // Inventory & Stock Management (including Drag & Drop Allocator & Control Hub)
@@ -714,9 +738,108 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
         });
 
+        // ==========================================
+        // Supply Chain: Sourcing, QC, MES & Reports
+        // ==========================================
+
+        // Suppliers & Vendors
+        Route::prefix('suppliers')->name('suppliers.')->group(function () {
+            Route::get('/', [SupplierController::class, 'index'])->middleware('permission:suppliers.view')->name('index');
+            Route::get('/create', [SupplierController::class, 'create'])->middleware('permission:suppliers.create')->name('create');
+            Route::post('/', [SupplierController::class, 'store'])->middleware('permission:suppliers.create')->name('store');
+            Route::get('/export', [SupplierController::class, 'export'])->middleware('permission:suppliers.view')->name('export');
+            Route::get('/{supplier}', [SupplierController::class, 'show'])->middleware('permission:suppliers.view')->name('show');
+            Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->middleware('permission:suppliers.edit')->name('edit');
+            Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:suppliers.edit')->name('update');
+            Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:suppliers.delete')->name('destroy');
+            Route::post('/{supplier}/approve', [SupplierController::class, 'approve'])->middleware('permission:suppliers.approve')->name('approve');
+        });
+
+        // Raw Material Catalog
+        Route::prefix('raw-materials')->name('raw-materials.')->group(function () {
+            Route::get('/', [RawMaterialController::class, 'index'])->middleware('permission:raw_materials.view')->name('index');
+            Route::get('/create', [RawMaterialController::class, 'create'])->middleware('permission:raw_materials.create')->name('create');
+            Route::post('/', [RawMaterialController::class, 'store'])->middleware('permission:raw_materials.create')->name('store');
+            Route::get('/export', [RawMaterialController::class, 'export'])->middleware('permission:raw_materials.view')->name('export');
+            Route::get('/{rawMaterial}', [RawMaterialController::class, 'show'])->middleware('permission:raw_materials.view')->name('show');
+            Route::get('/{rawMaterial}/edit', [RawMaterialController::class, 'edit'])->middleware('permission:raw_materials.edit')->name('edit');
+            Route::put('/{rawMaterial}', [RawMaterialController::class, 'update'])->middleware('permission:raw_materials.edit')->name('update');
+            Route::delete('/{rawMaterial}', [RawMaterialController::class, 'destroy'])->middleware('permission:raw_materials.delete')->name('destroy');
+        });
+
+        // Purchase Orders
+        Route::prefix('purchase-orders')->name('purchase-orders.')->group(function () {
+            Route::get('/', [PurchaseOrderController::class, 'index'])->middleware('permission:purchase_orders.view')->name('index');
+            Route::get('/create', [PurchaseOrderController::class, 'create'])->middleware('permission:purchase_orders.create')->name('create');
+            Route::post('/', [PurchaseOrderController::class, 'store'])->middleware('permission:purchase_orders.create')->name('store');
+            Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->middleware('permission:purchase_orders.view')->name('show');
+            Route::post('/{purchaseOrder}/submit', [PurchaseOrderController::class, 'submit'])->middleware('permission:purchase_orders.edit')->name('submit');
+            Route::post('/{purchaseOrder}/approve', [PurchaseOrderController::class, 'approve'])->middleware('permission:purchase_orders.approve')->name('approve');
+            Route::post('/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel'])->middleware('permission:purchase_orders.edit')->name('cancel');
+            Route::get('/{purchaseOrder}/print', [PurchaseOrderController::class, 'print'])->middleware('permission:purchase_orders.view')->name('print');
+        });
+
+        // Goods Receipt Notes (GRN)
+        Route::prefix('goods-receipts')->name('goods-receipts.')->group(function () {
+            Route::get('/', [GoodsReceiptController::class, 'index'])->middleware('permission:goods_receipts.view')->name('index');
+            Route::get('/create', [GoodsReceiptController::class, 'create'])->middleware('permission:goods_receipts.create')->name('create');
+            Route::post('/', [GoodsReceiptController::class, 'store'])->middleware('permission:goods_receipts.create')->name('store');
+            Route::get('/{goodsReceipt}', [GoodsReceiptController::class, 'show'])->middleware('permission:goods_receipts.view')->name('show');
+        });
+
+        // Raw Material Batches (FEFO Ledger)
+        Route::prefix('batches')->name('batches.')->group(function () {
+            Route::get('/', [RawMaterialBatchController::class, 'index'])->middleware('permission:batches.view')->name('index');
+            Route::get('/{batch}', [RawMaterialBatchController::class, 'show'])->middleware('permission:batches.view')->name('show');
+            Route::post('/{batch}/transfer', [RawMaterialBatchController::class, 'transfer'])->middleware('permission:batches.transfer')->name('transfer');
+            Route::post('/{batch}/adjust', [RawMaterialBatchController::class, 'adjust'])->middleware('permission:batches.adjust')->name('adjust');
+        });
+
+        // Quality Control & Inspections
+        Route::prefix('qc-inspections')->name('qc.')->group(function () {
+            Route::get('/', [QcInspectionController::class, 'index'])->middleware('permission:qc.view')->name('index');
+            Route::get('/create', [QcInspectionController::class, 'create'])->middleware('permission:qc.create')->name('create');
+            Route::post('/', [QcInspectionController::class, 'store'])->middleware('permission:qc.create')->name('store');
+            Route::get('/{qcInspection}', [QcInspectionController::class, 'show'])->middleware('permission:qc.view')->name('show');
+            Route::post('/{qcInspection}/verify', [QcInspectionController::class, 'verify'])->middleware('permission:qc.verify')->name('verify');
+            Route::get('/{qcInspection}/coa', [QcInspectionController::class, 'downloadCoa'])->middleware('permission:qc.view')->name('coa.download');
+        });
+
+        // Production Work Orders
+        Route::prefix('work-orders')->name('work-orders.')->group(function () {
+            Route::get('/', [WorkOrderController::class, 'index'])->middleware('permission:work_orders.view')->name('index');
+            Route::get('/create', [WorkOrderController::class, 'create'])->middleware('permission:work_orders.create')->name('create');
+            Route::post('/', [WorkOrderController::class, 'store'])->middleware('permission:work_orders.create')->name('store');
+            Route::get('/{workOrder}', [WorkOrderController::class, 'show'])->middleware('permission:work_orders.view')->name('show');
+            Route::post('/{workOrder}/schedule', [WorkOrderController::class, 'schedule'])->middleware('permission:work_orders.create')->name('schedule');
+            Route::post('/{workOrder}/dispensing', [WorkOrderController::class, 'startDispensing'])->middleware('permission:work_orders.dispense')->name('dispensing');
+            Route::post('/{workOrder}/dispense', [WorkOrderController::class, 'dispense'])->middleware('permission:work_orders.dispense')->name('dispense');
+            Route::post('/{workOrder}/complete', [WorkOrderController::class, 'complete'])->middleware('permission:work_orders.complete')->name('complete');
+        });
+
+        // The 7 Mission-Critical Supply Chain Reports
+        Route::prefix('reports/supply-chain')->name('supply-chain-reports.')->group(function () {
+            Route::get('/vendor-scorecard', [SupplyChainReportController::class, 'vendorScorecard'])->middleware('permission:supply_chain_reports.view')->name('vendor-scorecard');
+            Route::get('/valuation-expiry', [SupplyChainReportController::class, 'valuationExpiry'])->middleware('permission:supply_chain_reports.view')->name('valuation-expiry');
+            Route::get('/po-aging', [SupplyChainReportController::class, 'poAging'])->middleware('permission:supply_chain_reports.view')->name('po-aging');
+            Route::get('/qc-log', [SupplyChainReportController::class, 'qcLog'])->middleware('permission:supply_chain_reports.view')->name('qc-log');
+            Route::get('/mrp-forecast', [SupplyChainReportController::class, 'mrpForecast'])->middleware('permission:supply_chain_reports.view')->name('mrp-forecast');
+            Route::get('/scrap-variance', [SupplyChainReportController::class, 'scrapVariance'])->middleware('permission:supply_chain_reports.view')->name('scrap-variance');
+            Route::get('/lot-traceability', [SupplyChainReportController::class, 'lotTraceability'])->middleware('permission:supply_chain_reports.view')->name('lot-traceability');
+        });
+
         // Dynamic Cascading Geo API Endpoints
         Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
         Route::get('/api/cities/{id}/areas', [AreaController::class, 'getAreasByCity'])->name('api.cities.areas');
         Route::get('/api/areas/{id}/breaks', [BreakController::class, 'getBreaksByArea'])->name('api.areas.breaks');
+
+        // Assets proxy fallback to prevent relative 404s when requests are made under /admin/assets/*
+        Route::get('/assets/{path}', function ($path) {
+            $filePath = public_path('assets/' . $path);
+            if (file_exists($filePath)) {
+                return response()->file($filePath);
+            }
+            return redirect('/assets/' . $path, 301);
+        })->where('path', '.*')->name('assets.fallback');
     });
 });

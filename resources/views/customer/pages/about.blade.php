@@ -118,10 +118,13 @@
                             <i class="fa-solid fa-arrow-right rtl:rotate-180 ml-1.5"></i>
                         </a>
 
+                        {{-- [HIDDEN MODULE: OUR SCIENCE CTA] --}}
+                        {{--
                         <a href="{{ route('customer.pages.science') }}"
                             class="px-7 py-3.5 border border-[#0A4F78]/30 hover:border-[#0A4F78] text-[#031827] dark:text-[#F6F5EF] text-xs font-extrabold uppercase tracking-widest rounded-xl transition-colors">
                             {{ __('app.our_science') }}
                         </a>
+                        --}}
 
                     </div>
                 </div>

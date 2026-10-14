@@ -19,30 +19,42 @@
         {{-- =========================================================
             SECTION HEADER
         ========================================================== --}}
+        @php
+            $isAr = app()->getLocale() === 'ar';
+            $secBadge = $landingSettings['landing_products_badge_' . ($isAr ? 'ar' : 'en')] 
+                ?? ($settings['landing_products_badge_' . ($isAr ? 'ar' : 'en')] ?? __('app.clinical_formulations'));
+            $secTitle = $landingSettings['landing_products_title_' . ($isAr ? 'ar' : 'en')] 
+                ?? ($settings['landing_products_title_' . ($isAr ? 'ar' : 'en')] ?? __('app.featured_products'));
+            $secSubtitle = $landingSettings['landing_products_subtitle_' . ($isAr ? 'ar' : 'en')] 
+                ?? ($settings['landing_products_subtitle_' . ($isAr ? 'ar' : 'en')] ?? __('app.featured_products_description', [], false));
+            $ctaText = $landingSettings['landing_products_cta_text_' . ($isAr ? 'ar' : 'en')] 
+                ?? ($settings['landing_products_cta_text_' . ($isAr ? 'ar' : 'en')] ?? __('app.view_all_products'));
+        @endphp
+
         <div class="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
 
             <div class="max-w-2xl space-y-3">
 
                 <span
                     class="inline-block text-xs font-black uppercase tracking-[0.25em] text-[#0A4F78] dark:text-[#2A8FC2]">
-                    {{ __('app.clinical_formulations') }}
+                    {{ $secBadge ?: __('app.clinical_formulations') }}
                 </span>
 
                 <h2 class="text-3xl font-black tracking-tight text-[#031827] dark:text-[#F6F5EF] sm:text-5xl">
-                    {{ __('app.featured_products') }}
+                    {{ $secTitle ?: __('app.featured_products') }}
                 </h2>
 
                 <p class="max-w-xl text-sm leading-6 text-[#031827]/60 dark:text-[#F6F5EF]/60">
-                    {{ __('app.featured_products_description', [], false) ?: 'Explore our science-backed formulations engineered for targeted health and performance.' }}
+                    {{ $secSubtitle ?: ('Explore our science-backed formulations engineered for targeted health and performance.') }}
                 </p>
 
             </div>
 
             {{-- View catalog --}}
-            <a href="'{{ route('customer.products') }}"
+            <a href="{{ route('customer.products') }}"
                 class="inline-flex w-fit items-center gap-2 rounded-xl border border-[#0A4F78]/20 px-5 py-3 text-xs font-black uppercase tracking-widest text-[#0A4F78] transition-all hover:border-[#0A4F78] hover:bg-[#0A4F78] hover:text-white dark:border-[#2A8FC2]/30 dark:text-[#2A8FC2] dark:hover:border-[#2A8FC2] dark:hover:bg-[#2A8FC2] dark:hover:text-white">
                 <span>
-                    {{ __('app.view_all_products') }}
+                    {{ $ctaText ?: __('app.view_all_products') }}
                 </span>
 
                 <i class="fa-solid fa-arrow-right text-[10px] rtl:rotate-180" aria-hidden="true"></i>
@@ -100,8 +112,8 @@
                                 $slug = $product['slug'] ?? '';
 
                                 $image = !empty($product['image'])
-                                    ? asset(ltrim($product['image'], '/'))
-                                    : asset('assets/products/blue-mind.webp');
+                                    ? \App\Models\Product::normalizeUrl($product['image'])
+                                    : '/assets/products/blue-mind.webp';
 
                                 $price = $product['price'] ?? 0;
 
@@ -137,17 +149,20 @@
                                     <img src="{{ $image }}" alt="{{ $productName }}" width="600"
                                         height="450" loading="lazy" decoding="async"
                                         class="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-108"
-                                        onerror="this.onerror=null;this.src='{{ asset('assets/products/blue-mind.webp') }}';">
+                                        onerror="this.onerror=null;this.src='/assets/products/blue-mind.webp';">
 
                                     {{-- Ambient gradient & glass ring --}}
                                     <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/60 via-transparent to-black/20"></div>
                                     <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10"></div>
 
-                                    {{-- Clinical formulation badge --}}
+                                    {{-- Clinical formulation / Custom Landing badge --}}
+                                    @php
+                                        $customLandingBadge = $locale === 'ar' ? ($product['landing_badge_ar'] ?? null) : ($product['landing_badge_en'] ?? null);
+                                    @endphp
                                     <div
                                         class="absolute left-4 top-4 z-20 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/90 px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-[#0A4F78] shadow-md backdrop-blur-md dark:border-[#2A8FC2]/40 dark:bg-[#031827]/90 dark:text-[#2A8FC2]">
                                         <i class="fa-solid fa-flask-vial" aria-hidden="true"></i>
-                                        {{ __('app.clinical_formulation') }}
+                                        {{ $customLandingBadge ?: __('app.clinical_formulation') }}
                                     </div>
 
                                     {{-- Sale badge --}}

@@ -17,9 +17,8 @@
         ? ($isRtl && !empty($product->category?->name_ar) ? $product->category->name_ar : ($product->category?->name ?? 'COGNITIVE'))
         : ($isRtl && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? 'COGNITIVE'));
 
-    $pImage = $isObj 
-        ? ($product->primary_image_url ?? asset('assets/products/blue-mind.webp'))
-        : asset($product['image'] ?? 'assets/products/blue-mind.webp');
+    $rawImageVal = $isObj ? ($product->primary_image_url ?? $product->image) : ($product['image'] ?? null);
+    $pImage = \App\Models\Product::normalizeUrl($rawImageVal);
 
     $pImages = $isObj ? ($product->images ?? [$pImage]) : ($product['images'] ?? [$pImage]);
     if (empty($pImages)) $pImages = [$pImage];
@@ -219,7 +218,7 @@
                 id="product-main-img"
                 src="{{ $pImage }}" 
                 alt="{{ $pName }}" 
-                onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" 
+                onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';" 
                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" 
               />
               <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/50 via-transparent to-transparent"></div>

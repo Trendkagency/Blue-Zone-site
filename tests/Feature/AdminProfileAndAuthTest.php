@@ -52,6 +52,15 @@ class AdminProfileAndAuthTest extends TestCase
         $response->assertSee('BLUE ZONE');
     }
 
+    public function test_unauthenticated_admin_dashboard_redirects_to_admin_login(): void
+    {
+        $response = $this->get('/admin');
+        $response->assertRedirect(route('admin.login'));
+
+        $responseWithSlash = $this->get('/admin/');
+        $responseWithSlash->assertRedirect(route('admin.login'));
+    }
+
     public function test_admin_can_login_with_valid_credentials(): void
     {
         $response = $this->post(route('admin.login.submit'), [

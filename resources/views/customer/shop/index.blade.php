@@ -169,6 +169,7 @@
 
             grid.innerHTML = list.map(p => {
                 const productSlug = p.slug || p.id;
+                const pImgUrl = p.image ? (p.image.startsWith('http') || p.image.startsWith('/') ? p.image : '/' + p.image) : '/assets/products/blue-mind.webp';
                 return `
           <div class="bg-white dark:bg-[#062B49] rounded-3xl p-6 border border-[#0A4F78]/15 shadow-xl flex flex-col justify-between card-hover-lift">
             <div class="space-y-4">
@@ -177,7 +178,7 @@
                   ${p.category}
                 </span>
                 <a href="/products/${productSlug}" class="w-full h-full flex items-center justify-center">
-                  <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
+                  <img src="${pImgUrl}" alt="${p.name}" onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
                 </a>
               </div>
               <div>

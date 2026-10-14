@@ -9,6 +9,179 @@
         </a>
     </x-slot>
 
+    <!-- Global Landing Page Products Section Configuration Card -->
+    <div class="mb-6 rounded-2xl border border-[#0A4F78]/20 dark:border-[#2A8FC2]/25 bg-gradient-to-br from-white via-white to-slate-50 dark:from-[#062B49] dark:via-[#031827] dark:to-[#02131F] p-5 sm:p-6 shadow-md transition-all">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#0A4F78]/10 dark:border-white/10">
+            <div class="flex items-start sm:items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-[#0A4F78]/10 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center justify-center text-xl shrink-0 shadow-xs">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight">
+                            {{ app()->getLocale() === 'ar' ? 'إعدادات قسم المنتجات بالصفحة الرئيسية' : 'Landing Page Products Showcase Control' }}
+                        </h3>
+                        @if(!empty($landingSettings['landing_featured_products_enabled']))
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                {{ app()->getLocale() === 'ar' ? 'القسم معروض (OPEN)' : 'Section is OPEN' }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                {{ app()->getLocale() === 'ar' ? 'القسم مخفي (HIDDEN)' : 'Section is HIDDEN' }}
+                            </span>
+                        @endif
+
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:text-[#2A8FC2]">
+                            <i class="fa-solid fa-circle-check text-[10px]"></i>
+                            {{ $landingProductsCount ?? 0 }} {{ app()->getLocale() === 'ar' ? 'منتج معروض في الواجهة' : 'Formulations in Landing' }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'تحكّم في فتح أو إغلاق قسم المنتجات بالواجهة، تخصيص العناوين ثنائية اللغة، وتحديد عدد المنتجات المعروضة (أو عرض الكل).' 
+                            : 'Open or hide the products section on the storefront homepage, customize bilingual headlines, and control product limits.' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Quick Controls -->
+            <div class="flex items-center gap-2.5 self-start lg:self-center shrink-0">
+                <form method="POST" action="{{ route('admin.products.landing-section-settings') }}" class="inline-flex items-center gap-2">
+                    @csrf
+                    <input type="hidden" name="landing_featured_products_enabled" value="{{ !empty($landingSettings['landing_featured_products_enabled']) ? '0' : '1' }}">
+                    <button type="submit" 
+                            class="btn btn-sm font-bold shadow-xs cursor-pointer {{ !empty($landingSettings['landing_featured_products_enabled']) ? 'bg-amber-600 hover:bg-amber-700 text-white border-transparent' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent' }}">
+                        <i class="fa-solid {{ !empty($landingSettings['landing_featured_products_enabled']) ? 'fa-eye-slash' : 'fa-eye' }} mr-1 ml-1"></i>
+                        {{ !empty($landingSettings['landing_featured_products_enabled']) 
+                            ? (app()->getLocale() === 'ar' ? 'إخفاء القسم من الواجهة' : 'Hide Section on Landing') 
+                            : (app()->getLocale() === 'ar' ? 'إظهار القسم في الواجهة' : 'Open Section on Landing') }}
+                    </button>
+                </form>
+
+                <button type="button" 
+                        onclick="toggleLandingSettingsCollapse()" 
+                        class="btn btn-sm btn-outline font-bold dark:border-gray-600 dark:text-gray-200"
+                        id="toggleLandingSettingsBtn">
+                    <i class="fa-solid fa-sliders mr-1 ml-1"></i>
+                    <span id="toggleLandingSettingsBtnText">{{ app()->getLocale() === 'ar' ? 'تخصيص العناوين والمحتوى' : 'Customize Headlines & Settings' }}</span>
+                    <i class="fa-solid fa-chevron-down text-xs ml-1 mr-1 transition-transform" id="toggleLandingSettingsIcon"></i>
+                </button>
+
+                <a href="{{ route('admin.hero-slides.index') }}" 
+                   class="btn btn-sm font-bold bg-[#0A4F78]/10 hover:bg-[#0A4F78]/20 text-[#0A4F78] dark:text-[#2A8FC2] dark:bg-white/10 dark:hover:bg-white/15 border border-[#0A4F78]/20 dark:border-white/20">
+                    <i class="fa-solid fa-images mr-1 ml-1 text-sky-500"></i>
+                    {{ app()->getLocale() === 'ar' ? 'إدارة سلايدر الواجهة والشرائح' : 'Hero Carousel Manager' }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Collapsible Content & Titles Customization Form -->
+        <div id="landingSettingsCollapseBody" class="mt-5 pt-4 border-t border-dashed border-[#0A4F78]/15 dark:border-white/10 hidden">
+            <form method="POST" action="{{ route('admin.products.landing-section-settings') }}" id="landingSectionGlobalForm" class="space-y-4">
+                @csrf
+
+                <!-- Section Visibility Switch & Display Mode -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-gray-200/80 dark:border-gray-800">
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-700">
+                        <div>
+                            <span class="text-xs font-bold text-gray-800 dark:text-gray-200 block">{{ app()->getLocale() === 'ar' ? 'حالة ظهور القسم في الصفحة الرئيسية' : 'Homepage Section Status' }}</span>
+                            <span class="text-[11px] text-gray-500 dark:text-gray-400">{{ app()->getLocale() === 'ar' ? 'إظهار (Open) أو إخفاء (Hidden)' : 'Open (Visible) or Hidden (Closed)' }}</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="landing_featured_products_enabled" value="1" class="sr-only peer" {{ !empty($landingSettings['landing_featured_products_enabled']) ? 'checked' : '' }}>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                            {{ app()->getLocale() === 'ar' ? 'الحد الأقصى للمنتجات المعروضة' : 'Products Showcase Limit' }}
+                        </label>
+                        <select name="landing_products_limit" class="form-select text-xs w-full">
+                            <option value="0" {{ ($landingSettings['landing_products_limit'] ?? 6) == 0 ? 'selected' : '' }}>
+                                {{ app()->getLocale() === 'ar' ? 'عرض جميع المنتجات المحددة (Show ALL Products)' : 'Show ALL Configured Formulations (No Limit)' }}
+                            </option>
+                            <option value="3" {{ ($landingSettings['landing_products_limit'] ?? 6) == 3 ? 'selected' : '' }}>3 Formulations (1 Row)</option>
+                            <option value="6" {{ ($landingSettings['landing_products_limit'] ?? 6) == 6 ? 'selected' : '' }}>6 Formulations (2 Rows - Recommended)</option>
+                            <option value="9" {{ ($landingSettings['landing_products_limit'] ?? 6) == 9 ? 'selected' : '' }}>9 Formulations (3 Rows)</option>
+                            <option value="12" {{ ($landingSettings['landing_products_limit'] ?? 6) == 12 ? 'selected' : '' }}>12 Formulations (4 Rows)</option>
+                        </select>
+                        <span class="text-[10px] text-gray-400 mt-1 block">
+                            {{ app()->getLocale() === 'ar' ? 'اختر 0 لعرض كافة المنتجات التي تم تفعيلها للواجهة' : 'Select 0 to display all products with "Show on Landing" turned ON' }}
+                        </span>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                            {{ app()->getLocale() === 'ar' ? 'نص زر تصفح الكتالوج' : 'View Catalog CTA Button' }}
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" name="landing_products_cta_text_en" value="{{ $landingSettings['landing_products_cta_text_en'] ?? 'VIEW ALL FORMULATIONS' }}" class="form-control text-xs" placeholder="EN: VIEW ALL">
+                            <input type="text" name="landing_products_cta_text_ar" value="{{ $landingSettings['landing_products_cta_text_ar'] ?? 'عرض جميع المستحضرات' }}" class="form-control text-xs" placeholder="AR: عرض الكل" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Bilingual Titles & Badges -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- English Content -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2] uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-[#0A4F78] dark:bg-[#2A8FC2]"></span>
+                            {{ app()->getLocale() === 'ar' ? 'المحتوى بالإنجليزية (English LTR)' : 'English Content (LTR)' }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Section Eyebrow / Badge</label>
+                            <input type="text" name="landing_products_badge_en" value="{{ $landingSettings['landing_products_badge_en'] ?? 'CLINICAL FORMULATIONS' }}" class="form-control text-xs font-bold" placeholder="e.g. CLINICAL FORMULATIONS">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Section Main Title</label>
+                            <input type="text" name="landing_products_title_en" value="{{ $landingSettings['landing_products_title_en'] ?? 'Engineered for Systemic Longevity & Vitality' }}" class="form-control text-xs font-bold" placeholder="e.g. Engineered for Systemic Longevity">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Section Subtitle / Description</label>
+                            <textarea name="landing_products_subtitle_en" rows="2" class="form-control text-xs" placeholder="Clinical subtitle describing the formulations...">{{ $landingSettings['landing_products_subtitle_en'] ?? 'Targeted botanical bio-compounds designed to support cellular repair, cognitive sharpness, and daily metabolic energy.' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Arabic Content -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3" dir="rtl">
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#67B34A] uppercase tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-[#67B34A]"></span>
+                            {{ app()->getLocale() === 'ar' ? 'المحتوى بالعربية (Arabic RTL)' : 'Arabic Content (RTL)' }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">شارة القسم العلوية (Badge)</label>
+                            <input type="text" name="landing_products_badge_ar" value="{{ $landingSettings['landing_products_badge_ar'] ?? 'التركيبات الطبية السريرية' }}" class="form-control text-xs font-bold" placeholder="مثال: التركيبات الطبية السريرية">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">العنوان الرئيسي للقسم</label>
+                            <input type="text" name="landing_products_title_ar" value="{{ $landingSettings['landing_products_title_ar'] ?? 'مصممة خصيصاً للصحة الخلوية وطول العمر المديد' }}" class="form-control text-xs font-bold" placeholder="مثال: مصممة خصيصاً للصحة الخلوية وطول العمر">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">الوصف التوضيحي السريري</label>
+                            <textarea name="landing_products_subtitle_ar" rows="2" class="form-control text-xs" placeholder="الوصف الطبي المرافق للقسم...">{{ $landingSettings['landing_products_subtitle_ar'] ?? 'مركبات نباتية نشطة بيولوجياً تستهدف تحفيز الترميم الخلوي، تعزيز صفاء الذهن، ودعم الطاقة الأيضية اليومية.' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800 flex-wrap gap-3">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1 ml-1"></i>
+                        {{ app()->getLocale() === 'ar' ? 'التغييرات تنعكس فورياً على قسم المنتجات في الصفحة الرئيسية.' : 'Changes apply immediately to the landing page products showcase.' }}
+                    </p>
+                    <button type="submit" class="btn btn-primary font-bold shadow-md px-6">
+                        <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i>
+                        {{ app()->getLocale() === 'ar' ? 'حفظ إعدادات قسم الصفحة الرئيسية' : 'Save Section Settings' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toolbar & Filter Tabs -->
     <div class="mb-6 space-y-4">
         <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-3 flex-wrap">
@@ -85,6 +258,7 @@
                         <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'سعر البيع' : 'Retail Price' }}</th>
                         <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون الأونلاين' : 'Online Stock' }}</th>
                         <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون المستودع' : 'Warehouse Stock' }}</th>
+                        <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الصفحة الرئيسية' : 'Landing Page' }}</th>
                         <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
                         <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
                     </tr>
@@ -107,6 +281,11 @@
                             $rawImage = $product['image'] ?? ($product->primary_image_url ?? 'assets/products/blue-mind.jpg');
                             $pImage = \App\Models\Product::normalizeUrl($rawImage);
                             $isItemTrashed = !empty($product['deleted_at']);
+                            $pShowLanding = (bool) ($product['show_on_landing'] ?? $product->show_on_landing ?? false);
+                            $pLandingOrder = (int) ($product['landing_order'] ?? $product->landing_order ?? 0);
+                            $pLandingBadgeEn = $product['landing_badge_en'] ?? $product->landing_badge_en ?? null;
+                            $pLandingBadgeAr = $product['landing_badge_ar'] ?? $product->landing_badge_ar ?? null;
+                            $pLandingBadge = app()->getLocale() === 'ar' ? ($pLandingBadgeAr ?: $pLandingBadgeEn) : ($pLandingBadgeEn ?: $pLandingBadgeAr);
                         @endphp
                         <tr>
                             <td><input type="checkbox" class="form-check-input"></td>
@@ -150,6 +329,31 @@
                                 </span>
                             </td>
                             <td>
+                                @if(!$isItemTrashed)
+                                    <button type="button" 
+                                            onclick="toggleProductLanding(this, {{ $pId }})"
+                                            data-product-id="{{ $pId }}"
+                                            data-active="{{ $pShowLanding ? '1' : '0' }}"
+                                            class="landing-toggle-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-xs border cursor-pointer {{ $pShowLanding ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800' : 'bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700' }}"
+                                            title="{{ app()->getLocale() === 'ar' ? 'تبديل الظهور في الصفحة الرئيسية' : 'Toggle landing showcase' }}">
+                                        <span class="w-2 h-2 rounded-full {{ $pShowLanding ? 'bg-emerald-500 ring-2 ring-emerald-300/50 dark:ring-emerald-700/50' : 'bg-gray-400' }} indicator-dot"></span>
+                                        <span class="indicator-text">
+                                            {{ $pShowLanding ? (app()->getLocale() === 'ar' ? 'معروض' : 'Showcased') : (app()->getLocale() === 'ar' ? 'مخفي' : 'Hidden') }}
+                                        </span>
+                                        @if($pLandingOrder > 0)
+                                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-200/60 dark:bg-emerald-800/60 text-emerald-900 dark:text-emerald-100 font-mono">#{{ $pLandingOrder }}</span>
+                                        @endif
+                                    </button>
+                                    @if(!empty($pLandingBadge))
+                                        <div class="text-[10px] text-primary font-semibold mt-1 max-w-[120px] truncate" title="{{ $pLandingBadge }}">
+                                            <i class="fa-solid fa-tag text-[9px] mr-0.5 ml-0.5"></i>{{ $pLandingBadge }}
+                                        </div>
+                                    @endif
+                                @else
+                                    <span class="text-xs text-muted">—</span>
+                                @endif
+                            </td>
+                            <td>
                                 @if($isItemTrashed)
                                     <span class="badge badge-danger text-xs font-bold">
                                         <i class="fa-solid fa-trash-can mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'محذوف' : 'Trashed' }}
@@ -189,7 +393,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-8 text-muted">
+                            <td colspan="10" class="text-center py-8 text-muted">
                                 <div class="flex flex-col items-center justify-center gap-2">
                                     <i class="fa-solid fa-box-open text-3xl text-gray-400"></i>
                                     <p class="text-sm font-semibold">{{ app()->getLocale() === 'ar' ? 'لا توجد عناصر مطابقة في هذا القسم' : 'No formulations found matching criteria' }}</p>
@@ -203,4 +407,88 @@
 
         <x-pagination :currentPage="$currentPage" :totalPages="$totalPages" :totalItems="$totalCount ?? count($products)" />
     </div>
+
+    <!-- Scripts for Landing Section Settings & Interactive Toggle -->
+    <script>
+        function toggleLandingSettingsCollapse() {
+            const body = document.getElementById('landingSettingsCollapseBody');
+            const icon = document.getElementById('toggleLandingSettingsIcon');
+            const isHidden = body.classList.contains('hidden');
+
+            if (isHidden) {
+                body.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                body.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        async function toggleProductLanding(button, productId) {
+            const currentActive = button.getAttribute('data-active') === '1';
+            const originalHtml = button.innerHTML;
+            
+            // Show loading spinner inside button
+            button.disabled = true;
+            button.style.opacity = '0.7';
+
+            try {
+                const response = await fetch(`{{ url('admin/products') }}/${productId}/toggle-landing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const newActive = data.show_on_landing;
+                    button.setAttribute('data-active', newActive ? '1' : '0');
+
+                    const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
+                    const textLabel = newActive ? (isAr ? 'معروض' : 'Showcased') : (isAr ? 'مخفي' : 'Hidden');
+
+                    // Reset classes
+                    if (newActive) {
+                        button.className = "landing-toggle-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-xs border cursor-pointer bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800";
+                        button.innerHTML = `
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300/50 dark:ring-emerald-700/50 indicator-dot"></span>
+                            <span class="indicator-text">${textLabel}</span>
+                        `;
+                    } else {
+                        button.className = "landing-toggle-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-xs border cursor-pointer bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700";
+                        button.innerHTML = `
+                            <span class="w-2 h-2 rounded-full bg-gray-400 indicator-dot"></span>
+                            <span class="indicator-text">${textLabel}</span>
+                        `;
+                    }
+
+                    // Update counter in hero card if it exists
+                    const countBadge = document.getElementById('landingCountBadge');
+                    if (countBadge) {
+                        let currentCount = parseInt(countBadge.textContent.trim(), 10) || 0;
+                        countBadge.textContent = newActive ? (currentCount + 1) : Math.max(0, currentCount - 1);
+                    }
+
+                    // Toast notification if helper exists, otherwise clean floating message
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, 'success');
+                    }
+                } else {
+                    alert(data.message || 'Error toggling product landing visibility');
+                    button.innerHTML = originalHtml;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Connection error while toggling landing state');
+                button.innerHTML = originalHtml;
+            } finally {
+                button.disabled = false;
+                button.style.opacity = '1';
+            }
+        }
+    </script>
 </x-layouts.admin>

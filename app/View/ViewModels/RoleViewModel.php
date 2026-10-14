@@ -247,6 +247,64 @@ class RoleViewModel
                     ],
                 ],
             ],
+            'supply_chain' => [
+                'label' => [
+                    'en' => 'Supply Chain, Quality Control & Manufacturing (MES)',
+                    'ar' => 'سلاسل الإمداد ومراقبة الجودة والتصنيع الدوائي (MES)',
+                ],
+                'icon' => 'fa-industry',
+                'color' => '#0D9488',
+                'modules' => [
+                    'suppliers' => [
+                        'name_en' => 'Suppliers & Approved Vendors',
+                        'name_ar' => 'الموردون والمصنعون المعتمدون',
+                        'desc_en' => 'Manage supplier master records, qualification audits, dual approval sign-offs, and quality scorecards.',
+                        'desc_ar' => 'إدارة ملفات الموردين وتأهيل اعتمادات cGMP والاعتماد المزدوج وتقييم الأداء.',
+                    ],
+                    'raw_materials' => [
+                        'name_en' => 'Raw Materials & Active APIs Catalog',
+                        'name_ar' => 'كتالوج المواد الخام والمكونات الفعالة',
+                        'desc_en' => 'Active pharmaceutical ingredients, excipients, packaging specifications, and safety stock levels.',
+                        'desc_ar' => 'كتالوج المواد الفعالة والسواغ ومواد التعبئة وشروط الحفظ ومستويات الأمان.',
+                    ],
+                    'purchase_orders' => [
+                        'name_en' => 'Purchase Orders & Procurement',
+                        'name_ar' => 'أوامر الشراء والتوريد',
+                        'desc_en' => 'Issue POs, enforce financial authorization thresholds, dual signatures, and track shipment statuses.',
+                        'desc_ar' => 'إصدار أوامر الشراء وتطبيق حدود الصلاحيات المالية والاعتماد وتتبع التوريد.',
+                    ],
+                    'goods_receipts' => [
+                        'name_en' => 'Goods Receipt Notes (GRN)',
+                        'name_ar' => 'سندات استلام البضائع والمستودع (GRN)',
+                        'desc_en' => 'Inbound inspection, cold-chain temperature verification, seal integrity, and quarantine intake.',
+                        'desc_ar' => 'فحص الشحنات الواردة والتحقق من سلسلة التبريد وسلامة الأختام والحجر المباشر.',
+                    ],
+                    'batches' => [
+                        'name_en' => 'Raw Material Batches & FEFO Ledger',
+                        'name_ar' => 'تشغيلات المواد الخام ومخزون FEFO',
+                        'desc_en' => 'Track batch lots, expiry dates, bin transfers, gravimetric stock adjustments, and inventory locks.',
+                        'desc_ar' => 'متابعة التشغيلات وصلاحية FEFO وتحويلات الأماكن والتسويات الوزنية الدقيقة.',
+                    ],
+                    'qc' => [
+                        'name_en' => 'Quality Control & Quarantine Releases',
+                        'name_ar' => 'مراقبة الجودة والإفراج المخبري (QC)',
+                        'desc_en' => 'Analytical lab testing, COA verification, parameter specifications, and dual sign-off release.',
+                        'desc_ar' => 'الفحوصات المخبرية وتحليل شهادات COA والمواصفات الفنية والإفراج المخبري المزدوج.',
+                    ],
+                    'work_orders' => [
+                        'name_en' => 'Formulation MES & Production Orders',
+                        'name_ar' => 'أوامر الإنتاج والتصنيع والتركيب (MES)',
+                        'desc_en' => 'Recipe bill-of-materials, cleanroom gravimetric dispensing, barcode scans, and yield reconciliation.',
+                        'desc_ar' => 'تركيبات الوصفات والوزن الدقيق في الغرف النظيفة ومسح الباركود ونسب الهدر والإنتاج.',
+                    ],
+                    'supply_chain_reports' => [
+                        'name_en' => 'Supply Chain & Traceability Reports',
+                        'name_ar' => 'تقارير سلاسل الإمداد والتتبع والاسترجاع',
+                        'desc_en' => 'Vendor scorecards, FEFO expiry risks, PO aging, QC clearance log, MRP forecasts, and recall trace.',
+                        'desc_ar' => 'تقييم الموردين وتقييم المخزون وأعمار أوامر الشراء وسجل الجودة وتوقعات MRP والتتبع الدوائي.',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -263,6 +321,7 @@ class RoleViewModel
                 $flat[$modKey] = app()->getLocale() === 'ar' ? $meta['name_ar'] : $meta['name_en'];
             }
         }
+
         return $flat;
     }
 
@@ -344,6 +403,45 @@ class RoleViewModel
                     'hr_payroll' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
                     'users' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
                     'notifications' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
+                ],
+            ],
+            'qa_qc_manager' => [
+                'name' => 'QA / QC Operations Manager',
+                'name_ar' => 'مدير توكيد الجودة ومراقبة المعامل (QA/QC)',
+                'description' => 'Oversees analytical QC testing, COA verification, quarantine holds, and batch release.',
+                'permissions' => [
+                    'qc' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'batches' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'raw_materials' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'suppliers' => ['view' => true, 'create' => false, 'edit' => true, 'delete' => false],
+                    'goods_receipts' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'supply_chain_reports' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'hr_attendance' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
+                ],
+            ],
+            'procurement_specialist' => [
+                'name' => 'Procurement & Sourcing Specialist',
+                'name_ar' => 'أخصائي المشتريات وسلاسل التوريد',
+                'description' => 'Manages vendor relations, raw material price negotiations, purchase orders, and goods intake.',
+                'permissions' => [
+                    'suppliers' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'purchase_orders' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'goods_receipts' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'raw_materials' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'batches' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'supply_chain_reports' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'hr_attendance' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
+                ],
+            ],
+            'production_operator' => [
+                'name' => 'Cleanroom MES Production Operator',
+                'name_ar' => 'مشغل إنتاج وغرف نظيفة (MES Operator)',
+                'description' => 'Executes formulation work orders, cleanroom gravimetric dispensing, and material consumption.',
+                'permissions' => [
+                    'work_orders' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
+                    'batches' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'raw_materials' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],
+                    'hr_attendance' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
                 ],
             ],
             'super_admin' => [

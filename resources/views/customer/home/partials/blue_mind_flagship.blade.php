@@ -31,12 +31,8 @@
     | Product Image
     |--------------------------------------------------------------------------
     */
-    $rawImg = $isObj ? $mainProduct->image : ($mainProduct['image'] ?? null);
-    $mainProductImage = $rawImg ?: asset('assets/products/blue-mind.webp');
-
-    if (!str_starts_with($mainProductImage, 'http')) {
-        $mainProductImage = asset(ltrim($mainProductImage, '/'));
-    }
+    $rawImg = $isObj ? ($mainProduct->primary_image_url ?? $mainProduct->image) : ($mainProduct['image'] ?? null);
+    $mainProductImage = \App\Models\Product::normalizeUrl($rawImg);
 
     /*
     |--------------------------------------------------------------------------
@@ -116,7 +112,7 @@
                         <img src="{{ $mainProductImage }}" alt="{{ $mainProductName }}" width="800"
                             height="800" loading="lazy" decoding="async"
                             class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-106"
-                            onerror="this.onerror=null;this.src='{{ asset('assets/products/blue-mind.webp') }}';">
+                            onerror="this.onerror=null;this.src='/assets/products/blue-mind.webp';">
 
                         {{-- Elegant ambient gradient overlays & glass ring --}}
                         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/75 via-[#031827]/10 to-black/20"></div>

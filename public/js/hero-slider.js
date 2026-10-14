@@ -1,7 +1,8 @@
 // BLUE ZONE Full-Width Cinematic Hero Image Slider
 
 (function () {
-  const AUTOPLAY_DELAY = 5500; // 5.5 seconds autoplay
+  const AUTOPLAY_DELAY = (window.BLUEZONE_HERO_CONFIG && window.BLUEZONE_HERO_CONFIG.delay) || 5500;
+  const AUTOPLAY_ENABLED = (window.BLUEZONE_HERO_CONFIG && typeof window.BLUEZONE_HERO_CONFIG.autoplay !== 'undefined') ? window.BLUEZONE_HERO_CONFIG.autoplay : true;
   let currentIndex = 0;
   let autoplayTimer = null;
   let slides = [];
@@ -15,11 +16,15 @@
     if (!slides || slides.length === 0) return;
 
     showSlide(0);
-    startAutoplay();
+    if (AUTOPLAY_ENABLED) {
+      startAutoplay();
+    }
 
     if (heroContainer) {
       heroContainer.addEventListener('mouseenter', stopAutoplay);
-      heroContainer.addEventListener('mouseleave', startAutoplay);
+      heroContainer.addEventListener('mouseleave', () => {
+        if (AUTOPLAY_ENABLED) startAutoplay();
+      });
 
       // Touch swipe support for mobile
       let touchStartX = 0;

@@ -27,8 +27,11 @@ class Product extends Model implements HasMedia
         'brand',
         'price',
         'sale_price',
-        'cost_price',
         'is_featured',
+        'show_on_landing',
+        'landing_order',
+        'landing_badge_en',
+        'landing_badge_ar',
         'is_best_seller',
         'is_new',
         'status',
@@ -68,6 +71,8 @@ class Product extends Model implements HasMedia
             'cost_price' => 'decimal:2',
             'rating' => 'decimal:1',
             'is_featured' => 'boolean',
+            'show_on_landing' => 'boolean',
+            'landing_order' => 'integer',
             'is_best_seller' => 'boolean',
             'is_new' => 'boolean',
             'enable_backorders' => 'boolean',
@@ -76,6 +81,20 @@ class Product extends Model implements HasMedia
             'benefits_ar' => 'array',
             'ingredients' => 'array',
         ];
+    }
+
+    /**
+     * Scope query to active products configured to display on the landing page.
+     */
+    public function scopeForLanding($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('status', 'active')->orWhere('is_active', true);
+        })
+        ->where('show_on_landing', true)
+        ->orderBy('landing_order', 'asc')
+        ->orderBy('sort_order', 'asc')
+        ->orderByDesc('is_featured');
     }
 
     public function category(): BelongsTo
@@ -96,6 +115,11 @@ class Product extends Model implements HasMedia
     public function inventoryMovements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    public function heroSlides(): HasMany
+    {
+        return $this->hasMany(HeroSlide::class, 'product_id');
     }
 
     /**
@@ -177,25 +201,17 @@ class Product extends Model implements HasMedia
     public static function normalizeUrl(?string $url): string
     {
         if (empty($url) || !is_string($url)) {
-            return asset('assets/products/blue-mind.jpg');
+            return '/assets/products/blue-mind.webp';
         }
 
         $trimmed = trim($url);
 
-        // If it contains /storage/ path (e.g. from Spatie or local uploads on any domain/port)
-        if (str_contains($trimmed, '/storage/')) {
-            $parsedPath = parse_url($trimmed, PHP_URL_PATH);
-            if (!empty($parsedPath)) {
-                return asset(ltrim($parsedPath, '/'));
-            }
-        }
-
         // If it starts with http:// or https://
         if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
-            // If it's pointing to localhost/127.0.0.1 or contains a local port mismatch
-            if (str_contains($trimmed, 'localhost') || str_contains($trimmed, '127.0.0.1')) {
+            // If it's pointing to a local or dev domain (localhost, 127.0.0.1, .test)
+            if (str_contains($trimmed, 'localhost') || str_contains($trimmed, '127.0.0.1') || str_contains($trimmed, '.test')) {
                 $parsedPath = parse_url($trimmed, PHP_URL_PATH);
-                return asset(ltrim($parsedPath ?? '', '/'));
+                return '/' . ltrim($parsedPath ?? '', '/');
             }
             // If current page is HTTPS and URL is insecure HTTP, upgrade to HTTPS
             if (function_exists('request') && request()?->isSecure() && str_starts_with($trimmed, 'http://')) {
@@ -204,22 +220,37 @@ class Product extends Model implements HasMedia
             return $trimmed;
         }
 
-        // If it's a known valid asset or starts with assets/ or storage/
-        if (str_starts_with($trimmed, 'assets/') || str_starts_with($trimmed, 'storage/')) {
-            return asset($trimmed);
+        // If it contains /storage/ path
+        if (str_contains($trimmed, '/storage/')) {
+            $parsedPath = parse_url($trimmed, PHP_URL_PATH);
+            if (!empty($parsedPath)) {
+                return '/' . ltrim($parsedPath, '/');
+            }
         }
 
-        // If it's a local public file
-        if (function_exists('public_path') && file_exists(public_path($trimmed))) {
-            return asset(ltrim($trimmed, '/'));
+        // If it starts with slash already
+        if (str_starts_with($trimmed, '/')) {
+            return $trimmed;
+        }
+
+        // If it's a known valid asset or starts with assets/ or storage/
+        if (str_starts_with($trimmed, 'assets/') || str_starts_with($trimmed, 'storage/')) {
+            return '/' . $trimmed;
+        }
+
+        // If it's a raw filename without directory (e.g. 'blue-mind.webp' or 'blue-cell.webp')
+        if (!str_contains($trimmed, '/') && (str_ends_with($trimmed, '.webp') || str_ends_with($trimmed, '.jpg') || str_ends_with($trimmed, '.png'))) {
+            if (function_exists('public_path') && file_exists(public_path('assets/products/' . $trimmed))) {
+                return '/assets/products/' . $trimmed;
+            }
         }
 
         // If it's a random faker text or broken placeholder without file extension
         if (!str_contains($trimmed, '/') && !str_contains($trimmed, '.')) {
-            return asset('assets/products/blue-mind.jpg');
+            return '/assets/products/blue-mind.webp';
         }
 
-        return asset(ltrim($trimmed, '/'));
+        return '/' . ltrim($trimmed, '/');
     }
 
     /**

@@ -3,6 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Mr\ContactAssignment;
+use App\Models\Mr\GpsConfig;
+use App\Models\Mr\RepDailyLog;
+use App\Models\Mr\RepPerformanceSnapshot;
+use App\Models\Mr\ScheduledVisit;
+use App\Models\Mr\Visit;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -11,6 +17,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -48,7 +55,7 @@ class User extends Authenticatable implements FilamentUser
     {
         $tokens = $this->devices()->where('is_active', true)->pluck('token')->toArray();
 
-        if (!empty($this->fcm_token) && !in_array($this->fcm_token, $tokens, true)) {
+        if (! empty($this->fcm_token) && ! in_array($this->fcm_token, $tokens, true)) {
             $tokens[] = $this->fcm_token;
         }
 
@@ -99,10 +106,10 @@ class User extends Authenticatable implements FilamentUser
             $parts[] = $this->break->name;
         }
 
-        return !empty($parts) ? implode(' › ', $parts) : (app()->getLocale() === 'ar' ? 'غير محدد' : 'Unassigned');
+        return ! empty($parts) ? implode(' › ', $parts) : (app()->getLocale() === 'ar' ? 'غير محدد' : 'Unassigned');
     }
 
-    public function employee(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function employee(): HasOne
     {
         return $this->hasOne(Employee::class);
     }
@@ -119,6 +126,7 @@ class User extends Authenticatable implements FilamentUser
         $existing = Employee::where('user_id', $this->id)->first();
         if ($existing) {
             $this->setRelation('employee', $existing);
+
             return $existing;
         }
 
@@ -128,7 +136,7 @@ class User extends Authenticatable implements FilamentUser
 
         $employee = Employee::create([
             'user_id' => $this->id,
-            'employee_number' => 'EMP-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT),
+            'employee_number' => 'EMP-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT),
             'first_name' => $firstName,
             'last_name' => $lastName,
             'first_name_ar' => $this->name,
@@ -144,9 +152,9 @@ class User extends Authenticatable implements FilamentUser
         ]);
 
         $this->setRelation('employee', $employee);
+
         return $employee;
     }
-
 
     /**
      * Check if user has specific role(s).
@@ -161,6 +169,7 @@ class User extends Authenticatable implements FilamentUser
 
         if (is_array($roles)) {
             $formattedRoles = array_map(fn ($r) => strtolower(str_replace([' ', '-'], '_', $r)), $roles);
+
             return in_array($roleName, $formattedRoles, true);
         }
 
@@ -172,7 +181,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && (int)$this->role_id === 3);
+        return $this->hasRole(['super_admin', 'super-admin', 'super admin', 'admin']) || (isset($this->role_id) && (int) $this->role_id === 3);
     }
 
     /**
@@ -188,7 +197,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isOperationsManager(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 4) || $this->hasRole(['operations_manager', 'operations']);
+        return (isset($this->role_id) && (int) $this->role_id === 4) || $this->hasRole(['operations_manager', 'operations']);
     }
 
     /**
@@ -196,7 +205,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isInventoryOfficer(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 6) || $this->hasRole(['inventory_officer', 'inventory', 'warehouse_officer']);
+        return (isset($this->role_id) && (int) $this->role_id === 6) || $this->hasRole(['inventory_officer', 'inventory', 'warehouse_officer']);
     }
 
     /**
@@ -204,7 +213,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isHrManager(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 7) || $this->hasRole(['hr_manager', 'hr', 'human_resources']);
+        return (isset($this->role_id) && (int) $this->role_id === 7) || $this->hasRole(['hr_manager', 'hr', 'human_resources']);
     }
 
     /**
@@ -212,7 +221,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isCommercialRep(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 5) || $this->hasRole(['commercial_accounts_rep', 'commercial_rep', 'commercial_sales', 'commercial']);
+        return (isset($this->role_id) && (int) $this->role_id === 5) || $this->hasRole(['commercial_accounts_rep', 'commercial_rep', 'commercial_sales', 'commercial']);
     }
 
     /**
@@ -220,7 +229,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isMedicalRep(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 1) || $this->hasRole(['mr', 'medical_rep', 'medical_representative']);
+        return (isset($this->role_id) && (int) $this->role_id === 1) || $this->hasRole(['mr', 'medical_rep', 'medical_representative']);
     }
 
     /**
@@ -228,7 +237,7 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isMrLineManager(): bool
     {
-        return (isset($this->role_id) && (int)$this->role_id === 2) || $this->hasRole(['mr_line_manager', 'line_manager']);
+        return (isset($this->role_id) && (int) $this->role_id === 2) || $this->hasRole(['mr_line_manager', 'line_manager']);
     }
 
     /**
@@ -266,7 +275,7 @@ class User extends Authenticatable implements FilamentUser
         foreach ($permissions as $k => $v) {
             if (is_int($k) && is_string($v)) {
                 $flatPermissions[] = strtolower(trim($v));
-            } elseif (is_string($k) && !empty($v)) {
+            } elseif (is_string($k) && ! empty($v)) {
                 $flatPermissions[] = strtolower(trim($k));
             }
         }
@@ -320,6 +329,14 @@ class User extends Authenticatable implements FilamentUser
             'contact', 'contacts' => 'mr_contacts',
             'assignment', 'assignments' => 'mr_assignments',
             'territory', 'territories' => 'mr_territories',
+            'supplier', 'suppliers' => 'suppliers',
+            'raw_material', 'rawmaterial', 'rawmaterials', 'raw_materials' => 'raw_materials',
+            'purchase_order', 'purchaseorder', 'purchaseorders', 'purchase_orders' => 'purchase_orders',
+            'goods_receipt', 'goodsreceipt', 'goodsreceipts', 'goods_receipts' => 'goods_receipts',
+            'batch', 'raw_material_batches', 'batches' => 'batches',
+            'qc_inspection', 'qc_inspections', 'qc' => 'qc',
+            'work_order', 'workorder', 'workorders', 'work_orders' => 'work_orders',
+            'supply_chain_report', 'supply_chain_reports' => 'supply_chain_reports',
             default => $module,
         };
 
@@ -382,16 +399,23 @@ class User extends Authenticatable implements FilamentUser
                 $modPerms = $permissions[$mKey];
 
                 if ($action) {
-                    return !empty($modPerms[$action]);
+                    if (! empty($modPerms[$action])) {
+                        return true;
+                    }
+                    if (in_array($action, ['approve', 'transfer', 'adjust', 'dispense', 'verify', 'complete']) && (! empty($modPerms['edit']) || ! empty($modPerms['create']))) {
+                        return true;
+                    }
+
+                    return false;
                 }
 
                 foreach (['view', 'create', 'edit', 'delete'] as $act) {
-                    if (!empty($modPerms[$act])) {
+                    if (! empty($modPerms[$act])) {
                         return true;
                     }
                 }
 
-                return !empty($modPerms);
+                return ! empty($modPerms);
             }
         }
 
@@ -406,7 +430,7 @@ class User extends Authenticatable implements FilamentUser
         if (method_exists($this, 'hasMedia') && $this->hasMedia('avatar')) {
             $media = $this->getFirstMedia('avatar');
             if ($media) {
-                return asset('storage/' . $media->id . '/' . $media->file_name);
+                return asset('storage/'.$media->id.'/'.$media->file_name);
             }
         }
 
@@ -417,18 +441,20 @@ class User extends Authenticatable implements FilamentUser
             }
             if (str_contains($path, '/storage/')) {
                 $path = substr($path, strpos($path, '/storage/') + 9);
-                return asset('storage/' . ltrim($path, '/'));
+
+                return asset('storage/'.ltrim($path, '/'));
             }
             if (str_starts_with($path, 'storage/')) {
                 return asset(ltrim($path, '/'));
             }
             if (str_starts_with($path, 'avatars/')) {
-                return asset('storage/' . ltrim($path, '/'));
+                return asset('storage/'.ltrim($path, '/'));
             }
             if (file_exists(public_path(ltrim($path, '/')))) {
                 return asset(ltrim($path, '/'));
             }
-            return asset('storage/' . ltrim($path, '/'));
+
+            return asset('storage/'.ltrim($path, '/'));
         }
 
         return null;
@@ -452,32 +478,32 @@ class User extends Authenticatable implements FilamentUser
     /**
      * CRM Relationships
      */
-    public function crmAssignedLeads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmAssignedLeads(): HasMany
     {
         return $this->hasMany(CrmLead::class, 'owner_id');
     }
 
-    public function crmAssignedOpportunities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmAssignedOpportunities(): HasMany
     {
         return $this->hasMany(CrmOpportunity::class, 'owner_id');
     }
 
-    public function crmActivities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmActivities(): HasMany
     {
         return $this->hasMany(CrmActivity::class, 'assigned_to');
     }
 
-    public function crmNotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmNotes(): HasMany
     {
         return $this->hasMany(CrmNote::class);
     }
 
-    public function crmCampaigns(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmCampaigns(): HasMany
     {
         return $this->hasMany(CrmCampaign::class, 'owner_id');
     }
 
-    public function crmCompanies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function crmCompanies(): HasMany
     {
         return $this->hasMany(CrmCompany::class, 'owner_id');
     }
@@ -485,33 +511,33 @@ class User extends Authenticatable implements FilamentUser
     /**
      * Medical Representative (MR) Module Relationships
      */
-    public function mrAssignments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mrAssignments(): HasMany
     {
-        return $this->hasMany(\App\Models\Mr\ContactAssignment::class, 'mr_id');
+        return $this->hasMany(ContactAssignment::class, 'mr_id');
     }
 
-    public function mrScheduledVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mrScheduledVisits(): HasMany
     {
-        return $this->hasMany(\App\Models\Mr\ScheduledVisit::class, 'mr_id');
+        return $this->hasMany(ScheduledVisit::class, 'mr_id');
     }
 
-    public function mrVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mrVisits(): HasMany
     {
-        return $this->hasMany(\App\Models\Mr\Visit::class, 'mr_id');
+        return $this->hasMany(Visit::class, 'mr_id');
     }
 
-    public function mrDailyLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mrDailyLogs(): HasMany
     {
-        return $this->hasMany(\App\Models\Mr\RepDailyLog::class, 'mr_id');
+        return $this->hasMany(RepDailyLog::class, 'mr_id');
     }
 
-    public function mrPerformanceSnapshots(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function mrPerformanceSnapshots(): HasMany
     {
-        return $this->hasMany(\App\Models\Mr\RepPerformanceSnapshot::class, 'mr_id');
+        return $this->hasMany(RepPerformanceSnapshot::class, 'mr_id');
     }
 
-    public function mrGpsConfig(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function mrGpsConfig(): HasOne
     {
-        return $this->hasOne(\App\Models\Mr\GpsConfig::class, 'user_id');
+        return $this->hasOne(GpsConfig::class, 'user_id');
     }
 }

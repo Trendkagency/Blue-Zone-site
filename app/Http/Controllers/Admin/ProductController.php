@@ -81,6 +81,10 @@ class ProductController extends Controller
                     'stock_offline' => $p->stock_offline,
                     'low_stock_threshold' => $p->low_stock_threshold ?? 10,
                     'status' => $p->status ?? 'active',
+                    'show_on_landing' => (bool) ($p->show_on_landing ?? true),
+                    'landing_order' => (int) ($p->landing_order ?? 0),
+                    'landing_badge_en' => $p->landing_badge_en ?? '',
+                    'landing_badge_ar' => $p->landing_badge_ar ?? '',
                     'image' => $p->primary_image_url,
                     'deleted_at' => $p->deleted_at,
                 ];
@@ -96,6 +100,23 @@ class ProductController extends Controller
         $dbCategories = Category::all();
         $categories = $dbCategories->isNotEmpty() ? $dbCategories->toArray() : CategoryViewModel::all();
 
+        $landingSettings = [
+            'landing_featured_products_enabled' => (bool) (\App\Models\Setting::get('landing_featured_products_enabled', true)),
+            'landing_products_badge_en' => \App\Models\Setting::get('landing_products_badge_en', 'CLINICAL FORMULATIONS'),
+            'landing_products_badge_ar' => \App\Models\Setting::get('landing_products_badge_ar', 'التركيبات الطبية السريرية'),
+            'landing_products_title_en' => \App\Models\Setting::get('landing_products_title_en', 'Engineered for Systemic Longevity & Vitality'),
+            'landing_products_title_ar' => \App\Models\Setting::get('landing_products_title_ar', 'مصممة خصيصاً للصحة الخلوية وطول العمر المديد'),
+            'landing_products_subtitle_en' => \App\Models\Setting::get('landing_products_subtitle_en', 'Targeted botanical bio-compounds designed to support cellular repair, cognitive sharpness, and daily metabolic energy.'),
+            'landing_products_subtitle_ar' => \App\Models\Setting::get('landing_products_subtitle_ar', 'مركبات نباتية نشطة بيولوجياً تستهدف تحفيز الترميم الخلوي، تعزيز صفاء الذهن، ودعم الطاقة الأيضية اليومية.'),
+            'landing_products_limit' => (int) \App\Models\Setting::get('landing_products_limit', 6),
+            'landing_products_cta_text_en' => \App\Models\Setting::get('landing_products_cta_text_en', 'VIEW ALL FORMULATIONS'),
+            'landing_products_cta_text_ar' => \App\Models\Setting::get('landing_products_cta_text_ar', 'عرض جميع المستحضرات'),
+        ];
+
+        $landingProductsCount = Product::where(function ($q) {
+            $q->where('status', 'active')->orWhere('is_active', true);
+        })->where('show_on_landing', true)->count();
+
         return view('admin.products.index', [
             'products' => $products,
             'categories' => $categories,
@@ -106,6 +127,8 @@ class ProductController extends Controller
             'activeCount' => $activeCount,
             'isTrashed' => $isTrashed,
             'currentStatus' => $status,
+            'landingSettings' => $landingSettings,
+            'landingProductsCount' => $landingProductsCount,
         ]);
     }
 
@@ -135,37 +158,83 @@ class ProductController extends Controller
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
+        $data['show_on_landing'] = $request->has('show_on_landing') ? $request->boolean('show_on_landing') : true;
+        $data['landing_order'] = (int) $request->input('landing_order', 0);
+        $data['landing_badge_en'] = $request->input('landing_badge_en');
+        $data['landing_badge_ar'] = $request->input('landing_badge_ar');
         $this->formatScienceInputs($data);
         $fallbackImage = $data['image'] ?? null;
         unset($data['image'], $data['images']);
         $product = Product::create($data);
 
-        // Attach Spatie Media if uploaded (supports primary_image and image)
+        // Attach Primary Image (Dual-Engine: Spatie Media Library + Direct Storage Fallback)
         $primaryFile = $request->file('primary_image') ?? ($request->hasFile('image') ? $request->file('image') : null);
         if (is_array($primaryFile)) {
             $primaryFile = reset($primaryFile);
         }
 
         if ($primaryFile && $primaryFile->isValid()) {
-            $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-            $product->image = $media->getUrl();
+            $savedUrl = null;
+            // 1. Try Spatie Media Library
+            try {
+                $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
+                $savedUrl = $media->getUrl();
+            } catch (\Throwable $e) {
+                \Log::warning("Spatie addMedia primary_image failed on store, falling back to direct upload: " . $e->getMessage());
+            }
+
+            // 2. Direct upload fallback if Spatie failed or produced empty URL
+            if (empty($savedUrl)) {
+                $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+                $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
+                $destDir = public_path('uploads/products');
+                if (!file_exists($destDir)) {
+                    @mkdir($destDir, 0755, true);
+                }
+                $primaryFile->move($destDir, $filename);
+                $savedUrl = '/uploads/products/' . $filename;
+            }
+
+            $product->image = Product::normalizeUrl($savedUrl);
             $product->save();
         } elseif (!empty($fallbackImage) && is_string($fallbackImage)) {
-            $product->image = $fallbackImage;
+            $product->image = Product::normalizeUrl($fallbackImage);
             $product->save();
         }
 
+        // Attach Gallery Images (Dual-Engine: Spatie + Direct Storage Fallback)
         if ($request->hasFile('gallery')) {
             $galleryUrls = [];
-            $galleryFiles = is_array($request->file('gallery')) ? $request->file('gallery') : [$request->file('gallery')];
+            $galleryFiles = $request->file('gallery');
+            if (!is_array($galleryFiles)) {
+                $galleryFiles = [$galleryFiles];
+            }
             foreach ($galleryFiles as $file) {
                 if ($file && $file->isValid()) {
-                    $media = $product->addMedia($file)->toMediaCollection('gallery');
-                    $galleryUrls[] = $media->getUrl();
+                    $savedUrl = null;
+                    try {
+                        $media = $product->addMedia($file)->toMediaCollection('gallery');
+                        $savedUrl = $media->getUrl();
+                    } catch (\Throwable $e) {
+                        \Log::warning("Spatie addMedia gallery failed on store: " . $e->getMessage());
+                    }
+
+                    if (empty($savedUrl)) {
+                        $ext = $file->getClientOriginalExtension() ?: 'webp';
+                        $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
+                        $destDir = public_path('uploads/products');
+                        if (!file_exists($destDir)) {
+                            @mkdir($destDir, 0755, true);
+                        }
+                        $file->move($destDir, $filename);
+                        $savedUrl = '/uploads/products/' . $filename;
+                    }
+
+                    $galleryUrls[] = Product::normalizeUrl($savedUrl);
                 }
             }
             if (!empty($galleryUrls)) {
-                $product->images = $galleryUrls;
+                $product->images = array_values(array_unique($galleryUrls));
                 $product->save();
             }
         }
@@ -299,6 +368,7 @@ class ProductController extends Controller
                 'low_stock_threshold' => $dbProduct->low_stock_threshold ?? 10,
                 'status' => $dbProduct->status ?? 'active',
                 'image' => $dbProduct->primary_image_url,
+                'images' => $dbProduct->gallery_urls,
                 'short_description_en' => $dbProduct->short_description_en,
                 'short_description_ar' => $dbProduct->short_description_ar,
                 'description_en' => $dbProduct->description_en,
@@ -318,6 +388,10 @@ class ProductController extends Controller
                 'is_best_seller' => (bool) $dbProduct->is_best_seller,
                 'is_new' => (bool) $dbProduct->is_new,
                 'enable_backorders' => (bool) $dbProduct->enable_backorders,
+                'show_on_landing' => (bool) ($dbProduct->show_on_landing ?? true),
+                'landing_order' => (int) ($dbProduct->landing_order ?? 0),
+                'landing_badge_en' => $dbProduct->landing_badge_en ?? '',
+                'landing_badge_ar' => $dbProduct->landing_badge_ar ?? '',
             ];
         } else {
             $product = ProductViewModel::find($id);
@@ -407,6 +481,10 @@ class ProductController extends Controller
         $data['is_best_seller'] = $request->boolean('is_best_seller');
         $data['is_new'] = $request->boolean('is_new');
         $data['enable_backorders'] = $request->boolean('enable_backorders');
+        $data['show_on_landing'] = $request->boolean('show_on_landing');
+        $data['landing_order'] = (int) $request->input('landing_order', 0);
+        $data['landing_badge_en'] = $request->input('landing_badge_en');
+        $data['landing_badge_ar'] = $request->input('landing_badge_ar');
 
         /*
         |--------------------------------------------------------------------------
@@ -426,7 +504,7 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Primary Image
+        | Primary Image (Dual-Engine: Spatie + Direct Storage Fallback)
         |--------------------------------------------------------------------------
         */
         $primaryFile = $request->file('primary_image') ?? ($request->hasFile('image') ? $request->file('image') : null);
@@ -435,37 +513,103 @@ class ProductController extends Controller
         }
 
         if ($primaryFile && $primaryFile->isValid()) {
-            $product->clearMediaCollection('primary_image');
-            $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-            $product->image = $media->getUrl();
+            $savedUrl = null;
+            // 1. Try Spatie
+            try {
+                if (method_exists($product, 'clearMediaCollection')) {
+                    $product->clearMediaCollection('primary_image');
+                }
+                $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
+                $savedUrl = $media->getUrl();
+            } catch (\Throwable $e) {
+                \Log::warning("Spatie addMedia primary_image failed on update, falling back to direct upload: " . $e->getMessage());
+            }
+
+            // 2. Direct upload fallback
+            if (empty($savedUrl)) {
+                $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+                $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
+                $destDir = public_path('uploads/products');
+                if (!file_exists($destDir)) {
+                    @mkdir($destDir, 0755, true);
+                }
+                $primaryFile->move($destDir, $filename);
+                $savedUrl = '/uploads/products/' . $filename;
+            }
+
+            $product->image = Product::normalizeUrl($savedUrl);
             $product->save();
         } elseif (!empty($fallbackImage) && is_string($fallbackImage) && !$product->hasMedia('primary_image')) {
-            $product->image = $fallbackImage;
+            $product->image = Product::normalizeUrl($fallbackImage);
             $product->save();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Gallery Images
+        | Gallery Images (Dual-Engine: Spatie + Direct Storage Fallback + Removal)
         |--------------------------------------------------------------------------
         */
+        $existingGallery = is_array($product->images) ? $product->images : [];
+
+        // Handle removals if requested
+        if ($request->has('removed_gallery_images') && is_array($request->input('removed_gallery_images'))) {
+            $toRemove = array_map(fn($u) => Product::normalizeUrl($u), $request->input('removed_gallery_images'));
+            $existingGallery = array_values(array_filter($existingGallery, function($url) use ($toRemove) {
+                return !in_array(Product::normalizeUrl($url), $toRemove);
+            }));
+
+            // Also remove from Spatie Media collection if found
+            try {
+                if (method_exists($product, 'getMedia')) {
+                    foreach ($product->getMedia('gallery') as $m) {
+                        if (in_array(Product::normalizeUrl($m->getUrl()), $toRemove)) {
+                            $m->delete();
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::warning("Gallery media delete error: " . $e->getMessage());
+            }
+        }
+
         if ($request->hasFile('gallery')) {
-            $gallery = is_array($request->file('gallery'))
-                ? $request->file('gallery')
-                : [$request->file('gallery')];
-            $existingGallery = is_array($product->images) ? $product->images : [];
+            $gallery = $request->file('gallery');
+            if (!is_array($gallery)) {
+                $gallery = [$gallery];
+            }
 
             foreach ($gallery as $index => $file) {
                 if (!$file || !$file->isValid()) {
                     continue;
                 }
-                $media = $product->addMedia($file)->toMediaCollection('gallery');
-                $existingGallery[] = $media->getUrl();
-            }
 
-            $product->images = array_values(array_unique($existingGallery));
-            $product->save();
+                $savedUrl = null;
+                // 1. Try Spatie
+                try {
+                    $media = $product->addMedia($file)->toMediaCollection('gallery');
+                    $savedUrl = $media->getUrl();
+                } catch (\Throwable $e) {
+                    \Log::warning("Spatie addMedia gallery failed on update: " . $e->getMessage());
+                }
+
+                // 2. Direct upload fallback
+                if (empty($savedUrl)) {
+                    $ext = $file->getClientOriginalExtension() ?: 'webp';
+                    $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
+                    $destDir = public_path('uploads/products');
+                    if (!file_exists($destDir)) {
+                        @mkdir($destDir, 0755, true);
+                    }
+                    $file->move($destDir, $filename);
+                    $savedUrl = '/uploads/products/' . $filename;
+                }
+
+                $existingGallery[] = Product::normalizeUrl($savedUrl);
+            }
         }
+
+        $product->images = array_values(array_unique(array_filter($existingGallery)));
+        $product->save();
 
         /*
         |--------------------------------------------------------------------------
@@ -583,5 +727,102 @@ class ProductController extends Controller
                 return !empty($row['name_en']) || !empty($row['name_ar']) || !empty($row['dose']);
             }));
         }
+    }
+
+    /**
+     * Update global landing page products showcase section settings.
+     */
+    public function updateLandingSectionSettings(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'landing_featured_products_enabled' => ['nullable'],
+            'landing_products_badge_en' => ['nullable', 'string', 'max:150'],
+            'landing_products_badge_ar' => ['nullable', 'string', 'max:150'],
+            'landing_products_title_en' => ['nullable', 'string', 'max:255'],
+            'landing_products_title_ar' => ['nullable', 'string', 'max:255'],
+            'landing_products_subtitle_en' => ['nullable', 'string', 'max:500'],
+            'landing_products_subtitle_ar' => ['nullable', 'string', 'max:500'],
+            'landing_products_limit' => ['nullable', 'integer', 'min:0'],
+            'landing_products_cta_text_en' => ['nullable', 'string', 'max:100'],
+            'landing_products_cta_text_ar' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $enabled = $request->boolean('landing_featured_products_enabled');
+        \App\Models\Setting::set('landing_featured_products_enabled', $enabled, 'landing', 'boolean');
+
+        if ($request->has('landing_products_badge_en')) {
+            \App\Models\Setting::set('landing_products_badge_en', $request->input('landing_products_badge_en', ''), 'landing');
+        }
+        if ($request->has('landing_products_badge_ar')) {
+            \App\Models\Setting::set('landing_products_badge_ar', $request->input('landing_products_badge_ar', ''), 'landing');
+        }
+        if ($request->has('landing_products_title_en')) {
+            \App\Models\Setting::set('landing_products_title_en', $request->input('landing_products_title_en', ''), 'landing');
+        }
+        if ($request->has('landing_products_title_ar')) {
+            \App\Models\Setting::set('landing_products_title_ar', $request->input('landing_products_title_ar', ''), 'landing');
+        }
+        if ($request->has('landing_products_subtitle_en')) {
+            \App\Models\Setting::set('landing_products_subtitle_en', $request->input('landing_products_subtitle_en', ''), 'landing');
+        }
+        if ($request->has('landing_products_subtitle_ar')) {
+            \App\Models\Setting::set('landing_products_subtitle_ar', $request->input('landing_products_subtitle_ar', ''), 'landing');
+        }
+        if ($request->has('landing_products_limit')) {
+            \App\Models\Setting::set('landing_products_limit', (int) $request->input('landing_products_limit', 6), 'landing', 'integer');
+        }
+        if ($request->has('landing_products_cta_text_en')) {
+            \App\Models\Setting::set('landing_products_cta_text_en', $request->input('landing_products_cta_text_en', ''), 'landing');
+        }
+        if ($request->has('landing_products_cta_text_ar')) {
+            \App\Models\Setting::set('landing_products_cta_text_ar', $request->input('landing_products_cta_text_ar', ''), 'landing');
+        }
+
+        \Illuminate\Support\Facades\Cache::flush();
+        \App\Models\Setting::flushRuntimeCache();
+
+        $message = app()->getLocale() === 'ar'
+            ? 'تم حفظ وتحديث إعدادات قسم المنتجات بالصفحة الرئيسية بنجاح!'
+            : 'Landing page products section configuration updated successfully!';
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'enabled' => $enabled,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Quick AJAX toggle for displaying/hiding a specific product on the landing page.
+     */
+    public function toggleLandingVisibility(Request $request, int $id): RedirectResponse|\Illuminate\Http\JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        $product->show_on_landing = !$product->show_on_landing;
+        $product->save();
+
+        \Illuminate\Support\Facades\Cache::flush();
+        \App\Models\Setting::flushRuntimeCache();
+
+        $prodName = app()->getLocale() === 'ar' && !empty($product->name_ar) ? $product->name_ar : $product->name_en;
+        $message = $product->show_on_landing
+            ? (app()->getLocale() === 'ar' ? "تم إظهار المستحضر [{$prodName}] في قسم الصفحة الرئيسية بنجاح!" : "Formulation [{$prodName}] is now visible in the landing page products section!")
+            : (app()->getLocale() === 'ar' ? "تم إخفاء المستحضر [{$prodName}] من قسم الصفحة الرئيسية!" : "Formulation [{$prodName}] is now hidden from the landing page products section!");
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'show_on_landing' => (bool) $product->show_on_landing,
+                'product_id' => $product->id,
+                'product_name' => $prodName,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }
