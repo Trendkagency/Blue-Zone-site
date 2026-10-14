@@ -406,42 +406,178 @@
                             {{ __('admin.products.sections.media_upload') }}
                         </h3>
                         <p class="text-xs text-muted" style="margin: 0;">
-                            {{ app()->getLocale() === 'ar' ? 'الخطوة 4 من 6: الصورة الرئيسية ومعرض التغليف والشهادات الحيوية' : 'Step 4 of 6: Primary formulation render, gallery packaging assets, and clinical documents' }}
+                            {{ app()->getLocale() === 'ar' ? 'الخطوة 4 من 6: الصورة الرئيسية ومعرض صور المنتج والعبوة' : 'Step 4 of 6: Primary formulation render and multi-angle packaging gallery' }}
                         </p>
                     </div>
                     <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 4 / 6' : 'Step 4 / 6' }}</span>
                 </div>
 
-                <div class="space-y-6">
-                    <!-- Primary Formulation Render -->
-                    <x-file-uploader 
-                        name="primary_image" 
-                        :label="app()->getLocale() === 'ar' ? 'الصورة الرئيسية للمنتج (Primary Hero Render)' : 'Primary Product Hero Image'"
-                        :helper="app()->getLocale() === 'ar' ? 'ارفع صورة رئيسية بدقة عالية (WebP, PNG, JPG حتى 10MB)' : 'Upload high-resolution clinical hero render (WebP, PNG, JPG up to 10MB)'"
-                        accept="image/*"
-                        :maxSize="10"
-                    />
+                <div class="space-y-8">
+                    <!-- 1. Primary Formulation Visual Studio -->
+                    <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/80 dark:from-slate-900/60 dark:to-slate-900/30 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-wider">
+                                        {{ app()->getLocale() === 'ar' ? 'الصورة الرئيسية للمنتج (Hero Render)' : 'Primary Product Hero Image' }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                                        {{ app()->getLocale() === 'ar' ? 'الصورة الأساسية التي تظهر في المتجر وكتالوج المنتجات وصفحة الهبوط' : 'Main image displayed across catalog, search, and storefront landing' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-500/10 text-sky-600 dark:text-sky-300">
+                                <i class="fa-solid fa-sparkles text-[10px]"></i>
+                                {{ app()->getLocale() === 'ar' ? 'صورة الغلاف' : 'Primary Cover' }}
+                            </span>
+                        </div>
 
-                    <!-- Gallery & Packaging Assets -->
-                    <x-file-uploader 
-                        name="gallery" 
-                        :label="app()->getLocale() === 'ar' ? 'معرض صور العبوة والتفاصيل (Gallery Assets)' : 'Product Gallery & Packaging Shots'"
-                        :helper="app()->getLocale() === 'ar' ? 'يمكنك رفع عدة صور لزوايا مختلفة والمكونات (WebP, PNG, JPG)' : 'You can upload multiple high-res product angles and ingredients shots'"
-                        accept="image/*"
-                        :multiple="true"
-                        :maxSize="10"
-                    />
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                            <!-- Hero Preview Card -->
+                            <div class="md:col-span-4 flex flex-col items-center">
+                                <div class="relative w-48 h-48 rounded-2xl border-2 border-dashed border-sky-400/40 bg-white dark:bg-slate-950 p-2 shadow-sm overflow-hidden flex items-center justify-center group">
+                                    <img id="primaryHeroLiveImg" 
+                                         src="{{ asset(old('image', 'assets/products/blue-mind.webp')) }}" 
+                                         alt="Product Hero Preview" 
+                                         class="w-full h-full object-contain rounded-xl transition-all duration-300 group-hover:scale-105"
+                                         onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl pointer-events-none">
+                                        <span class="px-2.5 py-1 bg-white/90 dark:bg-slate-900/90 rounded-lg text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow">
+                                            {{ app()->getLocale() === 'ar' ? 'معاينة حية' : 'Live Preview' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-2 text-center">
+                                    {{ app()->getLocale() === 'ar' ? 'نسبة 1:1 مربعة بدقة عالية' : '1:1 Square recommended' }}
+                                </span>
+                            </div>
 
-                    <!-- Fallback Direct Asset Path -->
-                    <div style="margin-top: 1.5rem; background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
-                        <x-forms.input 
-                            name="image" 
-                            id="inputMainImage"
-                            label="Default Asset Fallback Path" 
-                            :value="old('image')" 
-                            placeholder="e.g. assets/products/blue-mind.jpg" 
-                            hint="Used automatically when no Spatie media file is uploaded."
-                        />
+                            <!-- Upload & Fallback Controls -->
+                            <div class="md:col-span-8 space-y-4">
+                                <!-- File Upload Trigger Card -->
+                                <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-400 bg-white dark:bg-slate-950/60 rounded-2xl p-6 text-center cursor-pointer transition-all group"
+                                     onclick="document.getElementById('primary_image_file').click()"
+                                     ondragover="event.preventDefault(); this.classList.add('border-sky-500')"
+                                     ondragleave="this.classList.remove('border-sky-500')"
+                                     ondrop="handlePrimaryDrop(event)">
+                                    <input type="file" 
+                                           name="primary_image" 
+                                           id="primary_image_file" 
+                                           accept="image/jpeg,image/png,image/webp,image/gif" 
+                                           class="sr-only" 
+                                           onchange="previewPrimaryProductImage(this)">
+                                    <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400 flex items-center justify-center mx-auto mb-3 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <div class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
+                                        {{ app()->getLocale() === 'ar' ? 'انقر لرفع صورة جديدة أو اسحبها وأفلتها هنا' : 'Click to browse new image or drag & drop here' }}
+                                    </div>
+                                    <p class="text-xs text-slate-400">
+                                        WebP, PNG, JPG ({{ app()->getLocale() === 'ar' ? 'حتى 10 ميغابايت' : 'up to 10MB' }})
+                                    </p>
+                                    <button type="button" class="mt-3 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-xs inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-folder-open text-[11px]"></i>
+                                        {{ app()->getLocale() === 'ar' ? 'اختيار ملف من جهازك' : 'Choose Local File' }}
+                                    </button>
+                                </div>
+
+                                <!-- File details banner when file selected -->
+                                <div id="primaryFileDetails" class="hidden p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                    <span id="primaryFileName" class="font-mono font-bold"></span>
+                                </div>
+
+                                <!-- Direct Path / Fallback URL Input -->
+                                <div class="pt-2">
+                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
+                                        {{ app()->getLocale() === 'ar' ? 'أو أدخل مسار الصورة / الرابط المباشر:' : 'Or direct asset path / URL:' }}
+                                    </label>
+                                    <div class="flex gap-2">
+                                        <input type="text" 
+                                               name="image" 
+                                               id="primary_image_url_input"
+                                               value="{{ old('image', 'assets/products/blue-mind.webp') }}" 
+                                               placeholder="e.g. assets/products/blue-mind.webp" 
+                                               class="w-full text-xs font-mono rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900 px-3 py-2 text-slate-800 dark:text-slate-200"
+                                               oninput="syncPrimaryFromTextInput(this.value)">
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 block mt-1">
+                                        {{ app()->getLocale() === 'ar' ? 'يتم استخدامه كمسار افتراضي للمنتج في حالة عدم رفع ملف جديد.' : 'Serves as fallback path if no file is uploaded.' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Multi-Angle Packaging Gallery Studio -->
+                    <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/80 dark:from-slate-900/60 dark:to-slate-900/30 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 flex items-center justify-center font-bold">
+                                    <i class="fa-solid fa-images"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-800 dark:text-slate-100 uppercase tracking-wider">
+                                        {{ app()->getLocale() === 'ar' ? 'معرض صور المنتج وزوايا العبوة (Product Gallery)' : 'Multi-Angle Gallery & Packaging Shots' }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                                        {{ app()->getLocale() === 'ar' ? 'أضف صوراً تفاعلية لزوايا المنتج ومعلومات الحقائق الغذائية والشهادات' : 'Upload secondary angles, clinical facts panel, and box renderings' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-300">
+                                <i class="fa-solid fa-layer-group text-[10px]"></i>
+                                {{ app()->getLocale() === 'ar' ? 'صور متعددة' : 'Multi-Image' }}
+                            </span>
+                        </div>
+
+                        <!-- Multi-File Drag & Drop Upload Zone for Gallery Photos -->
+                        <div class="space-y-3">
+                            <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-400 bg-white dark:bg-slate-950/60 rounded-2xl p-6 text-center cursor-pointer transition-all group"
+                                 onclick="document.getElementById('gallery_files_input').click()"
+                                 ondragover="event.preventDefault(); this.classList.add('border-purple-500')"
+                                 ondragleave="this.classList.remove('border-purple-500')"
+                                 ondrop="handleGalleryDrop(event)">
+                                <input type="file" 
+                                       name="gallery[]" 
+                                       id="gallery_files_input" 
+                                       multiple 
+                                       accept="image/jpeg,image/png,image/webp,image/gif" 
+                                       class="sr-only" 
+                                       onchange="previewNewGalleryFiles(this)">
+                                
+                                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center mx-auto mb-3 text-xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-photo-film"></i>
+                                </div>
+                                <div class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
+                                    {{ app()->getLocale() === 'ar' ? 'انقر لاختيار صور متعددة للمعرض أو اسحب وأفلت الملفات هنا' : 'Click to select multiple gallery photos or drag & drop here' }}
+                                </div>
+                                <p class="text-xs text-slate-400">
+                                    {{ app()->getLocale() === 'ar' ? 'يمكنك اختيار عدة ملفات دفعة واحدة (WebP, PNG, JPG حتى 10 ميغابايت لكل صورة)' : 'You can select multiple files at once (WebP, PNG, JPG up to 10MB each)' }}
+                                </p>
+                                <button type="button" class="mt-3 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-xs inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-images text-[11px]"></i>
+                                    {{ app()->getLocale() === 'ar' ? 'اختيار صور المعرض' : 'Select Gallery Photos' }}
+                                </button>
+                            </div>
+
+                            <!-- Live Previews of Newly Selected Gallery Photos -->
+                            <div id="newGalleryPreviewSection" class="hidden mt-4 p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                                <div class="flex items-center justify-between mb-3 text-xs font-bold text-slate-800 dark:text-slate-200">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                        <span id="newGalleryCountText">0 new images ready to upload</span>
+                                    </span>
+                                    <button type="button" onclick="clearNewGalleryFiles()" class="text-xs text-rose-500 hover:underline">
+                                        {{ app()->getLocale() === 'ar' ? 'إلغاء التحديد' : 'Clear selection' }}
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="newGalleryPreviewsGrid"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

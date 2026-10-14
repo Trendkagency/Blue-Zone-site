@@ -401,38 +401,204 @@
                     <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 4 / 6' : 'Step 4 / 6' }}</span>
                 </div>
 
-                <div class="space-y-6">
-                    <!-- Primary Formulation Render -->
-                    <x-file-uploader 
-                        name="primary_image" 
-                        :label="app()->getLocale() === 'ar' ? 'الصورة الرئيسية للمنتج (Primary Hero Render)' : 'Primary Product Hero Image'"
-                        :helper="app()->getLocale() === 'ar' ? 'ارفع صورة رئيسية جديدة (WebP, PNG, JPG حتى 10MB)' : 'Upload new high-resolution clinical hero render'"
-                        :existingFiles="!empty($product['image']) ? [\App\Models\Product::normalizeUrl($product['image'])] : []"
-                        accept="image/*"
-                        :maxSize="10"
-                    />
+                <div class="space-y-8">
+                    <!-- SECTION 1: PRIMARY FORMULATION HERO RENDER -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#2A8FC2]/20 dark:text-[#2A8FC2] flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-camera"></i>
+                                </span>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-900 dark:text-white">
+                                        {{ app()->getLocale() === 'ar' ? 'الصورة الرئيسية للمنتج (Primary Hero Render)' : 'Primary Product Hero Image' }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                                        {{ app()->getLocale() === 'ar' ? 'تظهر في واجهة المتجر، الكتالوج، والسلايدر الرئيسي' : 'Appears across storefront catalog, search, and carousel cards' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
+                                {{ app()->getLocale() === 'ar' ? 'عالية الدقة' : 'High Resolution' }}
+                            </span>
+                        </div>
 
-                    <!-- Gallery & Packaging Assets -->
-                    <x-file-uploader 
-                        name="gallery" 
-                        :label="app()->getLocale() === 'ar' ? 'معرض صور العبوة والتفاصيل (Gallery Assets)' : 'Product Gallery & Packaging Shots'"
-                        :helper="app()->getLocale() === 'ar' ? 'يمكنك رفع عدة صور لزوايا مختلفة والمكونات (WebP, PNG, JPG)' : 'You can upload multiple high-res product angles and ingredients shots'"
-                        :existingFiles="!empty($product['images']) && is_array($product['images']) ? array_map(fn($img) => \App\Models\Product::normalizeUrl($img), $product['images']) : []"
-                        accept="image/*"
-                        :multiple="true"
-                        :maxSize="10"
-                    />
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                            <!-- Left: Live Visual Preview Card -->
+                            <div class="lg:col-span-4 flex flex-col items-center">
+                                <div class="w-full max-w-[240px] aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] border border-white/20 shadow-xl relative flex items-center justify-center p-3 group">
+                                    @php
+                                        $primaryPreview = !empty($product['image']) ? \App\Models\Product::normalizeUrl($product['image']) : '/assets/products/blue-mind.jpg';
+                                    @endphp
+                                    <img src="{{ $primaryPreview }}" 
+                                         id="primaryHeroLiveImg" 
+                                         alt="Primary Hero Preview" 
+                                         class="w-full h-full object-contain filter drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
+                                         onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
+                                    <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-mono font-bold tracking-wider uppercase backdrop-blur-xs">
+                                        {{ app()->getLocale() === 'ar' ? 'معاينة حية' : 'Live Preview' }}
+                                    </span>
+                                </div>
+                                <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-2 text-center" id="primaryFileDetails">
+                                    {{ !empty($product['image']) ? basename($product['image']) : 'Default formulation asset' }}
+                                </span>
+                            </div>
 
-                    <!-- Fallback Direct Asset Path -->
-                    <div style="margin-top: 1.5rem; background: var(--color-bg-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--color-border);">
-                        <x-forms.input 
-                            name="image" 
-                            id="inputMainImage"
-                            label="Default Asset Fallback Path" 
-                            :value="old('image', $product['image'])" 
-                            placeholder="e.g. assets/products/blue-mind.jpg" 
-                            hint="Used automatically when no Spatie media file is uploaded."
-                        />
+                            <!-- Right: Dropzone & Fallback Input -->
+                            <div class="lg:col-span-8 space-y-4">
+                                <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-[#2A8FC2] dark:hover:border-[#2A8FC2] bg-white dark:bg-slate-950/60 rounded-2xl p-6 text-center cursor-pointer transition-all group"
+                                     onclick="document.getElementById('primary_image_file').click()"
+                                     ondragover="event.preventDefault(); this.classList.add('border-[#2A8FC2]')"
+                                     ondragleave="this.classList.remove('border-[#2A8FC2]')"
+                                     ondrop="handlePrimaryDrop(event)">
+                                    <input type="file" 
+                                           name="primary_image" 
+                                           id="primary_image_file" 
+                                           accept="image/jpeg,image/png,image/webp,image/gif" 
+                                           class="sr-only" 
+                                           onchange="previewPrimaryProductImage(this)">
+                                    
+                                    <div class="w-12 h-12 rounded-2xl bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#2A8FC2]/20 dark:text-[#2A8FC2] flex items-center justify-center mx-auto mb-3 text-xl group-hover:scale-110 transition-transform">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </div>
+                                    <div class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
+                                        {{ app()->getLocale() === 'ar' ? 'انقر لاختيار صورة رئيسية جديدة أو اسحب وأفلت الملف هنا' : 'Click to select a new hero image or drag and drop here' }}
+                                    </div>
+                                    <p class="text-xs text-slate-400">
+                                        {{ app()->getLocale() === 'ar' ? 'يدعم صيغ WebP, PNG, JPG حتى 10 ميغابايت' : 'Supports WebP, PNG, JPG up to 10MB' }}
+                                    </p>
+                                    <button type="button" class="mt-3 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#0A4F78] hover:bg-[#2A8FC2] text-white transition-all shadow-xs inline-flex items-center gap-1.5">
+                                        <i class="fa-solid fa-folder-open text-[11px]"></i>
+                                        {{ app()->getLocale() === 'ar' ? 'استعراض من الجهاز' : 'Browse Local Files' }}
+                                    </button>
+                                </div>
+
+                                <!-- Optional Direct Asset URL / Path Fallback -->
+                                <div class="p-3.5 rounded-xl bg-slate-100/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                                        <span>{{ app()->getLocale() === 'ar' ? 'مسار الصورة المباشر أو الرابط الاحتياطي' : 'Direct Asset URL or Fallback Path' }}</span>
+                                        <span class="text-[10px] text-slate-400 font-mono">{{ app()->getLocale() === 'ar' ? 'اختياري' : 'Optional' }}</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i class="fa-solid fa-link absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                        <input type="text" 
+                                               name="image" 
+                                               id="inputMainImage" 
+                                               value="{{ old('image', $product['image']) }}" 
+                                               placeholder="/assets/products/blue-mind.jpg" 
+                                               class="form-control text-xs ps-8 rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+                                               oninput="syncPrimaryFromTextInput(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: GALLERY & PACKAGING SHOTS STUDIO -->
+                    <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-images"></i>
+                                </span>
+                                <div>
+                                    <h4 class="text-sm font-black text-slate-900 dark:text-white">
+                                        {{ app()->getLocale() === 'ar' ? 'معرض صور العبوة والزوايا الإضافية (Product Gallery)' : 'Product Gallery & Multi-Angle Packaging Shots' }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                                        {{ app()->getLocale() === 'ar' ? 'صور العبوة، ملصق الحقائق الغذائية، الشهادات والمكونات' : 'Packaging sides, supplement facts, seals, and angles' }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-bold" id="galleryCountBadge">
+                                {{ (!empty($product['images']) && is_array($product['images'])) ? count($product['images']) : 0 }} {{ app()->getLocale() === 'ar' ? 'صور مسجلة' : 'Saved Photos' }}
+                            </span>
+                        </div>
+
+                        <!-- 2A: Existing Saved Gallery Images (with 1-Click Remove) -->
+                        @php
+                            $savedGallery = (!empty($product['images']) && is_array($product['images'])) 
+                                ? array_map(fn($img) => \App\Models\Product::normalizeUrl($img), $product['images']) 
+                                : [];
+                        @endphp
+
+                        @if(!empty($savedGallery))
+                            <div class="mb-5">
+                                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                    {{ app()->getLocale() === 'ar' ? 'الصور الحالية المحفوظة في المعرض (انقر على سلة المهملات لحذف أي صورة):' : 'Current Saved Gallery Photos (Click trash to remove any photo):' }}
+                                </label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="existingGalleryGrid">
+                                    @foreach($savedGallery as $gIdx => $gUrl)
+                                        <div class="relative group rounded-xl overflow-hidden aspect-square bg-[#031827] border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm transition-all" id="saved-gallery-card-{{ $gIdx }}">
+                                            <img src="{{ $gUrl }}" alt="Gallery #{{ $gIdx + 1 }}" class="w-full h-full object-contain rounded-lg" onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
+                                            
+                                            <!-- Remove Action Overlay -->
+                                            <button type="button" 
+                                                    onclick="markGalleryImageForRemoval('{{ $gUrl }}', 'saved-gallery-card-{{ $gIdx }}')"
+                                                    class="absolute top-1.5 end-1.5 w-7 h-7 rounded-lg bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 cursor-pointer"
+                                                    title="{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Delete from gallery' }}">
+                                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                            </button>
+                                            
+                                            <!-- Index indicator -->
+                                            <span class="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white font-mono text-[9px]">
+                                                #{{ $gIdx + 1 }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div id="removedGalleryInputsContainer"></div>
+                            </div>
+                        @endif
+
+                        <!-- 2B: Multi-File Drag & Drop Upload Zone for New Gallery Photos -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {{ app()->getLocale() === 'ar' ? 'إضافة صور جديدة للمعرض:' : 'Add New Gallery Photos:' }}
+                            </label>
+
+                            <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 dark:hover:border-purple-400 bg-white dark:bg-slate-950/60 rounded-2xl p-6 text-center cursor-pointer transition-all group"
+                                 onclick="document.getElementById('gallery_files_input').click()"
+                                 ondragover="event.preventDefault(); this.classList.add('border-purple-500')"
+                                 ondragleave="this.classList.remove('border-purple-500')"
+                                 ondrop="handleGalleryDrop(event)">
+                                <input type="file" 
+                                       name="gallery[]" 
+                                       id="gallery_files_input" 
+                                       multiple 
+                                       accept="image/jpeg,image/png,image/webp,image/gif" 
+                                       class="sr-only" 
+                                       onchange="previewNewGalleryFiles(this)">
+                                
+                                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center mx-auto mb-3 text-xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-photo-film"></i>
+                                </div>
+                                <div class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
+                                    {{ app()->getLocale() === 'ar' ? 'انقر لاختيار صور متعددة للمعرض أو اسحب وأفلت الملفات هنا' : 'Click to select multiple gallery photos or drag & drop here' }}
+                                </div>
+                                <p class="text-xs text-slate-400">
+                                    {{ app()->getLocale() === 'ar' ? 'يمكنك اختيار عدة ملفات دفعة واحدة (WebP, PNG, JPG حتى 10 ميغابايت لكل صورة)' : 'You can select multiple files at once (WebP, PNG, JPG up to 10MB each)' }}
+                                </p>
+                                <button type="button" class="mt-3 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white transition-all shadow-xs inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-images text-[11px]"></i>
+                                    {{ app()->getLocale() === 'ar' ? 'اختيار صور المعرض' : 'Select Gallery Photos' }}
+                                </button>
+                            </div>
+
+                            <!-- Live Previews of Newly Selected Gallery Photos -->
+                            <div id="newGalleryPreviewSection" class="hidden mt-4 p-4 rounded-xl bg-purple-500/5 border border-purple-500/20">
+                                <div class="flex items-center justify-between mb-3 text-xs font-bold text-slate-800 dark:text-slate-200">
+                                    <span class="flex items-center gap-1.5">
+                                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                                        <span id="newGalleryCountText">0 new images ready to upload</span>
+                                    </span>
+                                    <button type="button" onclick="clearNewGalleryFiles()" class="text-xs text-rose-500 hover:underline">
+                                        {{ app()->getLocale() === 'ar' ? 'إلغاء التحديد' : 'Clear selection' }}
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="newGalleryPreviewsGrid"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1409,6 +1575,168 @@
             }, 3500);
         }
 
+        // Media Studio Image Handlers
+        function previewPrimaryProductImage(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                const heroImg = document.getElementById('primaryHeroLiveImg');
+                const cardImg = document.getElementById('prevCardImg');
+                const dossierImg = document.getElementById('prevDossierImg');
+                const detailsBox = document.getElementById('primaryFileDetails');
+                const nameLabel = document.getElementById('primaryFileName');
+
+                if (heroImg) heroImg.src = dataUrl;
+                if (cardImg) cardImg.src = dataUrl;
+                if (dossierImg) dossierImg.src = dataUrl;
+                if (detailsBox) detailsBox.classList.remove('hidden');
+                if (nameLabel) nameLabel.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePrimaryDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            if (zone) zone.classList.remove('border-sky-500');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const input = document.getElementById('primary_image_file');
+                if (input) {
+                    input.files = files;
+                    previewPrimaryProductImage(input);
+                }
+            }
+        }
+
+        function syncPrimaryFromTextInput(url) {
+            url = (url || '').trim();
+            if (!url) return;
+            const heroImg = document.getElementById('primaryHeroLiveImg');
+            const cardImg = document.getElementById('prevCardImg');
+            const dossierImg = document.getElementById('prevDossierImg');
+            if (heroImg) heroImg.src = url;
+            if (cardImg) cardImg.src = url;
+            if (dossierImg) dossierImg.src = url;
+        }
+
+        function markGalleryImageForRemoval(url, cardId) {
+            const container = document.getElementById('removedGalleryInputsContainer');
+            const card = document.getElementById(cardId);
+            if (!container || !card) return;
+
+            // Check if already marked
+            let existingInput = container.querySelector(`input[value="${CSS.escape(url)}"]`);
+            if (!existingInput) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'removed_gallery_images[]';
+                hiddenInput.value = url;
+                hiddenInput.dataset.cardId = cardId;
+                container.appendChild(hiddenInput);
+
+                card.style.opacity = '0.35';
+                card.style.filter = 'grayscale(100%)';
+                card.style.borderColor = '#ef4444';
+
+                // Change delete button to restore button
+                const btn = card.querySelector('button');
+                if (btn) {
+                    btn.className = 'w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow hover:bg-emerald-600 transition-all';
+                    btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i>';
+                    btn.title = "{{ app()->getLocale() === 'ar' ? 'تراجع عن الحذف' : 'Undo deletion' }}";
+                    btn.onclick = () => unmarkGalleryImageRemoval(url, cardId);
+                }
+            }
+        }
+
+        function unmarkGalleryImageRemoval(url, cardId) {
+            const container = document.getElementById('removedGalleryInputsContainer');
+            const card = document.getElementById(cardId);
+            if (container) {
+                const input = container.querySelector(`input[value="${CSS.escape(url)}"]`);
+                if (input) input.remove();
+            }
+            if (card) {
+                card.style.opacity = '1';
+                card.style.filter = 'none';
+                card.style.borderColor = '';
+
+                const btn = card.querySelector('button');
+                if (btn) {
+                    btn.className = 'w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center text-xs shadow hover:bg-rose-600 transition-all';
+                    btn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+                    btn.title = "{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Remove from gallery' }}";
+                    btn.onclick = () => markGalleryImageForRemoval(url, cardId);
+                }
+            }
+        }
+
+        function previewNewGalleryFiles(input) {
+            const files = input.files;
+            const previewSection = document.getElementById('newGalleryPreviewSection');
+            const grid = document.getElementById('newGalleryPreviewsGrid');
+            const countText = document.getElementById('newGalleryCountText');
+
+            if (!files || files.length === 0) {
+                if (previewSection) previewSection.classList.add('hidden');
+                if (grid) grid.innerHTML = '';
+                return;
+            }
+
+            if (previewSection) previewSection.classList.remove('hidden');
+            if (countText) {
+                const isAr = "{{ app()->getLocale() }}" === 'ar';
+                countText.innerText = isAr 
+                    ? `${files.length} صور جديدة محددة وجاهزة للرفع` 
+                    : `${files.length} new photos ready to upload`;
+            }
+
+            if (grid) {
+                grid.innerHTML = '';
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const col = document.createElement('div');
+                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square';
+                        col.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
+                                <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
+                            </div>
+                            <span class="absolute top-1 right-1 w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
+                                ${index + 1}
+                            </span>
+                        `;
+                        grid.appendChild(col);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        function handleGalleryDrop(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const input = document.getElementById('gallery_files_input');
+                if (input) {
+                    input.files = files;
+                    previewNewGalleryFiles(input);
+                }
+            }
+        }
+
+        function clearNewGalleryFiles() {
+            const input = document.getElementById('gallery_files_input');
+            if (input) input.value = '';
+            previewNewGalleryFiles({ files: [] });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             ['cost_price', 'price', 'sale_price', 'inputCostPrice', 'inputRetailPrice', 'inputSalePrice'].forEach(name => {
                 const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
@@ -1435,21 +1763,10 @@
             }
 
             // Sync Primary Image Input Preview
-            const primaryInput = document.querySelector('input[name="primary_image"]');
+            const primaryInput = document.getElementById('primary_image_file') || document.querySelector('input[name="primary_image"]');
             if (primaryInput) {
                 primaryInput.addEventListener('change', function(e) {
-                    const file = e.target.files && e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            const dataUrl = evt.target.result;
-                            const cardImg = document.getElementById('prevCardImg');
-                            const dossierImg = document.getElementById('prevDossierImg');
-                            if (cardImg) cardImg.src = dataUrl;
-                            if (dossierImg) dossierImg.src = dataUrl;
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                    previewPrimaryProductImage(e.target);
                 });
             }
         });
