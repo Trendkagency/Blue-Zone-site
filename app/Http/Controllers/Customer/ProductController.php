@@ -23,7 +23,7 @@ class ProductController extends Controller
         $slug = $aliases[$slug] ?? $slug;
 
         try {
-            $product = Product::with('category')->where('slug', $slug)->first();
+            $product = Product::with(['category', 'media'])->where('slug', $slug)->first();
         } catch (\Throwable) {
             $product = null;
         }
@@ -40,7 +40,8 @@ class ProductController extends Controller
         $productId = is_array($product) ? ($product['id'] ?? 0) : $product->id;
 
         try {
-            $relatedProducts = Product::where('id', '!=', $productId)
+            $relatedProducts = Product::with(['category', 'media'])
+                ->where('id', '!=', $productId)
                 ->where('is_active', true)
                 ->take(3)
                 ->get();

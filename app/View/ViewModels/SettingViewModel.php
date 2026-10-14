@@ -112,7 +112,7 @@ class SettingViewModel
             'landing_five_blue_zones_enabled' => true,
             'landing_bluemint_preps_enabled' => true,
             'landing_our_science_enabled' => false,
-            'landing_journal_news_enabled' => true,
+            'landing_journal_news_enabled' => false,
             'landing_final_cta_enabled' => true,
             
             // 1. Top Announcement Bar

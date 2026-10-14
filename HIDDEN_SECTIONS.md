@@ -26,7 +26,7 @@ The BLUE ZONE™ landing page is governed by an interactive dynamic section buil
 | 8 | `five_blue_zones` | 5 Global Blue Zones Ecosystems | الأقاليم الخمسة المعمرة | **ACTIVE** | `landing_five_blue_zones_enabled` |
 | 9 | `bluemint_preps` | Bluemint Specialized Preparations | مستحضرات بلو مينت وبروتوكولاتها | **ACTIVE** | `landing_bluemint_preps_enabled` |
 | 10| `our_science` | **Our Science & Clinical Dossier** | **الأبحاث والنزاهة السريرية** | 🔒 **HIDDEN** | `landing_our_science_enabled` |
-| 11| `journal_news` | Longevity Journal & Insights | مجلة وأبحاث طول العمر | **ACTIVE** | `landing_journal_news_enabled` |
+| 11| `journal_news` | Longevity Journal & Insights | مجلة وأبحاث طول العمر | 📍 **RELOCATED TO ABOUT** | `landing_journal_news_enabled` |
 | 12| `final_cta` | Diagnostic Assessment & Final CTA | الدعوة الختامية للاستشارة | **ACTIVE** | `landing_final_cta_enabled` |
 
 ---
@@ -131,6 +131,24 @@ Direct links to `/shop` have been hidden in favor of `/products` (`customer.prod
 - **Desktop Navbar & Header Shop CTA:** `resources/views/components/layouts/customer.blade.php` (commented out)
 - **Mobile Drawer:** `resources/views/components/layouts/customer.blade.php` (commented out)
 - **Footer Quick Links:** `resources/views/components/layouts/customer.blade.php` (commented out)
+
+---
+
+### Module D: [BLUE ZONE JOURNAL] (Relocated to About Us Page)
+
+#### Description:
+The **THE BLUE ZONE JOURNAL** (Research & Insights) section previously featured on the homepage has been relocated to the dedicated **About Us** page (`/about`), positioned directly beneath the **About Blue Zone** philosophy section.
+
+#### Actions Taken:
+1. **Homepage Master Switch Disabled:**
+   - `landing_journal_news_enabled` default changed to `false` in `app/View/ViewModels/SettingViewModel.php`.
+   - Saved in database via `Setting::set('landing_journal_news_enabled', false, 'landing', 'boolean')`.
+2. **Integrated into About Page:**
+   - Template: `resources/views/customer/pages/about.blade.php`.
+   - Placed directly under `<section id="philosophy">` ("About Blue Zone").
+   - Enhanced with complete bilingual (Arabic & English) support, high-resolution cards, and links to the full journal at `customer.pages.blog`.
+3. **Preserved Homepage Partial:**
+   - `resources/views/customer/home/partials/journal_news.blade.php` remains 100% intact and can be toggled back on for the homepage anytime via Admin Settings (`/admin/settings`).
 
 ---
 

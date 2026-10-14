@@ -14,7 +14,9 @@
         : ($isRtl && !empty($product['tagline_ar']) ? $product['tagline_ar'] : ($product['tagline_en'] ?? 'SYNAPTIC PLASTICITY & NEURAL LONGEVITY'));
 
     $pCategory = $isObj 
-        ? ($isRtl && !empty($product->category?->name_ar) ? $product->category->name_ar : ($product->category?->name ?? 'COGNITIVE'))
+        ? (($product->relationLoaded('category') && $product->category)
+            ? ($isRtl && !empty($product->category->name_ar) ? $product->category->name_ar : ($product->category->name ?? 'COGNITIVE'))
+            : 'COGNITIVE')
         : ($isRtl && !empty($product['category_ar']) ? $product['category_ar'] : ($product['category_en'] ?? 'COGNITIVE'));
 
     $rawImageVal = $isObj ? ($product->primary_image_url ?? $product->image) : ($product['image'] ?? null);
@@ -926,7 +928,11 @@
                       ? ($relProduct->primary_image_url ?? asset('assets/products/blue-cell.webp'))
                       : asset($relProduct['image'] ?? 'assets/products/blue-cell.webp');
                   $relPrice = $relIsObj ? ($relProduct->price ?? 79) : ($relProduct['price'] ?? 79);
-                  $relCategory = $relIsObj ? ($relProduct->category?->name ?? 'LONGEVITY') : ($relProduct['category_en'] ?? 'LONGEVITY');
+                  $relCategory = $relIsObj 
+                      ? (($relProduct->relationLoaded('category') && $relProduct->category)
+                          ? ($isRtl && !empty($relProduct->category->name_ar) ? $relProduct->category->name_ar : ($relProduct->category->name ?? 'LONGEVITY'))
+                          : 'LONGEVITY')
+                      : ($isRtl && !empty($relProduct['category_ar']) ? $relProduct['category_ar'] : ($relProduct['category_en'] ?? 'LONGEVITY'));
                 @endphp
                 <div class="rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 overflow-hidden shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group">
                   <div>

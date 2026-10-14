@@ -73,6 +73,15 @@ use App\Http\Controllers\Admin\SupplyChainReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
+    // Assets proxy fallback to prevent relative 404s when requests are made under /admin/assets/*
+    Route::get('/assets/{path}', function ($path) {
+        $filePath = public_path('assets/' . $path);
+        if (file_exists($filePath)) {
+            return response()->file($filePath);
+        }
+        return redirect('/assets/' . $path, 301);
+    })->where('path', '.*')->name('assets.fallback');
+
     // Guest Admin Auth Routes
     Route::middleware(['guest:web'])->group(function () {
         Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -832,14 +841,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
         Route::get('/api/cities/{id}/areas', [AreaController::class, 'getAreasByCity'])->name('api.cities.areas');
         Route::get('/api/areas/{id}/breaks', [BreakController::class, 'getBreaksByArea'])->name('api.areas.breaks');
-
-        // Assets proxy fallback to prevent relative 404s when requests are made under /admin/assets/*
-        Route::get('/assets/{path}', function ($path) {
-            $filePath = public_path('assets/' . $path);
-            if (file_exists($filePath)) {
-                return response()->file($filePath);
-            }
-            return redirect('/assets/' . $path, 301);
-        })->where('path', '.*')->name('assets.fallback');
     });
 });

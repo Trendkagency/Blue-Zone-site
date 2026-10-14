@@ -1297,6 +1297,116 @@
             }
         }
 
+        // Media Studio Image Handlers
+        function previewPrimaryProductImage(input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                const heroImg = document.getElementById('primaryHeroLiveImg');
+                const cardImg = document.getElementById('prevCardImg');
+                const dossierImg = document.getElementById('prevDossierImg');
+                const detailsBox = document.getElementById('primaryFileDetails');
+                const nameLabel = document.getElementById('primaryFileName');
+
+                if (heroImg) heroImg.src = dataUrl;
+                if (cardImg) cardImg.src = dataUrl;
+                if (dossierImg) dossierImg.src = dataUrl;
+                if (detailsBox) detailsBox.classList.remove('hidden');
+                if (nameLabel) nameLabel.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handlePrimaryDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            if (zone) zone.classList.remove('border-sky-500');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const input = document.getElementById('primary_image_file');
+                if (input) {
+                    input.files = files;
+                    previewPrimaryProductImage(input);
+                }
+            }
+        }
+
+        function syncPrimaryFromTextInput(url) {
+            url = (url || '').trim();
+            if (!url) return;
+            const heroImg = document.getElementById('primaryHeroLiveImg');
+            const cardImg = document.getElementById('prevCardImg');
+            const dossierImg = document.getElementById('prevDossierImg');
+            if (heroImg) heroImg.src = url;
+            if (cardImg) cardImg.src = url;
+            if (dossierImg) dossierImg.src = url;
+        }
+
+        function previewNewGalleryFiles(input) {
+            const files = input.files;
+            const previewSection = document.getElementById('newGalleryPreviewSection');
+            const grid = document.getElementById('newGalleryPreviewsGrid');
+            const countText = document.getElementById('newGalleryCountText');
+
+            if (!files || files.length === 0) {
+                if (previewSection) previewSection.classList.add('hidden');
+                if (grid) grid.innerHTML = '';
+                return;
+            }
+
+            if (previewSection) previewSection.classList.remove('hidden');
+            if (countText) {
+                const isAr = "{{ app()->getLocale() }}" === 'ar';
+                countText.innerText = isAr 
+                    ? `${files.length} صور جديدة محددة وجاهزة للرفع` 
+                    : `${files.length} new photos ready to upload`;
+            }
+
+            if (grid) {
+                grid.innerHTML = '';
+                Array.from(files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const col = document.createElement('div');
+                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square';
+                        col.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
+                                <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
+                            </div>
+                            <span class="absolute top-1 right-1 w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
+                                ${index + 1}
+                            </span>
+                        `;
+                        grid.appendChild(col);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        function handleGalleryDrop(e) {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                const input = document.getElementById('gallery_files_input');
+                if (input) {
+                    input.files = files;
+                    previewNewGalleryFiles(input);
+                }
+            }
+        }
+
+        function clearNewGalleryFiles() {
+            const input = document.getElementById('gallery_files_input');
+            if (input) input.value = '';
+            previewNewGalleryFiles({ files: [] });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             ['cost_price', 'price', 'sale_price', 'inputCostPrice', 'inputRetailPrice', 'inputSalePrice'].forEach(name => {
                 const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]`);
@@ -1322,21 +1432,10 @@
             }
 
             // Sync Primary Image Input Preview
-            const primaryInput = document.querySelector('input[name="primary_image"]');
+            const primaryInput = document.getElementById('primary_image_file') || document.querySelector('input[name="primary_image"]');
             if (primaryInput) {
                 primaryInput.addEventListener('change', function(e) {
-                    const file = e.target.files && e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(evt) {
-                            const dataUrl = evt.target.result;
-                            const cardImg = document.getElementById('prevCardImg');
-                            const dossierImg = document.getElementById('prevDossierImg');
-                            if (cardImg) cardImg.src = dataUrl;
-                            if (dossierImg) dossierImg.src = dataUrl;
-                        };
-                        reader.readAsDataURL(file);
-                    }
+                    previewPrimaryProductImage(e.target);
                 });
             }
         });

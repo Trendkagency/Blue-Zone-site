@@ -23,7 +23,7 @@ class ShopController extends Controller
         $goal = $request->query('goal');
 
         try {
-            $query = Product::with('category')->where('is_active', true);
+            $query = Product::with(['category', 'media'])->where('is_active', true);
 
             if ($categorySlug) {
                 $query->whereHas('category', function ($q) use ($categorySlug) {

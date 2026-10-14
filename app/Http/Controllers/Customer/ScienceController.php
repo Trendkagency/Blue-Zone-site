@@ -33,7 +33,7 @@ class ScienceController extends Controller
             }
 
             // Safely fetch active product with eager loaded category to avoid N+1 queries
-            $product = Product::with('category')
+            $product = Product::with(['category', 'media'])
                 ->where('is_active', true)
                 ->where('slug', $slug)
                 ->first();
@@ -55,7 +55,7 @@ class ScienceController extends Controller
 
         // Eager-load related active products for the science cross-navigation carousel
         try {
-            $relatedProducts = Product::with('category')
+            $relatedProducts = Product::with(['category', 'media'])
                 ->where('id', '!=', $productId)
                 ->where('is_active', true)
                 ->orderBy('sort_order')
