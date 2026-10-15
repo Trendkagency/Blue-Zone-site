@@ -182,6 +182,281 @@
         </div>
     </div>
 
+    <!-- Product Details Page Sections Customization Control Hub -->
+    <div class="mb-6 rounded-2xl border border-[#0A4F78]/20 dark:border-[#2A8FC2]/25 bg-gradient-to-br from-white via-white to-slate-50 dark:from-[#062B49] dark:via-[#031827] dark:to-[#02131F] p-5 sm:p-6 shadow-md transition-all">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#0A4F78]/10 dark:border-white/10">
+            <div class="flex items-start sm:items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl shrink-0 shadow-xs">
+                    <i class="fa-solid fa-microscope"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h3 class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight">
+                            {{ app()->getLocale() === 'ar' ? 'إعدادات وتخصيص أقسام صفحة تفاصيل المنتج' : 'Product Details Dossier Sections & Content Studio' }}
+                        </h3>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                            <i class="fa-solid fa-pen-ruler text-[10px]"></i>
+                            {{ app()->getLocale() === 'ar' ? 'تخصيص ثنائي اللغة كامل' : 'Full Bilingual Customizer' }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'تحكّم في عناوين الأقسام الستة والبادجات التوضيحية لملف تفاصيل المنتج (المكونات، الفوائد، البروتوكول، العلوم، السلامة، المواصفات والتركيبات المتكاملة).' 
+                            : 'Customize bilingual titles, badges, and headers for all 6 dossier sections and complementary pairings on product detail pages.' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Action Toggle -->
+            <div class="flex items-center gap-2.5 self-start lg:self-center shrink-0">
+                <button type="button" 
+                        onclick="toggleDetailsSettingsCollapse()" 
+                        class="btn btn-sm font-bold bg-[#0A4F78] hover:bg-[#062B49] text-white shadow-xs cursor-pointer"
+                        id="toggleDetailsSettingsBtn">
+                    <i class="fa-solid fa-sliders mr-1 ml-1"></i>
+                    <span id="toggleDetailsSettingsBtnText">{{ app()->getLocale() === 'ar' ? 'تخصيص عناوين الأقسام' : 'Customize Dossier Sections' }}</span>
+                    <i class="fa-solid fa-chevron-down text-xs ml-1 mr-1 transition-transform" id="toggleDetailsSettingsIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Collapsible Product Details Sections Customization Form -->
+        <div id="detailsSettingsCollapseBody" class="mt-5 pt-4 border-t border-dashed border-[#0A4F78]/15 dark:border-white/10 hidden">
+            <form method="POST" action="{{ route('admin.products.details-section-settings') }}" id="detailsSectionGlobalForm" class="space-y-6">
+                @csrf
+
+                <!-- 1. Master Dossier Header -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-gray-200 dark:border-gray-800 space-y-3">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider">
+                        <i class="fa-solid fa-folder-open text-[#0A4F78] dark:text-[#2A8FC2]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'رأس ملف المواصفات السريرية العام (Master Dossier Header)' : 'Master Dossier Header & Eyebrow' }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Dossier Eyebrow / Badge (EN)</label>
+                            <input type="text" name="pdetail_dossier_badge_en" value="{{ $detailsSettings['pdetail_dossier_badge_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">بادج ملف المواصفات (AR)</label>
+                            <input type="text" name="pdetail_dossier_badge_ar" value="{{ $detailsSettings['pdetail_dossier_badge_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Dossier Main Title (EN)</label>
+                            <input type="text" name="pdetail_dossier_title_en" value="{{ $detailsSettings['pdetail_dossier_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">العنوان الرئيسي لملف المواصفات (AR)</label>
+                            <input type="text" name="pdetail_dossier_title_ar" value="{{ $detailsSettings['pdetail_dossier_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Accordion 1 & 2: Active Compounds & Clinical Benefits -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Accordion 01: Compounds -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#67B34A] uppercase tracking-wider">
+                            <i class="fa-solid fa-flask-vial"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 1: المكونات الفعالة والجرعات' : 'Section 01: Active Compounds' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec1_badge_en" value="{{ $detailsSettings['pdetail_sec1_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec1_badge_ar" value="{{ $detailsSettings['pdetail_sec1_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec1_title_en" value="{{ $detailsSettings['pdetail_sec1_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec1_title_ar" value="{{ $detailsSettings['pdetail_sec1_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+
+                    <!-- Accordion 02: Benefits -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-amber-500 uppercase tracking-wider">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 2: الفوائد والمسارات الحيوية' : 'Section 02: Clinical Benefits' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec2_badge_en" value="{{ $detailsSettings['pdetail_sec2_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec2_badge_ar" value="{{ $detailsSettings['pdetail_sec2_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec2_title_en" value="{{ $detailsSettings['pdetail_sec2_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec2_title_ar" value="{{ $detailsSettings['pdetail_sec2_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Accordion 3 & 4: Protocol & Cellular Science -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Accordion 03: Protocol -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-[#2A8FC2] uppercase tracking-wider">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 3: بروتوكول الاستخدام' : 'Section 03: Protocol & Guidelines' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec3_badge_en" value="{{ $detailsSettings['pdetail_sec3_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec3_badge_ar" value="{{ $detailsSettings['pdetail_sec3_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec3_title_en" value="{{ $detailsSettings['pdetail_sec3_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec3_title_ar" value="{{ $detailsSettings['pdetail_sec3_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+
+                    <!-- Accordion 04: Cellular Science -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-purple-500 uppercase tracking-wider">
+                            <i class="fa-solid fa-dna"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 4: الآلية العلمية والدوائية' : 'Section 04: Cellular Science' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec4_badge_en" value="{{ $detailsSettings['pdetail_sec4_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec4_badge_ar" value="{{ $detailsSettings['pdetail_sec4_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec4_title_en" value="{{ $detailsSettings['pdetail_sec4_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec4_title_ar" value="{{ $detailsSettings['pdetail_sec4_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Accordion 5 & 6: Safety & Supply Specs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Accordion 05: Safety -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600 uppercase tracking-wider">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 5: إرشادات السلامة والتحذيرات' : 'Section 05: Safety & Warnings' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec5_badge_en" value="{{ $detailsSettings['pdetail_sec5_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec5_badge_ar" value="{{ $detailsSettings['pdetail_sec5_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec5_title_en" value="{{ $detailsSettings['pdetail_sec5_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec5_title_ar" value="{{ $detailsSettings['pdetail_sec5_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+
+                    <!-- Accordion 06: Monograph Specs -->
+                    <div class="p-4 rounded-xl bg-white dark:bg-[#031827] border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-indigo-500 uppercase tracking-wider">
+                            <i class="fa-solid fa-certificate"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'القسم 6: المواصفات وضمان النقاء' : 'Section 06: Monograph & Supply Specs' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Badge (EN)</label>
+                                <input type="text" name="pdetail_sec6_badge_en" value="{{ $detailsSettings['pdetail_sec6_badge_en'] ?? '' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">البادج (AR)</label>
+                                <input type="text" name="pdetail_sec6_badge_ar" value="{{ $detailsSettings['pdetail_sec6_badge_ar'] ?? '' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Title (EN)</label>
+                            <input type="text" name="pdetail_sec6_title_en" value="{{ $detailsSettings['pdetail_sec6_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">العنوان (AR)</label>
+                            <input type="text" name="pdetail_sec6_title_ar" value="{{ $detailsSettings['pdetail_sec6_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Complementary Formulations Section -->
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-gray-200 dark:border-gray-800 space-y-3">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider">
+                        <i class="fa-solid fa-layer-group text-primary"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'قسم التركيبات المتكاملة الموصى بها (Complementary Formulations Pairing)' : 'Complementary Formulations Section' }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Eyebrow / Badge (EN)</label>
+                            <input type="text" name="pdetail_related_badge_en" value="{{ $detailsSettings['pdetail_related_badge_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">البادج (AR)</label>
+                            <input type="text" name="pdetail_related_badge_ar" value="{{ $detailsSettings['pdetail_related_badge_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Section Title (EN)</label>
+                            <input type="text" name="pdetail_related_title_en" value="{{ $detailsSettings['pdetail_related_title_en'] ?? '' }}" class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">عنوان القسم (AR)</label>
+                            <input type="text" name="pdetail_related_title_ar" value="{{ $detailsSettings['pdetail_related_title_ar'] ?? '' }}" class="form-control text-xs font-bold" dir="rtl">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800 flex-wrap gap-3">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1 ml-1"></i>
+                        {{ app()->getLocale() === 'ar' ? 'يتم تطبيق التعديلات مباشرة على ملفات كافة المنتجات في المتجر.' : 'Changes apply immediately across all product detail pages.' }}
+                    </p>
+                    <button type="submit" class="btn btn-primary font-bold shadow-md px-6">
+                        <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i>
+                        {{ app()->getLocale() === 'ar' ? 'حفظ إعدادات أقسام صفحة تفاصيل المنتج' : 'Save Product Details Settings' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toolbar & Filter Tabs -->
     <div class="mb-6 space-y-4">
         <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-3 flex-wrap">
@@ -413,6 +688,20 @@
         function toggleLandingSettingsCollapse() {
             const body = document.getElementById('landingSettingsCollapseBody');
             const icon = document.getElementById('toggleLandingSettingsIcon');
+            const isHidden = body.classList.contains('hidden');
+
+            if (isHidden) {
+                body.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                body.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function toggleDetailsSettingsCollapse() {
+            const body = document.getElementById('detailsSettingsCollapseBody');
+            const icon = document.getElementById('toggleDetailsSettingsIcon');
             const isHidden = body.classList.contains('hidden');
 
             if (isHidden) {

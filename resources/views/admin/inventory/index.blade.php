@@ -1,7 +1,7 @@
 <x-layouts.admin 
     :pageTitle="__('admin.menu.inventory')" 
     :pageSubtitle="__('admin.inventory.title')"
-    :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.index')]"
+    :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.dashboard')]"
 >
     <x-slot name="actions">
         <a href="{{ route('admin.warehouses.index') }}" class="btn btn-secondary">

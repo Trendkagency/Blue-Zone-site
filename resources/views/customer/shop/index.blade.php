@@ -70,7 +70,10 @@
                                 ? $product['short_description_ar']
                                 : $product['short_description_en'] ?? ($product['short_description'] ?? ''))
                             : $product->short_description ?? ($product->description ?? '');
-                        $pPrice = is_array($product) ? $product['price'] ?? 79 : $product->price ?? 79;
+                            $pPrice = is_array($product) ? ($product['price'] ?? 79) : ($product->price ?? 79);
+                            $pSalePrice = is_array($product) ? ($product['sale_price'] ?? null) : ($product->sale_price ?? null);
+                            $hasSale = $pSalePrice !== null && $pPrice !== null && (float) $pSalePrice < (float) $pPrice;
+                            $displayPrice = $hasSale ? $pSalePrice : $pPrice;
                     @endphp
                     <div
                         class="bg-white dark:bg-[#062B49] rounded-3xl p-6 border border-[#0A4F78]/15 shadow-xl flex flex-col justify-between card-hover-lift">
@@ -89,6 +92,13 @@
                                     class="absolute top-3 left-3 z-10 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/90 dark:bg-[#031827]/90 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-sm border border-white/30 dark:border-[#2A8FC2]/30">
                                     {{ $pCategory }}
                                 </span>
+
+                                @if ($hasSale)
+                                    <span
+                                        class="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-10 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#67B34A] text-white shadow-sm">
+                                        {{ app()->getLocale() === 'ar' ? 'عرض خاص' : 'SALE' }}
+                                    </span>
+                                @endif
                             </div>
                             <div>
                                 <div class="flex items-center justify-between text-xs font-bold text-[#67B34A] mb-1">
@@ -109,17 +119,33 @@
                         </div>
 
                         <div class="pt-4 border-t border-[#0A4F78]/10 mt-5 space-y-3">
+                            {{-- Our Science Details (Commented out for future use)
                             <a href="{{ route('customer.science.product', $pSlug) }}"
                                 class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
                                 <i class="fa-solid fa-flask-vial group-hover/btn:rotate-12 transition-transform"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details' }}</span>
-                                <i
-                                    class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
+                                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
+                            </a>
+                            --}}
+
+                            <!-- Product Details Direct Action -->
+                            <a href="{{ route('customer.product.show', $pSlug) }}"
+                                class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
+                                <i class="fa-solid fa-file-waveform group-hover/btn:scale-110 transition-transform"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'عرض تفاصيل المنتج' : 'View Product Details' }}</span>
+                                <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
                             </a>
 
                             <div class="flex items-center justify-between gap-4 pt-1">
-                                <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                                    @currency($pPrice)
+                                <div>
+                                    @if ($hasSale)
+                                        <span class="block text-[11px] font-bold text-[#031827]/40 dark:text-white/40 line-through font-mono">
+                                            @currency($pPrice)
+                                        </span>
+                                    @endif
+                                    <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                                        @currency($displayPrice)
+                                    </div>
                                 </div>
                                 <div class="flex gap-2">
                                     <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')"
@@ -198,16 +224,29 @@
             </div>
 
             <div class="pt-4 border-t border-[#0A4F78]/10 mt-5 space-y-3">
+              <!-- Our Science Details (Commented out for future use)
               <a href="/our-science/${productSlug}" 
                  class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
                 <i class="fa-solid fa-flask-vial group-hover/btn:rotate-12 transition-transform"></i>
                 <span>${isArabic ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details'}</span>
                 <i class="fa-solid ${isArabic ? 'fa-arrow-left' : 'fa-arrow-right'} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
               </a>
+              -->
+
+              <!-- Product Details Direct Action -->
+              <a href="/products/${productSlug}" 
+                 class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
+                <i class="fa-solid fa-file-waveform group-hover/btn:scale-110 transition-transform"></i>
+                <span>${isArabic ? 'عرض تفاصيل المنتج' : 'View Product Details'}</span>
+                <i class="fa-solid ${isArabic ? 'fa-arrow-left' : 'fa-arrow-right'} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
+              </a>
 
               <div class="flex items-center justify-between gap-4 pt-1">
-                <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                  $${p.price.toFixed(2)}
+                <div>
+                  ${p.sale_price && Number(p.sale_price) < Number(p.price) ? `<span class="block text-[11px] font-bold text-[#031827]/40 dark:text-white/40 line-through font-mono">$${Number(p.price).toFixed(2)}</span>` : ''}
+                  <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                    $${(p.sale_price && Number(p.sale_price) < Number(p.price) ? Number(p.sale_price) : Number(p.price)).toFixed(2)}
+                  </div>
                 </div>
                 <div class="flex gap-2">
                   <button onclick="BLUEZONE_WISHLIST.toggle('${productSlug}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="${isArabic ? 'المفضلة' : 'Wishlist'}">

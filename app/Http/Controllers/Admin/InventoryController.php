@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdjustmentType;
 use App\Models\Category;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
@@ -20,6 +21,359 @@ use InvalidArgumentException;
 
 class InventoryController extends Controller
 {
+    /**
+     * Executive Unified Inventory Dashboard.
+     */
+    public function dashboard(Request $request): View
+    {
+        InventoryService::syncAllProductsInventory();
+
+        $allProducts = Product::with(['category', 'inventoryItems'])->orderBy('name_en')->get();
+        $locations = Location::where('is_active', true)->get();
+        if ($locations->isEmpty()) {
+            $locations = collect(InventoryViewModel::locations());
+        }
+
+        $totalUnits = 0;
+        $totalValuation = 0.0;
+        $healthyCount = 0;
+        $lowStockCount = 0;
+        $outOfStockCount = 0;
+
+        $locationStockMap = [];
+        foreach ($locations as $loc) {
+            $locId = is_array($loc) ? $loc['id'] : $loc->id;
+            $locationStockMap[$locId] = [
+                'id' => $locId,
+                'name_en' => is_array($loc) ? $loc['name_en'] : $loc->name_en,
+                'name_ar' => is_array($loc) ? ($loc['name_ar'] ?? $loc['name_en']) : ($loc->name_ar ?? $loc->name_en),
+                'units' => 0,
+                'valuation' => 0.0,
+                'skus' => 0,
+            ];
+        }
+
+        $criticalWatchlist = [];
+
+        foreach ($allProducts as $product) {
+            $cost = (float) ($product->cost_price ?? ($product->price * 0.4));
+            $threshold = (int) ($product->low_stock_threshold ?? 10);
+            
+            $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
+            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
+            $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
+
+            $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
+            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
+
+            $prodTotalStock = 0;
+            foreach ($product->inventoryItems as $item) {
+                $locId = $item->location_id;
+                $stock = (int) $item->current_stock;
+                $prodTotalStock += $stock;
+                if (isset($locationStockMap[$locId])) {
+                    $locationStockMap[$locId]['units'] += $stock;
+                    $locationStockMap[$locId]['valuation'] += ($stock * $cost);
+                    if ($stock > 0) {
+                        $locationStockMap[$locId]['skus']++;
+                    }
+                }
+            }
+
+            if ($product->inventoryItems->isEmpty()) {
+                $prodTotalStock = $oStock + $fStock + $cStock;
+                if (isset($locationStockMap['online'])) $locationStockMap['online']['units'] += $oStock;
+                if (isset($locationStockMap['offline'])) $locationStockMap['offline']['units'] += $fStock;
+                if (isset($locationStockMap['central_wh'])) $locationStockMap['central_wh']['units'] += $cStock;
+            }
+
+            $totalUnits += $prodTotalStock;
+            $totalValuation += ($prodTotalStock * $cost);
+
+            if ($prodTotalStock <= 0) {
+                $outOfStockCount++;
+                if (count($criticalWatchlist) < 8) {
+                    $criticalWatchlist[] = [
+                        'id' => $product->id,
+                        'name_en' => $product->name_en,
+                        'name_ar' => $product->name_ar ?? $product->name_en,
+                        'sku' => $product->sku,
+                        'image' => Product::normalizeUrl($product->primary_image_url ?? $product->image),
+                        'category' => $product->category?->name_en ?? 'Longevity Care',
+                        'total_stock' => $prodTotalStock,
+                        'threshold' => $threshold,
+                        'status' => 'out_of_stock',
+                        'central_stock' => $cStock,
+                    ];
+                }
+            } elseif ($prodTotalStock <= $threshold) {
+                $lowStockCount++;
+                if (count($criticalWatchlist) < 8) {
+                    $criticalWatchlist[] = [
+                        'id' => $product->id,
+                        'name_en' => $product->name_en,
+                        'name_ar' => $product->name_ar ?? $product->name_en,
+                        'sku' => $product->sku,
+                        'image' => Product::normalizeUrl($product->primary_image_url ?? $product->image),
+                        'category' => $product->category?->name_en ?? 'Longevity Care',
+                        'total_stock' => $prodTotalStock,
+                        'threshold' => $threshold,
+                        'status' => 'low_stock',
+                        'central_stock' => $cStock,
+                    ];
+                }
+            } else {
+                $healthyCount++;
+            }
+        }
+
+        $totalProductsCount = $allProducts->count();
+        $healthRate = $totalProductsCount > 0 ? round(($healthyCount / $totalProductsCount) * 100, 1) : 100;
+
+        // Recent Movements
+        $recentMovements = InventoryMovement::with('product')->latest('id')->take(8)->get();
+
+        // Top 5 Stocked Products
+        $topStocked = $allProducts->sortByDesc(function ($p) {
+            return $p->inventoryItems->sum('current_stock');
+        })->take(5);
+
+        return view('admin.inventory.dashboard', [
+            'totalUnits' => $totalUnits,
+            'totalValuation' => $totalValuation,
+            'healthyCount' => $healthyCount,
+            'lowStockCount' => $lowStockCount,
+            'outOfStockCount' => $outOfStockCount,
+            'totalProducts' => $totalProductsCount,
+            'healthRate' => $healthRate,
+            'locations' => $locations,
+            'locationStockMap' => $locationStockMap,
+            'recentMovements' => $recentMovements,
+            'criticalWatchlist' => $criticalWatchlist,
+            'topStocked' => $topStocked,
+        ]);
+    }
+
+    /**
+     * Dedicated Stock Movements audit trail view.
+     */
+    public function movements(Request $request): View
+    {
+        return $this->history($request);
+    }
+
+    /**
+     * Dedicated Stock Adjustments and Physical Count Reconciliation Hub.
+     */
+    public function adjustments(Request $request): View
+    {
+        InventoryService::syncAllProductsInventory();
+
+        $query = InventoryMovement::with('product')
+            ->whereIn('movement_type', [
+                'Manual Adjustment', 
+                'Stock In', 
+                'Stock Out', 
+                'Damaged', 
+                'Expired', 
+                'Return', 
+                'Initial Stock'
+            ])
+            ->latest('id');
+
+        if ($request->filled('movement_type') && $request->movement_type !== 'all') {
+            $query->where('movement_type', $request->movement_type);
+        }
+
+        if ($request->filled('location_id') && $request->location_id !== 'all') {
+            $loc = $request->location_id;
+            $query->where(function ($q) use ($loc) {
+                $q->where('from_location', $loc)
+                  ->orWhere('to_location', $loc);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('sku', 'like', "%{$s}%")
+                  ->orWhere('product_name_en', 'like', "%{$s}%")
+                  ->orWhere('product_name_ar', 'like', "%{$s}%")
+                  ->orWhere('user', 'like', "%{$s}%")
+                  ->orWhere('note', 'like', "%{$s}%");
+            });
+        }
+
+        $adjustments = $query->paginate(20)->withQueryString();
+
+        // Live KPIs for adjustments
+        $monthStart = now()->startOfMonth()->toDateString();
+        $monthlyMovements = InventoryMovement::whereIn('movement_type', [
+            'Manual Adjustment', 'Stock In', 'Stock Out', 'Damaged', 'Expired', 'Return'
+        ])->where('date', '>=', $monthStart)->get();
+
+        $totalAdjustmentsMonth = $monthlyMovements->count();
+        $inwardUnitsMonth = $monthlyMovements->whereIn('movement_type', ['Stock In', 'Return'])->sum('quantity');
+        $damagedUnitsMonth = $monthlyMovements->whereIn('movement_type', ['Damaged', 'Expired'])->sum(fn($m) => abs($m->quantity));
+        $netVarianceMonth = $monthlyMovements->sum('quantity');
+
+        $products = Product::orderBy('name_en')->get();
+        $locations = Location::where('is_active', true)->get();
+        if ($locations->isEmpty()) {
+            $locations = collect(InventoryViewModel::locations());
+        }
+
+        $adjustmentTypes = AdjustmentType::where('is_active', true)->orderBy('sort_order')->get();
+
+        return view('admin.inventory.adjustments', [
+            'adjustments' => $adjustments,
+            'products' => $products,
+            'locations' => $locations,
+            'adjustmentTypes' => $adjustmentTypes,
+            'totalAdjustmentsMonth' => $totalAdjustmentsMonth,
+            'inwardUnitsMonth' => $inwardUnitsMonth,
+            'damagedUnitsMonth' => $damagedUnitsMonth,
+            'netVarianceMonth' => $netVarianceMonth,
+            'selectedType' => $request->query('movement_type', 'all'),
+            'selectedLocation' => $request->query('location_id', 'all'),
+            'search' => $request->query('search', ''),
+            'currentPage' => $adjustments->currentPage(),
+            'totalPages' => $adjustments->lastPage(),
+        ]);
+    }
+
+    /**
+     * Dedicated Low Stock Alerts & Replenishment Hub.
+     */
+    public function alerts(Request $request): View
+    {
+        InventoryService::syncAllProductsInventory();
+
+        $locations = Location::where('is_active', true)->get();
+        if ($locations->isEmpty()) {
+            $locations = collect(InventoryViewModel::locations());
+        }
+        $categories = Category::where('is_active', true)->orderBy('name_en')->get();
+
+        $query = Product::with(['category', 'inventoryItems']);
+
+        if ($request->filled('category_id') && $request->category_id !== 'all') {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('name_en', 'like', "%{$s}%")
+                  ->orWhere('name_ar', 'like', "%{$s}%")
+                  ->orWhere('sku', 'like', "%{$s}%")
+                  ->orWhere('barcode', 'like', "%{$s}%");
+            });
+        }
+
+        $allProducts = $query->orderBy('name_en')->get();
+
+        $alertItems = collect();
+        $outOfStockCount = 0;
+        $criticalCount = 0;
+        $lowStockCount = 0;
+        $totalReplenishmentEstCost = 0.0;
+
+        foreach ($allProducts as $product) {
+            $cost = (float) ($product->cost_price ?? ($product->price * 0.4));
+            $threshold = (int) ($product->low_stock_threshold ?? 10);
+            $criticalThreshold = max(1, (int) ceil($threshold * 0.25));
+
+            $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
+            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
+            $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
+
+            $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
+            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
+            $totalStock = $oStock + $fStock + $cStock;
+
+            $isLow = false;
+            $severity = 'healthy';
+
+            if ($totalStock <= 0) {
+                $severity = 'out_of_stock';
+                $outOfStockCount++;
+                $isLow = true;
+            } elseif ($totalStock <= $criticalThreshold || $oStock <= 2 || $fStock <= 2) {
+                $severity = 'critical';
+                $criticalCount++;
+                $isLow = true;
+            } elseif ($totalStock <= $threshold || $oStock <= $threshold || $fStock <= $threshold) {
+                $severity = 'low_stock';
+                $lowStockCount++;
+                $isLow = true;
+            }
+
+            if ($isLow) {
+                $suggestedReorder = max(15, ($threshold * 2) - $totalStock);
+                $estCost = $suggestedReorder * $cost;
+                $totalReplenishmentEstCost += $estCost;
+
+                $alertItems->push([
+                    'product_id' => $product->id,
+                    'product' => $product,
+                    'name_en' => $product->name_en,
+                    'name_ar' => $product->name_ar ?? $product->name_en,
+                    'sku' => $product->sku,
+                    'barcode' => $product->barcode,
+                    'image' => Product::normalizeUrl($product->primary_image_url ?? $product->image),
+                    'category' => $product->category?->name_en ?? 'General',
+                    'category_ar' => $product->category?->name_ar ?? 'عام',
+                    'price' => (float) $product->price,
+                    'cost_price' => $cost,
+                    'stock_online' => $oStock,
+                    'stock_offline' => $fStock,
+                    'stock_central' => $cStock,
+                    'total_stock' => $totalStock,
+                    'threshold' => $threshold,
+                    'severity' => $severity,
+                    'suggested_reorder' => $suggestedReorder,
+                    'est_cost' => $estCost,
+                    'can_transfer_from_central' => $cStock > 5,
+                ]);
+            }
+        }
+
+        // Filter by Severity
+        if ($request->filled('severity') && $request->severity !== 'all') {
+            $sevFilter = $request->severity;
+            $alertItems = $alertItems->filter(fn($i) => $i['severity'] === $sevFilter)->values();
+        }
+
+        // Filter by Location with 0 or low stock
+        if ($request->filled('location_id') && $request->location_id !== 'all') {
+            $loc = $request->location_id;
+            $alertItems = $alertItems->filter(function ($i) use ($loc) {
+                if ($loc === 'online') return $i['stock_online'] <= $i['threshold'];
+                if ($loc === 'offline') return $i['stock_offline'] <= $i['threshold'];
+                if ($loc === 'central_wh') return $i['stock_central'] <= 10;
+                return true;
+            })->values();
+        }
+
+        return view('admin.inventory.alerts', [
+            'alerts' => $alertItems,
+            'categories' => $categories,
+            'locations' => $locations,
+            'outOfStockCount' => $outOfStockCount,
+            'criticalCount' => $criticalCount,
+            'lowStockCount' => $lowStockCount,
+            'totalAlerts' => $outOfStockCount + $criticalCount + $lowStockCount,
+            'totalReplenishmentEstCost' => $totalReplenishmentEstCost,
+            'selectedSeverity' => $request->query('severity', 'all'),
+            'selectedCategory' => $request->query('category_id', 'all'),
+            'selectedLocation' => $request->query('location_id', 'all'),
+            'search' => $request->query('search', ''),
+        ]);
+    }
+
     public function index(Request $request): View
     {
         // Ensure all active products have location items provisioned
@@ -182,10 +536,14 @@ class InventoryController extends Controller
 
     public function storeAdjustment(Request $request): RedirectResponse|JsonResponse
     {
+        $allowedTypes = AdjustmentType::pluck('code')->merge([
+            'Stock In', 'Stock Out', 'Return', 'Damaged', 'Expired', 'Manual Adjustment', 'Initial Stock'
+        ])->unique()->toArray();
+
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'location_id' => 'required|string',
-            'movement_type' => 'required|string|in:Stock In,Stock Out,Return,Damaged,Expired,Manual Adjustment,Initial Stock',
+            'movement_type' => ['required', 'string', \Illuminate\Validation\Rule::in($allowedTypes)],
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string',
             'reference_number' => 'nullable|string|max:100',
@@ -195,8 +553,19 @@ class InventoryController extends Controller
         $qty = (int) $validated['quantity'];
         $type = $validated['movement_type'];
 
-        // Determine sign based on movement type
-        $delta = in_array($type, ['Stock Out', 'Damaged', 'Expired'], true) ? -$qty : $qty;
+        // Determine sign based on adjustment type definition or system fallback
+        $adjTypeRecord = AdjustmentType::where('code', $type)->orWhere('name_en', $type)->first();
+        if ($adjTypeRecord) {
+            if ($adjTypeRecord->direction === 'decrease') {
+                $delta = -$qty;
+            } elseif ($adjTypeRecord->direction === 'increase') {
+                $delta = $qty;
+            } else {
+                $delta = in_array($type, ['Stock Out', 'Damaged', 'Expired'], true) ? -$qty : $qty;
+            }
+        } else {
+            $delta = in_array($type, ['Stock Out', 'Damaged', 'Expired'], true) ? -$qty : $qty;
+        }
 
         $note = $validated['reason'];
         if (!empty($validated['reference_number'])) {

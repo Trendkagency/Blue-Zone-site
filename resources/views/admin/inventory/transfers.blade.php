@@ -15,7 +15,7 @@
 <x-layouts.admin 
     :pageTitle="__('admin.inventory.transfer_title')" 
     :pageSubtitle="app()->getLocale() == 'ar' ? 'تنفيذ تحويلات المخزون الموثقة بين مستودع الأونلاين ومستودع المبيعات والمستودع المركزي.' : 'Execute auditable stock relocations between fulfillment hubs, POS warehouses, and quarantine warehouses.'"
-    :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.index'), __('admin.inventory.transfer_title') => route('admin.inventory.transfers')]"
+    :breadcrumbs="[__('admin.menu.inventory') => route('admin.inventory.dashboard'), __('admin.inventory.transfer_title') => route('admin.inventory.transfers')]"
 >
     @if(session('status'))
         <div class="alert alert-success" style="margin-bottom: 1.5rem;">

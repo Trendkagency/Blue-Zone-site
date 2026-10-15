@@ -39,9 +39,12 @@ use App\Http\Controllers\Admin\OfflineSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\QuotationController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StockAdjustmentTypeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\Hr\AssetController as HrAssetController;
 use App\Http\Controllers\Admin\Hr\AttendanceController as HrAttendanceController;
@@ -116,6 +119,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('products')->name('products.')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->middleware('permission:products.view')->name('index');
             Route::post('/landing-section-settings', [ProductController::class, 'updateLandingSectionSettings'])->middleware('permission:products.edit')->name('landing-section-settings');
+            Route::post('/details-section-settings', [ProductController::class, 'updateDetailsSectionSettings'])->middleware('permission:products.edit')->name('details-section-settings');
             Route::post('/{id}/toggle-landing', [ProductController::class, 'toggleLandingVisibility'])->middleware('permission:products.edit')->name('toggle-landing');
             Route::get('/create', [ProductController::class, 'create'])->middleware('permission:products.create')->name('create');
             Route::post('/', [ProductController::class, 'store'])->middleware('permission:products.create')->name('store');
@@ -153,14 +157,27 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Inventory & Stock Management (including Drag & Drop Allocator & Control Hub)
         Route::prefix('inventory')->name('inventory.')->group(function () {
-            Route::get('/', [InventoryController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+            Route::get('/', [InventoryController::class, 'dashboard'])->middleware('permission:inventory.view')->name('index');
+            Route::get('/dashboard', [InventoryController::class, 'dashboard'])->middleware('permission:inventory.view')->name('dashboard');
+            Route::get('/overview', [InventoryController::class, 'index'])->middleware('permission:inventory.view')->name('overview');
             Route::get('/control', [InventoryController::class, 'control'])->middleware('permission:inventory.view')->name('control');
+            Route::get('/movements', [InventoryController::class, 'movements'])->middleware('permission:inventory.view')->name('movements');
+            Route::get('/adjustments', [InventoryController::class, 'adjustments'])->middleware('permission:inventory.view')->name('adjustments');
+            Route::get('/alerts', [InventoryController::class, 'alerts'])->middleware('permission:inventory.view')->name('alerts');
             Route::post('/quick-adjust', [InventoryController::class, 'ajaxQuickAdjust'])->middleware('permission:inventory.create')->name('quick-adjust');
             Route::post('/batch-adjust', [InventoryController::class, 'ajaxBatchAdjust'])->middleware('permission:inventory.create')->name('batch-adjust');
             Route::get('/allocator', [InventoryController::class, 'allocator'])->middleware('permission:inventory.view')->name('allocator');
             Route::post('/allocator/transfer', [InventoryController::class, 'ajaxTransfer'])->middleware('permission:inventory.create')->name('allocator.transfer');
             Route::post('/allocator/batch-split', [InventoryController::class, 'ajaxBatchSplit'])->middleware('permission:inventory.create')->name('allocator.batch_split');
             Route::post('/adjustments', [InventoryController::class, 'storeAdjustment'])->middleware('permission:inventory.create')->name('adjustments.store');
+            Route::prefix('adjustments/types')->name('adjustments.types.')->group(function () {
+                Route::get('/', [StockAdjustmentTypeController::class, 'index'])->middleware('permission:inventory.view')->name('index');
+                Route::post('/', [StockAdjustmentTypeController::class, 'store'])->middleware('permission:inventory.create')->name('store');
+                Route::post('/quick', [StockAdjustmentTypeController::class, 'quickStore'])->middleware('permission:inventory.create')->name('quick-store');
+                Route::put('/{id}', [StockAdjustmentTypeController::class, 'update'])->middleware('permission:inventory.edit')->name('update');
+                Route::post('/{id}/toggle-status', [StockAdjustmentTypeController::class, 'toggleStatus'])->middleware('permission:inventory.edit')->name('toggle-status');
+                Route::delete('/{id}', [StockAdjustmentTypeController::class, 'destroy'])->middleware('permission:inventory.delete')->name('destroy');
+            });
             Route::prefix('warehouses')->name('warehouses.')->group(function () {
                 Route::get('/', [WarehouseController::class, 'index'])->middleware('permission:inventory.view')->name('index');
                 Route::get('/create', [WarehouseController::class, 'create'])->middleware('permission:inventory.create')->name('create');
@@ -225,6 +242,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', [OfflineSaleController::class, 'create'])->middleware('permission:offline_sales.create')->name('create');
             Route::post('/', [OfflineSaleController::class, 'store'])->middleware('permission:offline_sales.create')->name('store');
             Route::get('/{id}', [OfflineSaleController::class, 'show'])->middleware('permission:offline_sales.view')->name('show');
+        });
+
+        // Commercial Sales Management (Products & Services, Quotations, Sales Orders)
+        Route::prefix('sales')->name('sales.')->group(function () {
+            Route::get('/products-services', [SalesController::class, 'productsServices'])->middleware('permission:products.view')->name('products-services');
+            Route::get('/orders', [SalesController::class, 'orders'])->middleware('permission:orders.view')->name('orders.index');
+
+            Route::prefix('quotations')->name('quotations.')->group(function () {
+                Route::get('/', [QuotationController::class, 'index'])->middleware('permission:orders.view')->name('index');
+                Route::get('/create', [QuotationController::class, 'create'])->middleware('permission:orders.create')->name('create');
+                Route::post('/', [QuotationController::class, 'store'])->middleware('permission:orders.create')->name('store');
+                Route::get('/{id}', [QuotationController::class, 'show'])->middleware('permission:orders.view')->name('show');
+                Route::get('/{id}/print', [QuotationController::class, 'print'])->middleware('permission:orders.view')->name('print');
+                Route::post('/{id}/convert', [QuotationController::class, 'convert'])->middleware('permission:orders.create')->name('convert');
+                Route::match(['post', 'patch'], '/{id}/status', [QuotationController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
+            });
         });
 
         // Customers CRM

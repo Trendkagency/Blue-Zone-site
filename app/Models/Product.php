@@ -22,6 +22,7 @@ class Product extends Model implements HasMedia
         'tagline_en',
         'tagline_ar',
         'category_id',
+        'type',
         'subcategory_en',
         'subcategory_ar',
         'brand',

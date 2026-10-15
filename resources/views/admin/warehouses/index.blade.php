@@ -2,7 +2,7 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'إدارة المستودعات والمخازن' : 'Warehouses & Storage Facilities'"
     :pageSubtitle="app()->getLocale() === 'ar' ? 'إدارة شاملة لشبكة المستودعات، الفروع، مراكز التوزيع اللوجستي ومتابعة أرصدتها الحية.' : 'Comprehensive network management for distribution hubs, warehouses, logistics depots, and live inventory.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'المخزون' : 'Inventory') => route('admin.inventory.index'),
+        (app()->getLocale() === 'ar' ? 'المخزون' : 'Inventory') => route('admin.inventory.dashboard'),
         (app()->getLocale() === 'ar' ? 'المستودعات والمخازن' : 'Warehouses') => route('admin.warehouses.index')
     ]"
 >

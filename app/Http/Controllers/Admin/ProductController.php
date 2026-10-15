@@ -117,6 +117,49 @@ class ProductController extends Controller
             $q->where('status', 'active')->orWhere('is_active', true);
         })->where('show_on_landing', true)->count();
 
+        $detailsSettings = [
+            'pdetail_dossier_enabled' => (bool) \App\Models\Setting::get('pdetail_dossier_enabled', true),
+            'pdetail_dossier_badge_en' => \App\Models\Setting::get('pdetail_dossier_badge_en', 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH'),
+            'pdetail_dossier_badge_ar' => \App\Models\Setting::get('pdetail_dossier_badge_ar', 'الملف الطبي والمواصفات السريرية المعتمدة'),
+            'pdetail_dossier_title_en' => \App\Models\Setting::get('pdetail_dossier_title_en', 'Comprehensive Formulation Specifications'),
+            'pdetail_dossier_title_ar' => \App\Models\Setting::get('pdetail_dossier_title_ar', 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر'),
+
+            'pdetail_sec1_badge_en' => \App\Models\Setting::get('pdetail_sec1_badge_en', 'Standardized Monograph'),
+            'pdetail_sec1_badge_ar' => \App\Models\Setting::get('pdetail_sec1_badge_ar', 'النقاء والجرعات القياسية'),
+            'pdetail_sec1_title_en' => \App\Models\Setting::get('pdetail_sec1_title_en', 'Active Bio-Compounds & Potencies'),
+            'pdetail_sec1_title_ar' => \App\Models\Setting::get('pdetail_sec1_title_ar', 'المكونات الفعالة والجرعات المعيارية'),
+
+            'pdetail_sec2_badge_en' => \App\Models\Setting::get('pdetail_sec2_badge_en', 'Physiological Biomarkers'),
+            'pdetail_sec2_badge_ar' => \App\Models\Setting::get('pdetail_sec2_badge_ar', 'الأثر الفسيولوجي المباشر والمستدام'),
+            'pdetail_sec2_title_en' => \App\Models\Setting::get('pdetail_sec2_title_en', 'Clinical Benefits & Physiological Targets'),
+            'pdetail_sec2_title_ar' => \App\Models\Setting::get('pdetail_sec2_title_ar', 'الفوائد السريرية والمسارات البيولوجية'),
+
+            'pdetail_sec3_badge_en' => \App\Models\Setting::get('pdetail_sec3_badge_en', 'Synergistic Protocol'),
+            'pdetail_sec3_badge_ar' => \App\Models\Setting::get('pdetail_sec3_badge_ar', 'الجرعات والتكامل الحيوي'),
+            'pdetail_sec3_title_en' => \App\Models\Setting::get('pdetail_sec3_title_en', 'Clinical Protocol & Usage Guidelines'),
+            'pdetail_sec3_title_ar' => \App\Models\Setting::get('pdetail_sec3_title_ar', 'بروتوكول الاستخدام والتوجيهات السريرية'),
+
+            'pdetail_sec4_badge_en' => \App\Models\Setting::get('pdetail_sec4_badge_en', 'Molecular Pharmacokinetics'),
+            'pdetail_sec4_badge_ar' => \App\Models\Setting::get('pdetail_sec4_badge_ar', 'الأبحاث الصيدلانية وطول العمر'),
+            'pdetail_sec4_title_en' => \App\Models\Setting::get('pdetail_sec4_title_en', 'Cellular Science & Mechanism of Action'),
+            'pdetail_sec4_title_ar' => \App\Models\Setting::get('pdetail_sec4_title_ar', 'الآلية العلمية الدوائية المتقدمة'),
+
+            'pdetail_sec5_badge_en' => \App\Models\Setting::get('pdetail_sec5_badge_en', 'Clinical Safety & Warnings'),
+            'pdetail_sec5_badge_ar' => \App\Models\Setting::get('pdetail_sec5_badge_ar', 'الأمان والنزاهة الصيدلانية'),
+            'pdetail_sec5_title_en' => \App\Models\Setting::get('pdetail_sec5_title_en', 'Safety Profile, Warnings & Precautions'),
+            'pdetail_sec5_title_ar' => \App\Models\Setting::get('pdetail_sec5_title_ar', 'إرشادات السلامة، التحذيرات وموانع الاستعمال'),
+
+            'pdetail_sec6_badge_en' => \App\Models\Setting::get('pdetail_sec6_badge_en', 'Batch Certification'),
+            'pdetail_sec6_badge_ar' => \App\Models\Setting::get('pdetail_sec6_badge_ar', 'بيانات التوثيق والضمان'),
+            'pdetail_sec6_title_en' => \App\Models\Setting::get('pdetail_sec6_title_en', 'Monograph & Supply Specifications'),
+            'pdetail_sec6_title_ar' => \App\Models\Setting::get('pdetail_sec6_title_ar', 'المواصفات الفنية، التعبئة وضمان النقاء'),
+
+            'pdetail_related_badge_en' => \App\Models\Setting::get('pdetail_related_badge_en', 'SYNERGISTIC LONGEVITY PROTOCOLS'),
+            'pdetail_related_badge_ar' => \App\Models\Setting::get('pdetail_related_badge_ar', 'التكامل الحيوي'),
+            'pdetail_related_title_en' => \App\Models\Setting::get('pdetail_related_title_en', 'Complementary Formulations'),
+            'pdetail_related_title_ar' => \App\Models\Setting::get('pdetail_related_title_ar', 'تركيبات متكاملة تعزز النتائج'),
+        ];
+
         return view('admin.products.index', [
             'products' => $products,
             'categories' => $categories,
@@ -129,6 +172,7 @@ class ProductController extends Controller
             'currentStatus' => $status,
             'landingSettings' => $landingSettings,
             'landingProductsCount' => $landingProductsCount,
+            'detailsSettings' => $detailsSettings,
         ]);
     }
 
@@ -819,6 +863,53 @@ class ProductController extends Controller
                 'show_on_landing' => (bool) $product->show_on_landing,
                 'product_id' => $product->id,
                 'product_name' => $prodName,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Update product details page sections customization settings.
+     */
+    public function updateDetailsSectionSettings(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
+    {
+        $fields = [
+            'pdetail_dossier_badge_en', 'pdetail_dossier_badge_ar',
+            'pdetail_dossier_title_en', 'pdetail_dossier_title_ar',
+            'pdetail_sec1_badge_en', 'pdetail_sec1_badge_ar',
+            'pdetail_sec1_title_en', 'pdetail_sec1_title_ar',
+            'pdetail_sec2_badge_en', 'pdetail_sec2_badge_ar',
+            'pdetail_sec2_title_en', 'pdetail_sec2_title_ar',
+            'pdetail_sec3_badge_en', 'pdetail_sec3_badge_ar',
+            'pdetail_sec3_title_en', 'pdetail_sec3_title_ar',
+            'pdetail_sec4_badge_en', 'pdetail_sec4_badge_ar',
+            'pdetail_sec4_title_en', 'pdetail_sec4_title_ar',
+            'pdetail_sec5_badge_en', 'pdetail_sec5_badge_ar',
+            'pdetail_sec5_title_en', 'pdetail_sec5_title_ar',
+            'pdetail_sec6_badge_en', 'pdetail_sec6_badge_ar',
+            'pdetail_sec6_title_en', 'pdetail_sec6_title_ar',
+            'pdetail_related_badge_en', 'pdetail_related_badge_ar',
+            'pdetail_related_title_en', 'pdetail_related_title_ar',
+        ];
+
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                \App\Models\Setting::set($field, $request->input($field, ''), 'product_details');
+            }
+        }
+
+        \Illuminate\Support\Facades\Cache::flush();
+        \App\Models\Setting::flushRuntimeCache();
+
+        $message = app()->getLocale() === 'ar'
+            ? 'تم حفظ وتحديث إعدادات وعناوين أقسام صفحة تفاصيل المنتج بنجاح!'
+            : 'Product details page sections configuration updated successfully!';
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
                 'message' => $message,
             ]);
         }

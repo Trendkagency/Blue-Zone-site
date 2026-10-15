@@ -39,10 +39,49 @@
 
     $pPrice = $isObj ? ($product->price ?? 79) : ($product['price'] ?? 79);
     $pSalePrice = $isObj ? ($product->sale_price ?? null) : ($product['sale_price'] ?? null);
+    $hasSale = $pSalePrice !== null && $pPrice !== null && (float) $pSalePrice < (float) $pPrice;
+    $displayPrice = $hasSale ? $pSalePrice : $pPrice;
+    $discountPercentage = $hasSale ? round((((float) $pPrice - (float) $pSalePrice) / (float) $pPrice) * 100) : 0;
+
     $pSku = $isObj ? ($product->sku ?? 'BZ-' . strtoupper(substr($pSlug, 0, 3)) . '-001') : ($product['sku'] ?? 'BZ-MND-001');
     $pRating = $isObj ? ($product->rating ?? 4.95) : ($product['rating'] ?? 4.95);
     $pReviewsCount = $isObj ? ($product->reviews_count ?? 340) : ($product['reviews_count'] ?? 340);
     $pStock = $isObj ? ($product->stock_online ?? 95) : ($product['stock_online'] ?? 95);
+
+    // Product Details Dynamic Section Settings from Admin Dashboard
+    $pdSettings = [
+        'dossier_enabled' => (bool) \App\Models\Setting::get('pdetail_dossier_enabled', true),
+        'dossier_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_dossier_badge_ar' : 'pdetail_dossier_badge_en', $isRtl ? 'الملف الطبي والمواصفات السريرية المعتمدة' : 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH'),
+        'dossier_title' => \App\Models\Setting::get($isRtl ? 'pdetail_dossier_title_ar' : 'pdetail_dossier_title_en', $isRtl ? 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر' : 'Comprehensive Formulation Specifications'),
+        
+        'sec1_enabled' => (bool) \App\Models\Setting::get('pdetail_sec1_enabled', true),
+        'sec1_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec1_badge_ar' : 'pdetail_sec1_badge_en', $isRtl ? 'النقاء والجرعات القياسية' : 'Standardized Monograph'),
+        'sec1_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec1_title_ar' : 'pdetail_sec1_title_en', $isRtl ? 'المكونات الفعالة والجرعات المعيارية' : 'Active Bio-Compounds & Potencies'),
+
+        'sec2_enabled' => (bool) \App\Models\Setting::get('pdetail_sec2_enabled', true),
+        'sec2_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec2_badge_ar' : 'pdetail_sec2_badge_en', $isRtl ? 'الأثر الفسيولوجي المباشر والمستدام' : 'Physiological Biomarkers'),
+        'sec2_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec2_title_ar' : 'pdetail_sec2_title_en', $isRtl ? 'الفوائد السريرية والمسارات البيولوجية' : 'Clinical Benefits & Physiological Targets'),
+
+        'sec3_enabled' => (bool) \App\Models\Setting::get('pdetail_sec3_enabled', true),
+        'sec3_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec3_badge_ar' : 'pdetail_sec3_badge_en', $isRtl ? 'الجرعات والتكامل الحيوي' : 'Synergistic Protocol'),
+        'sec3_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec3_title_ar' : 'pdetail_sec3_title_en', $isRtl ? 'بروتوكول الاستخدام والتوجيهات السريرية' : 'Clinical Protocol & Usage Guidelines'),
+
+        'sec4_enabled' => (bool) \App\Models\Setting::get('pdetail_sec4_enabled', true),
+        'sec4_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec4_badge_ar' : 'pdetail_sec4_badge_en', $isRtl ? 'الأبحاث الصيدلانية وطول العمر' : 'Molecular Pharmacokinetics'),
+        'sec4_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec4_title_ar' : 'pdetail_sec4_title_en', $isRtl ? 'الآلية العلمية الدوائية المتقدمة' : 'Cellular Science & Mechanism of Action'),
+
+        'sec5_enabled' => (bool) \App\Models\Setting::get('pdetail_sec5_enabled', true),
+        'sec5_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec5_badge_ar' : 'pdetail_sec5_badge_en', $isRtl ? 'الأمان والنزاهة الصيدلانية' : 'Clinical Safety & Warnings'),
+        'sec5_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec5_title_ar' : 'pdetail_sec5_title_en', $isRtl ? 'إرشادات السلامة، التحذيرات وموانع الاستعمال' : 'Safety Profile, Warnings & Precautions'),
+
+        'sec6_enabled' => (bool) \App\Models\Setting::get('pdetail_sec6_enabled', true),
+        'sec6_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec6_badge_ar' : 'pdetail_sec6_badge_en', $isRtl ? 'بيانات التوثيق والضمان' : 'Batch Certification'),
+        'sec6_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec6_title_ar' : 'pdetail_sec6_title_en', $isRtl ? 'المواصفات الفنية، التعبئة وضمان النقاء' : 'Monograph & Supply Specifications'),
+
+        'related_enabled' => (bool) \App\Models\Setting::get('pdetail_related_enabled', true),
+        'related_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_related_badge_ar' : 'pdetail_related_badge_en', $isRtl ? 'التكامل الحيوي' : 'SYNERGISTIC LONGEVITY PROTOCOLS'),
+        'related_title' => \App\Models\Setting::get($isRtl ? 'pdetail_related_title_ar' : 'pdetail_related_title_en', $isRtl ? 'تركيبات متكاملة تعزز النتائج' : 'Complementary Formulations'),
+    ];
 
     // Dynamic resolution helper
     $getVal = function ($fieldEn, $fieldAr = null) use ($product, $isRtl, $isObj) {
@@ -277,14 +316,18 @@
             </div>
 
             <!-- Price & Stock Status -->
-            <div class="flex items-baseline gap-4 flex-wrap">
+            <div class="flex items-center gap-3.5 flex-wrap">
               <div class="text-3xl sm:text-4xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                @currency($pPrice)
+                @currency($displayPrice)
               </div>
-              @if($pSalePrice && $pSalePrice < $pPrice)
-                <div class="text-lg line-through text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono">
-                  @currency($pSalePrice)
+              @if($hasSale)
+                <div class="text-xl line-through text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono">
+                  @currency($pPrice)
                 </div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#67B34A]/15 border border-[#67B34A]/30 text-[#67B34A] text-xs font-black uppercase tracking-wider">
+                  <i class="fa-solid fa-tag text-[10px]"></i>
+                  <span>{{ $isRtl ? "وفر {$discountPercentage}% اليوم" : "SAVE {$discountPercentage}% TODAY" }}</span>
+                </span>
               @endif
               <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full {{ $pStock > 10 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400' }}">
                 <span class="w-2 h-2 rounded-full {{ $pStock > 10 ? 'bg-[#67B34A]' : 'bg-amber-500' }}"></span>
@@ -302,7 +345,7 @@
                 <i class="fa-solid fa-layer-group text-primary mr-1 ml-1"></i> {{ $isRtl ? 'اختر خطة البروتوكول العلاجي:' : 'Select Protocol Duration:' }}
               </span>
               <div class="grid grid-cols-2 gap-3">
-                <button type="button" onclick="selectProtocolVariant(1, {{ $pPrice }}, this)" 
+                <button type="button" onclick="selectProtocolVariant(1, {{ $displayPrice }}, this)" 
                   class="protocol-variant-btn p-3 rounded-xl border-2 border-[#67B34A] bg-[#67B34A]/5 text-left rtl:text-right transition-all cursor-pointer">
                   <div class="flex justify-between items-center mb-1">
                     <span class="text-xs font-extrabold text-[#031827] dark:text-white">{{ $isRtl ? 'بروتوكول 30 يوماً' : '30-Day Starter' }}</span>
@@ -311,7 +354,7 @@
                   <span class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 block">{{ $packageSize }}</span>
                 </button>
 
-                <button type="button" onclick="selectProtocolVariant(3, {{ $pPrice * 2.55 }}, this)" 
+                <button type="button" onclick="selectProtocolVariant(3, {{ round($displayPrice * 2.55, 2) }}, this)" 
                   class="protocol-variant-btn p-3 rounded-xl border border-[#0A4F78]/20 hover:border-[#2A8FC2] text-left rtl:text-right transition-all cursor-pointer relative overflow-hidden">
                   <span class="absolute top-0 right-0 rtl:right-auto rtl:left-0 text-[9px] font-black uppercase tracking-wider bg-[#0A4F78] text-white px-2 py-0.5 rounded-bl-lg rtl:rounded-bl-none rtl:rounded-br-lg">
                     {{ $isRtl ? 'خصم 15%' : 'SAVE 15%' }}
@@ -388,10 +431,10 @@
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b border-[#0A4F78]/20">
             <div>
               <span class="text-[11px] font-extrabold uppercase tracking-[0.28em] text-[#0A4F78] dark:text-[#2A8FC2] block mb-1">
-                {{ $isRtl ? 'الملف الطبي والمواصفات السريرية المعتمدة' : 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH' }}
+                {{ $pdSettings['dossier_badge'] }}
               </span>
               <h2 class="text-2xl sm:text-4xl font-black text-[#031827] dark:text-[#F6F5EF] tracking-tight">
-                {{ $isRtl ? 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر' : 'Comprehensive Formulation Specifications' }}
+                {{ $pdSettings['dossier_title'] }}
               </h2>
             </div>
 
@@ -458,10 +501,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#67B34A]/15 text-[#67B34A] font-extrabold">SECTION 01</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'النقاء والجرعات القياسية' : 'Standardized Monograph' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec1_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'المكونات الفعالة والجرعات المعيارية' : 'Active Bio-Compounds & Potencies' }}
+                      {{ $pdSettings['sec1_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -534,10 +577,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 font-extrabold">SECTION 02</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'الأثر الفسيولوجي المباشر والمستدام' : 'Physiological Biomarkers' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec2_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'الفوائد السريرية والمسارات البيولوجية' : 'Clinical Benefits & Physiological Targets' }}
+                      {{ $pdSettings['sec2_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -616,10 +659,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#2A8FC2]/15 text-[#2A8FC2] font-extrabold">SECTION 03</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'الجرعات والتكامل الحيوي' : 'Synergistic Protocol' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec3_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'بروتوكول الاستخدام والتوجيهات السريرية' : 'Clinical Protocol & Usage Guidelines' }}
+                      {{ $pdSettings['sec3_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -704,10 +747,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 font-extrabold">SECTION 04</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'الأبحاث الصيدلانية وطول العمر' : 'Molecular Pharmacokinetics' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec4_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'الآلية العلمية الدوائية المتقدمة' : 'Cellular Science & Mechanism of Action' }}
+                      {{ $pdSettings['sec4_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -775,10 +818,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold">SECTION 05</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'الأمان والنزاهة الصيدلانية' : 'Clinical Safety & Warnings' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec5_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'إرشادات السلامة، التحذيرات وموانع الاستعمال' : 'Safety Profile, Warnings & Precautions' }}
+                      {{ $pdSettings['sec5_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -842,10 +885,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold">SECTION 06</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $isRtl ? 'بيانات التوثيق والضمان' : 'Batch Certification' }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec6_badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $isRtl ? 'المواصفات الفنية، التعبئة وضمان النقاء' : 'Monograph & Supply Specifications' }}
+                      {{ $pdSettings['sec6_title'] }}
                     </h3>
                   </div>
                 </div>
@@ -905,10 +948,10 @@
             <div class="flex justify-between items-end">
               <div>
                 <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2] block mb-1">
-                  {{ $isRtl ? 'التكامل الحيوي' : 'SYNERGISTIC LONGEVITY PROTOCOLS' }}
+                  {{ $pdSettings['related_badge'] }}
                 </span>
                 <h3 class="text-2xl sm:text-3xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                  {{ $isRtl ? 'تركيبات متكاملة تعزز النتائج' : 'Complementary Formulations' }}
+                  {{ $pdSettings['related_title'] }}
                 </h3>
               </div>
               <a href="{{ route('customer.products') }}" class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors">

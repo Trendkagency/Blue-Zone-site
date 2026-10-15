@@ -40,8 +40,8 @@
                     $u = auth()->user();
                     $isSupplyChainActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
-                    $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*');
-                    $isSalesActive = request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
+                    $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
+                    $isSalesActive = request()->routeIs('admin.sales.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
                     $isMrActive = request()->routeIs('admin.mr.*') || request()->is('admin/mr*');
                     $isCrmActive = request()->routeIs('admin.crm.*');
@@ -327,88 +327,86 @@
                 </div>
                 @endif
 
-                <!-- 1. Catalog & Formulations Dropdown -->
-                @if($u && ($u->hasPermission('products.view') || $u->hasPermission('products') || $u->hasPermission('products.create') || $u->hasPermission('products.edit')))
-                    <div class="sidebar-dropdown-group {{ $isCatalogActive ? 'is-open' : '' }}" id="group-catalog">
-                        <button type="button" class="sidebar-dropdown-btn {{ $isCatalogActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-catalog')">
-                            <div class="sidebar-dropdown-label">
-                                <i class="fa-solid fa-boxes-stacked sidebar-link-icon text-emerald-400"></i>
-                                <span>{{ __('admin.menu.catalog') }}</span>
-                            </div>
-                            <div class="sidebar-dropdown-meta">
-                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
-                            </div>
-                        </button>
-                        <div class="sidebar-submenu">
-                            <a href="{{ route('admin.products.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.products.index') || request()->routeIs('admin.products.show') ? 'active' : '' }}">
-                                <i class="fa-solid fa-pills text-xs"></i>
-                                <span>{{ __('admin.menu.products') }}</span>
-                            </a>
-                            @if($u->hasPermission('products.create') || $u->hasPermission('products'))
-                                <a href="{{ route('admin.products.create') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.products.create') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-plus text-xs"></i>
-                                    <span>{{ __('admin.menu.add_product') }}</span>
-                                </a>
-                            @endif
-                            <a href="{{ route('admin.categories.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-layer-group text-xs"></i>
-                                <span>{{ __('admin.menu.categories') }}</span>
-                            </a>
-                            <a href="{{ route('admin.hero-slides.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-images text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة والشرائح' : 'Hero Slider & Carousel' }}</span>
-                            </a>
-                        </div>
-                    </div>
-                @endif
-
-                <!-- 2. Inventory & Multi-Hubs Dropdown -->
-                @if($u && ($u->hasPermission('inventory.view') || $u->hasPermission('inventory') || $u->hasPermission('inventory.create')))
+                <!-- Unified INVENTORY Section (Based on Design Screen) -->
+                @if($u && ($u->hasPermission('inventory.view') || $u->hasPermission('inventory') || $u->hasPermission('products.view') || $u->hasPermission('products') || $u->isSuperAdmin() || $u->isAdmin()))
                     <div class="sidebar-dropdown-group {{ $isInventoryActive ? 'is-open' : '' }}" id="group-inventory">
                         <button type="button" class="sidebar-dropdown-btn {{ $isInventoryActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-inventory')">
                             <div class="sidebar-dropdown-label">
-                                <i class="fa-solid fa-warehouse sidebar-link-icon text-indigo-400"></i>
-                                <span>{{ __('admin.menu.inventory') }}</span>
+                                <i class="fa-solid fa-boxes-stacked sidebar-link-icon text-indigo-400"></i>
+                                <span class="font-bold tracking-wider uppercase text-[12px]">{{ app()->getLocale() === 'ar' ? 'المخزون' : 'INVENTORY' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
                             </div>
                         </button>
                         <div class="sidebar-submenu">
-                            <a href="{{ Route::has('admin.inventory.control') ? route('admin.inventory.control') : url('/admin/inventory/control') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.control') ? 'active' : '' }}"
-                                title="{{ app()->getLocale() === 'ar' ? 'مركز التحكم السريع وإدارة كميات المنتجات' : 'Quick Stock Control Hub' }}">
-                                <i class="fa-solid fa-sliders text-xs text-emerald-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'مركز التحكم بالمخزون' : 'Inventory Control Hub' }}</span>
+                            <!-- 1. Inventory Dashboard -->
+                            <a href="{{ route('admin.inventory.dashboard') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.dashboard') || (request()->routeIs('admin.inventory.index') && !request()->routeIs('admin.inventory.transfers') && !request()->routeIs('admin.inventory.history') && !request()->routeIs('admin.inventory.adjustments') && !request()->routeIs('admin.inventory.alerts') && !request()->routeIs('admin.inventory.movements')) ? 'active' : '' }}">
+                                <i class="fa-solid fa-gauge-high text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم المخزون' : 'Inventory Dashboard' }}</span>
                             </a>
-                            <a href="{{ Route::has('admin.inventory.index') ? route('admin.inventory.index') : url('/admin/inventory') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}">
-                                <i class="fa-solid fa-boxes-packing text-xs"></i>
-                                <span>{{ __('admin.menu.stock_levels') }}</span>
+
+                            <!-- 2. Products -->
+                            <a href="{{ route('admin.products.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-pills text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المنتجات' : 'Products' }}</span>
                             </a>
-                            <a href="{{ Route::has('admin.locations.index') ? route('admin.locations.index') : (Route::has('admin.warehouses.index') ? route('admin.warehouses.index') : url('/admin/locations')) }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-building-columns text-xs text-indigo-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمواقع' : 'Locations & Hubs' }}</span>
+
+                            <!-- 3. Categories -->
+                            <a href="{{ route('admin.categories.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-layer-group text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التصنيفات' : 'Categories' }}</span>
                             </a>
-                            <a href="{{ Route::has('admin.inventory.allocator') ? route('admin.inventory.allocator') : url('/admin/inventory/allocator') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.allocator') ? 'active' : '' }}">
-                                <i class="fa-solid fa-network-wired text-xs text-sky-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'موزع المخزون المباشر' : 'Stock Allocator (Live)' }}</span>
+
+                            <!-- 4. Warehouses -->
+                            <a href="{{ route('admin.warehouses.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.locations.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-warehouse text-xs text-indigo-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمخازن' : 'Warehouses' }}</span>
                             </a>
-                            <a href="{{ Route::has('admin.inventory.transfers') ? route('admin.inventory.transfers') : url('/admin/inventory/transfers') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.transfers') ? 'active' : '' }}">
-                                <i class="fa-solid fa-arrow-right-arrow-left text-xs"></i>
-                                <span>{{ __('admin.menu.stock_transfers') }}</span>
+
+                            <!-- 5. Stock Movements -->
+                            <a href="{{ route('admin.inventory.movements') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.movements') || request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
+                                <i class="fa-solid fa-clock-rotate-left text-xs text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'حركات المخزون' : 'Stock Movements' }}</span>
                             </a>
-                            <a href="{{ Route::has('admin.inventory.history') ? route('admin.inventory.history') : url('/admin/inventory/history') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.history') ? 'active' : '' }}">
-                                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
-                                <span>{{ __('admin.menu.stock_history') }}</span>
+
+                            <!-- 6. Stock Transfers -->
+                            <a href="{{ route('admin.inventory.transfers') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.transfers*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-arrow-right-arrow-left text-xs text-teal-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تحويلات المخزون' : 'Stock Transfers' }}</span>
+                            </a>
+
+                            <!-- 7. Stock Adjustments & Types -->
+                            <div class="space-y-0.5">
+                                <a href="{{ route('admin.inventory.adjustments') }}"
+                                    class="sidebar-sublink {{ request()->routeIs('admin.inventory.adjustments') && !request()->routeIs('admin.inventory.adjustments.types*') ? 'active' : '' }}">
+                                    <i class="fa-solid fa-sliders text-xs text-purple-400"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'تسويات الجرد والمخزون' : 'Stock Adjustments' }}</span>
+                                </a>
+                                <a href="{{ route('admin.inventory.adjustments.types.index') }}"
+                                    class="sidebar-sublink ps-7 rtl:pe-7 text-xs {{ request()->routeIs('admin.inventory.adjustments.types*') ? 'active font-bold' : '' }}">
+                                    <i class="fa-solid fa-tags text-[11px] text-indigo-400"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'أنواع التسويات' : 'Adjustment Types' }}</span>
+                                </a>
+                            </div>
+
+                            <!-- 8. Low Stock Alerts -->
+                            <a href="{{ route('admin.inventory.alerts') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.inventory.alerts*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-triangle-exclamation text-xs text-rose-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'تنبيهات انخفاض المخزون' : 'Low Stock Alerts' }}</span>
+                                @php
+                                    $lowAlertsCount = \App\Models\InventoryItem::whereIn('status', ['low_stock', 'out_of_stock'])->count();
+                                @endphp
+                                @if($lowAlertsCount > 0)
+                                    <span class="badge badge-rose text-[10px] py-0 px-1.5 font-bold rounded-full ml-auto mr-auto">{{ $lowAlertsCount }}</span>
+                                @endif
                             </a>
                         </div>
                     </div>
@@ -471,45 +469,39 @@
                     </div>
                 @endif
 
-                <!-- 3. Sales, Orders & POS Dropdown -->
-                @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('offline_sales.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('offline_sales') || $u->hasPermission('invoices')))
+                <!-- Unified SALES Section (Based on Design Screen) -->
+                @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('offline_sales.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('offline_sales') || $u->hasPermission('invoices') || $u->isSuperAdmin() || $u->isAdmin()))
                     <div class="sidebar-dropdown-group {{ $isSalesActive ? 'is-open' : '' }}" id="group-sales">
                         <button type="button" class="sidebar-dropdown-btn {{ $isSalesActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales')">
                             <div class="sidebar-dropdown-label">
-                                <i class="fa-solid fa-cash-register sidebar-link-icon text-amber-400"></i>
-                                <span>{{ __('admin.menu.sales') }}</span>
+                                <i class="fa-solid fa-cart-shopping sidebar-link-icon text-amber-400"></i>
+                                <span class="font-bold tracking-wider uppercase text-[12px]">{{ app()->getLocale() === 'ar' ? 'المبيعات' : 'SALES' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
                             </div>
                         </button>
                         <div class="sidebar-submenu">
-                            @if($u->hasPermission('orders.view') || $u->hasPermission('orders'))
-                                <a href="{{ route('admin.orders.index') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-bag-shopping text-xs"></i>
-                                    <span>{{ __('admin.menu.online_orders') }}</span>
-                                </a>
-                            @endif
-                            @if($u->hasPermission('offline_sales.view') || $u->hasPermission('offline_sales'))
-                                <a href="{{ route('admin.offline-sales.index') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.offline-sales.index') || request()->routeIs('admin.offline-sales.show') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-store text-xs"></i>
-                                    <span>{{ __('admin.menu.offline_sales') }}</span>
-                                </a>
-                                <a href="{{ route('admin.offline-sales.create') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.offline-sales.create') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-calculator text-xs"></i>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'نقطة بيع جديدة' : 'New POS Sale' }}</span>
-                                </a>
-                            @endif
-                            @if($u->hasPermission('invoices.view') || $u->hasPermission('invoices'))
-                                <a href="{{ route('admin.invoices.index') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
-                                    <span>{{ __('admin.menu.invoices') }}</span>
-                                </a>
-                            @endif
+                            <!-- 1. Products & Services -->
+                            <a href="{{ route('admin.sales.products-services') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.sales.products-services') ? 'active' : '' }}">
+                                <i class="fa-solid fa-boxes-packing text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المنتجات والخدمات' : 'Products & Services' }}</span>
+                            </a>
+
+                            <!-- 2. Quotations -->
+                            <a href="{{ route('admin.sales.quotations.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.sales.quotations.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار' : 'Quotations' }}</span>
+                            </a>
+
+                            <!-- 3. Sales Orders -->
+                            <a href="{{ route('admin.sales.orders.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.sales.orders.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-receipt text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'أوامر البيع' : 'Sales Orders' }}</span>
+                            </a>
                         </div>
                     </div>
                 @endif
