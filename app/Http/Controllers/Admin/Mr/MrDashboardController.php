@@ -59,8 +59,8 @@ class MrDashboardController extends Controller
         // 2. Medical Representatives List (Scoped to self if rep, otherwise all)
         if ($isRep) {
             $medicalReps = User::where('id', $currentUser->id)
-                ->with(['area', 'city', 'country'])
-                ->select('id', 'name', 'email', 'phone', 'country_id', 'city_id', 'area_id', 'status')
+                ->with(['area', 'city', 'country', 'break'])
+                ->select('id', 'name', 'email', 'phone', 'country_id', 'city_id', 'area_id', 'break_id', 'status')
                 ->get();
         } else {
             $medicalReps = User::where(function ($query) {
@@ -68,8 +68,8 @@ class MrDashboardController extends Controller
                     $q->where('name', 'mr');
                 })->orWhere('role_id', 2);
             })
-            ->with(['area', 'city', 'country'])
-            ->select('id', 'name', 'email', 'phone', 'country_id', 'city_id', 'area_id', 'status')
+            ->with(['area', 'city', 'country', 'break'])
+            ->select('id', 'name', 'email', 'phone', 'country_id', 'city_id', 'area_id', 'break_id', 'status')
             ->orderBy('name')
             ->get();
         }
@@ -105,6 +105,8 @@ class MrDashboardController extends Controller
         $scheduledQuery = ScheduledVisit::with([
             'representative.area',
             'representative.city',
+            'representative.country',
+            'representative.break',
             'contact.specialty',
             'contact.classification',
             'contact.city',
@@ -947,7 +949,7 @@ class MrDashboardController extends Controller
             ], 403);
         }
 
-        $rep = User::with(['area', 'city', 'country', 'role'])->findOrFail($id);
+        $rep = User::with(['area', 'city', 'country', 'break', 'role'])->findOrFail($id);
         $cycleId = $request->integer('cycle_id');
         $activeCycle = $cycleId ? VisitCycle::find($cycleId) : (VisitCycle::where('status', 'active')->first() ?? VisitCycle::latest('id')->first());
         $cycle = $activeCycle;

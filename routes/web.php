@@ -35,6 +35,17 @@ Route::get('/orders/verify/{order}', [\App\Http\Controllers\OrderTrackingControl
 Route::get('/invoice/verify/{order}', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('invoice.verify');
 Route::get('/orders/{order}/download-invoice', [\App\Http\Controllers\OrderTrackingController::class, 'downloadInvoice'])->name('orders.download-invoice');
 
+// Direct Fallback Route for /storage/ files if Symlink is unavailable or blocked by hosting environment
+Route::get('/storage/{path}', function (string $path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    return response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.fallback');
+
 // Load Customer, Admin, and MR Routes
 require __DIR__ . '/customer.php';
 require __DIR__ . '/admin.php';

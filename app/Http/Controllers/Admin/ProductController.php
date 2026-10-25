@@ -222,7 +222,7 @@ class ProductController extends Controller
             // 1. Try Spatie Media Library
             try {
                 $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-                $savedUrl = $media->getUrl();
+                $savedUrl = Product::normalizeUrl($media->getUrl());
             } catch (\Throwable $e) {
                 \Log::warning("Spatie addMedia primary_image failed on store, falling back to direct upload: " . $e->getMessage());
             }
@@ -258,7 +258,7 @@ class ProductController extends Controller
                     $savedUrl = null;
                     try {
                         $media = $product->addMedia($file)->toMediaCollection('gallery');
-                        $savedUrl = $media->getUrl();
+                        $savedUrl = Product::normalizeUrl($media->getUrl());
                     } catch (\Throwable $e) {
                         \Log::warning("Spatie addMedia gallery failed on store: " . $e->getMessage());
                     }
@@ -564,7 +564,7 @@ class ProductController extends Controller
                     $product->clearMediaCollection('primary_image');
                 }
                 $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-                $savedUrl = $media->getUrl();
+                $savedUrl = Product::normalizeUrl($media->getUrl());
             } catch (\Throwable $e) {
                 \Log::warning("Spatie addMedia primary_image failed on update, falling back to direct upload: " . $e->getMessage());
             }
@@ -631,7 +631,7 @@ class ProductController extends Controller
                 // 1. Try Spatie
                 try {
                     $media = $product->addMedia($file)->toMediaCollection('gallery');
-                    $savedUrl = $media->getUrl();
+                    $savedUrl = Product::normalizeUrl($media->getUrl());
                 } catch (\Throwable $e) {
                     \Log::warning("Spatie addMedia gallery failed on update: " . $e->getMessage());
                 }

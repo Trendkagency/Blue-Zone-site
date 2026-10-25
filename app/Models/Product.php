@@ -202,18 +202,27 @@ class Product extends Model implements HasMedia
     public static function normalizeUrl(?string $url): string
     {
         if (empty($url) || !is_string($url)) {
-            return '/assets/products/blue-mind.webp';
+            return '/assets/products/blue-mind.jpg';
         }
 
         $trimmed = trim($url);
 
         // If it starts with http:// or https://
         if (str_starts_with($trimmed, 'http://') || str_starts_with($trimmed, 'https://')) {
+            $parsedPath = parse_url($trimmed, PHP_URL_PATH);
+            if (!empty($parsedPath)) {
+                $cleanedPath = '/' . ltrim($parsedPath, '/');
+                // Strip foreign domain if path is internal storage, uploads, assets, or images
+                if (str_starts_with($cleanedPath, '/storage/') || str_starts_with($cleanedPath, '/uploads/') || str_starts_with($cleanedPath, '/assets/') || str_starts_with($cleanedPath, '/images/')) {
+                    return $cleanedPath;
+                }
+            }
+
             // If it's pointing to a local or dev domain (localhost, 127.0.0.1, .test)
             if (str_contains($trimmed, 'localhost') || str_contains($trimmed, '127.0.0.1') || str_contains($trimmed, '.test')) {
-                $parsedPath = parse_url($trimmed, PHP_URL_PATH);
                 return '/' . ltrim($parsedPath ?? '', '/');
             }
+
             // If current page is HTTPS and URL is insecure HTTP, upgrade to HTTPS
             if (function_exists('request') && request()?->isSecure() && str_starts_with($trimmed, 'http://')) {
                 return 'https://' . substr($trimmed, 7);
@@ -234,13 +243,13 @@ class Product extends Model implements HasMedia
             return $trimmed;
         }
 
-        // If it's a known valid asset or starts with assets/ or storage/
-        if (str_starts_with($trimmed, 'assets/') || str_starts_with($trimmed, 'storage/')) {
+        // If it's a known valid asset or starts with assets/ or storage/ or uploads/
+        if (str_starts_with($trimmed, 'assets/') || str_starts_with($trimmed, 'storage/') || str_starts_with($trimmed, 'uploads/')) {
             return '/' . $trimmed;
         }
 
         // If it's a raw filename without directory (e.g. 'blue-mind.webp' or 'blue-cell.webp')
-        if (!str_contains($trimmed, '/') && (str_ends_with($trimmed, '.webp') || str_ends_with($trimmed, '.jpg') || str_ends_with($trimmed, '.png'))) {
+        if (!str_contains($trimmed, '/') && (str_ends_with($trimmed, '.webp') || str_ends_with($trimmed, '.jpg') || str_ends_with($trimmed, '.png') || str_ends_with($trimmed, '.jpeg'))) {
             if (function_exists('public_path') && file_exists(public_path('assets/products/' . $trimmed))) {
                 return '/assets/products/' . $trimmed;
             }
@@ -248,7 +257,7 @@ class Product extends Model implements HasMedia
 
         // If it's a random faker text or broken placeholder without file extension
         if (!str_contains($trimmed, '/') && !str_contains($trimmed, '.')) {
-            return '/assets/products/blue-mind.webp';
+            return '/assets/products/blue-mind.jpg';
         }
 
         return '/' . ltrim($trimmed, '/');
@@ -284,13 +293,19 @@ class Product extends Model implements HasMedia
 
         if (method_exists($this, 'hasMedia') && $this->hasMedia('gallery')) {
             foreach ($this->getMedia('gallery') as $media) {
-                $urls[] = self::normalizeUrl($media->getUrl());
+                $norm = self::normalizeUrl($media->getUrl());
+                if (!empty($norm) && !in_array($norm, $urls, true)) {
+                    $urls[] = $norm;
+                }
             }
         }
 
-        if (empty($urls) && !empty($this->images) && is_array($this->images)) {
+        if (!empty($this->images) && is_array($this->images)) {
             foreach ($this->images as $img) {
-                $urls[] = self::normalizeUrl($img);
+                $norm = self::normalizeUrl($img);
+                if (!empty($norm) && !in_array($norm, $urls, true)) {
+                    $urls[] = $norm;
+                }
             }
         }
 

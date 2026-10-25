@@ -22,8 +22,24 @@
     $rawImageVal = $isObj ? ($product->primary_image_url ?? $product->image) : ($product['image'] ?? null);
     $pImage = \App\Models\Product::normalizeUrl($rawImageVal);
 
-    $pImages = $isObj ? ($product->images ?? [$pImage]) : ($product['images'] ?? [$pImage]);
-    if (empty($pImages)) $pImages = [$pImage];
+    $gallerySource = $isObj 
+        ? ($product->gallery_urls ?? $product->images ?? []) 
+        : ($product['gallery_urls'] ?? $product['images'] ?? []);
+    if (!is_array($gallerySource)) $gallerySource = [];
+
+    $pImages = [];
+    if (!empty($pImage)) {
+        $pImages[] = $pImage;
+    }
+    foreach ($gallerySource as $gItem) {
+        $normG = \App\Models\Product::normalizeUrl($gItem);
+        if (!empty($normG) && !in_array($normG, $pImages, true)) {
+            $pImages[] = $normG;
+        }
+    }
+    if (empty($pImages)) {
+        $pImages = [$pImage];
+    }
 
     $pShortDesc = $isObj 
         ? ($isRtl && !empty($product->short_description_ar) ? $product->short_description_ar : ($product->short_description_en ?? $product->short_description ?? 'Precision clinical formulation inspired by Blue Zone longevity research.'))
@@ -259,7 +275,7 @@
                 id="product-main-img"
                 src="{{ $pImage }}" 
                 alt="{{ $pName }}" 
-                onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';" 
+                onerror="this.onerror=null; this.src='/assets/products/{{ $pSlug }}.jpg'; this.onerror=function(){this.src='/assets/products/blue-mind.jpg';};" 
                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" 
               />
               <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/50 via-transparent to-transparent"></div>
@@ -279,11 +295,14 @@
 
             <!-- Thumbnail Carousel if Multiple Images -->
             @if(count($pImages) > 1)
-              <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+              <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-none" id="product-thumbnails-container">
                 @foreach($pImages as $idx => $tImg)
-                  <button type="button" onclick="switchMainImage('{{ asset($tImg) }}', this)" 
+                  <button type="button" onclick="switchMainImage('{{ $tImg }}', this)" 
                     class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer {{ $idx === 0 ? 'border-[#67B34A] ring-2 ring-[#67B34A]/30' : 'border-[#0A4F78]/20 opacity-70 hover:opacity-100' }}">
-                    <img src="{{ asset($tImg) }}" alt="{{ $pName }} thumbnail" class="w-full h-full object-cover" />
+                    <img src="{{ $tImg }}" 
+                         alt="{{ $pName }} thumbnail {{ $idx + 1 }}" 
+                         class="w-full h-full object-cover" 
+                         onerror="this.onerror=null; this.closest('button').style.display='none';" />
                   </button>
                 @endforeach
               </div>

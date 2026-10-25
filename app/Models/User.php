@@ -93,17 +93,25 @@ class User extends Authenticatable implements FilamentUser
     public function getTerritoryLabelAttribute(): string
     {
         $parts = [];
-        if ($this->country) {
-            $parts[] = $this->country->name;
+
+        $country = $this->relationLoaded('country') ? $this->country : ($this->country_id ? $this->country : null);
+        if ($country) {
+            $parts[] = $country->name;
         }
-        if ($this->city) {
-            $parts[] = $this->city->name;
+
+        $city = $this->relationLoaded('city') ? $this->city : ($this->city_id ? $this->city : null);
+        if ($city) {
+            $parts[] = $city->name;
         }
-        if ($this->area) {
-            $parts[] = $this->area->name;
+
+        $area = $this->relationLoaded('area') ? $this->area : ($this->area_id ? $this->area : null);
+        if ($area) {
+            $parts[] = $area->name;
         }
-        if ($this->break) {
-            $parts[] = $this->break->name;
+
+        $break = $this->relationLoaded('break') ? $this->break : ($this->break_id ? $this->break : null);
+        if ($break) {
+            $parts[] = $break->name;
         }
 
         return ! empty($parts) ? implode(' › ', $parts) : (app()->getLocale() === 'ar' ? 'غير محدد' : 'Unassigned');

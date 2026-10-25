@@ -24,7 +24,7 @@ class UserController extends Controller
         $roleFilter = $request->query('role_id');
         $isTrashed = $status === 'trashed';
 
-        $query = User::with(['role', 'country', 'city', 'area', 'employee']);
+        $query = User::with(['role', 'country', 'city', 'area', 'break', 'employee']);
 
         if ($isTrashed) {
             $query->onlyTrashed();
@@ -65,9 +65,11 @@ class UserController extends Controller
                     'country_id' => $u->country_id,
                     'city_id' => $u->city_id,
                     'area_id' => $u->area_id,
+                    'break_id' => $u->break_id,
                     'country' => $u->country?->name,
                     'city' => $u->city?->name,
                     'area' => $u->area?->name,
+                    'break' => $u->break?->name,
                     'territory_label' => $u->territory_label,
                     'employee_id' => $u->employee?->id,
                     'last_login' => $u->updated_at?->diffForHumans() ?? 'Recently',
@@ -165,6 +167,7 @@ class UserController extends Controller
                 'country',
                 'city',
                 'area',
+                'break',
                 'employee.department',
                 'employee.position',
                 'employee.manager',

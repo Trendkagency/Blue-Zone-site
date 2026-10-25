@@ -406,5 +406,37 @@ class ProductCreateAndTaxLogicTest extends TestCase
         // 3. Valid asset path
         $normalizedAsset = Product::normalizeUrl('assets/products/blue-cell.jpg');
         $this->assertStringContainsString('assets/products/blue-cell.jpg', $normalizedAsset);
+
+        // 4. Foreign domain with storage or uploads path (e.g. tawazun.trendksoftware.com)
+        $normalizedForeign = Product::normalizeUrl('https://tawazun.trendksoftware.com/storage/34/WhatsApp-Image-2026-04-15-at-17.03.28.jpeg');
+        $this->assertEquals('/storage/34/WhatsApp-Image-2026-04-15-at-17.03.28.jpeg', $normalizedForeign);
+    }
+
+    public function test_product_gallery_urls_attribute_merges_spatie_and_images_array(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $product = Product::create([
+            'sku' => 'BZ-GALLERY-TEST',
+            'slug' => 'gallery-test-prod',
+            'category_id' => $this->category->id,
+            'brand' => 'Blue Zone',
+            'name_en' => 'Gallery Test Prod',
+            'name_ar' => 'منتج تجربة المعرض',
+            'price' => 50.00,
+            'cost_price' => 20.00,
+            'stock_online' => 10,
+            'stock_offline' => 5,
+            'status' => 'active',
+            'images' => ['/uploads/products/direct_gallery_1.jpg'],
+        ]);
+
+        $file = \Illuminate\Http\UploadedFile::fake()->image('spatie_gallery_1.jpg');
+        $product->addMedia($file)->toMediaCollection('gallery');
+
+        $galleryUrls = $product->gallery_urls;
+        $this->assertCount(2, $galleryUrls);
+        $this->assertTrue(collect($galleryUrls)->contains(fn($u) => str_contains($u, 'direct_gallery_1.jpg')));
+        $this->assertTrue(collect($galleryUrls)->contains(fn($u) => str_contains($u, 'spatie_gallery_1.jpg')));
     }
 }
