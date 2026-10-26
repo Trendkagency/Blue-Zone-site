@@ -27,10 +27,12 @@ class HeroSlide extends Model
         'primary_cta_text_ar',
         'primary_cta_link',
         'primary_cta_style',
+        'show_primary_cta',
         'secondary_cta_text_en',
         'secondary_cta_text_ar',
         'secondary_cta_link',
         'secondary_cta_style',
+        'show_secondary_cta',
         'bg_image',
         'show_floating_card',
         'card_badge_en',
@@ -46,6 +48,8 @@ class HeroSlide extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'show_floating_card' => 'boolean',
+        'show_primary_cta' => 'boolean',
+        'show_secondary_cta' => 'boolean',
         'slide_order' => 'integer',
         'product_id' => 'integer',
     ];
@@ -142,6 +146,53 @@ class HeroSlide extends Model
         return $isAr 
             ? ($this->secondary_cta_text_ar ?: $this->secondary_cta_text_en ?: 'تصفح الكتالوج')
             : ($this->secondary_cta_text_en ?: $this->secondary_cta_text_ar ?: 'VIEW CATALOG');
+    }
+
+    /**
+     * Check if Primary CTA button is visible.
+     */
+    public function getHasPrimaryCtaAttribute(): bool
+    {
+        if ($this->show_primary_cta === false) {
+            return false;
+        }
+        return !empty($this->primary_cta_text_en) || !empty($this->primary_cta_text_ar);
+    }
+
+    /**
+     * Check if Secondary CTA button is visible.
+     */
+    public function getHasSecondaryCtaAttribute(): bool
+    {
+        if ($this->show_secondary_cta === false) {
+            return false;
+        }
+        return !empty($this->secondary_cta_text_en) || !empty($this->secondary_cta_text_ar);
+    }
+
+    /**
+     * Resolved Primary CTA target link.
+     */
+    public function getResolvedPrimaryCtaLinkAttribute(): string
+    {
+        if (!empty($this->primary_cta_link)) {
+            return $this->primary_cta_link;
+        }
+        if ($this->product && !empty($this->product->slug)) {
+            return route('customer.product.show', $this->product->slug);
+        }
+        return route('customer.products');
+    }
+
+    /**
+     * Resolved Secondary CTA target link.
+     */
+    public function getResolvedSecondaryCtaLinkAttribute(): string
+    {
+        if (!empty($this->secondary_cta_link)) {
+            return $this->secondary_cta_link;
+        }
+        return route('customer.products');
     }
 
     /**

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -84,6 +85,87 @@ class Product extends Model implements HasMedia
             'ingredients' => 'array',
             'section_settings' => 'array',
         ];
+    }
+
+    /**
+     * Generate a unique URL slug based on the product name.
+     */
+    public static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        if (empty($baseSlug)) {
+            $baseSlug = 'formulation-' . Str::lower(Str::random(6));
+        }
+
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (static::where('slug', $slug)->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))->exists()) {
+            $slug = "{$baseSlug}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Check if formulation currently has an active promotional discount.
+     */
+    public function getHasDiscountAttribute(): bool
+    {
+        return !empty($this->sale_price) && (float) $this->sale_price < (float) $this->price && (float) $this->sale_price > 0;
+    }
+
+    /**
+     * Calculate discount percentage (e.g. 20 for 20% off).
+     */
+    public function getDiscountPercentageAttribute(): int
+    {
+        if (!$this->has_discount || (float) $this->price <= 0) {
+            return 0;
+        }
+
+        return (int) round((((float) $this->price - (float) $this->sale_price) / (float) $this->price) * 100);
+    }
+
+    /**
+     * Calculate direct monetary savings amount.
+     */
+    public function getDiscountAmountAttribute(): float
+    {
+        if (!$this->has_discount) {
+            return 0.0;
+        }
+
+        return max(0.0, (float) $this->price - (float) $this->sale_price);
+    }
+
+    /**
+     * Get active commercial price taking discounts into account.
+     */
+    public function getEffectivePriceAttribute(): float
+    {
+        return $this->has_discount ? (float) $this->sale_price : (float) $this->price;
+    }
+
+    /**
+     * Localized discount badge string (e.g. "-20% OFF" or "خصم 20%").
+     */
+    public function getDiscountBadgeLabelAttribute(): string
+    {
+        if (!$this->has_discount) {
+            return '';
+        }
+
+        $pct = $this->discount_percentage;
+        $isAr = app()->getLocale() === 'ar';
+
+        if ($pct > 0) {
+            return $isAr ? "خصم {$pct}%" : "-{$pct}% OFF";
+        }
+
+        $savings = number_format($this->discount_amount, 2);
+        return $isAr ? "وفر \${$savings}" : "SAVE \${$savings}";
     }
 
     /**
@@ -465,6 +547,15 @@ class Product extends Model implements HasMedia
             $responsiveClass = 'block md:hidden';
         }
 
+        $bundleConfig = ($key === 'related') ? [
+            'enabled' => !empty($productSettings['bundle']['enabled']),
+            'discount_type' => $productSettings['bundle']['discount_type'] ?? 'percentage',
+            'discount_value' => (float) ($productSettings['bundle']['discount_value'] ?? 15.0),
+            'badge_en' => $productSettings['bundle']['badge_en'] ?? 'Optimal Synergistic Protocol',
+            'badge_ar' => $productSettings['bundle']['badge_ar'] ?? 'البروتوكول التكاملي الموصى به',
+            'product_ids' => array_map('intval', (array) ($productSettings['bundle']['product_ids'] ?? [])),
+        ] : null;
+
         return [
             'enabled_desktop' => $enabledDesktop,
             'enabled_mobile' => $enabledMobile,
@@ -481,6 +572,65 @@ class Product extends Model implements HasMedia
             'custom_content' => $customContent,
             'custom_content_en' => $productSettings['custom_content_en'] ?? '',
             'custom_content_ar' => $productSettings['custom_content_ar'] ?? '',
+            'bundle' => $bundleConfig,
+        ];
+    }
+
+    /**
+     * Get calculated Synergistic Protocol Bundle data for storefront display & 1-click cart addition.
+     */
+    public function getSynergisticBundle(): ?array
+    {
+        $relatedConfig = $this->getSectionConfig('related');
+        $bundle = $relatedConfig['bundle'] ?? null;
+
+        if (empty($bundle) || empty($bundle['enabled']) || empty($bundle['product_ids'])) {
+            return null;
+        }
+
+        $bundleProducts = self::whereIn('id', $bundle['product_ids'])
+            ->where('id', '!=', $this->id)
+            ->where(function ($q) {
+                $q->where('status', 'active')->orWhere('is_active', true);
+            })
+            ->get();
+
+        if ($bundleProducts->isEmpty()) {
+            return null;
+        }
+
+        $allProducts = collect([$this])->concat($bundleProducts);
+        $totalOriginalPrice = $allProducts->sum(fn($p) => (float) ($p->sale_price ?: $p->price));
+
+        $discountValue = (float) $bundle['discount_value'];
+        $discountType = $bundle['discount_type'] ?? 'percentage';
+
+        if ($discountType === 'percentage') {
+            $discountAmount = ($totalOriginalPrice * $discountValue) / 100.0;
+        } else {
+            $discountAmount = min($totalOriginalPrice, $discountValue);
+        }
+
+        $bundleFinalPrice = max(0, $totalOriginalPrice - $discountAmount);
+        $savingsPercentage = $totalOriginalPrice > 0 ? round(($discountAmount / $totalOriginalPrice) * 100) : 0;
+
+        $isRtl = app()->getLocale() === 'ar';
+        $badge = $isRtl && !empty($bundle['badge_ar']) 
+            ? $bundle['badge_ar'] 
+            : (!empty($bundle['badge_en']) ? $bundle['badge_en'] : ($isRtl ? "وفر {$savingsPercentage}% مع البروتوكول" : "Save {$savingsPercentage}% with Protocol"));
+
+        return [
+            'enabled' => true,
+            'primary' => $this,
+            'items' => $bundleProducts,
+            'all_products' => $allProducts,
+            'total_original' => $totalOriginalPrice,
+            'discount_amount' => $discountAmount,
+            'final_price' => $bundleFinalPrice,
+            'savings_percentage' => $savingsPercentage,
+            'discount_type' => $discountType,
+            'discount_value' => $discountValue,
+            'badge' => $badge,
         ];
     }
 

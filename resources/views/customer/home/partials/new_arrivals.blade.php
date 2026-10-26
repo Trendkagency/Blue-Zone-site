@@ -58,7 +58,10 @@
             $pRating = $product['rating'] ?? ($product->rating ?? 4.9);
             $pPrice = $product['price'] ?? ($product->price ?? 0);
             $pSalePrice = $product['sale_price'] ?? ($product->sale_price ?? null);
-            $effectivePrice = !empty($pSalePrice) ? $pSalePrice : $pPrice;
+            $hasDiscount = !empty($pSalePrice) && (float)$pSalePrice < (float)$pPrice && (float)$pSalePrice > 0;
+            $discPct = $hasDiscount ? (int) round((((float)$pPrice - (float)$pSalePrice) / (float)$pPrice) * 100) : 0;
+            $discLabel = $discPct > 0 ? (app()->getLocale() === 'ar' ? "خصم {$discPct}%" : "-{$discPct}% OFF") : (app()->getLocale() === 'ar' ? 'عرض خاص' : 'SALE');
+            $effectivePrice = $hasDiscount ? $pSalePrice : $pPrice;
             $pShortDesc = app()->getLocale() === 'ar'
                 ? ($product['short_description_ar'] ?? ($product->short_description_ar ?? ($product['short_description_en'] ?? ($product->short_description_en ?? ''))))
                 : ($product['short_description_en'] ?? ($product->short_description_en ?? ''));
@@ -90,6 +93,15 @@
                   />
                   <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
                   <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
+
+                  @if($hasDiscount)
+                    <div class="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 z-10 pointer-events-none">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white shadow-xl backdrop-blur-md border border-white/20 dark:border-[#2A8FC2]/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                        <span class="font-mono text-[#B8D98A] font-black text-xs tracking-tight">{{ $discLabel }}</span>
+                      </span>
+                    </div>
+                  @endif
                 </a>
 
                 <!-- Details -->
@@ -126,10 +138,15 @@
                     <span class="text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
                       @currency($effectivePrice)
                     </span>
-                    @if(!empty($pSalePrice) && $pSalePrice < $pPrice)
-                      <span class="text-xs text-slate-400 line-through">
+                    @if($hasDiscount)
+                      <span class="text-xs text-slate-400 line-through font-mono">
                         @currency($pPrice)
                       </span>
+                      @if($discPct > 0)
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono">
+                          -{{ $discPct }}%
+                        </span>
+                      @endif
                     @endif
                   </div>
                   <span class="text-[10px] font-bold text-[#67B34A]">

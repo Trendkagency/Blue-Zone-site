@@ -31,6 +31,21 @@
                     />
                     <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/40 via-transparent to-transparent"></div>
                     <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
+                    @php
+                      $vPrice = (float)($product['price'] ?? 0);
+                      $vSalePrice = isset($product['sale_price']) ? (float)$product['sale_price'] : null;
+                      $vHasDiscount = !empty($vSalePrice) && $vSalePrice < $vPrice && $vSalePrice > 0;
+                      $vDiscPct = $vHasDiscount ? (int) round((($vPrice - $vSalePrice) / $vPrice) * 100) : 0;
+                      $vDiscLabel = $vDiscPct > 0 ? (app()->getLocale() === 'ar' ? "خصم {$vDiscPct}%" : "-{$vDiscPct}% OFF") : (app()->getLocale() === 'ar' ? 'عرض خاص' : 'SALE');
+                    @endphp
+                    @if($vHasDiscount)
+                      <div class="absolute top-2.5 right-2.5 rtl:right-auto rtl:left-2.5 z-10 pointer-events-none">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white shadow-xl backdrop-blur-md border border-white/20 dark:border-[#2A8FC2]/40">
+                          <span class="w-1.5 h-1.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                          <span class="font-mono text-[#B8D98A] font-black text-xs tracking-tight">{{ $vDiscLabel }}</span>
+                        </span>
+                      </div>
+                    @endif
                     @if($product['is_new'] ?? false)
                       <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-[#67B34A] text-white text-[9px] font-black uppercase tracking-wider shadow-sm">
                         NEW
@@ -109,14 +124,19 @@
                         <span class="text-slate-400 text-[10px]">({{ $product['reviews_count'] ?? 100 }})</span>
                       </div>
                     </div>
-                    <div class="flex items-baseline gap-2">
+                    <div class="flex items-baseline gap-2 flex-wrap">
                       <span class="text-3xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                        @currency($product['sale_price'] ?? $product['price'])
+                        @currency($vHasDiscount ? $vSalePrice : $vPrice)
                       </span>
-                      @if(!empty($product['sale_price']) && $product['sale_price'] < $product['price'])
-                        <span class="text-sm text-slate-400 line-through">
-                          @currency($product['price'])
+                      @if($vHasDiscount)
+                        <span class="text-sm text-slate-400 line-through font-mono">
+                          @currency($vPrice)
                         </span>
+                        @if($vDiscPct > 0)
+                          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono">
+                            -{{ $vDiscPct }}%
+                          </span>
+                        @endif
                       @endif
                     </div>
                     <span class="text-[10px] font-bold text-[#67B34A] block">

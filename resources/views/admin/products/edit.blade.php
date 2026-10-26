@@ -187,13 +187,45 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">
-                    <x-forms.input 
-                        name="slug" 
-                        label="URL Slug" 
-                        :value="old('slug', $product['slug'])" 
-                        hint="Unique URL path for storefront routing." 
-                    />
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <label for="slug" class="form-label" style="margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                            <span>{{ __('admin.products.fields.slug') ?? 'URL Slug' }}</span>
+                            <span class="badge" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid fa-lock text-red-500"></i>
+                                {{ app()->getLocale() === 'ar' ? 'رابط دائم مقفل ومحمي' : 'Permanent URL Locked' }}
+                            </span>
+                        </label>
+                        <div style="font-family: monospace; font-size: 0.78rem; color: var(--color-primary); background: rgba(59, 130, 246, 0.08); padding: 0.25rem 0.65rem; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.15); display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="text-muted">{{ url('/products') }}/</span><strong>{{ $product['slug'] }}</strong>
+                            <a href="{{ route('customer.product.show', $product['slug']) }}" target="_blank" class="text-sky-600 hover:text-sky-800" title="View live product page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            name="slug" 
+                            id="slug" 
+                            value="{{ old('slug', $product['slug']) }}" 
+                            readonly 
+                            tabindex="-1"
+                            class="form-control" 
+                            style="background: #f8fafc; cursor: not-allowed; color: #475569; font-family: monospace; font-weight: 600; border-color: #cbd5e1; padding-left: 2.5rem;"
+                        >
+                        <div style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                    </div>
+
+                    <span class="form-hint" style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; font-size: 0.78rem; color: var(--color-text-muted);">
+                        <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'تم إقفال الرابط الدائم (Slug) لمنع أي تعديل أو تغيير يدوي، لحماية أرشفة محركات البحث (Google SEO) وضمان عدم كسر روابط الطلبات والفواتير السابقة.' 
+                            : 'This URL Slug is permanently locked against changes to protect Google search indexing, customer bookmarks, and previous order receipts.' }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -265,6 +297,16 @@
                         :value="old('name_en', $product['name_en'])" 
                         required 
                     />
+                    <div style="margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #64748b; font-family: monospace; background: #f8fafc; padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem;">
+                            <i class="fa-solid fa-link text-emerald-600"></i>
+                            <span class="text-slate-400">{{ url('/products') }}/</span><strong class="text-emerald-700 font-bold">{{ $product['slug'] }}</strong>
+                        </span>
+                        <a href="{{ route('customer.product.show', $product['slug']) }}" target="_blank" class="text-sky-600 hover:text-sky-800 flex items-center gap-1 font-sans text-xs">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'معاينة في المتجر' : 'Live Storefront' }}</span>
+                        </a>
+                    </div>
 
                     <div style="margin-top: 1rem;">
                         <x-forms.input 
@@ -335,18 +377,113 @@
                             oninput="recalculateTaxAndMargin()"
                         />
                     </div>
-                    <div>
-                        <x-forms.input 
-                            name="sale_price" 
-                            id="inputSalePrice"
-                            type="number" 
-                            step="0.01" 
-                            min="0"
-                            :label="__('admin.products.fields.sale_price')" 
-                            :value="old('sale_price', $product['sale_price'])" 
-                            hint="Optional promotional campaign price" 
-                            oninput="recalculateTaxAndMargin()"
-                        />
+                </div>
+
+                <!-- Dynamic Promotional Discount Module -->
+                <div style="margin-top: 1.5rem; background: var(--color-bg-subtle, #f8fafc); border: 1px solid var(--color-border); border-radius: var(--radius-lg, 16px); padding: 1.5rem; transition: all 0.3s ease;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1rem; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-tags text-rose-500"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'العرض الترويجي والخصم الخاص' : 'Promotional Campaign & Discount' }}</span>
+                                <span class="badge" id="discountLiveBadge" style="display: none; font-size: 0.72rem; padding: 0.2rem 0.65rem; background: linear-gradient(135deg, #dc2626, #f43f5e); color: white; border-radius: 9999px; font-weight: 800; box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);">
+                                    -0% OFF
+                                </span>
+                            </div>
+                            <p class="text-xs text-muted" style="margin: 0.25rem 0 0 0;">
+                                {{ app()->getLocale() === 'ar' ? 'تفعيل خصم مباشر على التركيبة يظهر كشارة وشطب للسعر القديم في كافة بطاقات وأقسام المتجر' : 'Enable a special promotional discount synced across all product cards with dynamic discount badges' }}
+                            </p>
+                        </div>
+
+                        <!-- Toggle Switch -->
+                        <label style="display: inline-flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                            <span class="text-xs font-bold" id="discountToggleLabel" style="color: var(--color-text-muted);">
+                                {{ old('sale_price', $product['sale_price']) ? (app()->getLocale() === 'ar' ? 'الخصم مفعل' : 'Discount Active') : (app()->getLocale() === 'ar' ? 'الخصم معطل' : 'Discount Disabled') }}
+                            </span>
+                            <div style="position: relative; width: 48px; height: 26px;">
+                                <input type="checkbox" id="toggleDiscountEnabled" onchange="handleDiscountToggle(this.checked)" style="opacity: 0; width: 0; height: 0;" {{ old('sale_price', $product['sale_price']) ? 'checked' : '' }}>
+                                <div id="discountToggleTrack" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ old('sale_price', $product['sale_price']) ? '#10b981' : '#cbd5e1' }}; transition: .3s; border-radius: 34px;">
+                                    <div id="discountToggleThumb" style="position: absolute; height: 20px; width: 20px; left: {{ old('sale_price', $product['sale_price']) ? '25px' : '3px' }}; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Discount Configuration Fields (Shown when toggle is ON) -->
+                    <div id="discountControlsContainer" style="display: {{ old('sale_price', $product['sale_price']) ? 'block' : 'none' }}; border-top: 1px dashed var(--color-border); padding-top: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; align-items: end;">
+                            
+                            <!-- Mode Selector (Percentage vs Fixed) -->
+                            <div>
+                                <label class="form-label" style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; display: block;">
+                                    {{ app()->getLocale() === 'ar' ? 'نوع الخصم' : 'Discount Calculation Mode' }}
+                                </label>
+                                <div style="display: flex; background: var(--color-bg-surface, #fff); border: 1px solid var(--color-border); border-radius: var(--radius-md, 8px); padding: 3px; gap: 4px;">
+                                    <button type="button" id="btnDiscountModePct" onclick="setDiscountMode('percentage')" class="btn btn-sm" style="flex: 1; border: none; font-size: 0.78rem; font-weight: 700; border-radius: 6px; padding: 0.4rem; background: var(--color-primary); color: #fff;">
+                                        <i class="fa-solid fa-percent" style="margin-right: 0.25rem;"></i> {{ app()->getLocale() === 'ar' ? 'نسبة مئوية (%)' : 'Percentage (%)' }}
+                                    </button>
+                                    <button type="button" id="btnDiscountModeFixed" onclick="setDiscountMode('fixed')" class="btn btn-sm btn-ghost" style="flex: 1; border: none; font-size: 0.78rem; font-weight: 700; border-radius: 6px; padding: 0.4rem; color: var(--color-text-muted);">
+                                        <i class="fa-solid fa-dollar-sign" style="margin-right: 0.25rem;"></i> {{ app()->getLocale() === 'ar' ? 'مبلغ ثابت' : 'Fixed Amount' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Discount Rate / Value Input -->
+                            <div>
+                                <label class="form-label" id="labelDiscountRate" style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; display: block;">
+                                    {{ app()->getLocale() === 'ar' ? 'قيمة نسبة الخصم (%)' : 'Discount Percentage (%)' }}
+                                </label>
+                                <div style="position: relative;">
+                                    <input 
+                                        type="number" 
+                                        id="inputDiscountRate" 
+                                        step="0.5" 
+                                        min="1" 
+                                        max="95" 
+                                        placeholder="e.g. 20" 
+                                        class="form-control" 
+                                        style="font-family: monospace; font-weight: 700; font-size: 0.95rem; padding-left: 2.25rem;"
+                                        oninput="onDiscountRateInput(this.value)"
+                                    >
+                                    <span id="discountRateSymbol" style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-weight: 800; color: #94a3b8; font-size: 0.9rem;">%</span>
+                                </div>
+                            </div>
+
+                            <!-- Resulting Sale Price Input (Bidirectional) -->
+                            <div>
+                                <label class="form-label" style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; display: block;">
+                                    <span>{{ __('admin.products.fields.sale_price') }}</span>
+                                    <span class="text-xs text-muted" style="font-weight: normal;">({{ app()->getLocale() === 'ar' ? 'السعر النهائي بعد الخصم' : 'Final Price to Customer' }})</span>
+                                </label>
+                                <div style="position: relative;">
+                                    <input 
+                                        type="number" 
+                                        name="sale_price" 
+                                        id="inputSalePrice" 
+                                        step="0.01" 
+                                        min="0" 
+                                        placeholder="0.00" 
+                                        value="{{ old('sale_price', $product['sale_price']) }}" 
+                                        class="form-control" 
+                                        style="font-family: monospace; font-weight: 800; color: #16a34a; font-size: 1.05rem; padding-left: 2.25rem;"
+                                        oninput="onSalePriceInput(this.value)"
+                                    >
+                                    <span style="position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); font-weight: 800; color: #16a34a; font-size: 0.95rem;">$</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Savings Feedback Bar -->
+                        <div id="savingsFeedbackBar" style="display: none; margin-top: 1rem; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 0.65rem 1rem; color: #065f46; font-size: 0.82rem; font-weight: 600; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                                <span id="savingsFeedbackText">Customer saves $0.00 (0% OFF)</span>
+                            </div>
+                            <span class="badge" style="background: #10b981; color: white; font-size: 0.7rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+                                ACTIVE PROMO
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -1074,6 +1211,9 @@
         </div>
     </form>
 
+    {{-- Persistent Floating Real-Time Action Bar --}}
+    @include('admin.products.partials.floating_wizard_bar', ['mode' => 'edit', 'productId' => $product['id'], 'formId' => 'productEditForm'])
+
     <style>
         .wizard-step {
             display: flex;
@@ -1254,6 +1394,151 @@
                 }
             }
             return 0;
+        }
+
+        let discountMode = 'percentage';
+
+        function handleDiscountToggle(enabled) {
+            const container = document.getElementById('discountControlsContainer');
+            const track = document.getElementById('discountToggleTrack');
+            const thumb = document.getElementById('discountToggleThumb');
+            const label = document.getElementById('discountToggleLabel');
+            const saleInput = document.getElementById('inputSalePrice');
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
+
+            if (enabled) {
+                container.style.display = 'block';
+                track.style.backgroundColor = '#10b981';
+                thumb.style.left = '25px';
+                label.textContent = isAr ? 'الخصم مفعل' : 'Discount Active';
+                label.style.color = '#10b981';
+                if (!saleInput.value || parseFloat(saleInput.value) <= 0) {
+                    document.getElementById('inputDiscountRate').value = '15';
+                    onDiscountRateInput(15);
+                } else {
+                    syncDiscountRateFromSalePrice();
+                }
+            } else {
+                container.style.display = 'none';
+                track.style.backgroundColor = '#cbd5e1';
+                thumb.style.left = '3px';
+                label.textContent = isAr ? 'الخصم معطل' : 'Discount Disabled';
+                label.style.color = 'var(--color-text-muted)';
+                saleInput.value = '';
+                document.getElementById('inputDiscountRate').value = '';
+                document.getElementById('discountLiveBadge').style.display = 'none';
+                document.getElementById('savingsFeedbackBar').style.display = 'none';
+                recalculateTaxAndMargin();
+            }
+        }
+
+        function setDiscountMode(mode) {
+            discountMode = mode;
+            const btnPct = document.getElementById('btnDiscountModePct');
+            const btnFixed = document.getElementById('btnDiscountModeFixed');
+            const label = document.getElementById('labelDiscountRate');
+            const symbol = document.getElementById('discountRateSymbol');
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
+
+            if (mode === 'percentage') {
+                btnPct.style.background = 'var(--color-primary)';
+                btnPct.style.color = '#fff';
+                btnFixed.style.background = 'transparent';
+                btnFixed.style.color = 'var(--color-text-muted)';
+                label.textContent = isAr ? 'قيمة نسبة الخصم (%)' : 'Discount Percentage (%)';
+                symbol.textContent = '%';
+            } else {
+                btnFixed.style.background = 'var(--color-primary)';
+                btnFixed.style.color = '#fff';
+                btnPct.style.background = 'transparent';
+                btnPct.style.color = 'var(--color-text-muted)';
+                label.textContent = isAr ? 'مبلغ الخصم المالي المباشر ($)' : 'Discount Amount ($)';
+                symbol.textContent = '$';
+            }
+
+            syncDiscountRateFromSalePrice();
+        }
+
+        function onDiscountRateInput(val) {
+            const retail = parseFloat(document.getElementById('inputRetailPrice')?.value) || 0;
+            const saleInput = document.getElementById('inputSalePrice');
+            const rate = parseFloat(val) || 0;
+
+            if (retail <= 0 || rate <= 0) {
+                updateSavingsFeedback(0, 0);
+                return;
+            }
+
+            let calculatedSale = 0;
+            if (discountMode === 'percentage') {
+                const clampedPct = Math.min(99, Math.max(0, rate));
+                calculatedSale = retail * (1 - (clampedPct / 100));
+            } else {
+                const clampedFixed = Math.min(retail - 0.01, Math.max(0, rate));
+                calculatedSale = Math.max(0.01, retail - clampedFixed);
+            }
+
+            if (saleInput) {
+                saleInput.value = calculatedSale.toFixed(2);
+            }
+
+            const savings = Math.max(0, retail - calculatedSale);
+            const pct = retail > 0 ? Math.round((savings / retail) * 100) : 0;
+            updateSavingsFeedback(savings, pct);
+            recalculateTaxAndMargin();
+        }
+
+        function onSalePriceInput(val) {
+            const retail = parseFloat(document.getElementById('inputRetailPrice')?.value) || 0;
+            const sale = parseFloat(val) || 0;
+
+            if (retail <= 0 || sale <= 0 || sale >= retail) {
+                document.getElementById('inputDiscountRate').value = '';
+                updateSavingsFeedback(0, 0);
+                recalculateTaxAndMargin();
+                return;
+            }
+
+            const savings = retail - sale;
+            const pct = Math.round((savings / retail) * 100);
+
+            const rateInput = document.getElementById('inputDiscountRate');
+            if (rateInput) {
+                rateInput.value = discountMode === 'percentage' ? pct : savings.toFixed(2);
+            }
+
+            updateSavingsFeedback(savings, pct);
+            recalculateTaxAndMargin();
+        }
+
+        function syncDiscountRateFromSalePrice() {
+            const saleInput = document.getElementById('inputSalePrice');
+            if (saleInput && saleInput.value) {
+                onSalePriceInput(saleInput.value);
+            }
+        }
+
+        function updateSavingsFeedback(savings, pct) {
+            const bar = document.getElementById('savingsFeedbackBar');
+            const text = document.getElementById('savingsFeedbackText');
+            const badge = document.getElementById('discountLiveBadge');
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
+
+            if (savings > 0 && pct > 0) {
+                if (bar) bar.style.display = 'flex';
+                if (badge) {
+                    badge.style.display = 'inline-flex';
+                    badge.textContent = isAr ? `خصم ${pct}%` : `-${pct}% OFF`;
+                }
+                if (text) {
+                    text.textContent = isAr 
+                        ? `يوفر العميل $${savings.toFixed(2)} (${pct}% خصم ترويجي)`
+                        : `Customer saves $${savings.toFixed(2)} (${pct}% promotional discount)`;
+                }
+            } else {
+                if (bar) bar.style.display = 'none';
+                if (badge) badge.style.display = 'none';
+            }
         }
 
         function recalculateTaxAndMargin() {
@@ -1762,6 +2047,7 @@
             });
 
             recalculateTaxAndMargin();
+            syncDiscountRateFromSalePrice();
 
             const initialIngredients = @json(old('ingredients', $product['ingredients'] ?? []));
             if (Array.isArray(initialIngredients) && initialIngredients.length > 0) {

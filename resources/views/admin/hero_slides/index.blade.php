@@ -5,6 +5,70 @@
         (app()->getLocale() === 'ar' ? 'سلايدر الواجهة الرئيسي' : 'Hero Carousel') => route('admin.hero-slides.index')
     ]">
 
+    <style>
+        /* Modal Tabs Design System - WCAG AAA Contrast */
+        .modal-tab-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            border-radius: 0.875rem;
+            font-size: 0.775rem;
+            font-weight: 700;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #1e293b;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            white-space: nowrap;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .dark .modal-tab-pill {
+            color: #e2e8f0;
+            background: #081d2f;
+            border-color: #1e3a52;
+        }
+        .modal-tab-pill:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+        .dark .modal-tab-pill:hover {
+            background: #0f2c44;
+            color: #ffffff;
+            border-color: #2A8FC2;
+        }
+        .modal-tab-pill.active-tab {
+            background: linear-gradient(135deg, #0A4F78 0%, #156291 100%) !important;
+            color: #ffffff !important;
+            border-color: #0A4F78 !important;
+            box-shadow: 0 4px 14px rgba(10, 79, 120, 0.35) !important;
+            font-weight: 800 !important;
+        }
+        .modal-tab-pill.active-tab i {
+            color: #38bdf8 !important;
+        }
+
+        /* Simulation Canvas Box - High Contrast, Eye-Pleasing Dark Studio */
+        .preview-simulation-canvas {
+            background: radial-gradient(circle at 50% 20%, #062b49 0%, #02121E 100%) !important;
+            border: 1px solid rgba(42, 143, 194, 0.45) !important;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(2, 18, 30, 0.8) !important;
+        }
+        .preview-simulation-badge {
+            color: #38bdf8 !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+            font-size: 0.6875rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.05em !important;
+        }
+        .preview-simulation-stage {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(12px) !important;
+        }
+    </style>
+
     <!-- ========================================================================= -->
     <!-- HEADER & ACTION BAR -->
     <!-- ========================================================================= -->
@@ -117,39 +181,39 @@
             </form>
         </div>
 
-        <form method="POST" action="{{ route('admin.hero-slides.global-settings') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <form method="POST" action="{{ route('admin.hero-slides.global-settings') }}" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 items-stretch">
             @csrf
 
             <!-- Master Toggle -->
-            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div>
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">{{ app()->getLocale() === 'ar' ? 'حالة السلايدر في الواجهة' : 'Carousel Visibility' }}</span>
                     <span class="text-[10px] text-slate-500 dark:text-slate-400">{{ app()->getLocale() === 'ar' ? 'إظهار أو إخفاء القسم كاملاً' : 'Show or hide hero slider' }}</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" name="landing_hero_slider_enabled" value="1" class="sr-only peer" {{ $heroSettings['landing_hero_slider_enabled'] ? 'checked' : '' }}>
-                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
                 </label>
             </div>
 
             <!-- Autoplay Toggle -->
-            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xs">
                 <div>
                     <span class="text-xs font-bold text-slate-800 dark:text-slate-200 block">{{ app()->getLocale() === 'ar' ? 'التبديل التلقائي (Autoplay)' : 'Autoplay Cycling' }}</span>
                     <span class="text-[10px] text-slate-500 dark:text-slate-400">{{ app()->getLocale() === 'ar' ? 'تبديل الشرائح تلقائياً' : 'Cycle slides automatically' }}</span>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" name="landing_hero_slider_autoplay" value="1" class="sr-only peer" {{ $heroSettings['landing_hero_slider_autoplay'] ? 'checked' : '' }}>
-                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2A8FC2]"></div>
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2A8FC2] shadow-inner"></div>
                 </label>
             </div>
 
             <!-- Duration Selector -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                    {{ app()->getLocale() === 'ar' ? 'مدة بقاء الشريحة (ثانية)' : 'Slide Transition Delay' }}
+            <div class="p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+                <label class="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                    {{ app()->getLocale() === 'ar' ? 'مدة بقاء الشريحة' : 'Slide Transition Delay' }}
                 </label>
-                <select name="landing_hero_slider_delay" class="form-select text-xs w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#2A8FC2]/20 focus:border-[#2A8FC2]">
+                <select name="landing_hero_slider_delay" class="form-select text-xs w-full bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-[#2A8FC2]/20 focus:border-[#2A8FC2]">
                     <option value="3500" {{ $heroSettings['landing_hero_slider_delay'] == 3500 ? 'selected' : '' }}>3.5s (Fast / سريع)</option>
                     <option value="5500" {{ $heroSettings['landing_hero_slider_delay'] == 5500 ? 'selected' : '' }}>5.5s (Recommended / افتراضي)</option>
                     <option value="7500" {{ $heroSettings['landing_hero_slider_delay'] == 7500 ? 'selected' : '' }}>7.5s (Relaxed / متأنٍ)</option>
@@ -157,10 +221,11 @@
                 </select>
             </div>
 
-            <div>
-                <button type="submit" class="btn btn-primary text-xs font-bold w-full h-[40px] shadow-sm cursor-pointer">
-                    <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i>
-                    {{ app()->getLocale() === 'ar' ? 'حفظ إعدادات السلايدر' : 'Save Carousel Settings' }}
+            <!-- Submit Button (Equalized Height) -->
+            <div class="flex items-stretch">
+                <button type="submit" class="btn btn-primary text-xs font-bold w-full min-h-[58px] rounded-2xl shadow-md shadow-[#0A4F78]/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01]">
+                    <i class="fa-solid fa-floppy-disk text-sm"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'حفظ إعدادات السلايدر' : 'Save Carousel Settings' }}</span>
                 </button>
             </div>
         </form>
@@ -187,110 +252,136 @@
                 $sCardImg = $slide->display_card_image_url;
             @endphp
 
-            <div class="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#031827] border border-slate-200/90 dark:border-slate-800 shadow-sm transition-all hover:shadow-md hover:border-[#2A8FC2]/40 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4" id="slide-card-{{ $sId }}">
-                <!-- Left: Order, Thumbnail, & Headline Info -->
-                <div class="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
-                    <!-- Order Badge -->
-                    <div class="flex flex-col items-center justify-center p-2 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-black min-w-[42px] flex-shrink-0">
-                        <span class="text-[9px] text-slate-400 font-normal">#</span>
-                        <span>{{ $sOrder }}</span>
-                    </div>
+            <div class="p-4 sm:p-5 rounded-3xl bg-white dark:bg-[#031827] border border-slate-200/90 dark:border-slate-800 shadow-sm transition-all hover:shadow-md hover:border-[#2A8FC2]/40 flex flex-col gap-4" id="slide-card-{{ $sId }}">
+                <!-- Row 1: Slide Identity & Quick Controls -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+                    <!-- Left: Order, Thumbnail, & Headline Info -->
+                    <div class="flex items-start sm:items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
+                        <!-- Order Badge -->
+                        <div class="flex flex-col items-center justify-center p-2 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs font-black min-w-[42px] flex-shrink-0 shadow-xs">
+                            <span class="text-[9px] text-slate-400 font-normal">#</span>
+                            <span>{{ $sOrder }}</span>
+                        </div>
 
-                    <!-- Slide Background Visual Thumbnail -->
-                    <div class="relative w-24 sm:w-32 h-20 rounded-2xl overflow-hidden shadow-xs border border-slate-200 dark:border-white/10 flex-shrink-0 group">
-                        <img src="{{ $sBg }}" alt="{{ $sTitle }}" class="w-full h-full object-cover filter brightness-90 transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.src='/assets/images/hero/hero-01.webp';">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
-                            <span class="text-[8px] font-black text-white truncate drop-shadow-sm">{{ $sBadge }}</span>
+                        <!-- Slide Background Visual Thumbnail -->
+                        <div class="relative w-24 sm:w-32 h-18 sm:h-20 rounded-2xl overflow-hidden shadow-xs border border-slate-200 dark:border-white/10 flex-shrink-0 group">
+                            <img src="{{ $sBg }}" alt="{{ $sTitle }}" class="w-full h-full object-cover filter brightness-90 transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.src='/assets/images/hero/hero-01.webp';">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
+                                <span class="text-[8px] font-black text-white truncate drop-shadow-sm">{{ $sBadge }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Headline & Details (Ample horizontal space, no squishing) -->
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 flex-wrap mb-1">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider {{ $slide->badge_color === 'cyan' ? 'bg-[#2A8FC2]/20 text-[#2A8FC2]' : ($slide->badge_color === 'amber' ? 'bg-amber-500/20 text-amber-600' : 'bg-[#67B34A]/20 text-[#67B34A]') }}">
+                                    {{ $sBadge }}
+                                </span>
+
+                                @if($sProduct)
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0A4F78]/15 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center gap-1">
+                                        <i class="fa-solid fa-capsules text-[9px]"></i>
+                                        <span>{{ $sProduct->name }}</span>
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                                        <i class="fa-solid fa-earth-americas text-[9px]"></i>
+                                        <span>{{ app()->getLocale() === 'ar' ? 'بؤرة إقليمية / تصميم مخصص' : 'Regional Hotspot / Feature' }}</span>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-snug">
+                                {!! $slide->formatted_title !!}
+                            </h4>
+
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
+                                {{ $sSub }}
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Headline & Details -->
-                    <div class="min-w-0 flex-1">
-                        <div class="flex items-center gap-2 flex-wrap mb-1">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider {{ $slide->badge_color === 'cyan' ? 'bg-[#2A8FC2]/20 text-[#2A8FC2]' : ($slide->badge_color === 'amber' ? 'bg-amber-500/20 text-amber-600' : 'bg-[#67B34A]/20 text-[#67B34A]') }}">
-                                {{ $sBadge }}
-                            </span>
+                    <!-- Right: Active Toggle & Management Actions -->
+                    <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-800/80 w-full sm:w-auto justify-end">
+                        <!-- Status Toggle Button -->
+                        <button type="button" 
+                                onclick="toggleSlideStatus(this, {{ $sId }})"
+                                data-active="{{ $sActive ? '1' : '0' }}"
+                                class="slide-toggle-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs border cursor-pointer {{ $sActive ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' }}"
+                                title="{{ app()->getLocale() === 'ar' ? 'تبديل حالة العرض' : 'Toggle display in carousel' }}">
+                            <span class="w-2 h-2 rounded-full {{ $sActive ? 'bg-emerald-500 ring-2 ring-emerald-300/50' : 'bg-slate-400' }} indicator-dot"></span>
+                            <span class="indicator-text">{{ $sActive ? (app()->getLocale() === 'ar' ? 'معروض' : 'Active') : (app()->getLocale() === 'ar' ? 'مخفي' : 'Hidden') }}</span>
+                        </button>
 
-                            @if($sProduct)
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0A4F78]/15 text-[#0A4F78] dark:text-[#2A8FC2] flex items-center gap-1">
-                                    <i class="fa-solid fa-capsules text-[9px]"></i>
-                                    {{ $sProduct->name }}
-                                </span>
-                            @else
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                                    <i class="fa-solid fa-earth-americas text-[9px]"></i>
-                                    {{ app()->getLocale() === 'ar' ? 'بؤرة إقليمية / تصميم مخصص' : 'Regional Hotspot / Feature' }}
-                                </span>
-                            @endif
-                        </div>
+                        <!-- Edit Slide -->
+                        <button type="button" onclick="editSlide({{ $sId }})" class="action-btn text-primary hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer" title="{{ __('app.actions.edit') }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
 
-                        <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">
-                            {!! $slide->formatted_title !!}
-                        </h4>
-
-                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">
-                            {{ $sSub }}
-                        </p>
-
-                        <!-- Dual CTA Links Preview -->
-                        <div class="flex items-center gap-3 mt-1.5 text-[11px] text-slate-400 flex-wrap">
-                            <span class="flex items-center gap-1">
-                                <i class="fa-solid fa-link text-[10px] text-emerald-500"></i>
-                                <span class="font-bold text-slate-700 dark:text-slate-300">{{ $slide->display_primary_cta_text }}</span> ➔ {{ $slide->primary_cta_link ?: '/products' }}
-                            </span>
-                            @if($slide->secondary_cta_text_en)
-                                <span class="hidden sm:inline-flex items-center gap-1">
-                                    <i class="fa-solid fa-link text-[10px] text-[#2A8FC2]"></i>
-                                    <span class="font-bold text-slate-700 dark:text-slate-300">{{ $slide->display_secondary_cta_text }}</span> ➔ {{ $slide->secondary_cta_link ?: '/products' }}
-                                </span>
-                            @endif
-                        </div>
+                        <!-- Delete Slide -->
+                        <form action="{{ route('admin.hero-slides.destroy', $sId) }}" method="POST" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من حذف هذه الشريحة؟' : 'Are you sure you want to delete this slide?' }}');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="action-btn action-danger cursor-pointer" title="{{ __('app.actions.delete') }}">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Middle: Floating Card Preview (Exact representation of storefront card) -->
-                @if($sShowCard)
-                    <div class="w-full sm:w-auto p-2.5 rounded-2xl bg-gradient-to-r from-[#031827] to-[#0A4F78] text-white border border-[#2A8FC2]/40 flex items-center gap-3 shadow-md min-w-[220px] max-w-[270px] flex-shrink-0">
-                        <div class="w-10 h-10 rounded-xl overflow-hidden bg-white/10 p-0.5 flex-shrink-0 flex items-center justify-center">
-                            <img src="{{ $sCardImg }}" alt="{{ $sCardTitle }}" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';">
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <span class="block text-[8px] font-mono font-bold text-[#67B34A] uppercase tracking-wider truncate">{{ $sCardBadge }}</span>
-                            <span class="block text-xs font-black truncate text-white">{{ $sCardTitle }}</span>
-                            <span class="block text-[9px] text-[#2A8FC2] font-semibold truncate">{{ $sCardSub }}</span>
-                        </div>
+                <!-- Row 2: Storefront Interactivity Bar (Dual Action Buttons & Floating Card Showcase) -->
+                <div class="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <!-- Left: Dual CTA Links Preview -->
+                    <div class="flex items-center gap-2 text-[11px] flex-wrap flex-1 min-w-0">
+                        @if($slide->has_primary_cta)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 font-bold shadow-xs">
+                                <i class="fa-solid fa-circle-check text-[9px] text-emerald-500"></i>
+                                <span>CTA 1: {{ $slide->display_primary_cta_text }}</span>
+                                <span class="text-slate-400 font-normal">➔</span>
+                                <span class="font-mono text-[10px] text-slate-600 dark:text-slate-300 truncate max-w-[160px]">{{ $slide->primary_cta_link ?: '/products' }}</span>
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-400 border border-slate-200 dark:border-slate-700/60 font-semibold text-[10px]">
+                                <i class="fa-solid fa-eye-slash text-[9px]"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الزر الأول مخفي' : 'CTA 1 Hidden' }}</span>
+                            </span>
+                        @endif
+
+                        @if($slide->has_secondary_cta)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 text-[#0A4F78] dark:text-[#2A8FC2] border border-[#2A8FC2]/25 font-bold shadow-xs">
+                                <i class="fa-solid fa-circle-check text-[9px] text-[#2A8FC2]"></i>
+                                <span>CTA 2: {{ $slide->display_secondary_cta_text }}</span>
+                                <span class="text-slate-400 font-normal">➔</span>
+                                <span class="font-mono text-[10px] text-slate-600 dark:text-slate-300 truncate max-w-[160px]">{{ $slide->secondary_cta_link ?: '/products' }}</span>
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-400 border border-slate-200 dark:border-slate-700/60 font-semibold text-[10px]">
+                                <i class="fa-solid fa-eye-slash text-[9px]"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الزر الثاني مخفي' : 'CTA 2 Hidden' }}</span>
+                            </span>
+                        @endif
                     </div>
-                @else
-                    <div class="text-xs text-slate-400 font-italic px-3 py-1.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 flex-shrink-0">
-                        {{ app()->getLocale() === 'ar' ? 'البطاقة العائمة مخفية' : 'Floating Card: Hidden' }}
+
+                    <!-- Right: Floating Card Preview (Exact storefront representation) -->
+                    <div class="flex-shrink-0">
+                        @if($sShowCard)
+                            <div class="w-full sm:w-auto p-2.5 rounded-2xl bg-gradient-to-r from-[#031827] to-[#0A4F78] text-white border border-[#2A8FC2]/40 flex items-center gap-3 shadow-md min-w-[240px] max-w-[300px]">
+                                <div class="w-10 h-10 rounded-xl overflow-hidden bg-white/10 p-0.5 flex-shrink-0 flex items-center justify-center border border-white/10">
+                                    <img src="{{ $sCardImg }}" alt="{{ $sCardTitle }}" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';">
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-[8px] font-mono font-bold text-[#67B34A] uppercase tracking-wider truncate">{{ $sCardBadge }}</span>
+                                    <span class="block text-xs font-black truncate text-white">{{ $sCardTitle }}</span>
+                                    <span class="block text-[9px] text-[#2A8FC2] font-semibold truncate">{{ $sCardSub }}</span>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-xs text-slate-400 font-medium px-3 py-1.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 flex items-center gap-1.5">
+                                <i class="fa-solid fa-id-card-clip text-slate-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'البطاقة العائمة مخفية' : 'Floating Card: Hidden' }}</span>
+                            </div>
+                        @endif
                     </div>
-                @endif
-
-                <!-- Right: Active Toggle & Management Actions -->
-                <div class="flex items-center gap-2 self-end lg:self-center flex-shrink-0">
-                    <!-- Status Toggle Button -->
-                    <button type="button" 
-                            onclick="toggleSlideStatus(this, {{ $sId }})"
-                            data-active="{{ $sActive ? '1' : '0' }}"
-                            class="slide-toggle-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs border cursor-pointer {{ $sActive ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' }}"
-                            title="{{ app()->getLocale() === 'ar' ? 'تبديل حالة العرض' : 'Toggle display in carousel' }}">
-                        <span class="w-2 h-2 rounded-full {{ $sActive ? 'bg-emerald-500 ring-2 ring-emerald-300/50' : 'bg-slate-400' }} indicator-dot"></span>
-                        <span class="indicator-text">{{ $sActive ? (app()->getLocale() === 'ar' ? 'معروض' : 'Active') : (app()->getLocale() === 'ar' ? 'مخفي' : 'Hidden') }}</span>
-                    </button>
-
-                    <!-- Edit Slide -->
-                    <button type="button" onclick="editSlide({{ $sId }})" class="action-btn text-primary hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer" title="{{ __('app.actions.edit') }}">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-
-                    <!-- Delete Slide -->
-                    <form action="{{ route('admin.hero-slides.destroy', $sId) }}" method="POST" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من حذف هذه الشريحة؟' : 'Are you sure you want to delete this slide?' }}');" class="inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="action-btn action-danger cursor-pointer" title="{{ __('app.actions.delete') }}">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
                 </div>
             </div>
         @empty
@@ -339,30 +430,33 @@
             </div>
 
             <!-- Modal Body Form -->
-            <form id="slideForm" method="POST" action="{{ route('admin.hero-slides.store') }}" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+            <form id="slideForm" method="POST" action="{{ route('admin.hero-slides.store') }}" enctype="multipart/form-data" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                 @csrf
                 <div id="methodContainer"></div>
                 <input type="hidden" name="slide_id" id="slide_id" value="">
 
-                <!-- Tab Navigation in Modal (Responsive Scrollable Pills) -->
-                <div class="p-1.5 rounded-2xl bg-slate-100/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none no-scrollbar flex-nowrap">
-                    <button type="button" onclick="switchModalTab('tab-product')" id="btn-tab-product" class="modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-gradient-to-r from-[#0A4F78] to-[#2A8FC2] text-white shadow-sm flex items-center gap-2">
-                        <i class="fa-solid fa-capsules text-emerald-300"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? '1. ربط المنتج والبطاقة' : '1. Product & Floating Card' }}</span>
-                    </button>
-                    <button type="button" onclick="switchModalTab('tab-copy')" id="btn-tab-copy" class="modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-heading text-sky-400"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? '2. العناوين والنصوص (EN / AR)' : '2. Titles & Copy (EN / AR)' }}</span>
-                    </button>
-                    <button type="button" onclick="switchModalTab('tab-cta')" id="btn-tab-cta" class="modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-pointer text-amber-400"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? '3. أزرار الإجراء (CTAs)' : '3. Action Buttons' }}</span>
-                    </button>
-                    <button type="button" onclick="switchModalTab('tab-media')" id="btn-tab-media" class="modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-image text-purple-400"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? '4. وسائط وخلفية الشريحة' : '4. Background Media' }}</span>
-                    </button>
-                </div>
+                <!-- Scrollable Body Content -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+
+                    <!-- Tab Navigation in Modal (Responsive Scrollable Pills) -->
+                    <div class="p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center gap-1.5 overflow-x-auto scrollbar-none no-scrollbar flex-nowrap">
+                        <button type="button" onclick="switchModalTab('tab-product')" id="btn-tab-product" class="modal-tab-pill active-tab flex-shrink-0">
+                            <i class="fa-solid fa-capsules text-emerald-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? '1. ربط المنتج والبطاقة' : '1. Product & Floating Card' }}</span>
+                        </button>
+                        <button type="button" onclick="switchModalTab('tab-copy')" id="btn-tab-copy" class="modal-tab-pill flex-shrink-0">
+                            <i class="fa-solid fa-heading text-sky-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? '2. العناوين والنصوص (EN / AR)' : '2. Titles & Copy (EN / AR)' }}</span>
+                        </button>
+                        <button type="button" onclick="switchModalTab('tab-cta')" id="btn-tab-cta" class="modal-tab-pill flex-shrink-0">
+                            <i class="fa-solid fa-arrow-pointer text-amber-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? '3. أزرار الإجراء (CTAs)' : '3. Action Buttons' }}</span>
+                        </button>
+                        <button type="button" onclick="switchModalTab('tab-media')" id="btn-tab-media" class="modal-tab-pill flex-shrink-0">
+                            <i class="fa-solid fa-image text-purple-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? '4. وسائط وخلفية الشريحة' : '4. Background Media' }}</span>
+                        </button>
+                    </div>
 
                 <!-- ========================================================================= -->
                 <!-- TAB 1: PRODUCT & FLOATING CARD (WITH LIVE PREVIEW) -->
@@ -428,17 +522,17 @@
                         </div>
 
                         <!-- LIVE STOREFRONT CARD VISUALIZER (Dark Cinematic Preview Box) -->
-                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] p-4 sm:p-5 border border-[#2A8FC2]/30 shadow-xl" id="cardPreviewContainer">
+                        <div class="relative overflow-hidden rounded-2xl preview-simulation-canvas p-4 sm:p-5 border shadow-xl" id="cardPreviewContainer" style="background: radial-gradient(circle at 50% 20%, #062b49 0%, #02121E 100%) !important; border: 1px solid rgba(42, 143, 194, 0.45) !important;">
                             <div class="flex items-center justify-between mb-3 text-xs">
-                                <span class="text-[10px] font-mono font-bold tracking-wider uppercase text-sky-300 flex items-center gap-1.5">
+                                <span class="preview-simulation-badge flex items-center gap-1.5" style="color: #38bdf8 !important;">
                                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    {{ app()->getLocale() === 'ar' ? 'معاينة حية لشكل البطاقة في المتجر' : 'Storefront Live Simulation' }}
+                                    {{ app()->getLocale() === 'ar' ? 'معاينة حية لشكل البطاقة في المتجر' : 'STOREFRONT LIVE SIMULATION' }}
                                 </span>
 
                                 <!-- EN / AR Preview Switcher -->
-                                <div class="inline-flex items-center p-0.5 rounded-lg bg-black/40 border border-white/10 text-[10px] font-bold">
-                                    <button type="button" onclick="setPreviewLang('en')" id="btnPreviewLangEn" class="px-2 py-0.5 rounded-md bg-[#2A8FC2] text-white">EN</button>
-                                    <button type="button" onclick="setPreviewLang('ar')" id="btnPreviewLangAr" class="px-2 py-0.5 rounded-md text-slate-400 hover:text-white">AR</button>
+                                <div class="inline-flex items-center p-0.5 rounded-lg bg-black/50 border border-white/15 text-[10px] font-bold">
+                                    <button type="button" onclick="setPreviewLang('en')" id="btnPreviewLangEn" class="px-2.5 py-1 rounded-md bg-[#2A8FC2] text-white">EN</button>
+                                    <button type="button" onclick="setPreviewLang('ar')" id="btnPreviewLangAr" class="px-2.5 py-1 rounded-md text-slate-300 hover:text-white">AR</button>
                                 </div>
                             </div>
 
@@ -671,64 +765,266 @@
                 </div>
 
                 <!-- ========================================================================= -->
-                <!-- TAB 3: DUAL CTAs (ACTION BUTTONS) -->
+                <!-- TAB 3: DUAL CTAs & SYSTEM SECTION REDIRECT STUDIO -->
                 <!-- ========================================================================= -->
-                <div id="tab-cta" class="modal-tab-content space-y-4 hidden">
-                    <!-- Primary CTA -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 space-y-3.5">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-md bg-emerald-600 text-white flex items-center justify-center text-xs font-black">1</span>
-                            <span class="text-xs font-extrabold text-emerald-900 dark:text-emerald-300">
-                                {{ app()->getLocale() === 'ar' ? 'زر الإجراء الرئيسي (Primary Action Button)' : 'Primary Action Button' }}
+                <div id="tab-cta" class="modal-tab-content space-y-5 hidden">
+                    
+                    <!-- LIVE DUAL BUTTON STOREFRONT SIMULATOR -->
+                    <div class="p-4 sm:p-5 rounded-2xl preview-simulation-canvas border shadow-xl space-y-3" style="background: radial-gradient(circle at 50% 20%, #062b49 0%, #02121E 100%) !important; border: 1px solid rgba(42, 143, 194, 0.45) !important;">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="preview-simulation-badge flex items-center gap-1.5" style="color: #38bdf8 !important;">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                {{ app()->getLocale() === 'ar' ? 'محاكاة حية لأزرار الشريحة في المتجر' : 'STOREFRONT LIVE BUTTON SIMULATION' }}
                             </span>
-                        </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Text (EN)</label>
-                                <input type="text" name="primary_cta_text_en" id="modal_primary_cta_text_en" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="e.g. EXPLORE REGIONS">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1" dir="rtl">Text (AR)</label>
-                                <input type="text" name="primary_cta_text_ar" id="modal_primary_cta_text_ar" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="مثال: استكشف الأقاليم" dir="rtl">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Target Link URL</label>
-                                <input type="text" name="primary_cta_link" id="modal_primary_cta_link" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="e.g. #five-blue-zones or /products">
+                            <div class="inline-flex items-center p-0.5 rounded-lg bg-black/50 border border-white/15 text-[10px] font-bold">
+                                <button type="button" onclick="setCtaPreviewLang('en')" id="btnCtaLangEn" class="px-2.5 py-1 rounded-md bg-[#2A8FC2] text-white">EN</button>
+                                <button type="button" onclick="setCtaPreviewLang('ar')" id="btnCtaLangAr" class="px-2.5 py-1 rounded-md text-slate-300 hover:text-white">AR</button>
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Button Visual Style</label>
-                            <select name="primary_cta_style" id="modal_primary_cta_style" class="form-select text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 w-full sm:w-60">
-                                <option value="emerald">Emerald Green Solid (#67B34A)</option>
-                                <option value="cyan">Cyan Blue Solid (#2A8FC2)</option>
-                                <option value="white">Luxury White Solid</option>
-                            </select>
+                        <!-- Button Stage Preview -->
+                        <div class="py-6 px-4 rounded-xl preview-simulation-stage flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 transition-all" id="ctaPreviewStage" style="background: rgba(0, 0, 0, 0.5) !important; border: 1px solid rgba(255, 255, 255, 0.12) !important;">
+                            <a href="javascript:void(0)" id="previewBtn1" class="w-full sm:w-auto px-7 py-3 rounded-full text-xs font-black uppercase tracking-widest text-center shadow-lg transition-all flex items-center justify-center gap-2 bg-[#67B34A] text-white">
+                                <span id="previewBtn1Text">DISCOVER OUR STORY</span>
+                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </a>
+
+                            <a href="javascript:void(0)" id="previewBtn2" class="w-full sm:w-auto px-7 py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 bg-white/10 text-white border border-white/30 backdrop-blur-md">
+                                <span id="previewBtn2Text">EXPLORE PRODUCTS</span>
+                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Secondary CTA -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 space-y-3.5">
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-md bg-slate-400 text-white flex items-center justify-center text-xs font-black">2</span>
-                            <span class="text-xs font-extrabold text-slate-900 dark:text-slate-200">
-                                {{ app()->getLocale() === 'ar' ? 'زر الإجراء الثانوي (Secondary Button)' : 'Secondary Action Button' }}
-                            </span>
+                    <!-- 1. PRIMARY BUTTON STUDIO (CTA 1) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border-2 border-emerald-500/25 dark:border-emerald-500/30 space-y-4 shadow-xs">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-wrap gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
+                                    1
+                                </span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-sm font-black text-slate-900 dark:text-white">
+                                            {{ app()->getLocale() === 'ar' ? 'زر الإجراء الرئيسي (Primary Action Button)' : 'Primary Action Button (CTA 1)' }}
+                                        </h4>
+                                        <span id="badgePrimaryStatus" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                                            {{ app()->getLocale() === 'ar' ? 'مفعل وظاهر' : 'Visible' }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                                        {{ app()->getLocale() === 'ar' ? 'تحكم في نص الزر، الرابط، وإمكانية إخفائه أو إظهاره في الشريحة' : 'Configure label, system redirect target, or hide this button' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Visibility Switch -->
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
+                                    {{ app()->getLocale() === 'ar' ? 'عرض الزر في الشريحة' : 'Show Button' }}
+                                </span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_primary_cta" id="modal_show_primary_cta" value="1" class="sr-only peer" checked onchange="updateLiveCtaPreview()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
+                                </label>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Labels & Redirect Section -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Text (EN)</label>
-                                <input type="text" name="secondary_cta_text_en" id="modal_secondary_cta_text_en" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="e.g. SHOP CATALOG">
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center justify-between">
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نص الزر الأول (EN)' : 'Button Label (EN)' }}</span>
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800">EN</span>
+                                </label>
+                                <input type="text" name="primary_cta_text_en" id="modal_primary_cta_text_en" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" placeholder="e.g. DISCOVER OUR STORY" oninput="updateLiveCtaPreview()">
                             </div>
+
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1" dir="rtl">Text (AR)</label>
-                                <input type="text" name="secondary_cta_text_ar" id="modal_secondary_cta_text_ar" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="مثال: تسوق الكتالوج" dir="rtl">
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center justify-between" dir="rtl">
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نص الزر الأول بالعربية' : 'Button Label (AR)' }}</span>
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">AR</span>
+                                </label>
+                                <input type="text" name="primary_cta_text_ar" id="modal_primary_cta_text_ar" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" placeholder="مثال: اكتشف قصتنا وتراثنا" dir="rtl" oninput="updateLiveCtaPreview()">
                             </div>
+
+                            <!-- Section Selector -->
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">Target Link URL</label>
-                                <input type="text" name="secondary_cta_link" id="modal_secondary_cta_link" class="form-control text-xs rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100" placeholder="e.g. /products">
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-compass text-emerald-600"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'اختر وجهة التوجيه (أقسام الموقع أو الصفحات)' : 'Redirect Target Destination / Section' }}</span>
+                                </label>
+                                <select id="select_primary_section" class="form-select text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" onchange="applyCtaSection(1, this.value)">
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '📍 أقسام الصفحة الرئيسية (Scroll Anchors)' : '📍 Landing Page Sections' }}">
+                                        <option value="#who-we-are">#who-we-are — {{ app()->getLocale() === 'ar' ? 'قصتنا وتراث المعمرين' : 'Centenarian Story & Heritage' }}</option>
+                                        <option value="#featured-products">#featured-products — {{ app()->getLocale() === 'ar' ? 'المستحضرات الرائدة' : 'Flagship Formulations' }}</option>
+                                        <option value="#products-vertical">#products-vertical — {{ app()->getLocale() === 'ar' ? 'المستحضرات السريرية' : 'Clinical Longevity Preparations' }}</option>
+                                        <option value="#blue-mind-flagship">#blue-mind-flagship — {{ app()->getLocale() === 'ar' ? 'قسم بلو مايند الرائد' : 'Blue Mind Spotlight' }}</option>
+                                        <option value="#five-blue-zones">#five-blue-zones — {{ app()->getLocale() === 'ar' ? 'أقاليم المناطق الزرقاء الخمس' : '5 Blue Zones Regions' }}</option>
+                                        <option value="#bluemint-preps">#bluemint-preps — {{ app()->getLocale() === 'ar' ? 'المستحضرات الذهنية' : 'Nootropic Formulations' }}</option>
+                                        <option value="#bz-clinical-formulations-section">#bz-clinical-formulations-section — {{ app()->getLocale() === 'ar' ? 'أبحاث العلوم الخلوية' : 'Cellular Science Section' }}</option>
+                                        <option value="#new-arrivals">#new-arrivals — {{ app()->getLocale() === 'ar' ? 'أحدث التركيبات' : 'New Arrivals' }}</option>
+                                        <option value="#philosophy">#philosophy — {{ app()->getLocale() === 'ar' ? 'ركائز طول العمر الست' : '6 Longevity Pillars' }}</option>
+                                        <option value="#blue-zone-journal">#blue-zone-journal — {{ app()->getLocale() === 'ar' ? 'المجلة والمقالات' : 'Longevity Journal & News' }}</option>
+                                        <option value="#final-cta">#final-cta — {{ app()->getLocale() === 'ar' ? 'بروتوكول المعمرين' : 'Final Protocol CTA' }}</option>
+                                    </optgroup>
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '🌐 صفحات النظام الرئيسية (System Pages)' : '🌐 System Pages & Routes' }}">
+                                        <option value="/products">/products — {{ app()->getLocale() === 'ar' ? 'المتجر وكافة المنتجات' : 'Full Products Catalog' }}</option>
+                                        <option value="/about">/about — {{ app()->getLocale() === 'ar' ? 'عن بلو زون' : 'About Blue Zone' }}</option>
+                                        <option value="/science">/science — {{ app()->getLocale() === 'ar' ? 'أبحاث العلوم الخلوية' : 'Longevity Science' }}</option>
+                                        <option value="/contact">/contact — {{ app()->getLocale() === 'ar' ? 'الاستشارة والتواصل' : 'Contact Us' }}</option>
+                                        <option value="/cart">/cart — {{ app()->getLocale() === 'ar' ? 'سلة المشتريات' : 'Shopping Cart' }}</option>
+                                        <option value="/checkout">/checkout — {{ app()->getLocale() === 'ar' ? 'إتمام الشراء' : 'Checkout' }}</option>
+                                        <option value="/faqs">/faqs — {{ app()->getLocale() === 'ar' ? 'الأسئلة الشائعة' : 'FAQs' }}</option>
+                                        <option value="/blog">/blog — {{ app()->getLocale() === 'ar' ? 'المدونة' : 'Blog / Articles' }}</option>
+                                    </optgroup>
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '💊 منتج محدد في المتجر (Products)' : '💊 Direct Product Link' }}">
+                                        @foreach($products as $p)
+                                             <option value="/products/{{ $p->slug }}">/products/{{ $p->slug }} — {{ $p->name_en }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                    <option value="custom">✏️ {{ app()->getLocale() === 'ar' ? 'رابط مخصص يدوي (Custom URL)...' : 'Custom URL / External Link...' }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Manual Link Input -->
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-link text-slate-400"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'الرابط النهائي للزر الأول (Target URL / Anchor)' : 'Target Link URL / Anchor' }}</span>
+                                </label>
+                                <input type="text" name="primary_cta_link" id="modal_primary_cta_link" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" placeholder="#who-we-are or /products" oninput="syncCtaDropdownFromInput(1, this.value)">
+                            </div>
+
+                            <!-- Style Selector -->
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-palette text-emerald-600"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'تصميم ونمط الزر الأول' : 'Button Visual Theme & Style' }}</span>
+                                </label>
+                                <select name="primary_cta_style" id="modal_primary_cta_style" class="form-select text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white w-full sm:w-80 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" onchange="updateLiveCtaPreview()">
+                                    <option value="emerald">Emerald Green Solid (#67B34A) — أخضر زمردي أساسي</option>
+                                    <option value="cyan">Cyan Blue Solid (#2A8FC2) — أزرق سيان حيوي</option>
+                                    <option value="white">Luxury White Solid — أبيض ملكي فخم</option>
+                                    <option value="glass">Glass Outline Blur — زجاجي شفاف شبه معتم</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. SECONDARY BUTTON STUDIO (CTA 2) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border-2 border-[#2A8FC2]/25 dark:border-[#2A8FC2]/30 space-y-4 shadow-xs">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-wrap gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-xl bg-[#0A4F78] text-white flex items-center justify-center text-xs font-black shadow-xs">
+                                    2
+                                </span>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-sm font-black text-slate-900 dark:text-white">
+                                            {{ app()->getLocale() === 'ar' ? 'زر الإجراء الثانوي (Secondary Action Button)' : 'Secondary Action Button (CTA 2)' }}
+                                        </h4>
+                                        <span id="badgeSecondaryStatus" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30">
+                                            {{ app()->getLocale() === 'ar' ? 'مفعل وظاهر' : 'Visible' }}
+                                        </span>
+                                    </div>
+                                    <span class="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
+                                        {{ app()->getLocale() === 'ar' ? 'تحكم في نص الزر الثاني ووجهته أو إخفائه' : 'Configure secondary button label, destination, or hide this button' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Visibility Switch -->
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xs font-bold text-slate-900 dark:text-slate-100">
+                                    {{ app()->getLocale() === 'ar' ? 'عرض الزر في الشريحة' : 'Show Button' }}
+                                </span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="show_secondary_cta" id="modal_show_secondary_cta" value="1" class="sr-only peer" checked onchange="updateLiveCtaPreview()">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0A4F78] shadow-inner"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Labels & Redirect Section -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center justify-between">
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نص الزر الثاني (EN)' : 'Button Label (EN)' }}</span>
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 font-bold border border-sky-200 dark:border-sky-800">EN</span>
+                                </label>
+                                <input type="text" name="secondary_cta_text_en" id="modal_secondary_cta_text_en" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-[#2A8FC2] focus:ring-1 focus:ring-[#2A8FC2]" placeholder="e.g. EXPLORE PRODUCTS" oninput="updateLiveCtaPreview()">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center justify-between" dir="rtl">
+                                    <span>{{ app()->getLocale() === 'ar' ? 'نص الزر الثاني بالعربية' : 'Button Label (AR)' }}</span>
+                                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">AR</span>
+                                </label>
+                                <input type="text" name="secondary_cta_text_ar" id="modal_secondary_cta_text_ar" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-[#2A8FC2] focus:ring-1 focus:ring-[#2A8FC2]" placeholder="مثال: استكشف كافة التركيبات" dir="rtl" oninput="updateLiveCtaPreview()">
+                            </div>
+
+                            <!-- Section Selector -->
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-compass text-[#2A8FC2]"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'اختر وجهة التوجيه (أقسام الموقع أو الصفحات)' : 'Redirect Target Destination / Section' }}</span>
+                                </label>
+                                <select id="select_secondary_section" class="form-select text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#2A8FC2] focus:ring-1 focus:ring-[#2A8FC2]" onchange="applyCtaSection(2, this.value)">
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '📍 أقسام الصفحة الرئيسية (Scroll Anchors)' : '📍 Landing Page Sections' }}">
+                                        <option value="#who-we-are">#who-we-are — {{ app()->getLocale() === 'ar' ? 'قصتنا وتراث المعمرين' : 'Centenarian Story & Heritage' }}</option>
+                                        <option value="#featured-products">#featured-products — {{ app()->getLocale() === 'ar' ? 'المستحضرات الرائدة' : 'Flagship Formulations' }}</option>
+                                        <option value="#products-vertical">#products-vertical — {{ app()->getLocale() === 'ar' ? 'المستحضرات السريرية' : 'Clinical Longevity Preparations' }}</option>
+                                        <option value="#blue-mind-flagship">#blue-mind-flagship — {{ app()->getLocale() === 'ar' ? 'قسم بلو مايند الرائد' : 'Blue Mind Spotlight' }}</option>
+                                        <option value="#five-blue-zones">#five-blue-zones — {{ app()->getLocale() === 'ar' ? 'أقاليم المناطق الزرقاء الخمس' : '5 Blue Zones Regions' }}</option>
+                                        <option value="#bluemint-preps">#bluemint-preps — {{ app()->getLocale() === 'ar' ? 'المستحضرات الذهنية' : 'Nootropic Formulations' }}</option>
+                                        <option value="#bz-clinical-formulations-section">#bz-clinical-formulations-section — {{ app()->getLocale() === 'ar' ? 'أبحاث العلوم الخلوية' : 'Cellular Science Section' }}</option>
+                                        <option value="#new-arrivals">#new-arrivals — {{ app()->getLocale() === 'ar' ? 'أحدث التركيبات' : 'New Arrivals' }}</option>
+                                        <option value="#philosophy">#philosophy — {{ app()->getLocale() === 'ar' ? 'ركائز طول العمر الست' : '6 Longevity Pillars' }}</option>
+                                        <option value="#blue-zone-journal">#blue-zone-journal — {{ app()->getLocale() === 'ar' ? 'المجلة والمقالات' : 'Longevity Journal & News' }}</option>
+                                        <option value="#final-cta">#final-cta — {{ app()->getLocale() === 'ar' ? 'بروتوكول المعمرين' : 'Final Protocol CTA' }}</option>
+                                    </optgroup>
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '🌐 صفحات النظام الرئيسية (System Pages)' : '🌐 System Pages & Routes' }}">
+                                        <option value="/products">/products — {{ app()->getLocale() === 'ar' ? 'المتجر وكافة المنتجات' : 'Full Products Catalog' }}</option>
+                                        <option value="/about">/about — {{ app()->getLocale() === 'ar' ? 'عن بلو زون' : 'About Blue Zone' }}</option>
+                                        <option value="/science">/science — {{ app()->getLocale() === 'ar' ? 'أبحاث العلوم الخلوية' : 'Longevity Science' }}</option>
+                                        <option value="/contact">/contact — {{ app()->getLocale() === 'ar' ? 'الاستشارة والتواصل' : 'Contact Us' }}</option>
+                                        <option value="/cart">/cart — {{ app()->getLocale() === 'ar' ? 'سلة المشتريات' : 'Shopping Cart' }}</option>
+                                        <option value="/checkout">/checkout — {{ app()->getLocale() === 'ar' ? 'إتمام الشراء' : 'Checkout' }}</option>
+                                        <option value="/faqs">/faqs — {{ app()->getLocale() === 'ar' ? 'الأسئلة الشائعة' : 'FAQs' }}</option>
+                                        <option value="/blog">/blog — {{ app()->getLocale() === 'ar' ? 'المدونة' : 'Blog / Articles' }}</option>
+                                    </optgroup>
+                                    <optgroup label="{{ app()->getLocale() === 'ar' ? '💊 منتج محدد في المتجر (Products)' : '💊 Direct Product Link' }}">
+                                        @foreach($products as $p)
+                                            <option value="/products/{{ $p->slug }}">/products/{{ $p->slug }} — {{ $p->name_en }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                    <option value="custom">✏️ {{ app()->getLocale() === 'ar' ? 'رابط مخصص يدوي (Custom URL)...' : 'Custom URL / External Link...' }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Manual Link Input -->
+                            <div>
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-link text-slate-400"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'الرابط النهائي للزر الثاني (Target URL / Anchor)' : 'Target Link URL / Anchor' }}</span>
+                                </label>
+                                <input type="text" name="secondary_cta_link" id="modal_secondary_cta_link" class="form-control text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-[#2A8FC2] focus:ring-1 focus:ring-[#2A8FC2]" placeholder="/products" oninput="syncCtaDropdownFromInput(2, this.value)">
+                            </div>
+
+                            <!-- Style Selector -->
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-black text-slate-900 dark:text-slate-100 mb-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-palette text-[#2A8FC2]"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'تصميم ونمط الزر الثاني' : 'Button Visual Theme & Style' }}</span>
+                                </label>
+                                <select name="secondary_cta_style" id="modal_secondary_cta_style" class="form-select text-xs font-semibold rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white w-full sm:w-80 focus:border-[#2A8FC2] focus:ring-1 focus:ring-[#2A8FC2]" onchange="updateLiveCtaPreview()">
+                                    <option value="glass">Glass Outline Blur — زجاجي شفاف شبه معتم (افتراضي)</option>
+                                    <option value="emerald">Emerald Green Solid (#67B34A) — أخضر زمردي</option>
+                                    <option value="cyan">Cyan Blue Solid (#2A8FC2) — أزرق سيان حيوي</option>
+                                    <option value="white">Luxury White Solid — أبيض ملكي فخم</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -782,26 +1078,29 @@
                     </div>
                 </div>
 
-                <!-- Modal Sticky Footer (Backdrop Blur & Clear Actions) -->
-                <div class="sticky bottom-0 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white/95 dark:bg-[#031827]/95 backdrop-blur-md rounded-b-3xl">
-                    <span class="text-xs text-slate-400 hidden sm:inline-block">
-                        <i class="fa-solid fa-sparkles text-amber-500 mr-1 ml-1"></i>
-                        {{ app()->getLocale() === 'ar' ? 'التغييرات تنعكس مباشرة على الواجهة' : 'All updates sync directly to customer storefront' }}
-                    </span>
-
-                    <div class="flex items-center gap-2.5 ms-auto">
-                        <button type="button" onclick="closeSlideModal()" class="btn btn-secondary text-xs font-bold px-4 py-2 cursor-pointer">
-                            {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
-                        </button>
-                        <button type="submit" class="btn btn-primary text-xs font-bold shadow-md shadow-[#0A4F78]/25 px-6 py-2 cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'حفظ شريحة السلايدر' : 'Save Carousel Slide' }}</span>
-                        </button>
                     </div>
-                </div>
-            </form>
+                    <!-- /End Scrollable Body Content -->
+
+                    <!-- Fixed Modal Footer (Never overlaps content, perfectly accessible) -->
+                    <div class="flex-shrink-0 px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/95 dark:bg-[#02121E]/95 backdrop-blur-md">
+                        <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline-flex items-center gap-1.5 font-medium">
+                            <i class="fa-solid fa-sparkles text-amber-500"></i>
+                            {{ app()->getLocale() === 'ar' ? 'التغييرات تنعكس مباشرة على الواجهة' : 'All updates sync directly to customer storefront' }}
+                        </span>
+
+                        <div class="flex items-center gap-2.5 ms-auto">
+                            <button type="button" onclick="closeSlideModal()" class="btn btn-secondary text-xs font-bold px-4 py-2 cursor-pointer">
+                                {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
+                            </button>
+                            <button type="submit" class="btn btn-primary text-xs font-bold shadow-md shadow-[#0A4F78]/25 px-6 py-2 cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'حفظ شريحة السلايدر' : 'Save Carousel Slide' }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
     <!-- ========================================================================= -->
     <!-- INTERACTIVE SCRIPTS: LIVE REACTIVE PREVIEWS & AJAX TOGGLES -->
@@ -811,15 +1110,15 @@
 
         function switchModalTab(tabId) {
             document.querySelectorAll('.modal-tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.modal-tab-btn').forEach(btn => {
-                btn.className = "modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all flex items-center gap-2";
+            document.querySelectorAll('.modal-tab-pill').forEach(btn => {
+                btn.classList.remove('active-tab');
             });
 
             const content = document.getElementById(tabId);
             const btn = document.getElementById('btn-' + tabId);
             if (content) content.classList.remove('hidden');
             if (btn) {
-                btn.className = "modal-tab-btn flex-shrink-0 px-3.5 py-2 rounded-xl text-xs font-black transition-all bg-gradient-to-r from-[#0A4F78] to-[#2A8FC2] text-white shadow-sm flex items-center gap-2";
+                btn.classList.add('active-tab');
             }
         }
 
@@ -856,8 +1155,20 @@
                 document.getElementById('slide_id').value = '';
                 badge.classList.add('hidden');
                 title.textContent = "{{ app()->getLocale() === 'ar' ? 'إضافة شريحة عرض جديدة' : 'Add New Carousel Slide' }}";
+                
+                // Reset CTA Controls
+                document.getElementById('modal_show_primary_cta').checked = true;
+                document.getElementById('modal_show_secondary_cta').checked = true;
+                document.getElementById('modal_primary_cta_style').value = 'emerald';
+                document.getElementById('modal_secondary_cta_style').value = 'glass';
+                document.getElementById('select_primary_section').value = '#who-we-are';
+                document.getElementById('modal_primary_cta_link').value = '#who-we-are';
+                document.getElementById('select_secondary_section').value = '/products';
+                document.getElementById('modal_secondary_cta_link').value = '/products';
+
                 updateLiveCardPreview();
                 updateLiveHeadlinePreview();
+                updateLiveCtaPreview();
             }
 
             modal.classList.remove('hidden');
@@ -996,14 +1307,20 @@
                     document.getElementById('modal_subtitle_en').value = s.subtitle_en || '';
                     document.getElementById('modal_subtitle_ar').value = s.subtitle_ar || '';
 
-                    // Populate Tab 3: Dual CTAs
+                    // Populate Tab 3: Dual CTAs & Section Destinations
+                    document.getElementById('modal_show_primary_cta').checked = (s.show_primary_cta !== false);
                     document.getElementById('modal_primary_cta_text_en').value = s.primary_cta_text_en || '';
                     document.getElementById('modal_primary_cta_text_ar').value = s.primary_cta_text_ar || '';
                     document.getElementById('modal_primary_cta_link').value = s.primary_cta_link || '';
                     document.getElementById('modal_primary_cta_style').value = s.primary_cta_style || 'emerald';
+                    syncCtaDropdownFromInput(1, s.primary_cta_link || '');
+
+                    document.getElementById('modal_show_secondary_cta').checked = (s.show_secondary_cta !== false);
                     document.getElementById('modal_secondary_cta_text_en').value = s.secondary_cta_text_en || '';
                     document.getElementById('modal_secondary_cta_text_ar').value = s.secondary_cta_text_ar || '';
                     document.getElementById('modal_secondary_cta_link').value = s.secondary_cta_link || '';
+                    document.getElementById('modal_secondary_cta_style').value = s.secondary_cta_style || 'glass';
+                    syncCtaDropdownFromInput(2, s.secondary_cta_link || '');
 
                     // Populate Tab 4: Media
                     document.getElementById('modal_bg_image_url').value = s.bg_image || '';
@@ -1016,10 +1333,150 @@
 
                     updateLiveCardPreview();
                     updateLiveHeadlinePreview();
+                    updateLiveCtaPreview();
                 }
             } catch (err) {
                 console.error(err);
                 alert('Could not load slide data');
+            }
+        }
+
+        /* =========================================================================
+         * CTA STUDIO INTERACTIVE LOGIC (VISIBILITY, SECTIONS & REAL-TIME PREVIEW)
+         * ========================================================================= */
+        let currentCtaPreviewLang = 'en';
+
+        function setCtaPreviewLang(lang) {
+            currentCtaPreviewLang = lang;
+            const btnEn = document.getElementById('btnCtaLangEn');
+            const btnAr = document.getElementById('btnCtaLangAr');
+
+            if (lang === 'ar') {
+                btnAr.className = "px-2 py-0.5 rounded-md bg-[#2A8FC2] text-white";
+                btnEn.className = "px-2 py-0.5 rounded-md text-slate-400 hover:text-white";
+            } else {
+                btnEn.className = "px-2 py-0.5 rounded-md bg-[#2A8FC2] text-white";
+                btnAr.className = "px-2 py-0.5 rounded-md text-slate-400 hover:text-white";
+            }
+            updateLiveCtaPreview();
+        }
+
+        function applyCtaSection(ctaNum, val) {
+            const linkInput = document.getElementById(ctaNum === 1 ? 'modal_primary_cta_link' : 'modal_secondary_cta_link');
+            if (val === 'custom') {
+                linkInput.focus();
+                return;
+            }
+            linkInput.value = val;
+            updateLiveCtaPreview();
+        }
+
+        function syncCtaDropdownFromInput(ctaNum, val) {
+            const select = document.getElementById(ctaNum === 1 ? 'select_primary_section' : 'select_secondary_section');
+            if (!select) return;
+            let matched = false;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === val) {
+                    select.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                select.value = 'custom';
+            }
+            updateLiveCtaPreview();
+        }
+
+        function updateLiveCtaPreview() {
+            const isAr = (currentCtaPreviewLang === 'ar');
+
+            // Button 1
+            const show1 = document.getElementById('modal_show_primary_cta').checked;
+            const text1 = isAr 
+                ? (document.getElementById('modal_primary_cta_text_ar').value || document.getElementById('modal_primary_cta_text_en').value || 'اكتشف المزيد')
+                : (document.getElementById('modal_primary_cta_text_en').value || document.getElementById('modal_primary_cta_text_ar').value || 'DISCOVER OUR STORY');
+            const style1 = document.getElementById('modal_primary_cta_style').value || 'emerald';
+            const btn1 = document.getElementById('previewBtn1');
+            const btn1Text = document.getElementById('previewBtn1Text');
+            const badge1 = document.getElementById('badgePrimaryStatus');
+
+            if (badge1) {
+                badge1.className = show1
+                    ? "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                    : "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700";
+                badge1.textContent = show1
+                    ? "{{ app()->getLocale() === 'ar' ? 'مفعل وظاهر' : 'Visible' }}"
+                    : "{{ app()->getLocale() === 'ar' ? 'مخفي' : 'Hidden' }}";
+            }
+
+            if (btn1 && btn1Text) {
+                btn1Text.textContent = text1;
+                if (!show1) {
+                    btn1.style.display = 'none';
+                } else {
+                    btn1.style.display = 'inline-flex';
+                    btn1.className = "w-full sm:w-auto px-7 py-3 rounded-full text-xs font-black uppercase tracking-widest text-center shadow-lg transition-all flex items-center justify-center gap-2 " + getBtnClassFromStyle(style1);
+                }
+            }
+
+            // Button 2
+            const show2 = document.getElementById('modal_show_secondary_cta').checked;
+            const text2 = isAr 
+                ? (document.getElementById('modal_secondary_cta_text_ar').value || document.getElementById('modal_secondary_cta_text_en').value || 'تصفح الكتالوج')
+                : (document.getElementById('modal_secondary_cta_text_en').value || document.getElementById('modal_secondary_cta_text_ar').value || 'EXPLORE PRODUCTS');
+            const style2 = document.getElementById('modal_secondary_cta_style').value || 'glass';
+            const btn2 = document.getElementById('previewBtn2');
+            const btn2Text = document.getElementById('previewBtn2Text');
+            const badge2 = document.getElementById('badgeSecondaryStatus');
+
+            if (badge2) {
+                badge2.className = show2
+                    ? "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-cyan-500/15 text-[#0A4F78] dark:text-[#2A8FC2] border border-[#2A8FC2]/20"
+                    : "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700";
+                badge2.textContent = show2
+                    ? "{{ app()->getLocale() === 'ar' ? 'مفعل وظاهر' : 'Visible' }}"
+                    : "{{ app()->getLocale() === 'ar' ? 'مخفي' : 'Hidden' }}";
+            }
+
+            if (btn2 && btn2Text) {
+                btn2Text.textContent = text2;
+                if (!show2) {
+                    btn2.style.display = 'none';
+                } else {
+                    btn2.style.display = 'inline-flex';
+                    btn2.className = "w-full sm:w-auto px-7 py-3 rounded-full text-xs font-black uppercase tracking-widest text-center transition-all flex items-center justify-center gap-2 " + getBtnClassFromStyle(style2);
+                }
+            }
+
+            // If both hidden
+            const stage = document.getElementById('ctaPreviewStage');
+            if (stage) {
+                const noButtonsMsg = document.getElementById('noButtonsNotice');
+                if (!show1 && !show2) {
+                    if (!noButtonsMsg) {
+                        const notice = document.createElement('div');
+                        notice.id = 'noButtonsNotice';
+                        notice.className = 'text-xs text-amber-300 font-bold flex items-center gap-2 py-2';
+                        notice.innerHTML = '<i class="fa-solid fa-eye-slash"></i> {{ app()->getLocale() === "ar" ? "كلا الزرين مخفيان حالياً في هذه الشريحة" : "Both CTA buttons are currently hidden for this slide" }}';
+                        stage.appendChild(notice);
+                    }
+                } else if (noButtonsMsg) {
+                    noButtonsMsg.remove();
+                }
+            }
+        }
+
+        function getBtnClassFromStyle(style) {
+            switch (style) {
+                case 'cyan':
+                    return 'bg-[#2A8FC2] hover:bg-[#0A4F78] text-white shadow-[#2A8FC2]/40';
+                case 'white':
+                    return 'bg-white hover:bg-slate-100 text-[#031827] shadow-white/30';
+                case 'glass':
+                    return 'bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md';
+                default:
+                    return 'bg-[#67B34A] hover:bg-[#589c3e] text-white shadow-[#67B34A]/40';
             }
         }
 

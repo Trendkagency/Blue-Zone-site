@@ -300,9 +300,16 @@
                                         @currency($mainProduct->price)
                                     </span>
 
+                                    @php
+                                        $fDiscPct = round((((float)$mainProduct->price - (float)$mainProduct->sale_price) / (float)$mainProduct->price) * 100);
+                                        $fDiscLabel = $fDiscPct > 0 
+                                            ? ($isRtl ? "خصم {$fDiscPct}%" : "-{$fDiscPct}% OFF")
+                                            : ($isRtl ? 'عرض خاص' : 'Sale');
+                                    @endphp
                                     <span
-                                        class="rounded-md bg-[#67B34A]/10 px-2 py-0.5 text-[10px] font-black uppercase text-[#589c3e] dark:text-[#67B34A]">
-                                        {{ $isRtl ? 'عرض' : 'Sale' }}
+                                        class="rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-0.5 text-[10px] font-black uppercase text-white shadow-sm flex items-center gap-1 font-mono">
+                                        <i class="fa-solid fa-bolt text-[9px]"></i>
+                                        <span>{{ $fDiscLabel }}</span>
                                     </span>
 
                                 </div>
@@ -336,7 +343,7 @@
                                 <i class="fa-solid fa-cart-plus" aria-hidden="true"></i>
 
                                 <span>
-                                    {{ $isRtl ? 'أضف إلى السلة' : 'Add to Cart' }}
+                                    {{ \App\Models\Setting::get('btn_cart_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'أضف إلى السلة' : 'Add to Cart')) }}
                                 </span>
                             </button>
 

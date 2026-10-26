@@ -36,6 +36,9 @@
             <button type="button" class="tab-btn" data-tab-target="tab-store">
                 <i class="fa-solid fa-store mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.store') }}</span>
             </button>
+            <button type="button" class="tab-btn" data-tab-target="tab-products">
+                <i class="fa-solid fa-cart-shopping mr-1.5 ml-1.5 text-pink-500"></i> <span>{{ app()->getLocale() === 'ar' ? 'أزرار وإعدادات المنتجات' : 'Products & Buttons' }}</span>
+            </button>
             <button type="button" class="tab-btn" data-tab-target="tab-shipping">
                 <i class="fa-solid fa-truck-fast mr-1.5 ml-1.5"></i> <span>{{ __('admin.settings.tabs.shipping') }}</span>
             </button>
@@ -1352,6 +1355,254 @@
                         :description="app()->getLocale() == 'ar' ? 'السماح بتطبيق كوبونات ورموز الخصم في السلة والدفع.' : 'Permit discount codes during cart and checkout.'" 
                         :checked="$settings['enable_coupons'] ?? true" 
                     />
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Products & Action Buttons CMS Settings -->
+        <div id="tab-products" data-tab-content="admin-settings" style="display: none;">
+            <div class="card" style="padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 1.25rem; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <span class="badge" style="background: rgba(236, 72, 153, 0.15); color: #ec4899; font-family: monospace; font-size: 0.7rem; font-weight: 800; border: 1px solid rgba(236, 72, 153, 0.3);">
+                                CMS PRODUCT CONTROLLER
+                            </span>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-text);">
+                                <i class="fa-solid fa-cart-shopping" style="color: #ec4899; margin-left: 0.375rem; margin-right: 0.375rem;"></i>
+                                {{ app()->getLocale() === 'ar' ? 'إعدادات أزرار المنتجات ونصوص الإجراءات السريرية' : 'Product Action Buttons & Call-to-Action Settings' }}
+                            </h3>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin: 0;">
+                            {{ app()->getLocale() === 'ar' 
+                                ? 'تحكم كامل في نصوص وأيقونات أزرار الشراء الرئيسية وصفحة المنتج (مثل ADD TO CLINICAL PROTOCOL)، وأزرار الإضافة السريعة وبطاقات المتجر، وأزرار باقات البروتوكول التكاملي.'
+                                : 'Configure the primary product buy button (e.g. ADD TO CLINICAL PROTOCOL), catalog card action buttons, stock state labels, and protocol bundle CTAs.' }}
+                        </p>
+                    </div>
+
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-sm btn-secondary" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'إدارة كتالوج المنتجات والأقسام' : 'Product List & Section Toggles' }}</span>
+                    </a>
+                </div>
+
+                <!-- Live Button Simulator -->
+                <div style="background: linear-gradient(135deg, #02131F 0%, #0A4F78 100%); border-radius: 1rem; padding: 1.5rem; color: #ffffff; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #67B34A; display: inline-block;"></span>
+                            <span style="font-family: monospace; font-size: 0.75rem; font-weight: 800; color: #f472b6; letter-spacing: 0.05em; text-transform: uppercase;">
+                                {{ app()->getLocale() === 'ar' ? 'معاينة حية وتفاعلية للأزرار' : 'Live Interactive Button Previews' }}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-family: monospace;">{{ app()->getLocale() === 'ar' ? 'قوالب سريعة:' : 'Quick Presets:' }}</span>
+                            <button type="button" onclick="applySettingsBtnPreset('clinical')" class="btn btn-xs" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 0.5rem; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: 700; cursor: pointer;">Clinical</button>
+                            <button type="button" onclick="applySettingsBtnPreset('longevity')" class="btn btn-xs" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 0.5rem; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: 700; cursor: pointer;">Longevity</button>
+                            <button type="button" onclick="applySettingsBtnPreset('ecommerce')" class="btn btn-xs" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 0.5rem; padding: 0.25rem 0.6rem; font-size: 0.7rem; font-weight: 700; cursor: pointer;">Classic</button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; align-items: center;">
+                        <!-- Buy Box Preview -->
+                        <div style="text-align: center;">
+                            <span style="display: block; font-size: 0.7rem; font-family: monospace; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 0.5rem;">
+                                {{ app()->getLocale() === 'ar' ? 'زر الشراء بصفحة المنتج الرئيسي:' : 'Primary Buy Box Button:' }}
+                            </span>
+                            <div style="background: #0A4F78; border: 1px solid rgba(255,255,255,0.25); border-radius: 0.75rem; padding: 0.85rem 1.25rem; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-weight: 800; font-size: 0.85rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                                <i class="fa-solid {{ $settings['btn_buy_now_icon'] ?? 'fa-cart-shopping' }}" id="cmsPrevBtnIcon"></i>
+                                <span id="cmsPrevBtnText">{{ app()->getLocale() === 'ar' ? ($settings['btn_buy_now_text_ar'] ?? 'إضافة إلى السلة والبروتوكول') : ($settings['btn_buy_now_text_en'] ?? 'ADD TO CLINICAL PROTOCOL') }}</span>
+                            </div>
+                            <div id="cmsPrevBtnSubtext" style="font-size: 0.7rem; color: #67B34A; margin-top: 0.4rem; font-family: monospace;">
+                                <i class="fa-solid fa-circle-check" style="font-size: 0.65rem; margin-left: 0.25rem; margin-right: 0.25rem;"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? ($settings['btn_buy_now_subtext_ar'] ?? 'تركيبة سريرية موثقة') : ($settings['btn_buy_now_subtext_en'] ?? 'Clinically Verified Formulation') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Catalog Quick Add Preview -->
+                        <div style="text-align: center;">
+                            <span style="display: block; font-size: 0.7rem; font-family: monospace; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 0.5rem;">
+                                {{ app()->getLocale() === 'ar' ? 'زر بطاقات المتجر (Quick Add):' : 'Catalog Card Quick Add:' }}
+                            </span>
+                            <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 800; font-size: 0.8rem;">
+                                <i class="fa-solid fa-cart-plus"></i>
+                                <span id="cmsPrevQuickAdd">{{ app()->getLocale() === 'ar' ? ($settings['btn_quick_add_text_ar'] ?? 'إضافة سريعة') : ($settings['btn_quick_add_text_en'] ?? 'QUICK ADD') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Protocol Bundle Preview -->
+                        <div style="text-align: center;">
+                            <span style="display: block; font-size: 0.7rem; font-family: monospace; color: rgba(255,255,255,0.7); text-transform: uppercase; margin-bottom: 0.5rem;">
+                                {{ app()->getLocale() === 'ar' ? 'زر باقة البروتوكول التكاملي 1-Click:' : 'Protocol Bundle 1-Click:' }}
+                            </span>
+                            <div style="background: linear-gradient(90deg, #ec4899, #f43f5e); border: 1px solid rgba(255,255,255,0.25); border-radius: 0.75rem; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 800; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(236,72,153,0.3);">
+                                <i class="fa-solid fa-sparkles"></i>
+                                <span id="cmsPrevBundle">{{ app()->getLocale() === 'ar' ? ($settings['btn_bundle_buy_text_ar'] ?? 'إضافة البروتوكول التكاملي') : ($settings['btn_bundle_buy_text_en'] ?? 'ADD COMPLETE PROTOCOL') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 1: Main Buy Box Button -->
+                <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; color: var(--color-text);">
+                        <i class="fa-solid fa-square-check text-primary"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'زر الشراء الرئيسي بصفحة تفاصيل المنتج (Primary Buy Box Button)' : 'Primary Product Detail Page Buy Button' }}</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                        <x-forms.input 
+                            name="btn_buy_now_text_en" 
+                            id="cmsInputBtnBuyNowEn"
+                            :label="'Button Label (English)'" 
+                            :value="$settings['btn_buy_now_text_en'] ?? 'ADD TO CLINICAL PROTOCOL'" 
+                            placeholder="e.g. ADD TO CLINICAL PROTOCOL" 
+                            oninput="updateSettingsBtnPreview()"
+                        />
+                        <x-forms.input 
+                            name="btn_buy_now_text_ar" 
+                            id="cmsInputBtnBuyNowAr"
+                            :label="'نص زر الشراء (العربية)'" 
+                            :value="$settings['btn_buy_now_text_ar'] ?? 'إضافة إلى السلة والبروتوكول'" 
+                            placeholder="مثال: إضافة إلى السلة والبروتوكول" 
+                            dir="rtl"
+                            oninput="updateSettingsBtnPreview()"
+                        />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                        <x-forms.select 
+                            name="btn_buy_now_icon" 
+                            id="cmsInputBtnIcon"
+                            :label="app()->getLocale() === 'ar' ? 'أيقونة زر الشراء' : 'Buy Button FontAwesome Icon'" 
+                            :selected="$settings['btn_buy_now_icon'] ?? 'fa-cart-shopping'"
+                            :options="[
+                                'fa-cart-shopping' => 'fa-cart-shopping (Cart / عربة)',
+                                'fa-bolt' => 'fa-bolt (Lightning / طاقة)',
+                                'fa-capsules' => 'fa-capsules (Bioceutical / كبسولات)',
+                                'fa-shield-halved' => 'fa-shield-halved (Clinical / حماية سريرية)',
+                                'fa-bag-shopping' => 'fa-bag-shopping (Shopping Bag / حقيبة)',
+                                'fa-plus' => 'fa-plus (Add Plus / إضافة)',
+                            ]"
+                            onchange="updateSettingsBtnPreview()"
+                        />
+
+                        <x-forms.input 
+                            name="btn_buy_now_subtext_en" 
+                            id="cmsInputSubtextEn"
+                            :label="'Trust / Guarantee Subtext (EN)'" 
+                            :value="$settings['btn_buy_now_subtext_en'] ?? 'Clinically Verified Formulation • 100% Purity'" 
+                            placeholder="e.g. Clinically Verified Formulation • 100% Purity" 
+                            oninput="updateSettingsBtnPreview()"
+                        />
+
+                        <x-forms.input 
+                            name="btn_buy_now_subtext_ar" 
+                            id="cmsInputSubtextAr"
+                            :label="'نص الضمان والمطابقة أسفل الزر (AR)'" 
+                            :value="$settings['btn_buy_now_subtext_ar'] ?? 'تركيبة سريرية موثقة • نقاء دوائي 100%'" 
+                            placeholder="مثال: تركيبة سريرية موثقة • نقاء دوائي 100%" 
+                            dir="rtl"
+                            oninput="updateSettingsBtnPreview()"
+                        />
+                    </div>
+                </div>
+
+                <!-- Section 2: Catalog Cards & Quick Actions -->
+                <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; color: var(--color-text);">
+                        <i class="fa-solid fa-layer-group text-success"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'أزرار بطاقات المتجر والإضافة السريعة (Catalog Cards & Quick Add)' : 'Catalog Cards & Quick Add Action Buttons' }}</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+                        <x-forms.input 
+                            name="btn_quick_add_text_en" 
+                            id="cmsInputQuickAddEn"
+                            :label="'Quick Add (EN)'" 
+                            :value="$settings['btn_quick_add_text_en'] ?? 'QUICK ADD'" 
+                            oninput="updateSettingsBtnPreview()"
+                        />
+                        <x-forms.input 
+                            name="btn_quick_add_text_ar" 
+                            id="cmsInputQuickAddAr"
+                            :label="'إضافة سريعة (AR)'" 
+                            :value="$settings['btn_quick_add_text_ar'] ?? 'إضافة سريعة'" 
+                            dir="rtl"
+                            oninput="updateSettingsBtnPreview()"
+                        />
+                        <x-forms.input 
+                            name="btn_view_details_text_en" 
+                            :label="'View Dossier (EN)'" 
+                            :value="$settings['btn_view_details_text_en'] ?? 'VIEW DOSSIER'" 
+                        />
+                        <x-forms.input 
+                            name="btn_view_details_text_ar" 
+                            :label="'عرض الملف السريري (AR)'" 
+                            :value="$settings['btn_view_details_text_ar'] ?? 'عرض الملف السريري'" 
+                            dir="rtl"
+                        />
+                    </div>
+                </div>
+
+                <!-- Section 3: Availability & Protocol Bundle -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Stock State Labels -->
+                    <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; color: #d97706;">
+                            <i class="fa-solid fa-boxes-packing"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'نصوص نفاد المخزون والحجز المسبق' : 'Out of Stock & Pre-Order States' }}</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <x-forms.input 
+                                name="btn_out_of_stock_text_en" 
+                                :label="'Out of Stock (EN)'" 
+                                :value="$settings['btn_out_of_stock_text_en'] ?? 'CURRENTLY OUT OF STOCK'" 
+                            />
+                            <x-forms.input 
+                                name="btn_out_of_stock_text_ar" 
+                                :label="'نفدت الكمية (AR)'" 
+                                :value="$settings['btn_out_of_stock_text_ar'] ?? 'نفذت الكمية حالياً'" 
+                                dir="rtl"
+                            />
+                            <x-forms.input 
+                                name="btn_preorder_text_en" 
+                                :label="'Pre-Order (EN)'" 
+                                :value="$settings['btn_preorder_text_en'] ?? 'PRE-ORDER PROTOCOL'" 
+                            />
+                            <x-forms.input 
+                                name="btn_preorder_text_ar" 
+                                :label="'حجز مسبق (AR)'" 
+                                :value="$settings['btn_preorder_text_ar'] ?? 'طلب حجز مسبق'" 
+                                dir="rtl"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Protocol Bundle 1-Click Button -->
+                    <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 1rem; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-weight: 800; font-size: 0.95rem; color: #ec4899;">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'زر باقة البروتوكول التكاملي 1-Click' : 'Protocol Bundle 1-Click Button' }}</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <x-forms.input 
+                                name="btn_bundle_buy_text_en" 
+                                id="cmsInputBundleEn"
+                                :label="'Bundle Action Text (EN)'" 
+                                :value="$settings['btn_bundle_buy_text_en'] ?? 'ADD COMPLETE PROTOCOL TO CART'" 
+                                oninput="updateSettingsBtnPreview()"
+                            />
+                            <x-forms.input 
+                                name="btn_bundle_buy_text_ar" 
+                                id="cmsInputBundleAr"
+                                :label="'نص زر الباقة (AR)'" 
+                                :value="$settings['btn_bundle_buy_text_ar'] ?? 'إضافة البروتوكول التكاملي بالكامل للسلة'" 
+                                dir="rtl"
+                                oninput="updateSettingsBtnPreview()"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3707,6 +3958,110 @@
             const cardStyleSelect = document.querySelector('[name="pillars_card_style"]');
             if (cardStyleSelect) cardStyleSelect.value = 'adaptive';
             expandAllPillars();
+        }
+
+        function updateSettingsBtnPreview() {
+            const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
+            const buyNowEn = document.getElementById('cmsInputBtnBuyNowEn')?.value;
+            const buyNowAr = document.getElementById('cmsInputBtnBuyNowAr')?.value;
+            const subtextEn = document.getElementById('cmsInputSubtextEn')?.value;
+            const subtextAr = document.getElementById('cmsInputSubtextAr')?.value;
+            const quickAddEn = document.getElementById('cmsInputQuickAddEn')?.value;
+            const quickAddAr = document.getElementById('cmsInputQuickAddAr')?.value;
+            const bundleEn = document.getElementById('cmsInputBundleEn')?.value;
+            const bundleAr = document.getElementById('cmsInputBundleAr')?.value;
+            const iconClass = document.getElementById('cmsInputBtnIcon')?.value || document.querySelector('[name="btn_buy_now_icon"]')?.value;
+
+            const prevBtnText = document.getElementById('cmsPrevBtnText');
+            if (prevBtnText) {
+                prevBtnText.textContent = isAr ? (buyNowAr || 'إضافة إلى السلة والبروتوكول') : (buyNowEn || 'ADD TO CLINICAL PROTOCOL');
+            }
+
+            const prevIcon = document.getElementById('cmsPrevBtnIcon');
+            if (prevIcon && iconClass) {
+                prevIcon.className = `fa-solid ${iconClass}`;
+            }
+
+            const prevSubtext = document.getElementById('cmsPrevBtnSubtext');
+            if (prevSubtext) {
+                const subVal = isAr ? subtextAr : subtextEn;
+                if (subVal && subVal.trim() !== '') {
+                    prevSubtext.style.display = 'block';
+                    prevSubtext.innerHTML = `<i class="fa-solid fa-circle-check" style="font-size: 0.65rem; margin-left: 0.25rem; margin-right: 0.25rem;"></i><span>${subVal}</span>`;
+                } else {
+                    prevSubtext.style.display = 'none';
+                }
+            }
+
+            const prevQuickAdd = document.getElementById('cmsPrevQuickAdd');
+            if (prevQuickAdd) {
+                prevQuickAdd.textContent = isAr ? (quickAddAr || 'إضافة سريعة') : (quickAddEn || 'QUICK ADD');
+            }
+
+            const prevBundle = document.getElementById('cmsPrevBundle');
+            if (prevBundle) {
+                prevBundle.textContent = isAr ? (bundleAr || 'إضافة البروتوكول التكاملي') : (bundleEn || 'ADD COMPLETE PROTOCOL');
+            }
+        }
+
+        function applySettingsBtnPreset(preset) {
+            const presets = {
+                clinical: {
+                    buy_now_en: 'ADD TO CLINICAL PROTOCOL',
+                    buy_now_ar: 'إضافة إلى السلة والبروتوكول',
+                    icon: 'fa-cart-shopping',
+                    subtext_en: 'Clinically Verified Formulation • 100% Purity',
+                    subtext_ar: 'تركيبة سريرية موثقة • نقاء دوائي 100%',
+                    quick_add_en: 'QUICK ADD',
+                    quick_add_ar: 'إضافة سريعة',
+                    bundle_en: 'ADD COMPLETE PROTOCOL TO CART',
+                    bundle_ar: 'إضافة البروتوكول التكاملي بالكامل للسلة'
+                },
+                longevity: {
+                    buy_now_en: 'COMMENCE LONGEVITY REGIMEN',
+                    buy_now_ar: 'بدء برنامج طول العمر الحيوي',
+                    icon: 'fa-capsules',
+                    subtext_en: 'Targeted Longevity Biomarkers & Cellular Support',
+                    subtext_ar: 'دعم حيوي متقدم للمؤشرات الخلوية والعمر الصحي',
+                    quick_add_en: 'RESERVE',
+                    quick_add_ar: 'حجز فوري',
+                    bundle_en: 'START CELLULAR LONGEVITY STACK',
+                    bundle_ar: 'تفعيل باقة تعزيز الخلايا المتكاملة'
+                },
+                ecommerce: {
+                    buy_now_en: 'ADD TO SHOPPING BAG',
+                    buy_now_ar: 'أضف إلى حقيبة التسوق',
+                    icon: 'fa-bag-shopping',
+                    subtext_en: 'Fast Shipping • Satisfaction Guaranteed',
+                    subtext_ar: 'شحن سريع ومجاني • ضمان استرجاع موثوق',
+                    quick_add_en: 'ADD TO BAG',
+                    quick_add_ar: 'أضف للحقيبة',
+                    bundle_en: 'BUY COMPLETE BUNDLE NOW',
+                    bundle_ar: 'شراء الباقة بالكامل الآن'
+                }
+            };
+
+            const data = presets[preset];
+            if (!data) return;
+
+            const map = {
+                'btn_buy_now_text_en': data.buy_now_en,
+                'btn_buy_now_text_ar': data.buy_now_ar,
+                'btn_buy_now_icon': data.icon,
+                'btn_buy_now_subtext_en': data.subtext_en,
+                'btn_buy_now_subtext_ar': data.subtext_ar,
+                'btn_quick_add_text_en': data.quick_add_en,
+                'btn_quick_add_text_ar': data.quick_add_ar,
+                'btn_bundle_buy_text_en': data.bundle_en,
+                'btn_bundle_buy_text_ar': data.bundle_ar
+            };
+
+            for (const [key, val] of Object.entries(map)) {
+                const el = document.querySelector(`[name="${key}"]`);
+                if (el) el.value = val;
+            }
+
+            updateSettingsBtnPreview();
         }
     </script>
 </x-layouts.admin>

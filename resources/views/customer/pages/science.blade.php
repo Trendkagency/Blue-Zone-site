@@ -514,7 +514,7 @@
                                                                                focus-visible:ring-[#67B34A]"
                                     aria-label="{{ __('app.view_product') }}: {{ $product->name }}">
 
-                                    <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy"
+                                    <img src="{{ $image }}" alt="{{ $product->name }}" width="400" height="400" loading="lazy"
                                         decoding="async"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                                         class="max-w-full

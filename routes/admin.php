@@ -120,12 +120,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [ProductController::class, 'index'])->middleware('permission:products.view')->name('index');
             Route::post('/landing-section-settings', [ProductController::class, 'updateLandingSectionSettings'])->middleware('permission:products.edit')->name('landing-section-settings');
             Route::post('/details-section-settings', [ProductController::class, 'updateDetailsSectionSettings'])->middleware('permission:products.edit')->name('details-section-settings');
+            Route::post('/button-settings', [ProductController::class, 'updateButtonSettings'])->middleware('permission:products.edit')->name('button-settings');
             Route::post('/{id}/toggle-landing', [ProductController::class, 'toggleLandingVisibility'])->middleware('permission:products.edit')->name('toggle-landing');
             Route::get('/create', [ProductController::class, 'create'])->middleware('permission:products.create')->name('create');
             Route::post('/', [ProductController::class, 'store'])->middleware('permission:products.create')->name('store');
             Route::get('/{id}', [ProductController::class, 'show'])->middleware('permission:products.view')->name('show');
             Route::get('/{id}/edit', [ProductController::class, 'edit'])->middleware('permission:products.edit')->name('edit');
             Route::put('/{id}', [ProductController::class, 'update'])->middleware('permission:products.edit')->name('update');
+            Route::match(['post', 'put'], '/auto-create-draft', [ProductController::class, 'autoCreateDraft'])->middleware('permission:products.create')->name('auto-create-draft');
+            Route::match(['post', 'put'], '/{id}/auto-save-step', [ProductController::class, 'autoSaveStep'])->middleware('permission:products.edit')->name('auto-save-step');
             Route::delete('/{id}', [ProductController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
             Route::post('/{id}/restore', [ProductController::class, 'restore'])->middleware('permission:products.delete')->name('restore');
             Route::delete('/{id}/force-delete', [ProductController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');

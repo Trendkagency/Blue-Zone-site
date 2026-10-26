@@ -112,6 +112,64 @@ class CartController extends Controller
     }
 
     /**
+     * Add multiple synergistic bundle items to cart with controlled bundle discount.
+     */
+    public function addBundle(Request $request): JsonResponse|RedirectResponse
+    {
+        $items = $request->input('items', []);
+        if (empty($items) && $request->getContent()) {
+            $decoded = json_decode($request->getContent(), true);
+            $items = $decoded['items'] ?? [];
+        }
+
+        if (empty($items) || !is_array($items)) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' ? 'لم يتم تحديد عناصر الباقة.' : 'No bundle items selected.',
+            ], 422);
+        }
+
+        $summary = null;
+        $addedCount = 0;
+
+        foreach ($items as $item) {
+            $productId = $item['product_id'] ?? $item['id'] ?? null;
+            if (!$productId) continue;
+
+            $quantity = max(1, (int) ($item['quantity'] ?? 1));
+            $fallback = [
+                'id' => $productId,
+                'name_en' => $item['name_en'] ?? null,
+                'name_ar' => $item['name_ar'] ?? null,
+                'price' => isset($item['discounted_price']) ? (float)$item['discounted_price'] : ($item['price'] ?? null),
+                'image' => $item['image'] ?? null,
+                'slug' => $item['slug'] ?? null,
+            ];
+
+            try {
+                $summary = CartService::add($productId, $quantity, $fallback);
+                $addedCount++;
+            } catch (\Throwable $e) {
+                Log::warning('Add bundle item error: ' . $e->getMessage(), ['item' => $item]);
+            }
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => $addedCount > 0,
+                'message' => app()->getLocale() === 'ar'
+                    ? "تمت إضافة البروتوكول التكاملي ({$addedCount} منتجات) إلى السلة بنجاح مع الخصم المعتمد!"
+                    : "Synergistic protocol bundle ({$addedCount} items) added to cart with controlled discount!",
+                'cart' => $summary ?: CartService::getSummary(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', app()->getLocale() === 'ar'
+            ? 'تمت إضافة البروتوكول التكاملي إلى سلة مشترياتك!'
+            : 'Synergistic protocol bundle added to your cart!');
+    }
+
+    /**
      * Update item quantity.
      */
     public function update(Request $request): JsonResponse|RedirectResponse

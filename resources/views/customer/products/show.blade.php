@@ -83,8 +83,15 @@
     $sec4 = $getSecConf('sec4');
     $sec5 = $getSecConf('sec5');
     $sec6 = $getSecConf('sec6');
+
+    // Dynamic Product Buttons Customizer Settings
+    $buyBtnText = \App\Models\Setting::get('btn_buy_now_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'إضافة إلى السلة والبروتوكول' : 'ADD TO CLINICAL PROTOCOL'));
+    $buyBtnIcon = \App\Models\Setting::get('btn_buy_now_icon', 'fa-cart-shopping');
+    $buyBtnSubtext = \App\Models\Setting::get('btn_buy_now_subtext_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'تركيبة سريرية موثقة • نقاء دوائي 100%' : 'Clinically Verified Formulation • 100% Purity'));
+    $bundleBtnText = \App\Models\Setting::get('btn_bundle_buy_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'إضافة البروتوكول التكاملي بالكامل للسلة' : 'Add Complete Protocol to Cart'));
     $secBuyBox = $getSecConf('buy_box');
     $secRelated = $getSecConf('related');
+    $bundleData = $isObj ? $product->getSynergisticBundle() : null;
 
     $pdSettings = [
         'dossier_enabled' => $secDossier['is_visible'],
@@ -297,6 +304,10 @@
                 id="product-main-img"
                 src="{{ $pImage }}" 
                 alt="{{ $pName }}" 
+                width="600"
+                height="600"
+                fetchpriority="high"
+                decoding="async"
                 onerror="this.onerror=null; this.src='/assets/products/{{ $pSlug }}.jpg'; this.onerror=function(){this.src='/assets/products/blue-mind.jpg';};" 
                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out" 
               />
@@ -323,6 +334,10 @@
                     class="w-20 h-20 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer {{ $idx === 0 ? 'border-[#67B34A] ring-2 ring-[#67B34A]/30' : 'border-[#0A4F78]/20 opacity-70 hover:opacity-100' }}">
                     <img src="{{ $tImg }}" 
                          alt="{{ $pName }} thumbnail {{ $idx + 1 }}" 
+                         width="80"
+                         height="80"
+                         loading="lazy"
+                         decoding="async"
                          class="w-full h-full object-cover" 
                          onerror="this.onerror=null; this.closest('button').style.display='none';" />
                   </button>
@@ -365,9 +380,11 @@
                 <div class="text-xl line-through text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono">
                   @currency($pPrice)
                 </div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#67B34A]/15 border border-[#67B34A]/30 text-[#67B34A] text-xs font-black uppercase tracking-wider">
-                  <i class="fa-solid fa-tag text-[10px]"></i>
-                  <span>{{ $isRtl ? "وفر {$discountPercentage}% اليوم" : "SAVE {$discountPercentage}% TODAY" }}</span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white border border-emerald-500/30 shadow-md">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="font-mono text-emerald-400 dark:text-[#B8D98A] font-black text-xs tracking-tight">
+                    {{ $isRtl ? "وفر {$discountPercentage}% اليوم" : "SAVE {$discountPercentage}% TODAY" }}
+                  </span>
                 </span>
               @endif
               <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full {{ $pStock > 10 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400' }}">
@@ -380,31 +397,44 @@
               {{ $pDescription }}
             </p>
 
-            <!-- Protocol Variant Selection Options -->
-            <div class="p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 space-y-3">
-              <span class="text-xs font-bold uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF] block">
-                <i class="fa-solid fa-layer-group text-primary mr-1 ml-1"></i> {{ $isRtl ? 'اختر خطة البروتوكول العلاجي:' : 'Select Protocol Duration:' }}
-              </span>
+            <!-- Dynamic Protocol Variant Selection Options -->
+            @php
+              // Calculate dynamic protocol duration pricing & discount directly from product data
+              $bundleSavingsPct = ($bundleData && !empty($bundleData['savings_percentage'])) ? (int)$bundleData['savings_percentage'] : 0;
+              $protocolDiscountPct = $bundleSavingsPct > 0 ? $bundleSavingsPct : ($discountPercentage > 0 ? $discountPercentage : 15);
+              $protocolMultiPrice = round(($displayPrice * 3) * (1 - ($protocolDiscountPct / 100)), 2);
+              $protocolMultiSavingsLabel = $isRtl ? "وفر {$protocolDiscountPct}%" : "SAVE {$protocolDiscountPct}%";
+            @endphp
+            <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 space-y-3 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-wider text-[#031827] dark:text-[#F6F5EF] flex items-center gap-1.5">
+                  <i class="fa-solid fa-layer-group text-primary"></i> 
+                  <span>{{ $isRtl ? 'اختر خطة البروتوكول العلاجي:' : 'Select Protocol Duration:' }}</span>
+                </span>
+                <span class="text-[10px] font-mono text-[#67B34A] font-bold">
+                  {{ $isRtl ? 'خصم مخصص للمدة' : 'Controlled Protocol Pricing' }}
+                </span>
+              </div>
               <div class="grid grid-cols-2 gap-3">
                 <button type="button" onclick="selectProtocolVariant(1, {{ $displayPrice }}, this)" 
-                  class="protocol-variant-btn p-3 rounded-xl border-2 border-[#67B34A] bg-[#67B34A]/5 text-left rtl:text-right transition-all cursor-pointer">
+                  class="protocol-variant-btn p-3.5 rounded-2xl border-2 border-[#67B34A] bg-[#67B34A]/5 text-left rtl:text-right transition-all cursor-pointer shadow-sm">
                   <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-extrabold text-[#031827] dark:text-white">{{ $isRtl ? 'بروتوكول 30 يوماً' : '30-Day Starter' }}</span>
-                    <span class="text-xs font-bold text-[#67B34A]">1x</span>
+                    <span class="text-xs font-black text-[#031827] dark:text-white">{{ $isRtl ? 'بروتوكول 30 يوماً' : '30-Day Starter' }}</span>
+                    <span class="text-xs font-bold text-[#67B34A] bg-[#67B34A]/10 px-1.5 py-0.5 rounded-md font-mono">1x</span>
                   </div>
-                  <span class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 block">{{ $packageSize }}</span>
+                  <span class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 block truncate">{{ $packageSize }}</span>
                 </button>
 
-                <button type="button" onclick="selectProtocolVariant(3, {{ round($displayPrice * 2.55, 2) }}, this)" 
-                  class="protocol-variant-btn p-3 rounded-xl border border-[#0A4F78]/20 hover:border-[#2A8FC2] text-left rtl:text-right transition-all cursor-pointer relative overflow-hidden">
-                  <span class="absolute top-0 right-0 rtl:right-auto rtl:left-0 text-[9px] font-black uppercase tracking-wider bg-[#0A4F78] text-white px-2 py-0.5 rounded-bl-lg rtl:rounded-bl-none rtl:rounded-br-lg">
-                    {{ $isRtl ? 'خصم 15%' : 'SAVE 15%' }}
+                <button type="button" onclick="selectProtocolVariant(3, {{ $protocolMultiPrice }}, this)" 
+                  class="protocol-variant-btn p-3.5 rounded-2xl border border-[#0A4F78]/20 hover:border-[#2A8FC2] text-left rtl:text-right transition-all cursor-pointer relative overflow-hidden bg-white/50 dark:bg-white/5 shadow-sm">
+                  <span class="absolute top-0 right-0 rtl:right-auto rtl:left-0 text-[10px] font-mono font-black uppercase tracking-wider bg-[#02131F] dark:bg-[#0A4F78] text-emerald-400 dark:text-[#B8D98A] border-b border-l rtl:border-l-0 rtl:border-r border-emerald-500/30 px-2.5 py-0.5 rounded-bl-xl rtl:rounded-bl-none rtl:rounded-br-xl shadow-xs">
+                    {{ $protocolMultiSavingsLabel }}
                   </span>
-                  <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs font-extrabold text-[#031827] dark:text-white">{{ $isRtl ? 'بروتوكول 90 يوماً' : '90-Day Cellular' }}</span>
-                    <span class="text-xs font-bold text-primary">3x</span>
+                  <div class="flex justify-between items-center mb-1 mt-1">
+                    <span class="text-xs font-black text-[#031827] dark:text-white">{{ $isRtl ? 'بروتوكول 90 يوماً' : '90-Day Cellular' }}</span>
+                    <span class="text-xs font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md font-mono">3x</span>
                   </div>
-                  <span class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 block">{{ $isRtl ? '3 عبوات كاملة (الأنسب للنتائج)' : '3 Complete Bottles (Recommended)' }}</span>
+                  <span class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 block truncate">{{ $isRtl ? '3 عبوات كاملة (الأنسب للنتائج)' : '3 Complete Bottles (Recommended)' }}</span>
                 </button>
               </div>
             </div>
@@ -426,17 +456,26 @@
                 </div>
               </div>
 
-              <div class="flex gap-4">
-                <button type="button" onclick="BLUEZONE_CART.add('{{ $pSlug }}', currentDetailQty); if(window.toast){ window.toast.success('{{ $isRtl ? 'تمت إضافة المستحضر إلى السلة بنجاح' : 'Added to Clinical Protocol Cart' }}'); }" 
-                  class="flex-1 py-4 px-6 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-xl cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-3">
-                  <i class="fa-solid fa-cart-shopping"></i>
-                  <span>{{ $isRtl ? 'إضافة إلى السلة والبروتوكول' : 'ADD TO CLINICAL PROTOCOL' }}</span>
-                </button>
+              <div class="space-y-2">
+                <div class="flex gap-4">
+                  <button type="button" onclick="BLUEZONE_CART.add('{{ $pSlug }}', currentDetailQty); if(window.toast){ window.toast.success('{{ $isRtl ? 'تمت إضافة المستحضر إلى السلة بنجاح' : 'Added to Clinical Protocol Cart' }}'); }" 
+                    class="flex-1 py-4 px-6 rounded-2xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs uppercase font-extrabold tracking-widest shadow-xl cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-3">
+                    <i class="fa-solid {{ $buyBtnIcon ?: 'fa-cart-shopping' }}"></i>
+                    <span>{{ $buyBtnText }}</span>
+                  </button>
 
-                <button type="button" onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" aria-label="Wishlist" 
-                  class="p-4 rounded-2xl border-2 border-[#0A4F78]/30 dark:border-[#2A8FC2]/40 text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78]/10 font-bold cursor-pointer transition-all">
-                  <i class="fa-regular fa-heart text-lg"></i>
-                </button>
+                  <button type="button" onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')" aria-label="Wishlist" 
+                    class="p-4 rounded-2xl border-2 border-[#0A4F78]/30 dark:border-[#2A8FC2]/40 text-[#0A4F78] dark:text-[#2A8FC2] hover:bg-[#0A4F78]/10 font-bold cursor-pointer transition-all">
+                    <i class="fa-regular fa-heart text-lg"></i>
+                  </button>
+                </div>
+
+                @if(!empty($buyBtnSubtext))
+                  <div class="text-[11px] font-mono text-[#67B34A] flex items-center justify-center gap-1.5 pt-0.5">
+                    <i class="fa-solid fa-circle-check text-[10px]"></i>
+                    <span>{{ $buyBtnSubtext }}</span>
+                  </div>
+                @endif
               </div>
             </div>
 
@@ -1039,11 +1078,315 @@
         </div>
         @endif
 
+        @php
+          $bundleData = $isObj ? $product->getSynergisticBundle() : null;
+        @endphp
+
         <!-- ========================================================================= -->
-        <!-- 3. COMPLEMENTARY PROTOCOL FORMULATIONS (RELATED PRODUCTS)                 -->
+        <!-- 3. COMPLEMENTARY PROTOCOL FORMULATIONS (RELATED PRODUCTS & BUNDLE)        -->
         <!-- ========================================================================= -->
-        @if($secRelated['is_visible'] && isset($relatedProducts) && count($relatedProducts) > 0)
-          <div class="space-y-6 pt-10 border-t border-[#0A4F78]/20 {{ $secRelated['responsive_class'] }}">
+        @if($secRelated['is_visible'])
+          <div class="space-y-10 pt-10 border-t border-[#0A4F78]/20 {{ $secRelated['responsive_class'] }}">
+
+            @if($bundleData && !empty($bundleData['enabled']) && !empty($bundleData['items']) && count($bundleData['items']) > 0)
+              <!-- ==========================================================
+                   SYNERGISTIC LONGEVITY PROTOCOL BUNDLE (CONTROLLED DISCOUNT)
+                   ========================================================== -->
+              <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#02131F] via-[#062B49] to-[#0A4F78] border-2 border-pink-500/30 p-6 sm:p-8 text-white shadow-2xl">
+                <!-- Glowing Ambient Accent Orbs -->
+                <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-pink-500/15 blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-[#67B34A]/20 blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 space-y-6">
+                  
+                  <!-- Bundle Header -->
+                  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                    <div class="space-y-1.5">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500 text-white font-mono text-xs font-black uppercase tracking-wider shadow-sm">
+                          <i class="fa-solid fa-sparkles text-[10px]"></i>
+                          {{ $bundleData['badge'] }}
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-white/10 text-white font-mono text-xs font-bold border border-white/15">
+                          <i class="fa-solid fa-link text-[#2A8FC2] mr-1 ml-1"></i>
+                          {{ $isRtl ? 'تكامل حيوي موثق سريرياً' : 'Clinically Validated Synergy' }}
+                        </span>
+                      </div>
+                      <h3 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+                        {{ $isRtl ? 'بروتوكول التكامل الحيوي الموصى به (خصم تلقائي)' : 'Recommended Synergistic Protocol Bundle' }}
+                      </h3>
+                      <p class="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
+                        {{ $isRtl 
+                            ? 'احصل على أقصى توافر حيوي ونتائج ممتدة عبر دمج المستحضرات التكميلية المتوافقة مع هذا المستحضر بخصم منسق خاص.' 
+                            : 'Achieve enhanced metabolic longevity and bio-cellular efficacy by combining complementary formulations together at a controlled protocol discount.' }}
+                      </p>
+                    </div>
+
+                    <div class="text-start md:text-end shrink-0">
+                      <span class="inline-block px-3 py-1.5 rounded-xl bg-emerald-500/20 text-[#B8D98A] font-mono text-xs font-black border border-emerald-500/30">
+                        <i class="fa-solid fa-badge-percent mr-1 ml-1"></i>
+                        {{ $isRtl ? "وفر {$bundleData['savings_percentage']}% مع الباقة" : "Save {$bundleData['savings_percentage']}% with Protocol" }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Visual Bundle Flow: Primary Product + Complementary Products = Total Box -->
+                  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- Products Flow Column (lg:col-span-8) -->
+                    <div class="lg:col-span-8 flex flex-col sm:flex-row items-center gap-4 flex-wrap">
+                      
+                      <!-- 1. Primary Product Card (Locked) -->
+                      <div class="w-full sm:w-44 p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md flex flex-col items-center text-center space-y-2 relative shadow-lg">
+                        <span class="absolute top-2.5 start-2.5 px-2 py-0.5 rounded-md bg-[#67B34A] text-white text-[9px] font-mono font-black uppercase">
+                          {{ $isRtl ? 'المستحضر الأساسي' : 'PRIMARY' }}
+                        </span>
+                        <div class="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 mt-3">
+                          <img src="{{ $pImage }}" alt="{{ $pName }}" width="80" height="80" loading="lazy" decoding="async" class="w-full h-full object-cover">
+                        </div>
+                        <div class="w-full">
+                          <div class="text-xs font-black text-white line-clamp-1" title="{{ $pName }}">{{ $pName }}</div>
+                          <div class="text-xs font-mono font-bold text-[#67B34A] mt-0.5">
+                            @currency($pSalePrice ?: $pPrice)
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Plus Separator -->
+                      <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-xs font-bold border border-white/20 shrink-0 shadow-sm">
+                        <i class="fa-solid fa-plus"></i>
+                      </div>
+
+                      <!-- 2. Complementary Products List -->
+                      @foreach($bundleData['items'] as $bIdx => $bProd)
+                        @php
+                          $bName = $isRtl && !empty($bProd->name_ar) ? $bProd->name_ar : ($bProd->name_en ?? '');
+                          $bImg = \App\Models\Product::normalizeUrl($bProd->primary_image_url ?? $bProd->image);
+                          $bPrice = (float) ($bProd->sale_price ?: $bProd->price);
+                        @endphp
+                        <label class="w-full sm:w-44 p-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 backdrop-blur-md flex flex-col items-center text-center space-y-2 relative shadow-lg cursor-pointer transition-all bz-bundle-store-item"
+                               data-prod-id="{{ $bProd->id }}"
+                               data-prod-price="{{ $bPrice }}"
+                               data-prod-name-en="{{ $bProd->name_en }}"
+                               data-prod-name-ar="{{ $bProd->name_ar }}"
+                               data-prod-slug="{{ $bProd->slug }}"
+                               data-prod-image="{{ $bImg }}">
+                          
+                          <input type="checkbox" checked 
+                                 class="absolute top-2.5 start-2.5 w-4 h-4 rounded text-pink-600 focus:ring-0 cursor-pointer bz-bundle-checkbox"
+                                 onchange="recalculateStorefrontBundle()">
+
+                          <div class="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 mt-3">
+                            <img src="{{ $bImg }}" alt="{{ $bName }}" width="80" height="80" loading="lazy" decoding="async" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                          </div>
+                          <div class="w-full">
+                            <div class="text-xs font-black text-white line-clamp-1" title="{{ $bName }}">{{ $bName }}</div>
+                            <div class="text-xs font-mono font-bold text-pink-300 mt-0.5">
+                              @currency($bPrice)
+                            </div>
+                          </div>
+                        </label>
+
+                        @if(!$loop->last)
+                          <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-xs font-bold border border-white/20 shrink-0 shadow-sm">
+                            <i class="fa-solid fa-plus"></i>
+                          </div>
+                        @endif
+                      @endforeach
+
+                    </div>
+
+                    <!-- Equal & Bundle Summary Action Card (lg:col-span-4) -->
+                    <div class="lg:col-span-4 p-5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl space-y-4 shadow-xl">
+                      <div class="space-y-2 border-b border-white/10 pb-3">
+                        <div class="flex items-center justify-between text-xs text-white/70 font-mono">
+                          <span>{{ $isRtl ? 'المجموع الأصلي للمستحضرات:' : 'Original Total:' }}</span>
+                          <span class="line-through" id="storefrontBundleOriginal">@currency($bundleData['total_original'])</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-pink-300 font-mono font-bold">
+                          <span>{{ $isRtl ? 'خصم باقة البروتوكول:' : 'Protocol Bundle Savings:' }}</span>
+                          <span id="storefrontBundleDiscount">-@currency($bundleData['discount_amount'])</span>
+                        </div>
+                        <div class="flex items-center justify-between text-base font-black text-white pt-1">
+                          <span>{{ $isRtl ? 'السعر النهائي للباقة:' : 'Bundle Price:' }}</span>
+                          <span class="text-xl font-mono text-[#67B34A]" id="storefrontBundleFinal">@currency($bundleData['final_price'])</span>
+                        </div>
+                      </div>
+
+                      <!-- 1-Click Buy Protocol Button -->
+                      <button type="button" 
+                              id="btnBuyStorefrontBundle"
+                              onclick="addCompleteBundleToCart()" 
+                              class="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-black uppercase tracking-wider shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20">
+                        <i class="fa-solid fa-cart-plus text-sm" id="bundleBtnIcon"></i>
+                        <span id="bundleBtnText">{{ $bundleBtnText }}</span>
+                      </button>
+
+                      <div class="text-[11px] text-center text-white/60 font-mono">
+                        <i class="fa-solid fa-shield-halved text-[#67B34A] mr-1 ml-1"></i>
+                        {{ $isRtl ? 'تطبق نسبة الخصم تلقائياً عند الدفع' : 'Controlled discount applied instantly' }}
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              <script>
+                // Storefront Dynamic Bundle Engine
+                const bzBundlePrimary = {
+                  id: {{ $pId }},
+                  price: {{ (float) ($pSalePrice ?: $pPrice) }},
+                  name_en: "{{ addslashes($product->name_en ?? '') }}",
+                  name_ar: "{{ addslashes($product->name_ar ?? '') }}",
+                  slug: "{{ $pSlug }}",
+                  image: "{{ $pImage }}",
+                };
+                const bzBundleDiscountType = "{{ $bundleData['discount_type'] }}";
+                const bzBundleDiscountValue = {{ (float) $bundleData['discount_value'] }};
+
+                function recalculateStorefrontBundle() {
+                  const items = document.querySelectorAll('.bz-bundle-store-item');
+                  let compTotal = 0;
+                  let selectedCount = 0;
+
+                  items.forEach(item => {
+                    const chk = item.querySelector('.bz-bundle-checkbox');
+                    if (chk && chk.checked) {
+                      compTotal += parseFloat(item.dataset.prodPrice) || 0;
+                      selectedCount++;
+                      item.style.opacity = '1';
+                    } else {
+                      item.style.opacity = '0.4';
+                    }
+                  });
+
+                  const originalTotal = bzBundlePrimary.price + compTotal;
+                  let discountAmount = 0;
+                  if (bzBundleDiscountType === 'percentage') {
+                    discountAmount = (originalTotal * bzBundleDiscountValue) / 100.0;
+                  } else {
+                    discountAmount = Math.min(originalTotal, bzBundleDiscountValue);
+                  }
+
+                  const finalPrice = Math.max(0, originalTotal - discountAmount);
+
+                  const origEl = document.getElementById('storefrontBundleOriginal');
+                  const discEl = document.getElementById('storefrontBundleDiscount');
+                  const finalEl = document.getElementById('storefrontBundleFinal');
+
+                  if (origEl) origEl.textContent = 'EGP ' + originalTotal.toFixed(2);
+                  if (discEl) discEl.textContent = '-EGP ' + discountAmount.toFixed(2);
+                  if (finalEl) finalEl.textContent = 'EGP ' + finalPrice.toFixed(2);
+                }
+
+                async function addCompleteBundleToCart() {
+                  const btn = document.getElementById('btnBuyStorefrontBundle');
+                  const icon = document.getElementById('bundleBtnIcon');
+                  const text = document.getElementById('bundleBtnText');
+                  const isAr = {{ $isRtl ? 'true' : 'false' }};
+
+                  if (icon) icon.className = 'fa-solid fa-spinner fa-spin text-sm';
+                  if (text) text.textContent = isAr ? 'جاري إضافة البروتوكول...' : 'Adding Protocol...';
+
+                  try {
+                    const checkedItems = document.querySelectorAll('.bz-bundle-store-item .bz-bundle-checkbox:checked');
+                    
+                    // Calculate discount factor
+                    let compTotal = 0;
+                    checkedItems.forEach(chk => {
+                      const item = chk.closest('.bz-bundle-store-item');
+                      compTotal += parseFloat(item.dataset.prodPrice) || 0;
+                    });
+                    const originalTotal = bzBundlePrimary.price + compTotal;
+                    let discountAmount = (bzBundleDiscountType === 'percentage')
+                      ? (originalTotal * bzBundleDiscountValue) / 100.0
+                      : Math.min(originalTotal, bzBundleDiscountValue);
+                    const discountRatio = originalTotal > 0 ? (1 - (discountAmount / originalTotal)) : 1;
+
+                    // Build payload
+                    const payloadItems = [
+                      {
+                        product_id: bzBundlePrimary.id,
+                        name_en: bzBundlePrimary.name_en,
+                        name_ar: bzBundlePrimary.name_ar,
+                        price: bzBundlePrimary.price,
+                        discounted_price: Math.round(bzBundlePrimary.price * discountRatio * 100) / 100,
+                        slug: bzBundlePrimary.slug,
+                        image: bzBundlePrimary.image,
+                        quantity: 1,
+                      }
+                    ];
+
+                    checkedItems.forEach(chk => {
+                      const item = chk.closest('.bz-bundle-store-item');
+                      const basePrice = parseFloat(item.dataset.prodPrice) || 0;
+                      payloadItems.push({
+                        product_id: parseInt(item.dataset.prodId),
+                        name_en: item.dataset.prodNameEn,
+                        name_ar: item.dataset.prodNameAr,
+                        price: basePrice,
+                        discounted_price: Math.round(basePrice * discountRatio * 100) / 100,
+                        slug: item.dataset.prodSlug,
+                        image: item.dataset.prodImage,
+                        quantity: 1,
+                      });
+                    });
+
+                    const response = await fetch('{{ route("customer.cart.add-bundle") }}', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                      },
+                      body: JSON.stringify({ items: payloadItems }),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                      throw new Error(data.message || (isAr ? 'تعذر إضافة الباقة إلى السلة.' : 'Failed to add bundle.'));
+                    }
+
+                    // Success feedback
+                    if (icon) icon.className = 'fa-solid fa-check text-sm';
+                    if (text) text.textContent = isAr ? 'تمت إضافة البروتوكول بنجاح!' : 'Protocol Added to Cart!';
+
+                    if (window.toast) {
+                      window.toast.success(data.message);
+                    }
+
+                    // Refresh cart drawer
+                    if (window.BLUEZONE_CART) {
+                      if (typeof window.BLUEZONE_CART.fetchCart === 'function') {
+                        window.BLUEZONE_CART.fetchCart();
+                      }
+                      if (typeof window.BLUEZONE_CART.open === 'function') {
+                        setTimeout(() => window.BLUEZONE_CART.open(), 400);
+                      }
+                    }
+
+                    setTimeout(() => {
+                      if (icon) icon.className = 'fa-solid fa-cart-plus text-sm';
+                      if (text) text.textContent = '{{ addslashes($bundleBtnText) }}';
+                    }, 3000);
+
+                  } catch (err) {
+                    console.error('Add bundle error:', err);
+                    if (icon) icon.className = 'fa-solid fa-triangle-exclamation text-sm';
+                    if (text) text.textContent = isAr ? 'فشلت الإضافة' : 'Error adding';
+                    if (window.toast) {
+                      window.toast.error(err.message);
+                    }
+                  }
+                }
+              </script>
+            @endif
+
+            @if(isset($relatedProducts) && count($relatedProducts) > 0)
             <div class="flex justify-between items-end">
               <div>
                 <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2] block mb-1">
@@ -1080,6 +1423,10 @@
                   <div>
                     <a href="{{ route('customer.product.show', $relSlug) }}" class="block aspect-square relative overflow-hidden bg-[#031827]">
                       <img src="{{ $relImg }}" alt="{{ $relName }}" 
+                        width="400"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
                         onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-cell.webp') }}';"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <span class="absolute top-4 left-4 rtl:left-auto rtl:right-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/90 dark:bg-[#031827]/90 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md">
@@ -1107,6 +1454,7 @@
                 </div>
               @endforeach
             </div>
+            @endif
           </div>
         @endif
 

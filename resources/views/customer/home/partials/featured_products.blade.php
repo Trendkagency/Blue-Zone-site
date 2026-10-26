@@ -167,9 +167,16 @@
 
                                     {{-- Sale badge --}}
                                     @if ($hasSale)
+                                        @php
+                                            $discPct = (int) round((((float)$price - (float)$salePrice) / (float)$price) * 100);
+                                            $discLabel = $discPct > 0 
+                                                ? ($locale === 'ar' ? "خصم {$discPct}%" : "-{$discPct}% OFF")
+                                                : ($locale === 'ar' ? 'عرض خاص' : 'SALE');
+                                        @endphp
                                         <div
-                                            class="absolute right-4 top-4 z-20 rounded-lg bg-[#67B34A] px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-md">
-                                            {{ __('app.sale') }}
+                                            class="absolute right-4 top-4 rtl:right-auto rtl:left-4 z-20 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-red-600 to-rose-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-lg shadow-red-500/30 border border-white/25 backdrop-blur-md">
+                                            <i class="fa-solid fa-bolt text-[9px]"></i>
+                                            <span>{{ $discLabel }}</span>
                                         </div>
                                     @endif
 
@@ -251,10 +258,19 @@
                                         <div>
 
                                             @if ($hasSale)
-                                                <span
-                                                    class="block text-[10px] font-bold text-[#031827]/35 line-through dark:text-white/35">
-                                                    @currency($price)
-                                                </span>
+                                                @php
+                                                    $discPct = (int) round((((float)$price - (float)$salePrice) / (float)$price) * 100);
+                                                @endphp
+                                                <div class="flex items-center gap-1.5 mb-0.5">
+                                                    <span class="text-[11px] font-bold text-[#031827]/40 line-through dark:text-white/40 font-mono">
+                                                        @currency($price)
+                                                    </span>
+                                                    @if($discPct > 0)
+                                                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono">
+                                                            -{{ $discPct }}%
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             @endif
 
 

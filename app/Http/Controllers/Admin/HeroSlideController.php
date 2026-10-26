@@ -66,10 +66,12 @@ class HeroSlideController extends Controller
             'primary_cta_text_ar' => 'nullable|string|max:100',
             'primary_cta_link' => 'nullable|string|max:255',
             'primary_cta_style' => 'nullable|string|max:30',
+            'show_primary_cta' => 'nullable|boolean',
             'secondary_cta_text_en' => 'nullable|string|max:100',
             'secondary_cta_text_ar' => 'nullable|string|max:100',
             'secondary_cta_link' => 'nullable|string|max:255',
             'secondary_cta_style' => 'nullable|string|max:30',
+            'show_secondary_cta' => 'nullable|boolean',
             'bg_image_preset' => 'nullable|string',
             'bg_image_file' => 'nullable|image|max:8192',
             'bg_image_url' => 'nullable|string|max:500',
@@ -115,6 +117,8 @@ class HeroSlideController extends Controller
     {
         $slide = HeroSlide::with('product')->findOrFail($id);
         $slideData = $slide->toArray();
+        $slideData['show_primary_cta'] = (bool) ($slide->show_primary_cta ?? true);
+        $slideData['show_secondary_cta'] = (bool) ($slide->show_secondary_cta ?? true);
         $slideData['display_card_image_url'] = $slide->display_card_image_url;
         $slideData['display_bg_image_url'] = $slide->display_bg_image_url;
 
@@ -147,10 +151,12 @@ class HeroSlideController extends Controller
             'primary_cta_text_ar' => 'nullable|string|max:100',
             'primary_cta_link' => 'nullable|string|max:255',
             'primary_cta_style' => 'nullable|string|max:30',
+            'show_primary_cta' => 'nullable|boolean',
             'secondary_cta_text_en' => 'nullable|string|max:100',
             'secondary_cta_text_ar' => 'nullable|string|max:100',
             'secondary_cta_link' => 'nullable|string|max:255',
             'secondary_cta_style' => 'nullable|string|max:30',
+            'show_secondary_cta' => 'nullable|boolean',
             'bg_image_preset' => 'nullable|string',
             'bg_image_file' => 'nullable|image|max:8192',
             'bg_image_url' => 'nullable|string|max:500',
@@ -493,11 +499,13 @@ class HeroSlideController extends Controller
         $slide->primary_cta_text_ar = $validated['primary_cta_text_ar'] ?? null;
         $slide->primary_cta_link = $validated['primary_cta_link'] ?? null;
         $slide->primary_cta_style = $validated['primary_cta_style'] ?? 'emerald';
+        $slide->show_primary_cta = $request->boolean('show_primary_cta', true);
 
         $slide->secondary_cta_text_en = $validated['secondary_cta_text_en'] ?? null;
         $slide->secondary_cta_text_ar = $validated['secondary_cta_text_ar'] ?? null;
         $slide->secondary_cta_link = $validated['secondary_cta_link'] ?? null;
         $slide->secondary_cta_style = $validated['secondary_cta_style'] ?? 'glass';
+        $slide->show_secondary_cta = $request->boolean('show_secondary_cta', true);
 
         $slide->show_floating_card = $request->boolean('show_floating_card', true);
         $slide->card_badge_en = $validated['card_badge_en'] ?? null;

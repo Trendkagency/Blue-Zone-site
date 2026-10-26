@@ -55,6 +55,25 @@ class SettingViewModel
             'enable_reviews' => true,
             'enable_coupons' => true,
 
+            // Product & Call-to-Action Buttons Customizer
+            'btn_buy_now_text_en' => 'ADD TO CLINICAL PROTOCOL',
+            'btn_buy_now_text_ar' => 'إضافة إلى السلة والبروتوكول',
+            'btn_buy_now_icon' => 'fa-cart-shopping',
+            'btn_buy_now_subtext_en' => 'Clinically Verified Formulation • 100% Purity Guaranteed',
+            'btn_buy_now_subtext_ar' => 'تركيبة سريرية موثقة • نقاء ومطابقة دوائية 100%',
+            'btn_cart_text_en' => 'ADD TO CART',
+            'btn_cart_text_ar' => 'أضف للسلة',
+            'btn_quick_add_text_en' => 'QUICK ADD',
+            'btn_quick_add_text_ar' => 'إضافة سريعة',
+            'btn_view_details_text_en' => 'VIEW DOSSIER',
+            'btn_view_details_text_ar' => 'عرض الملف السريري',
+            'btn_out_of_stock_text_en' => 'CURRENTLY OUT OF STOCK',
+            'btn_out_of_stock_text_ar' => 'نفذت الكمية حالياً',
+            'btn_preorder_text_en' => 'PRE-ORDER PROTOCOL',
+            'btn_preorder_text_ar' => 'طلب حجز مسبق',
+            'btn_bundle_buy_text_en' => 'ADD COMPLETE PROTOCOL TO CART',
+            'btn_bundle_buy_text_ar' => 'إضافة البروتوكول التكاملي بالكامل للسلة',
+
             // Payments & Tax
             'tax_percentage' => 15,
             'tax_number' => '31004829100003',

@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Services\TaxService;
 use App\View\ViewModels\CategoryViewModel;
 use App\View\ViewModels\ProductViewModel;
@@ -118,6 +119,7 @@ class ProductController extends Controller
         })->where('show_on_landing', true)->count();
 
         $detailsSettings = $this->getGlobalDetailsSettings();
+        $buttonSettings = $this->getGlobalButtonSettings();
 
         return view('admin.products.index', [
             'products' => $products,
@@ -132,6 +134,7 @@ class ProductController extends Controller
             'landingSettings' => $landingSettings,
             'landingProductsCount' => $landingProductsCount,
             'detailsSettings' => $detailsSettings,
+            'buttonSettings' => $buttonSettings,
         ]);
     }
 
@@ -147,6 +150,7 @@ class ProductController extends Controller
             'categories' => $categories,
             'taxInfo' => $taxInfo,
             'detailsSettings' => $this->getGlobalDetailsSettings(),
+            'allProducts' => Product::select('id', 'name_en', 'name_ar', 'price', 'sale_price', 'image', 'sku')->get(),
         ]);
     }
 
@@ -154,9 +158,8 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name_en']);
-        }
+        $sourceName = !empty($data['name_en']) ? $data['name_en'] : ($data['name_ar'] ?? 'product');
+        $data['slug'] = Product::generateUniqueSlug($sourceName);
 
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_best_seller'] = $request->boolean('is_best_seller');
@@ -456,6 +459,7 @@ class ProductController extends Controller
             'locations' => $locations,
             'detailsSettings' => $this->getGlobalDetailsSettings(),
             'sectionSettings' => $dbProduct?->section_settings ?? ($product['section_settings'] ?? []),
+            'allProducts' => Product::select('id', 'name_en', 'name_ar', 'price', 'sale_price', 'image', 'sku')->where('id', '!=', $id)->get(),
         ]);
     }
 
@@ -472,11 +476,14 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Generate Slug
+        | Slug Management (Permanent & Auto-Locked)
         |--------------------------------------------------------------------------
         */
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name_en']);
+        if (!empty($product->slug)) {
+            $data['slug'] = $product->slug;
+        } else {
+            $sourceName = !empty($data['name_en']) ? $data['name_en'] : ($data['name_ar'] ?? 'product');
+            $data['slug'] = Product::generateUniqueSlug($sourceName, $product->id);
         }
 
         /*
@@ -761,6 +768,22 @@ class ProductController extends Controller
                     'custom_content_en' => $sec['custom_content_en'] ?? '',
                     'custom_content_ar' => $sec['custom_content_ar'] ?? '',
                 ];
+
+                if ($key === 'related' && isset($sec['bundle'])) {
+                    $bRaw = $sec['bundle'];
+                    $clean[$key]['bundle'] = [
+                        'enabled' => !empty($bRaw['enabled']),
+                        'discount_type' => in_array($bRaw['discount_type'] ?? 'percentage', ['percentage', 'fixed']) ? $bRaw['discount_type'] : 'percentage',
+                        'discount_value' => (float) ($bRaw['discount_value'] ?? 15.0),
+                        'badge_en' => trim($bRaw['badge_en'] ?? 'Optimal Synergistic Protocol'),
+                        'badge_ar' => trim($bRaw['badge_ar'] ?? 'البروتوكول التكاملي الموصى به'),
+                        'product_ids' => array_values(array_filter(array_map('intval', (array) ($bRaw['product_ids'] ?? [])))),
+                    ];
+                }
+            }
+
+            if (isset($raw['section_order']) && is_array($raw['section_order'])) {
+                $clean['section_order'] = array_values(array_intersect($raw['section_order'], $allKeys));
             }
 
             $data['section_settings'] = $clean;
@@ -912,6 +935,71 @@ class ProductController extends Controller
     }
 
     /**
+     * Update product action buttons customization settings (Add to Cart, Buy Now, Clinical Protocol CTAs).
+     */
+    public function updateButtonSettings(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
+    {
+        $fields = [
+            'btn_buy_now_text_en', 'btn_buy_now_text_ar', 'btn_buy_now_icon',
+            'btn_buy_now_subtext_en', 'btn_buy_now_subtext_ar',
+            'btn_cart_text_en', 'btn_cart_text_ar',
+            'btn_quick_add_text_en', 'btn_quick_add_text_ar',
+            'btn_view_details_text_en', 'btn_view_details_text_ar',
+            'btn_out_of_stock_text_en', 'btn_out_of_stock_text_ar',
+            'btn_preorder_text_en', 'btn_preorder_text_ar',
+            'btn_bundle_buy_text_en', 'btn_bundle_buy_text_ar',
+        ];
+
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                Setting::set($field, trim((string) $request->input($field, '')), 'product_buttons');
+            }
+        }
+
+        \Illuminate\Support\Facades\Cache::flush();
+        Setting::flushRuntimeCache();
+
+        $message = app()->getLocale() === 'ar'
+            ? 'تم حفظ وتحديث نصوص وأيقونات أزرار المنتجات بنجاح!'
+            : 'Product action buttons and protocol CTAs updated successfully!';
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Get baseline global product button settings from Setting model.
+     */
+    protected function getGlobalButtonSettings(): array
+    {
+        return [
+            'btn_buy_now_text_en' => Setting::get('btn_buy_now_text_en', 'ADD TO CLINICAL PROTOCOL'),
+            'btn_buy_now_text_ar' => Setting::get('btn_buy_now_text_ar', 'إضافة إلى السلة والبروتوكول'),
+            'btn_buy_now_icon' => Setting::get('btn_buy_now_icon', 'fa-cart-shopping'),
+            'btn_buy_now_subtext_en' => Setting::get('btn_buy_now_subtext_en', 'Clinically Verified Formulation • 100% Purity Guaranteed'),
+            'btn_buy_now_subtext_ar' => Setting::get('btn_buy_now_subtext_ar', 'تركيبة سريرية موثقة • نقاء ومطابقة دوائية 100%'),
+            'btn_cart_text_en' => Setting::get('btn_cart_text_en', 'ADD TO CART'),
+            'btn_cart_text_ar' => Setting::get('btn_cart_text_ar', 'أضف للسلة'),
+            'btn_quick_add_text_en' => Setting::get('btn_quick_add_text_en', 'QUICK ADD'),
+            'btn_quick_add_text_ar' => Setting::get('btn_quick_add_text_ar', 'إضافة سريعة'),
+            'btn_view_details_text_en' => Setting::get('btn_view_details_text_en', 'VIEW DOSSIER'),
+            'btn_view_details_text_ar' => Setting::get('btn_view_details_text_ar', 'عرض الملف السريري'),
+            'btn_out_of_stock_text_en' => Setting::get('btn_out_of_stock_text_en', 'CURRENTLY OUT OF STOCK'),
+            'btn_out_of_stock_text_ar' => Setting::get('btn_out_of_stock_text_ar', 'نفذت الكمية حالياً'),
+            'btn_preorder_text_en' => Setting::get('btn_preorder_text_en', 'PRE-ORDER PROTOCOL'),
+            'btn_preorder_text_ar' => Setting::get('btn_preorder_text_ar', 'طلب حجز مسبق'),
+            'btn_bundle_buy_text_en' => Setting::get('btn_bundle_buy_text_en', 'ADD COMPLETE PROTOCOL TO CART'),
+            'btn_bundle_buy_text_ar' => Setting::get('btn_bundle_buy_text_ar', 'إضافة البروتوكول التكاملي بالكامل للسلة'),
+        ];
+    }
+
+    /**
      * Get baseline global product detail page section settings from Setting model.
      */
     protected function getGlobalDetailsSettings(): array
@@ -958,5 +1046,222 @@ class ProductController extends Controller
             'pdetail_related_title_en' => \App\Models\Setting::get('pdetail_related_title_en', 'Complementary Formulations'),
             'pdetail_related_title_ar' => \App\Models\Setting::get('pdetail_related_title_ar', 'تركيبات متكاملة تعزز النتائج'),
         ];
+    }
+
+    /**
+     * Auto-create a draft product during Step 1 creation to convert the wizard into live auto-saving mode.
+     */
+    public function autoCreateDraft(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $nameEn = trim($request->input('name_en', ''));
+            if (empty($nameEn)) {
+                $nameEn = 'Bioceutical Draft ' . now()->format('Y-m-d H:i');
+            }
+            $nameAr = trim($request->input('name_ar', ''));
+            if (empty($nameAr)) {
+                $nameAr = 'مسودة تركيبة حيوية ' . now()->format('Y-m-d H:i');
+            }
+
+            $sku = trim($request->input('sku', ''));
+            if (empty($sku)) {
+                $sku = 'BZ-DFT-' . strtoupper(\Illuminate\Support\Str::random(6));
+            } else {
+                $count = Product::where('sku', $sku)->count();
+                if ($count > 0) {
+                    $sku .= '-' . rand(100, 999);
+                }
+            }
+
+            $categoryId = $request->input('category_id');
+            if (!$categoryId || !Category::where('id', $categoryId)->exists()) {
+                $categoryId = Category::first()?->id ?? 1;
+            }
+
+            $product = new Product();
+            $product->name_en = $nameEn;
+            $product->name_ar = $nameAr;
+            $product->sku = $sku;
+            $product->category_id = $categoryId;
+            $product->slug = \Illuminate\Support\Str::slug($nameEn) . '-' . strtolower(\Illuminate\Support\Str::random(5));
+            $product->barcode = $request->input('barcode') ?: ('628' . rand(1000000, 9999999));
+            $product->brand = $request->input('brand', 'Blue Zone Bioceuticals');
+            $product->product_size = $request->input('product_size', '60 Vegetable Capsules');
+            $product->cost_price = (float) $request->input('cost_price', 20.00);
+            $product->price = (float) $request->input('price', 60.00);
+            $product->sale_price = $request->input('sale_price') ? (float) $request->input('sale_price') : null;
+            $product->stock_online = 0;
+            $product->stock_offline = 0;
+            $product->status = 'inactive';
+            $product->save();
+
+            return response()->json([
+                'success' => true,
+                'product_id' => $product->id,
+                'edit_url' => route('admin.products.edit', $product->id),
+                'message' => app()->getLocale() === 'ar' ? 'تم إنشاء مسودة المنتج بنجاح!' : 'Product draft initiated successfully!',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Real-time step-by-step autosave endpoint for wizard.
+     */
+    public function autoSaveStep(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        $step = (int) $request->input('step', 1);
+
+        try {
+            $data = $request->all();
+
+            switch ($step) {
+                case 1:
+                    // Core Identifiers
+                    if (!empty($data['sku'])) {
+                        $exists = Product::where('sku', $data['sku'])->where('id', '!=', $product->id)->exists();
+                        if (!$exists) $product->sku = $data['sku'];
+                    }
+                    if (isset($data['barcode'])) $product->barcode = $data['barcode'];
+                    if (!empty($data['category_id'])) $product->category_id = $data['category_id'];
+                    if (isset($data['subcategory_en'])) $product->subcategory_en = $data['subcategory_en'];
+                    if (isset($data['brand'])) $product->brand = $data['brand'];
+                    if (isset($data['target_gender'])) $product->target_gender = $data['target_gender'];
+                    if (isset($data['age_group'])) $product->age_group = $data['age_group'];
+                    if (isset($data['product_size'])) $product->product_size = $data['product_size'];
+                    // Slug is locked and protected against manual modification
+                    if (empty($product->slug)) {
+                        $source = !empty($product->name_en) ? $product->name_en : ($product->name_ar ?? 'product');
+                        $product->slug = Product::generateUniqueSlug($source, $product->id);
+                    }
+                    break;
+
+                case 2:
+                    // Bilingual Content
+                    if (!empty($data['name_en'])) $product->name_en = $data['name_en'];
+                    if (!empty($data['name_ar'])) $product->name_ar = $data['name_ar'];
+                    if (empty($product->slug)) {
+                        $source = !empty($data['name_en']) ? $data['name_en'] : ($data['name_ar'] ?? '');
+                        if (!empty($source)) {
+                            $product->slug = Product::generateUniqueSlug($source, $product->id);
+                        }
+                    }
+                    if (isset($data['tagline_en'])) $product->tagline_en = $data['tagline_en'];
+                    if (isset($data['tagline_ar'])) $product->tagline_ar = $data['tagline_ar'];
+                    if (isset($data['description_en'])) $product->description_en = $data['description_en'];
+                    if (isset($data['description_ar'])) $product->description_ar = $data['description_ar'];
+                    if (isset($data['usage_en'])) $product->usage_en = $data['usage_en'];
+                    if (isset($data['usage_ar'])) $product->usage_ar = $data['usage_ar'];
+                    break;
+
+                case 3:
+                    // Pricing & Taxes
+                    if (isset($data['cost_price'])) $product->cost_price = (float) $data['cost_price'];
+                    if (isset($data['price'])) $product->price = (float) $data['price'];
+                    $product->sale_price = (!empty($data['sale_price']) && (float) $data['sale_price'] > 0) ? (float) $data['sale_price'] : null;
+                    break;
+
+                case 4:
+                    // Media
+                    if ($request->hasFile('primary_image') || $request->hasFile('image')) {
+                        $file = $request->file('primary_image') ?: $request->file('image');
+                        if (is_array($file)) $file = reset($file);
+                        if ($file && $file->isValid()) {
+                            $ext = $file->getClientOriginalExtension() ?: 'webp';
+                            $filename = 'product_' . $product->id . '_' . time() . '.' . $ext;
+                            $dest = public_path('uploads/products');
+                            if (!file_exists($dest)) @mkdir($dest, 0755, true);
+                            $file->move($dest, $filename);
+                            $product->image = Product::normalizeUrl('/uploads/products/' . $filename);
+                        }
+                    }
+                    if ($request->hasFile('gallery')) {
+                        $gUrls = is_array($product->images) ? $product->images : [];
+                        $files = (array) $request->file('gallery');
+                        foreach ($files as $f) {
+                            if ($f && $f->isValid()) {
+                                $ext = $f->getClientOriginalExtension() ?: 'webp';
+                                $fname = 'gallery_' . $product->id . '_' . time() . '_' . \Illuminate\Support\Str::random(4) . '.' . $ext;
+                                $dest = public_path('uploads/products');
+                                if (!file_exists($dest)) @mkdir($dest, 0755, true);
+                                $f->move($dest, $fname);
+                                $gUrls[] = Product::normalizeUrl('/uploads/products/' . $fname);
+                            }
+                        }
+                        $product->images = array_values(array_unique($gUrls));
+                    }
+                    if ($request->has('removed_gallery_images')) {
+                        $rem = (array) $request->input('removed_gallery_images');
+                        $existing = is_array($product->images) ? $product->images : [];
+                        $product->images = array_values(array_filter($existing, fn($img) => !in_array($img, $rem)));
+                    }
+                    break;
+
+                case 5:
+                    // Clinical Data
+                    $clinicalData = $data;
+                    $this->formatScienceInputs($clinicalData);
+                    foreach (['science_en', 'science_ar', 'benefits_en', 'benefits_ar', 'ingredients', 'clinical_mechanism', 'formula_details', 'contraindications', 'warnings'] as $fld) {
+                        if (isset($clinicalData[$fld])) {
+                            $product->{$fld} = $clinicalData[$fld];
+                        }
+                    }
+                    break;
+
+                case 6:
+                    // Page & Sections Customizer & Synergistic Bundle
+                    $secData = [];
+                    $this->formatSectionSettings($secData, $request);
+                    if (isset($secData['section_settings'])) {
+                        $product->section_settings = $secData['section_settings'];
+                    }
+                    break;
+
+                case 7:
+                    // Inventory & Controls
+                    if (isset($data['low_stock_threshold'])) $product->low_stock_threshold = (int) $data['low_stock_threshold'];
+                    $product->enable_backorders = $request->boolean('enable_backorders');
+                    $product->is_featured = $request->boolean('is_featured');
+                    $product->is_best_seller = $request->boolean('is_best_seller');
+                    $product->is_new = $request->boolean('is_new');
+                    $product->show_on_landing = $request->boolean('show_on_landing');
+                    if (isset($data['landing_order'])) $product->landing_order = (int) $data['landing_order'];
+                    if (isset($data['landing_badge_en'])) $product->landing_badge_en = $data['landing_badge_en'];
+                    if (isset($data['landing_badge_ar'])) $product->landing_badge_ar = $data['landing_badge_ar'];
+                    if (isset($data['status'])) $product->status = $data['status'];
+                    break;
+            }
+
+            $product->save();
+
+            $taxInfo = null;
+            if ($step === 3) {
+                $taxInfo = TaxService::breakdownPrice(
+                    (float) ($product->price ?? 68.00),
+                    (float) ($product->cost_price ?? 22.00),
+                    $product->sale_price ? (float) $product->sale_price : null
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'step' => $step,
+                'message' => app()->getLocale() === 'ar' ? "تم حفظ الخطوة ({$step}) بنجاح!" : "Step {$step} auto-saved successfully!",
+                'product_id' => $product->id,
+                'product_name' => $product->name_en,
+                'taxInfo' => $taxInfo,
+                'saved_at' => now()->format('H:i:s'),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }

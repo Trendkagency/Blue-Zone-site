@@ -35,7 +35,7 @@ class UpdateProductRequest extends FormRequest
             'target_gender' => ['nullable', 'string', 'max:50'],
             'age_group' => ['nullable', 'string', 'max:50'],
             'product_size' => ['nullable', 'string', 'max:100'],
-            'slug' => ['nullable', 'string', 'max:255', Rule::unique('products', 'slug')->ignore($productId)],
+            'slug' => ['nullable', 'string', 'max:255'],
 
             // Step 2: Multi-Lingual Content
             'name_en' => ['required', 'string', 'max:255'],

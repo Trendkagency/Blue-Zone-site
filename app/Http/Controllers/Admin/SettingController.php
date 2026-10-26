@@ -130,6 +130,25 @@ class SettingController extends Controller
             'notify_new_order' => ['nullable', 'boolean'],
             'toast_sound_enabled' => ['nullable', 'boolean'],
 
+            // Product & Call-to-Action Buttons Customizer
+            'btn_buy_now_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_buy_now_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_buy_now_icon' => ['nullable', 'string', 'max:100'],
+            'btn_buy_now_subtext_en' => ['nullable', 'string', 'max:255'],
+            'btn_buy_now_subtext_ar' => ['nullable', 'string', 'max:255'],
+            'btn_cart_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_cart_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_quick_add_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_quick_add_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_view_details_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_view_details_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_out_of_stock_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_out_of_stock_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_preorder_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_preorder_text_ar' => ['nullable', 'string', 'max:255'],
+            'btn_bundle_buy_text_en' => ['nullable', 'string', 'max:255'],
+            'btn_bundle_buy_text_ar' => ['nullable', 'string', 'max:255'],
+
             // Firebase Cloud Messaging (FCM) Configuration
             'fcm_server_key' => ['nullable', 'string', 'max:500'],
             'fcm_project_id' => ['nullable', 'string', 'max:255'],
@@ -398,6 +417,23 @@ class SettingController extends Controller
         if (isset($validated['zero_stock_behavior'])) Setting::set('zero_stock_behavior', $validated['zero_stock_behavior'], 'store');
         Setting::set('enable_reviews', $request->boolean('enable_reviews'), 'store', 'boolean');
         Setting::set('enable_coupons', $request->boolean('enable_coupons'), 'store', 'boolean');
+
+        // Product & Call-to-Action Buttons
+        $btnKeys = [
+            'btn_buy_now_text_en', 'btn_buy_now_text_ar', 'btn_buy_now_icon',
+            'btn_buy_now_subtext_en', 'btn_buy_now_subtext_ar',
+            'btn_cart_text_en', 'btn_cart_text_ar',
+            'btn_quick_add_text_en', 'btn_quick_add_text_ar',
+            'btn_view_details_text_en', 'btn_view_details_text_ar',
+            'btn_out_of_stock_text_en', 'btn_out_of_stock_text_ar',
+            'btn_preorder_text_en', 'btn_preorder_text_ar',
+            'btn_bundle_buy_text_en', 'btn_bundle_buy_text_ar',
+        ];
+        foreach ($btnKeys as $bKey) {
+            if ($request->has($bKey) || isset($validated[$bKey])) {
+                Setting::set($bKey, trim((string) $request->input($bKey, '')), 'product_buttons');
+            }
+        }
 
         // Taxes & Payments
         Setting::set('tax_percentage', (float) $validated['tax_percentage'], 'tax', 'float');

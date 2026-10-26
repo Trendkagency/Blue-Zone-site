@@ -54,17 +54,27 @@
                     default => 'bg-[#67B34A]/20 text-[#67B34A] border-[#67B34A]/40',
                 };
 
+                $showBtn1 = $slide->has_primary_cta;
                 $btn1Text = $slide->display_primary_cta_text;
-                $btn1Link = $slide->primary_cta_link ?: ($slide->product ? route('customer.product.show', $slide->product->slug) : route('customer.products'));
+                $btn1Link = $slide->resolved_primary_cta_link;
                 $btn1Style = $slide->primary_cta_style ?? 'emerald';
                 $btn1Classes = match ($btn1Style) {
-                    'cyan' => 'bg-[#2A8FC2] hover:bg-[#0A4F78] text-white',
-                    'white' => 'bg-white hover:bg-gray-100 text-[#031827]',
-                    default => 'bg-[#67B34A] hover:bg-[#589c3e] text-white',
+                    'cyan' => 'bg-[#2A8FC2] hover:bg-[#0A4F78] text-white shadow-[#2A8FC2]/30',
+                    'white' => 'bg-white hover:bg-slate-100 text-[#031827] shadow-white/20',
+                    'glass' => 'bg-white/10 hover:bg-white/25 text-white border border-white/30 backdrop-blur-md shadow-black/20',
+                    default => 'bg-[#67B34A] hover:bg-[#589c3e] text-white shadow-[#67B34A]/30',
                 };
 
+                $showBtn2 = $slide->has_secondary_cta;
                 $btn2Text = $slide->display_secondary_cta_text;
-                $btn2Link = $slide->secondary_cta_link ?: route('customer.products');
+                $btn2Link = $slide->resolved_secondary_cta_link;
+                $btn2Style = $slide->secondary_cta_style ?? 'glass';
+                $btn2Classes = match ($btn2Style) {
+                    'emerald' => 'bg-[#67B34A] hover:bg-[#589c3e] text-white shadow-[#67B34A]/30',
+                    'cyan' => 'bg-[#2A8FC2] hover:bg-[#0A4F78] text-white shadow-[#2A8FC2]/30',
+                    'white' => 'bg-white hover:bg-slate-100 text-[#031827] shadow-white/20',
+                    default => 'bg-white/10 hover:bg-white/25 text-white border border-white/30 backdrop-blur-md shadow-black/20',
+                };
 
                 $showCard = (bool) ($slide->show_floating_card ?? true);
                 $cardBadge = $slide->display_card_badge;
@@ -105,21 +115,23 @@
                             </p>
                         @endif
 
-                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
-                            @if (!empty($btn1Text))
-                                <a href="{{ $btn1Link }}"
-                                    class="w-full sm:w-auto px-8 py-4 {{ $btn1Classes }} text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-xl hover:scale-105 btn-sheen text-center">
-                                    {{ $btn1Text }}
-                                </a>
-                            @endif
+                        @if ($showBtn1 || $showBtn2)
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2 sm:pt-4">
+                                @if ($showBtn1)
+                                    <a href="{{ $btn1Link }}"
+                                        class="w-full sm:w-auto px-8 py-4 {{ $btn1Classes }} text-xs font-black uppercase tracking-widest rounded-full transition-all shadow-xl hover:scale-105 btn-sheen text-center cursor-pointer">
+                                        {{ $btn1Text }}
+                                    </a>
+                                @endif
 
-                            @if (!empty($btn2Text))
-                                <a href="{{ $btn2Link }}"
-                                    class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xs font-black uppercase tracking-widest rounded-full backdrop-blur-md transition-all text-center">
-                                    {{ $btn2Text }}
-                                </a>
-                            @endif
-                        </div>
+                                @if ($showBtn2)
+                                    <a href="{{ $btn2Link }}"
+                                        class="w-full sm:w-auto px-8 py-4 {{ $btn2Classes }} text-xs font-black uppercase tracking-widest rounded-full backdrop-blur-md transition-all shadow-lg hover:scale-105 text-center cursor-pointer">
+                                        {{ $btn2Text }}
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
 

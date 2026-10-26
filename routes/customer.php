@@ -19,6 +19,7 @@ Route::get('/products/{slug}', [ProductController::class, 'show'])->name('custom
 Route::get('/cart', [CartController::class, 'index'])->name('customer.cart');
 Route::get('/cart/items', [CartController::class, 'items'])->name('customer.cart.items');
 Route::post('/cart/add', [CartController::class, 'add'])->middleware('throttle:cart')->name('customer.cart.add');
+Route::post('/cart/add-bundle', [CartController::class, 'addBundle'])->middleware('throttle:cart')->name('customer.cart.add-bundle');
 Route::post('/cart/update', [CartController::class, 'update'])->middleware('throttle:cart')->name('customer.cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->middleware('throttle:cart')->name('customer.cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->middleware('throttle:cart')->name('customer.cart.clear');

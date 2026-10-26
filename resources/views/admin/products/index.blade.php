@@ -457,6 +457,275 @@
         </div>
     </div>
 
+    <!-- ==========================================================
+         SECTION SETTING 3: PRODUCT ACTION BUTTONS & CTA CONTROLLER (ADD TO CLINICAL PROTOCOL)
+         ========================================================== -->
+    <div class="mb-6 p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 dark:border-white/10 shadow-sm transition-all duration-300">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex items-start sm:items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-pink-500/10 dark:bg-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center text-lg shrink-0 border border-pink-500/25">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="px-2.5 py-0.5 rounded-full bg-pink-500/15 text-pink-600 dark:text-pink-400 font-mono text-[10px] font-black uppercase tracking-wider border border-pink-500/25">
+                            BUTTONS & CTA CMS CONTROLLER
+                        </span>
+                        <span class="text-xs font-bold text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
+                            <span>{{ app()->getLocale() === 'ar' ? 'تخصيص أزرار الشراء ونصوص الإجراءات السريرية' : 'Product & Action Buttons Customizer' }}</span>
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">
+                        {{ app()->getLocale() === 'ar' 
+                            ? 'تحكّم كامل في نصوص وزر الشراء الرئيسي (مثل: ADD TO CLINICAL PROTOCOL)، أزرار بطاقات المتجر، أزرار نفاد المخزون، وباقة البروتوكول.' 
+                            : 'Customize the primary Buy Button text (e.g. ADD TO CLINICAL PROTOCOL), catalog card action buttons, out-of-stock states, and protocol bundle CTAs.' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Quick Action Toggle -->
+            <div class="flex items-center gap-2.5 self-start lg:self-center shrink-0">
+                <button type="button" 
+                        onclick="toggleButtonSettingsCollapse()" 
+                        class="btn btn-sm font-bold bg-pink-600 hover:bg-pink-700 text-white shadow-xs cursor-pointer flex items-center gap-2"
+                        id="toggleButtonSettingsBtn">
+                    <i class="fa-solid fa-hand-pointer text-xs"></i>
+                    <span id="toggleButtonSettingsBtnText">{{ app()->getLocale() === 'ar' ? 'تخصيص أزرار الشراء' : 'Customize Product Buttons' }}</span>
+                    <i class="fa-solid fa-chevron-down text-xs transition-transform" id="toggleButtonSettingsIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Collapsible Buttons Customization Form -->
+        <div id="buttonSettingsCollapseBody" class="mt-5 pt-4 border-t border-dashed border-pink-500/20 dark:border-white/10 hidden">
+            <form method="POST" action="{{ route('admin.products.button-settings') }}" id="productButtonsGlobalForm" class="space-y-6">
+                @csrf
+
+                <!-- Live Button Preview Simulator -->
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-[#02131F] to-[#0A4F78] text-white space-y-4 border border-white/10 shadow-lg">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                            <span class="font-mono text-xs font-black uppercase text-pink-300">{{ app()->getLocale() === 'ar' ? 'معاينة حية لأزرار المتجر' : 'Live Interactive Button Previews' }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-white/60 font-mono">{{ app()->getLocale() === 'ar' ? 'نماذج سريعة:' : 'Quick Presets:' }}</span>
+                            <button type="button" onclick="applyButtonPreset('clinical')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold transition-all border border-white/15">Clinical</button>
+                            <button type="button" onclick="applyButtonPreset('longevity')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold transition-all border border-white/15">Longevity</button>
+                            <button type="button" onclick="applyButtonPreset('ecommerce')" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[10px] font-bold transition-all border border-white/15">Classic</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+                        <!-- Primary Product Detail CTA Button Preview -->
+                        <div class="space-y-1.5 text-center">
+                            <span class="text-[10px] font-mono uppercase text-white/70 block">{{ app()->getLocale() === 'ar' ? 'زر صفحة المنتج الرئيسي (Buy Box):' : 'Primary Product Page Button:' }}</span>
+                            <div class="py-3.5 px-6 rounded-2xl bg-[#0A4F78] border border-white/20 shadow-xl flex items-center justify-center gap-2.5 font-extrabold text-xs tracking-wider text-white">
+                                <i class="fa-solid {{ $buttonSettings['btn_buy_now_icon'] ?? 'fa-cart-shopping' }}" id="prevBtnBuyNowIcon"></i>
+                                <span id="prevBtnBuyNowText">{{ app()->getLocale() === 'ar' ? ($buttonSettings['btn_buy_now_text_ar'] ?? 'إضافة إلى السلة والبروتوكول') : ($buttonSettings['btn_buy_now_text_en'] ?? 'ADD TO CLINICAL PROTOCOL') }}</span>
+                            </div>
+                            <div class="text-[10px] font-mono text-[#67B34A]" id="prevBtnBuyNowSubtext">
+                                <i class="fa-solid fa-circle-check text-[9px] mr-1 ml-1"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? ($buttonSettings['btn_buy_now_subtext_ar'] ?? 'تركيبة سريرية موثقة') : ($buttonSettings['btn_buy_now_subtext_en'] ?? 'Clinically Verified Formulation') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Catalog Quick Add Button Preview -->
+                        <div class="space-y-1.5 text-center">
+                            <span class="text-[10px] font-mono uppercase text-white/70 block">{{ app()->getLocale() === 'ar' ? 'زر بطاقة الكتالوج (Quick Add):' : 'Catalog Card Button:' }}</span>
+                            <div class="py-2.5 px-5 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center gap-2 font-black text-xs text-white">
+                                <i class="fa-solid fa-cart-plus"></i>
+                                <span id="prevBtnQuickAddText">{{ app()->getLocale() === 'ar' ? ($buttonSettings['btn_quick_add_text_ar'] ?? 'إضافة سريعة') : ($buttonSettings['btn_quick_add_text_en'] ?? 'QUICK ADD') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Protocol Bundle Button Preview -->
+                        <div class="space-y-1.5 text-center">
+                            <span class="text-[10px] font-mono uppercase text-white/70 block">{{ app()->getLocale() === 'ar' ? 'زر باقة البروتوكول 1-Click:' : 'Protocol Bundle 1-Click Button:' }}</span>
+                            <div class="py-2.5 px-5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 border border-white/20 flex items-center justify-center gap-2 font-black text-xs text-white shadow-md">
+                                <i class="fa-solid fa-sparkles"></i>
+                                <span id="prevBtnBundleText">{{ app()->getLocale() === 'ar' ? ($buttonSettings['btn_bundle_buy_text_ar'] ?? 'إضافة البروتوكول التكاملي') : ($buttonSettings['btn_bundle_buy_text_en'] ?? 'ADD COMPLETE PROTOCOL') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1. Primary Product Details Button -->
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-800 space-y-4">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider">
+                        <i class="fa-solid fa-square-check text-[#0A4F78] dark:text-[#2A8FC2]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'زر الشراء الرئيسي في صفحة المنتج (Primary Buy Box Action Button)' : 'Primary Product Detail Page Buy Button' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                <span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[10px] font-mono font-bold mr-1 ml-1">EN</span>
+                                Button Label (English)
+                            </label>
+                            <input type="text" name="btn_buy_now_text_en" id="inputBtnBuyNowEn"
+                                   value="{{ $buttonSettings['btn_buy_now_text_en'] ?? 'ADD TO CLINICAL PROTOCOL' }}" 
+                                   oninput="updateButtonPreview()"
+                                   class="form-control text-xs font-bold font-mono">
+                            <span class="text-[10px] text-gray-400">{{ app()->getLocale() === 'ar' ? 'النص الإنجليزي المعروض داخل زر الشراء' : 'Default: ADD TO CLINICAL PROTOCOL' }}</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                                <span class="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-mono font-bold mr-1 ml-1">AR</span>
+                                نص الزر (العربية)
+                            </label>
+                            <input type="text" name="btn_buy_now_text_ar" id="inputBtnBuyNowAr"
+                                   value="{{ $buttonSettings['btn_buy_now_text_ar'] ?? 'إضافة إلى السلة والبروتوكول' }}" 
+                                   oninput="updateButtonPreview()"
+                                   dir="rtl"
+                                   class="form-control text-xs font-bold font-tajawal">
+                            <span class="text-[10px] text-gray-400" dir="rtl">{{ app()->getLocale() === 'ar' ? 'الافتراضي: إضافة إلى السلة والبروتوكول' : 'Default: إضافة إلى السلة والبروتوكول' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Button Icon (FontAwesome)</label>
+                            <select name="btn_buy_now_icon" id="inputBtnBuyNowIcon" onchange="updateButtonPreview()" class="form-control text-xs font-mono">
+                                <option value="fa-cart-shopping" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-cart-shopping' ? 'selected' : '' }}>fa-cart-shopping (Cart)</option>
+                                <option value="fa-bolt" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-bolt' ? 'selected' : '' }}>fa-bolt (Lightning)</option>
+                                <option value="fa-capsules" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-capsules' ? 'selected' : '' }}>fa-capsules (Bioceutical)</option>
+                                <option value="fa-shield-halved" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-shield-halved' ? 'selected' : '' }}>fa-shield-halved (Clinical)</option>
+                                <option value="fa-bag-shopping" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-bag-shopping' ? 'selected' : '' }}>fa-bag-shopping (Shopping Bag)</option>
+                                <option value="fa-plus" {{ ($buttonSettings['btn_buy_now_icon'] ?? '') === 'fa-plus' ? 'selected' : '' }}>fa-plus (Add Plus)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Trust Guarantee Subtext (EN)</label>
+                            <input type="text" name="btn_buy_now_subtext_en" id="inputBtnSubtextEn"
+                                   value="{{ $buttonSettings['btn_buy_now_subtext_en'] ?? '' }}" 
+                                   oninput="updateButtonPreview()"
+                                   placeholder="Clinically Verified Formulation • 100% Purity"
+                                   class="form-control text-xs">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">نص الضمان والمطابقة (AR)</label>
+                            <input type="text" name="btn_buy_now_subtext_ar" id="inputBtnSubtextAr"
+                                   value="{{ $buttonSettings['btn_buy_now_subtext_ar'] ?? '' }}" 
+                                   oninput="updateButtonPreview()"
+                                   dir="rtl"
+                                   placeholder="تركيبة سريرية موثقة • نقاء دوائي 100%"
+                                   class="form-control text-xs font-tajawal">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Catalog & Card Buttons -->
+                <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-800 space-y-4">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider">
+                        <i class="fa-solid fa-layer-group text-[#67B34A]"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'أزرار بطاقات المتجر والكتالوج (Catalog Cards & Quick Add)' : 'Storefront Catalog Cards & Quick Add Buttons' }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Quick Add (EN)</label>
+                            <input type="text" name="btn_quick_add_text_en" id="inputBtnQuickAddEn"
+                                   value="{{ $buttonSettings['btn_quick_add_text_en'] ?? 'QUICK ADD' }}" 
+                                   oninput="updateButtonPreview()"
+                                   class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">إضافة سريعة (AR)</label>
+                            <input type="text" name="btn_quick_add_text_ar" id="inputBtnQuickAddAr"
+                                   value="{{ $buttonSettings['btn_quick_add_text_ar'] ?? 'إضافة سريعة' }}" 
+                                   oninput="updateButtonPreview()"
+                                   dir="rtl"
+                                   class="form-control text-xs font-bold font-tajawal">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">View Dossier (EN)</label>
+                            <input type="text" name="btn_view_details_text_en" 
+                                   value="{{ $buttonSettings['btn_view_details_text_en'] ?? 'VIEW DOSSIER' }}" 
+                                   class="form-control text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">عرض الملف (AR)</label>
+                            <input type="text" name="btn_view_details_text_ar" 
+                                   value="{{ $buttonSettings['btn_view_details_text_ar'] ?? 'عرض الملف السريري' }}" 
+                                   dir="rtl"
+                                   class="form-control text-xs font-bold font-tajawal">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Availability & Protocol Bundle Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Stock State Buttons -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-wider">
+                            <i class="fa-solid fa-boxes-packing"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'نصوص نفاد المخزون والحجز المسبق' : 'Out of Stock & Pre-Order States' }}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Out of Stock (EN)</label>
+                                <input type="text" name="btn_out_of_stock_text_en" value="{{ $buttonSettings['btn_out_of_stock_text_en'] ?? 'CURRENTLY OUT OF STOCK' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">نفدت الكمية (AR)</label>
+                                <input type="text" name="btn_out_of_stock_text_ar" value="{{ $buttonSettings['btn_out_of_stock_text_ar'] ?? 'نفذت الكمية حالياً' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Pre-Order (EN)</label>
+                                <input type="text" name="btn_preorder_text_en" value="{{ $buttonSettings['btn_preorder_text_en'] ?? 'PRE-ORDER PROTOCOL' }}" class="form-control text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">حجز مسبق (AR)</label>
+                                <input type="text" name="btn_preorder_text_ar" value="{{ $buttonSettings['btn_preorder_text_ar'] ?? 'طلب حجز مسبق' }}" class="form-control text-xs" dir="rtl">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Protocol Bundle 1-Click Button -->
+                    <div class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-800 space-y-3">
+                        <div class="flex items-center gap-2 text-xs font-bold text-pink-600 uppercase tracking-wider">
+                            <i class="fa-solid fa-gift"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'زر باقة البروتوكول التكاملي 1-Click' : 'Protocol Bundle 1-Click Button' }}</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Bundle Action Text (EN)</label>
+                                <input type="text" name="btn_bundle_buy_text_en" id="inputBtnBundleEn"
+                                       value="{{ $buttonSettings['btn_bundle_buy_text_en'] ?? 'ADD COMPLETE PROTOCOL TO CART' }}" 
+                                       oninput="updateButtonPreview()"
+                                       class="form-control text-xs font-mono font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">نص زر الباقة (AR)</label>
+                                <input type="text" name="btn_bundle_buy_text_ar" id="inputBtnBundleAr"
+                                       value="{{ $buttonSettings['btn_bundle_buy_text_ar'] ?? 'إضافة البروتوكول التكاملي بالكامل للسلة' }}" 
+                                       oninput="updateButtonPreview()"
+                                       dir="rtl"
+                                       class="form-control text-xs font-bold font-tajawal">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Footer -->
+                <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800 flex-wrap gap-3">
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                        <i class="fa-solid fa-bolt text-pink-500 mr-1 ml-1"></i>
+                        {{ app()->getLocale() === 'ar' ? 'يتم تطبيق نصوص الأزرار فوراً على كامل صفحات وتطبيقات المتجر.' : 'Changes apply immediately across all product pages and catalog cards.' }}
+                    </p>
+                    <button type="submit" class="btn btn-primary font-bold shadow-md px-6 bg-pink-600 hover:bg-pink-700 border-pink-600">
+                        <i class="fa-solid fa-floppy-disk mr-1.5 ml-1.5"></i>
+                        {{ app()->getLocale() === 'ar' ? 'حفظ وتطبيق إعدادات الأزرار' : 'Save Product Button Settings' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toolbar & Filter Tabs -->
     <div class="mb-6 space-y-4">
         <div class="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 pb-3 flex-wrap">
@@ -592,7 +861,26 @@
                             <td>
                                 <span class="badge badge-neutral text-xs">{{ $pCat }}</span>
                             </td>
-                            <td class="font-bold">@currency((float)$pPrice)</td>
+                            <td>
+                                @php
+                                    $pSalePrice = $product['sale_price'] ?? $product->sale_price ?? null;
+                                    $pHasDiscount = !empty($pSalePrice) && (float)$pSalePrice < (float)$pPrice && (float)$pSalePrice > 0;
+                                    $pDiscPct = $pHasDiscount ? (int) round((((float)$pPrice - (float)$pSalePrice) / (float)$pPrice) * 100) : 0;
+                                @endphp
+                                @if($pHasDiscount)
+                                    <div>
+                                        <span class="font-bold font-mono" style="color: var(--color-success, #16a34a);">@currency((float)$pSalePrice)</span>
+                                        <div style="display: flex; align-items: center; gap: 0.35rem; margin-top: 2px;">
+                                            <span class="text-xs text-muted line-through font-mono">@currency((float)$pPrice)</span>
+                                            <span class="badge" style="font-size: 0.65rem; padding: 0.1rem 0.35rem; background: #fee2e2; color: #b91c1c; border-radius: 4px; font-weight: 800;">
+                                                -{{ $pDiscPct }}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="font-bold font-mono">@currency((float)$pPrice)</span>
+                                @endif
+                            </td>
                             <td>
                                 <span class="badge {{ $pOnlineStock <= $pLowThreshold ? 'badge-warning' : 'badge-success' }}">
                                     {{ $pOnlineStock }} units
@@ -711,6 +999,118 @@
                 body.classList.add('hidden');
                 icon.classList.remove('rotate-180');
             }
+        }
+
+        function toggleButtonSettingsCollapse() {
+            const body = document.getElementById('buttonSettingsCollapseBody');
+            const icon = document.getElementById('toggleButtonSettingsIcon');
+            if (!body) return;
+            const isHidden = body.classList.contains('hidden');
+
+            if (isHidden) {
+                body.classList.remove('hidden');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                body.classList.add('hidden');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+
+        function updateButtonPreview() {
+            const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
+            const buyNowEn = document.getElementById('inputBtnBuyNowEn')?.value;
+            const buyNowAr = document.getElementById('inputBtnBuyNowAr')?.value;
+            const subtextEn = document.getElementById('inputBtnSubtextEn')?.value;
+            const subtextAr = document.getElementById('inputBtnSubtextAr')?.value;
+            const quickAddEn = document.getElementById('inputBtnQuickAddEn')?.value;
+            const quickAddAr = document.getElementById('inputBtnQuickAddAr')?.value;
+            const bundleEn = document.getElementById('inputBtnBundleEn')?.value;
+            const bundleAr = document.getElementById('inputBtnBundleAr')?.value;
+            const iconClass = document.getElementById('inputBtnBuyNowIcon')?.value;
+
+            const prevBuyNowText = document.getElementById('prevBtnBuyNowText');
+            if (prevBuyNowText) {
+                prevBuyNowText.textContent = isAr ? (buyNowAr || 'إضافة إلى السلة والبروتوكول') : (buyNowEn || 'ADD TO CLINICAL PROTOCOL');
+            }
+
+            const prevBuyNowIcon = document.getElementById('prevBtnBuyNowIcon');
+            if (prevBuyNowIcon && iconClass) {
+                prevBuyNowIcon.className = `fa-solid ${iconClass}`;
+            }
+
+            const prevSubtext = document.getElementById('prevBtnBuyNowSubtext');
+            if (prevSubtext) {
+                const subVal = isAr ? subtextAr : subtextEn;
+                if (subVal && subVal.trim() !== '') {
+                    prevSubtext.style.display = 'block';
+                    prevSubtext.innerHTML = `<i class="fa-solid fa-circle-check text-[9px] mr-1 ml-1"></i><span>${subVal}</span>`;
+                } else {
+                    prevSubtext.style.display = 'none';
+                }
+            }
+
+            const prevQuickAdd = document.getElementById('prevBtnQuickAddText');
+            if (prevQuickAdd) {
+                prevQuickAdd.textContent = isAr ? (quickAddAr || 'إضافة سريعة') : (quickAddEn || 'QUICK ADD');
+            }
+
+            const prevBundle = document.getElementById('prevBtnBundleText');
+            if (prevBundle) {
+                prevBundle.textContent = isAr ? (bundleAr || 'إضافة البروتوكول التكاملي') : (bundleEn || 'ADD COMPLETE PROTOCOL');
+            }
+        }
+
+        function applyButtonPreset(preset) {
+            const presets = {
+                clinical: {
+                    buy_now_en: 'ADD TO CLINICAL PROTOCOL',
+                    buy_now_ar: 'إضافة إلى السلة والبروتوكول',
+                    icon: 'fa-cart-shopping',
+                    subtext_en: 'Clinically Verified Formulation • 100% Purity',
+                    subtext_ar: 'تركيبة سريرية موثقة • نقاء دوائي 100%',
+                    quick_add_en: 'QUICK ADD',
+                    quick_add_ar: 'إضافة سريعة',
+                    bundle_en: 'ADD COMPLETE PROTOCOL TO CART',
+                    bundle_ar: 'إضافة البروتوكول التكاملي بالكامل للسلة'
+                },
+                longevity: {
+                    buy_now_en: 'COMMENCE LONGEVITY REGIMEN',
+                    buy_now_ar: 'بدء برنامج طول العمر الحيوي',
+                    icon: 'fa-capsules',
+                    subtext_en: 'Targeted Longevity Biomarkers & Cellular Support',
+                    subtext_ar: 'دعم حيوي متقدم للمؤشرات الخلوية والعمر الصحي',
+                    quick_add_en: 'RESERVE',
+                    quick_add_ar: 'حجز فوري',
+                    bundle_en: 'START CELLULAR LONGEVITY STACK',
+                    bundle_ar: 'تفعيل باقة تعزيز الخلايا المتكاملة'
+                },
+                ecommerce: {
+                    buy_now_en: 'ADD TO SHOPPING BAG',
+                    buy_now_ar: 'أضف إلى حقيبة التسوق',
+                    icon: 'fa-bag-shopping',
+                    subtext_en: 'Fast Shipping • Satisfaction Guaranteed',
+                    subtext_ar: 'شحن سريع ومجاني • ضمان استرجاع موثوق',
+                    quick_add_en: 'ADD TO BAG',
+                    quick_add_ar: 'أضف للحقيبة',
+                    bundle_en: 'BUY COMPLETE BUNDLE NOW',
+                    bundle_ar: 'شراء الباقة بالكامل الآن'
+                }
+            };
+
+            const data = presets[preset];
+            if (!data) return;
+
+            if (document.getElementById('inputBtnBuyNowEn')) document.getElementById('inputBtnBuyNowEn').value = data.buy_now_en;
+            if (document.getElementById('inputBtnBuyNowAr')) document.getElementById('inputBtnBuyNowAr').value = data.buy_now_ar;
+            if (document.getElementById('inputBtnBuyNowIcon')) document.getElementById('inputBtnBuyNowIcon').value = data.icon;
+            if (document.getElementById('inputBtnSubtextEn')) document.getElementById('inputBtnSubtextEn').value = data.subtext_en;
+            if (document.getElementById('inputBtnSubtextAr')) document.getElementById('inputBtnSubtextAr').value = data.subtext_ar;
+            if (document.getElementById('inputBtnQuickAddEn')) document.getElementById('inputBtnQuickAddEn').value = data.quick_add_en;
+            if (document.getElementById('inputBtnQuickAddAr')) document.getElementById('inputBtnQuickAddAr').value = data.quick_add_ar;
+            if (document.getElementById('inputBtnBundleEn')) document.getElementById('inputBtnBundleEn').value = data.bundle_en;
+            if (document.getElementById('inputBtnBundleAr')) document.getElementById('inputBtnBundleAr').value = data.bundle_ar;
+
+            updateButtonPreview();
         }
 
         async function toggleProductLanding(button, productId) {

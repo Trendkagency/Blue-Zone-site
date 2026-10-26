@@ -1,4 +1,8 @@
 <x-layouts.customer :title="'SHOP CATALOG — ' . __('app.brand_name')" :description="'Explore clinical dietary formulations by category, rating, and price. Science-backed nutrition for cognitive health, energy, immunity, and joint mobility.'">
+    @php
+        $isRtl = app()->getLocale() === 'ar';
+        $shopCartBtnText = \App\Models\Setting::get('btn_quick_add_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'أضف للسلة' : 'ADD TO CART'));
+    @endphp
     <div class="py-12 bg-[#F6F5EF] dark:bg-[#031827] min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
@@ -83,6 +87,10 @@
                                 <a href="{{ route('customer.product.show', $pSlug) }}"
                                     class="block w-full h-full overflow-hidden">
                                     <img src="{{ $pImage }}" alt="{{ $pName }}"
+                                        width="400"
+                                        height="400"
+                                        loading="lazy"
+                                        decoding="async"
                                         onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-mind.webp') }}';"
                                         class="w-full h-full object-cover object-center hover:scale-108 transition-transform duration-700 ease-out" />
                                     <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/50 via-transparent to-transparent"></div>
@@ -94,10 +102,18 @@
                                 </span>
 
                                 @if ($hasSale)
-                                    <span
-                                        class="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-10 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-[#67B34A] text-white shadow-sm">
-                                        {{ app()->getLocale() === 'ar' ? 'عرض خاص' : 'SALE' }}
-                                    </span>
+                                    @php
+                                        $pDiscountPct = round((((float)$pPrice - (float)$pSalePrice) / (float)$pPrice) * 100);
+                                        $pDiscountBadgeText = $pDiscountPct > 0 
+                                            ? (app()->getLocale() === 'ar' ? "خصم {$pDiscountPct}%" : "-{$pDiscountPct}% OFF")
+                                            : (app()->getLocale() === 'ar' ? 'عرض خاص' : 'SALE');
+                                    @endphp
+                                    <div class="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-20 pointer-events-none">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white shadow-xl backdrop-blur-md border border-white/20 dark:border-[#2A8FC2]/40 transition-transform hover:scale-105">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                                            <span class="font-mono text-[#B8D98A] font-black text-[11px] tracking-tight">{{ $pDiscountBadgeText }}</span>
+                                        </span>
+                                    </div>
                                 @endif
                             </div>
                             <div>
@@ -136,26 +152,26 @@
                                 <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
                             </a>
 
-                            <div class="flex items-center justify-between gap-4 pt-1">
-                                <div>
+                            <div class="flex items-center justify-between gap-3 pt-1 flex-wrap">
+                                <div class="min-w-0">
                                     @if ($hasSale)
                                         <span class="block text-[11px] font-bold text-[#031827]/40 dark:text-white/40 line-through font-mono">
                                             @currency($pPrice)
                                         </span>
                                     @endif
-                                    <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                                    <div class="text-xl sm:text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
                                         @currency($displayPrice)
                                     </div>
                                 </div>
-                                <div class="flex gap-2">
+                                <div class="flex items-center gap-2 shrink-0">
                                     <button onclick="BLUEZONE_WISHLIST.toggle('{{ $pSlug }}')"
-                                        class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer"
+                                        class="p-2.5 sm:p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer shrink-0"
                                         title="{{ app()->getLocale() === 'ar' ? 'المفضلة' : 'Wishlist' }}">
                                         <i class="fa-solid fa-heart"></i>
                                     </button>
                                     <button onclick="BLUEZONE_CART.add('{{ $pSlug }}', 1)"
-                                        class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
-                                        {{ app()->getLocale() === 'ar' ? 'أضف للسلة' : 'ADD TO CART' }}
+                                        class="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer shrink-0 whitespace-nowrap">
+                                        {{ $shopCartBtnText }}
                                     </button>
                                 </div>
                             </div>
@@ -203,6 +219,16 @@
                 <span class="absolute top-3 left-3 text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#0A4F78]/10 text-[#0A4F78] dark:bg-[#0A4F78]/40 dark:text-[#2A8FC2]">
                   ${p.category}
                 </span>
+                ${p.sale_price && Number(p.sale_price) < Number(p.price) ? `
+                  <div class="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-20 pointer-events-none">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white shadow-xl backdrop-blur-md border border-white/20 dark:border-[#2A8FC2]/40">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                      <span class="font-mono text-[#B8D98A] font-black text-[11px] tracking-tight">
+                        ${Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100) > 0 ? (isArabic ? 'خصم ' + Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100) + '%' : '-' + Math.round(((Number(p.price) - Number(p.sale_price)) / Number(p.price)) * 100) + '% OFF') : (isArabic ? 'عرض خاص' : 'SALE')}
+                      </span>
+                    </span>
+                  </div>
+                ` : ''}
                 <a href="/products/${productSlug}" class="w-full h-full flex items-center justify-center">
                   <img src="${pImgUrl}" alt="${p.name}" onerror="this.onerror=null; this.src='/assets/products/blue-mind.webp';" class="max-h-56 object-contain hover:scale-105 transition-transform" />
                 </a>
@@ -241,19 +267,19 @@
                 <i class="fa-solid ${isArabic ? 'fa-arrow-left' : 'fa-arrow-right'} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
               </a>
 
-              <div class="flex items-center justify-between gap-4 pt-1">
-                <div>
+              <div class="flex items-center justify-between gap-3 pt-1 flex-wrap">
+                <div class="min-w-0">
                   ${p.sale_price && Number(p.sale_price) < Number(p.price) ? `<span class="block text-[11px] font-bold text-[#031827]/40 dark:text-white/40 line-through font-mono">$${Number(p.price).toFixed(2)}</span>` : ''}
-                  <div class="text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                  <div class="text-xl sm:text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
                     $${(p.sale_price && Number(p.sale_price) < Number(p.price) ? Number(p.sale_price) : Number(p.price)).toFixed(2)}
                   </div>
                 </div>
-                <div class="flex gap-2">
-                  <button onclick="BLUEZONE_WISHLIST.toggle('${productSlug}')" class="p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer" title="${isArabic ? 'المفضلة' : 'Wishlist'}">
+                <div class="flex items-center gap-2 shrink-0">
+                  <button onclick="BLUEZONE_WISHLIST.toggle('${productSlug}')" class="p-2.5 sm:p-3 rounded-xl border border-[#0A4F78]/30 hover:border-[#67B34A] text-[#0A4F78] dark:text-[#2A8FC2] hover:text-[#67B34A] transition-colors cursor-pointer shrink-0" title="${isArabic ? 'المفضلة' : 'Wishlist'}">
                     <i class="fa-solid fa-heart"></i>
                   </button>
-                  <button onclick="BLUEZONE_CART.add('${productSlug}', 1)" class="px-5 py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer">
-                    ${isArabic ? 'أضف للسلة' : 'ADD TO CART'}
+                  <button onclick="BLUEZONE_CART.add('${productSlug}', 1)" class="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider transition-all btn-sheen cursor-pointer shrink-0 whitespace-nowrap">
+                    ${isArabic ? '{{ addslashes(\App\Models\Setting::get("btn_quick_add_text_ar", "أضف للسلة")) }}' : '{{ addslashes(\App\Models\Setting::get("btn_quick_add_text_en", "ADD TO CART")) }}'}
                   </button>
                 </div>
               </div>

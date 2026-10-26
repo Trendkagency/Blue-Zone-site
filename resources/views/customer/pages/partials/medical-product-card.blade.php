@@ -6,6 +6,12 @@
     $sku = data_get($product, 'sku', 'BZ-PROT-001');
     $price = (float) data_get($product, 'price', 0);
     $salePrice = data_get($product, 'sale_price');
+    $hasDiscount = !empty($salePrice) && (float)$salePrice < (float)$price && (float)$salePrice > 0;
+    $discountPct = $hasDiscount ? (int) round((((float)$price - (float)$salePrice) / (float)$price) * 100) : 0;
+    $discountAmount = $hasDiscount ? ((float)$price - (float)$salePrice) : 0;
+    $discountBadgeText = $hasDiscount 
+        ? ($discountPct > 0 ? ($isRtl ? "خصم {$discountPct}%" : "-{$discountPct}% OFF") : ($isRtl ? "وفر \${$discountAmount}" : "SAVE \${$discountAmount}"))
+        : '';
     $rating = data_get($product, 'rating', 4.9);
     $reviewsCount = data_get($product, 'reviews_count', 128);
     $size = data_get($product, 'product_size', ($isRtl ? '60 كبسولة نباتية' : '60 Veg Capsules'));
@@ -15,6 +21,10 @@
     $catName = $catObj 
         ? ($isRtl ? data_get($catObj, 'name_ar') : data_get($catObj, 'name_en'))
         : (data_get($product, 'category_en') ?: ($isRtl ? 'تركيبة طول العمر' : 'Longevity Formulation'));
+
+    // Dynamic CMS Button Settings
+    $quickAddText = \App\Models\Setting::get('btn_quick_add_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'أضف' : 'ADD'));
+    $viewDetailsText = \App\Models\Setting::get('btn_view_details_text_' . ($isRtl ? 'ar' : 'en'), ($isRtl ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details'));
 
     // Image resolution
     $rawImage = data_get($product, 'image', '');
@@ -74,6 +84,8 @@
         <a href="{{ route('customer.product.show', $slug) }}" class="block aspect-square sm:aspect-[4/3] rounded-2xl bg-[#031827] relative overflow-hidden group/img transition-all border border-[#0A4F78]/15 dark:border-[#0A4F78]/30 shadow-md">
             <img src="{{ $imagePath }}" 
                  alt="{{ $name }}" 
+                 width="400" 
+                 height="400"
                  onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';" 
                  loading="lazy" 
                  decoding="async" 
@@ -81,6 +93,15 @@
             
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#031827]/70 via-[#031827]/15 to-transparent"></div>
             <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl"></div>
+
+            @if($hasDiscount)
+                <div class="absolute top-2.5 end-2.5 z-20 pointer-events-none">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white shadow-xl backdrop-blur-md border border-white/20 dark:border-[#2A8FC2]/40 transition-transform group-hover/img:scale-105">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#67B34A] animate-pulse"></span>
+                        <span class="font-mono text-[#B8D98A] font-black text-xs tracking-tight">{{ $discountBadgeText }}</span>
+                    </span>
+                </div>
+            @endif
 
             <div class="absolute bottom-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none z-10">
                 <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/90 dark:bg-[#031827]/90 text-[#031827] dark:text-[#F6F5EF] border border-white/20 shadow-sm backdrop-blur-md">
@@ -94,18 +115,23 @@
 
         <!-- Identity & Header -->
         <div class="space-y-1">
-            <div class="flex items-baseline justify-between gap-2">
-                <h3 class="text-xl sm:text-2xl font-black text-[#031827] dark:text-[#F6F5EF] tracking-tight hover:text-[#67B34A] transition-colors">
+            <div class="flex items-baseline justify-between gap-2 flex-wrap">
+                <h3 class="text-lg sm:text-xl md:text-2xl font-black text-[#031827] dark:text-[#F6F5EF] tracking-tight hover:text-[#67B34A] transition-colors flex-1 min-w-[140px]">
                     <a href="{{ route('customer.product.show', $slug) }}">
                         {{ $name }}
                     </a>
                 </h3>
-                <div class="text-right">
-                    @if($salePrice && $salePrice < $price)
-                        <span class="text-xs text-gray-400 line-through mr-1">@currency($price)</span>
-                        <span class="text-lg sm:text-xl font-black text-[#67B34A]">@currency($salePrice)</span>
+                <div class="text-right shrink-0">
+                    @if($hasDiscount)
+                        <div class="flex flex-col items-end">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs text-gray-400 line-through font-mono">@currency($price)</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono">-{{ $discountPct }}%</span>
+                            </div>
+                            <span class="text-base sm:text-lg md:text-xl font-black text-[#67B34A]">@currency($salePrice)</span>
+                        </div>
                     @else
-                        <span class="text-lg sm:text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($price)</span>
+                        <span class="text-base sm:text-lg md:text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">@currency($price)</span>
                     @endif
                 </div>
             </div>
@@ -178,10 +204,10 @@
 
             <!-- 4. Clinical Protocol & Safety Alert -->
             <div class="space-y-2 pt-1">
-                <div class="p-2 rounded-xl bg-gray-50 dark:bg-[#031827]/60 border border-gray-200/80 dark:border-gray-800 text-[10px] text-[#031827]/75 dark:text-[#F6F5EF]/75 flex items-center gap-2">
+                <div class="p-2 rounded-xl bg-gray-50 dark:bg-[#031827]/60 border border-gray-200/80 dark:border-gray-800 text-[10px] text-[#031827]/75 dark:text-[#F6F5EF]/75 flex items-center gap-2 min-w-0 overflow-hidden">
                     <i class="fa-solid fa-clock-rotate-left text-[#0A4F78] dark:text-[#2A8FC2] text-xs shrink-0"></i>
-                    <span class="font-semibold">{{ $isRtl ? 'البروتوكول اليومي:' : 'Daily Protocol:' }}</span>
-                    <span class="truncate">{{ $usage }}</span>
+                    <span class="font-semibold shrink-0">{{ $isRtl ? 'البروتوكول اليومي:' : 'Daily Protocol:' }}</span>
+                    <span class="truncate min-w-0">{{ $usage }}</span>
                 </div>
 
                 <div class="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-800 dark:text-amber-200 flex items-start gap-2">
@@ -193,18 +219,18 @@
     </div>
 
     <!-- Action Controls Footer -->
-    <div class="pt-5 mt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex flex-col sm:flex-row items-center gap-2.5">
+    <div class="pt-4 sm:pt-5 mt-4 border-t border-[#0A4F78]/15 dark:border-[#0A4F78]/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
         <a href="{{ route('customer.science.product', $slug) }}" 
-           class="w-full sm:flex-1 py-3 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/25 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-center shadow-sm">
-            <i class="fa-solid fa-flask-vial"></i>
-            <span>{{ $isRtl ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details' }}</span>
+           class="w-full sm:flex-1 py-3 px-3 sm:px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/25 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 text-center shadow-sm min-w-0">
+            <i class="fa-solid fa-flask-vial shrink-0"></i>
+            <span class="truncate">{{ $viewDetailsText }}</span>
         </a>
 
         <button type="button" 
                 onclick="if(window.BLUEZONE_CART){ BLUEZONE_CART.add({{ $productId }}, 1); if(window.toast){ window.toast.success('{{ $isRtl ? 'تمت إضافة ' . $name . ' إلى البروتوكول' : 'Added ' . $name . ' to Clinical Protocol' }}'); } } else { window.location.href='{{ route('customer.product.show', $slug) }}'; }"
-                class="w-full sm:w-auto py-3 px-5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer btn-sheen whitespace-nowrap">
-            <i class="fa-solid fa-cart-plus"></i>
-            <span>{{ $isRtl ? 'أضف' : 'ADD' }}</span>
+                class="w-full sm:w-auto py-3 px-4 sm:px-5 rounded-xl bg-[#0A4F78] hover:bg-[#062B49] text-white text-xs font-black uppercase tracking-wider shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer btn-sheen shrink-0 whitespace-nowrap text-center">
+            <i class="fa-solid fa-cart-plus shrink-0"></i>
+            <span>{{ $quickAddText }}</span>
         </button>
     </div>
 </article>
