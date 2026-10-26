@@ -63,6 +63,14 @@
         <div class="wizard-step" data-step="6" onclick="goToStep(6)">
             <div class="step-num">6</div>
             <div class="step-info">
+                <span class="step-title">{{ app()->getLocale() == 'ar' ? 'تخصيص الأقسام' : 'Page & Sections' }}</span>
+                <span class="step-sub">{{ app()->getLocale() == 'ar' ? 'إعدادات الشاشات' : 'Screen Controls' }}</span>
+            </div>
+        </div>
+
+        <div class="wizard-step" data-step="7" onclick="goToStep(7)">
+            <div class="step-num">7</div>
+            <div class="step-info">
                 <span class="step-title">{{ __('admin.products.tabs.inventory') }}</span>
                 <span class="step-sub">{{ app()->getLocale() == 'ar' ? 'المخزون والمراجعة' : 'Stock & Review' }}</span>
             </div>
@@ -757,8 +765,13 @@
             </div>
         </div>
 
-        <!-- STEP 6: Inventory & Controls & Summary Review -->
+        <!-- STEP 6: Page & Section Customizer (Screen & Layout Settings) -->
         <div class="wizard-step-pane" id="step-pane-6" style="display: none;">
+            @include('admin.products.partials.section_customizer_step')
+        </div>
+
+        <!-- STEP 7: Inventory & Controls & Summary Review -->
+        <div class="wizard-step-pane" id="step-pane-7" style="display: none;">
             <div style="display: flex; flex-direction: column; gap: 2rem;">
                 <!-- Audited Live Inventory Multi-Warehouse Control Hub -->
                 <div class="card" style="padding: 2.25rem;">
@@ -769,7 +782,7 @@
                                 <span>{{ app()->getLocale() === 'ar' ? 'الرقابة على المخزون والأرصدة الحية' : 'Audited Inventory & Multi-Hub Balances' }}</span>
                             </h3>
                             <p class="text-xs text-muted" style="margin: 0;">
-                                {{ app()->getLocale() === 'ar' ? 'الخطوة 6 من 6: الرصيد الفعلي المعتمد عبر المستودعات وضوابط التنبيهات' : 'Step 6 of 6: Live multi-location inventory ledger and replenishment controls' }}
+                                {{ app()->getLocale() === 'ar' ? 'الخطوة 7 من 7: الرصيد الفعلي المعتمد عبر المستودعات وضوابط التنبيهات' : 'Step 7 of 7: Live multi-location inventory ledger and replenishment controls' }}
                             </p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -1125,7 +1138,7 @@
 
     <script>
         let currentStep = 1;
-        const totalSteps = 6;
+        const totalSteps = 7;
         const taxRate = {{ (float) $taxInfo['tax_rate'] }};
         const pricesIncludeTax = {{ $taxInfo['is_inclusive'] ? 'true' : 'false' }};
 
@@ -1185,8 +1198,8 @@
             if (btnNext) btnNext.style.display = (step < totalSteps) ? 'inline-flex' : 'none';
             if (btnSubmit) btnSubmit.style.display = (step === totalSteps) ? 'inline-flex' : 'none';
 
-            // If Step 6, update review summary
-            if (step === 6) {
+            // If Step 7, update review summary
+            if (step === 7) {
                 updateReviewSummary();
             }
 

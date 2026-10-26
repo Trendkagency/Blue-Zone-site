@@ -78,7 +78,10 @@ class UpdateProductRequest extends FormRequest
             'ingredients.*.name_ar' => ['nullable', 'string', 'max:255'],
             'ingredients.*.dose' => ['nullable', 'string', 'max:100'],
 
-            // Step 6: Inventory & Controls (Audited via Inventory Movements)
+            // Step 6: Page & Section Customizer
+            'section_settings' => ['nullable', 'array'],
+
+            // Step 7: Inventory & Controls (Audited via Inventory Movements)
             'stock_online' => ['nullable', 'integer', 'min:0'],
             'stock_offline' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:1'],

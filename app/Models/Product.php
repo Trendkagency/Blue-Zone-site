@@ -62,6 +62,7 @@ class Product extends Model implements HasMedia
         'contraindications',
         'warnings',
         'enable_backorders',
+        'section_settings',
     ];
 
     protected function casts(): array
@@ -81,6 +82,7 @@ class Product extends Model implements HasMedia
             'benefits_en' => 'array',
             'benefits_ar' => 'array',
             'ingredients' => 'array',
+            'section_settings' => 'array',
         ];
     }
 
@@ -212,6 +214,9 @@ class Product extends Model implements HasMedia
             $parsedPath = parse_url($trimmed, PHP_URL_PATH);
             if (!empty($parsedPath)) {
                 $cleanedPath = '/' . ltrim($parsedPath, '/');
+                if (str_starts_with($cleanedPath, '/public/storage/')) {
+                    $cleanedPath = substr($cleanedPath, 7);
+                }
                 // Strip foreign domain if path is internal storage, uploads, assets, or images
                 if (str_starts_with($cleanedPath, '/storage/') || str_starts_with($cleanedPath, '/uploads/') || str_starts_with($cleanedPath, '/assets/') || str_starts_with($cleanedPath, '/images/')) {
                     return $cleanedPath;
@@ -234,12 +239,24 @@ class Product extends Model implements HasMedia
         if (str_contains($trimmed, '/storage/')) {
             $parsedPath = parse_url($trimmed, PHP_URL_PATH);
             if (!empty($parsedPath)) {
-                return '/' . ltrim($parsedPath, '/');
+                $cleaned = '/' . ltrim($parsedPath, '/');
+                if (str_starts_with($cleaned, '/public/storage/')) {
+                    $cleaned = substr($cleaned, 7);
+                }
+                return $cleaned;
             }
+        }
+
+        // If it starts with public/storage/
+        if (str_starts_with($trimmed, 'public/storage/')) {
+            return '/' . substr($trimmed, 7);
         }
 
         // If it starts with slash already
         if (str_starts_with($trimmed, '/')) {
+            if (str_starts_with($trimmed, '/public/storage/')) {
+                return substr($trimmed, 7);
+            }
             return $trimmed;
         }
 
@@ -332,7 +349,140 @@ class Product extends Model implements HasMedia
         return 'in_stock';
     }
 
+    /**
+     * Resolve section customization settings for this product, merging product overrides with global settings.
+     *
+     * @param string $key Section key ('dossier', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'buy_box', 'related')
+     * @return array
+     */
+    public function getSectionConfig(string $key): array
+    {
+        $productSettings = is_array($this->section_settings) ? ($this->section_settings[$key] ?? []) : [];
+        $isRtl = app()->getLocale() === 'ar';
 
+        // Global defaults from Setting model with fallback defaults
+        $defaultLabels = [
+            'dossier' => [
+                'badge_en' => 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH',
+                'badge_ar' => 'الملف الطبي والمواصفات السريرية المعتمدة',
+                'title_en' => 'Comprehensive Formulation Specifications',
+                'title_ar' => 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر',
+            ],
+            'sec1' => [
+                'badge_en' => 'Standardized Monograph',
+                'badge_ar' => 'النقاء والجرعات القياسية',
+                'title_en' => 'Active Bio-Compounds & Potencies',
+                'title_ar' => 'المكونات الفعالة والجرعات المعيارية',
+            ],
+            'sec2' => [
+                'badge_en' => 'Physiological Biomarkers',
+                'badge_ar' => 'الأثر الفسيولوجي المباشر والمستدام',
+                'title_en' => 'Clinical Benefits & Physiological Targets',
+                'title_ar' => 'الفوائد السريرية والمسارات البيولوجية',
+            ],
+            'sec3' => [
+                'badge_en' => 'Synergistic Protocol',
+                'badge_ar' => 'الجرعات والتكامل الحيوي',
+                'title_en' => 'Clinical Protocol & Usage Guidelines',
+                'title_ar' => 'بروتوكول الاستخدام والتوجيهات السريرية',
+            ],
+            'sec4' => [
+                'badge_en' => 'Molecular Pharmacokinetics',
+                'badge_ar' => 'الأبحاث الصيدلانية وطول العمر',
+                'title_en' => 'Cellular Science & Mechanism of Action',
+                'title_ar' => 'الآلية العلمية الدوائية المتقدمة',
+            ],
+            'sec5' => [
+                'badge_en' => 'Clinical Safety & Warnings',
+                'badge_ar' => 'الأمان والنزاهة الصيدلانية',
+                'title_en' => 'Safety Profile, Warnings & Precautions',
+                'title_ar' => 'إرشادات السلامة، التحذيرات وموانع الاستعمال',
+            ],
+            'sec6' => [
+                'badge_en' => 'Batch Certification',
+                'badge_ar' => 'بيانات التوثيق والضمان',
+                'title_en' => 'Monograph & Supply Specifications',
+                'title_ar' => 'المواصفات الفنية، التعبئة وضمان النقاء',
+            ],
+            'buy_box' => [
+                'badge_en' => 'Purchase Information',
+                'badge_ar' => 'بيانات الشراء',
+                'title_en' => 'Order & Quick Checkout',
+                'title_ar' => 'طلب المستحضر والشراء السريع',
+            ],
+            'related' => [
+                'badge_en' => 'SYNERGISTIC LONGEVITY PROTOCOLS',
+                'badge_ar' => 'التكامل الحيوي',
+                'title_en' => 'Complementary Formulations',
+                'title_ar' => 'تركيبات متكاملة تعزز النتائج',
+            ],
+        ];
+
+        $globalEnabled = (bool) Setting::get("pdetail_{$key}_enabled", true);
+
+        $enabledDesktop = array_key_exists('enabled_desktop', $productSettings)
+            ? (bool) $productSettings['enabled_desktop'] 
+            : $globalEnabled;
+
+        $enabledMobile = array_key_exists('enabled_mobile', $productSettings)
+            ? (bool) $productSettings['enabled_mobile'] 
+            : $globalEnabled;
+
+        $defaultOpen = array_key_exists('default_open', $productSettings)
+            ? (bool) $productSettings['default_open'] 
+            : ($key === 'sec1'); // Section 1 opens by default
+
+        $badgeEn = !empty($productSettings['badge_en']) 
+            ? $productSettings['badge_en'] 
+            : Setting::get("pdetail_{$key}_badge_en", $defaultLabels[$key]['badge_en'] ?? '');
+        $badgeAr = !empty($productSettings['badge_ar']) 
+            ? $productSettings['badge_ar'] 
+            : Setting::get("pdetail_{$key}_badge_ar", $defaultLabels[$key]['badge_ar'] ?? '');
+        $titleEn = !empty($productSettings['title_en']) 
+            ? $productSettings['title_en'] 
+            : Setting::get("pdetail_{$key}_title_en", $defaultLabels[$key]['title_en'] ?? '');
+        $titleAr = !empty($productSettings['title_ar']) 
+            ? $productSettings['title_ar'] 
+            : Setting::get("pdetail_{$key}_title_ar", $defaultLabels[$key]['title_ar'] ?? '');
+
+        $badge = $isRtl && !empty($badgeAr) ? $badgeAr : ($badgeEn ?: $badgeAr);
+        $title = $isRtl && !empty($titleAr) ? $titleAr : ($titleEn ?: $titleAr);
+
+        $customContentEnabled = !empty($productSettings['custom_content_enabled']);
+        $customContent = $isRtl && !empty($productSettings['custom_content_ar']) 
+            ? $productSettings['custom_content_ar'] 
+            : ($productSettings['custom_content_en'] ?? $productSettings['custom_content_ar'] ?? null);
+
+        $isVisible = $globalEnabled && ($enabledDesktop || $enabledMobile);
+
+        $responsiveClass = '';
+        if (!$enabledDesktop && !$enabledMobile) {
+            $responsiveClass = 'hidden';
+            $isVisible = false;
+        } elseif ($enabledDesktop && !$enabledMobile) {
+            $responsiveClass = 'hidden md:block';
+        } elseif (!$enabledDesktop && $enabledMobile) {
+            $responsiveClass = 'block md:hidden';
+        }
+
+        return [
+            'enabled_desktop' => $enabledDesktop,
+            'enabled_mobile' => $enabledMobile,
+            'is_visible' => $isVisible,
+            'responsive_class' => $responsiveClass,
+            'default_open' => $defaultOpen,
+            'badge' => $badge,
+            'badge_en' => $badgeEn,
+            'badge_ar' => $badgeAr,
+            'title' => $title,
+            'title_en' => $titleEn,
+            'title_ar' => $titleAr,
+            'custom_content_enabled' => $customContentEnabled,
+            'custom_content' => $customContent,
+            'custom_content_en' => $productSettings['custom_content_en'] ?? '',
+            'custom_content_ar' => $productSettings['custom_content_ar'] ?? '',
+        ];
+    }
 
     public function registerMediaCollections(): void
     {

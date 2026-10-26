@@ -37,14 +37,52 @@ Route::get('/orders/{order}/download-invoice', [\App\Http\Controllers\OrderTrack
 
 // Direct Fallback Route for /storage/ files if Symlink is unavailable or blocked by hosting environment
 Route::get('/storage/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . $path);
-    if (!file_exists($fullPath)) {
+    $cleanPath = ltrim($path, '/');
+    if (str_contains($cleanPath, '..')) {
         abort(404);
+    }
+    $fullPath = storage_path('app/public/' . $cleanPath);
+    if (!file_exists($fullPath) || !is_file($fullPath)) {
+        // Fallback 1: check public assets products directory by basename
+        $basename = basename($cleanPath);
+        $assetCandidate = public_path('assets/products/' . $basename);
+        if (file_exists($assetCandidate) && is_file($assetCandidate)) {
+            $fullPath = $assetCandidate;
+        } elseif (file_exists(public_path($cleanPath)) && is_file(public_path($cleanPath))) {
+            $fullPath = public_path($cleanPath);
+        } else {
+            abort(404);
+        }
     }
     return response()->file($fullPath, [
         'Cache-Control' => 'public, max-age=31536000',
+        'Access-Control-Allow-Origin' => '*',
     ]);
 })->where('path', '.*')->name('storage.fallback');
+
+Route::get('/public/storage/{path}', function (string $path) {
+    $cleanPath = ltrim($path, '/');
+    if (str_contains($cleanPath, '..')) {
+        abort(404);
+    }
+    $fullPath = storage_path('app/public/' . $cleanPath);
+    if (!file_exists($fullPath) || !is_file($fullPath)) {
+        // Fallback 1: check public assets products directory by basename
+        $basename = basename($cleanPath);
+        $assetCandidate = public_path('assets/products/' . $basename);
+        if (file_exists($assetCandidate) && is_file($assetCandidate)) {
+            $fullPath = $assetCandidate;
+        } elseif (file_exists(public_path($cleanPath)) && is_file(public_path($cleanPath))) {
+            $fullPath = public_path($cleanPath);
+        } else {
+            abort(404);
+        }
+    }
+    return response()->file($fullPath, [
+        'Cache-Control' => 'public, max-age=31536000',
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+})->where('path', '.*')->name('storage.public.fallback');
 
 // Load Customer, Admin, and MR Routes
 require __DIR__ . '/customer.php';

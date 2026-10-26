@@ -117,48 +117,7 @@ class ProductController extends Controller
             $q->where('status', 'active')->orWhere('is_active', true);
         })->where('show_on_landing', true)->count();
 
-        $detailsSettings = [
-            'pdetail_dossier_enabled' => (bool) \App\Models\Setting::get('pdetail_dossier_enabled', true),
-            'pdetail_dossier_badge_en' => \App\Models\Setting::get('pdetail_dossier_badge_en', 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH'),
-            'pdetail_dossier_badge_ar' => \App\Models\Setting::get('pdetail_dossier_badge_ar', 'الملف الطبي والمواصفات السريرية المعتمدة'),
-            'pdetail_dossier_title_en' => \App\Models\Setting::get('pdetail_dossier_title_en', 'Comprehensive Formulation Specifications'),
-            'pdetail_dossier_title_ar' => \App\Models\Setting::get('pdetail_dossier_title_ar', 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر'),
-
-            'pdetail_sec1_badge_en' => \App\Models\Setting::get('pdetail_sec1_badge_en', 'Standardized Monograph'),
-            'pdetail_sec1_badge_ar' => \App\Models\Setting::get('pdetail_sec1_badge_ar', 'النقاء والجرعات القياسية'),
-            'pdetail_sec1_title_en' => \App\Models\Setting::get('pdetail_sec1_title_en', 'Active Bio-Compounds & Potencies'),
-            'pdetail_sec1_title_ar' => \App\Models\Setting::get('pdetail_sec1_title_ar', 'المكونات الفعالة والجرعات المعيارية'),
-
-            'pdetail_sec2_badge_en' => \App\Models\Setting::get('pdetail_sec2_badge_en', 'Physiological Biomarkers'),
-            'pdetail_sec2_badge_ar' => \App\Models\Setting::get('pdetail_sec2_badge_ar', 'الأثر الفسيولوجي المباشر والمستدام'),
-            'pdetail_sec2_title_en' => \App\Models\Setting::get('pdetail_sec2_title_en', 'Clinical Benefits & Physiological Targets'),
-            'pdetail_sec2_title_ar' => \App\Models\Setting::get('pdetail_sec2_title_ar', 'الفوائد السريرية والمسارات البيولوجية'),
-
-            'pdetail_sec3_badge_en' => \App\Models\Setting::get('pdetail_sec3_badge_en', 'Synergistic Protocol'),
-            'pdetail_sec3_badge_ar' => \App\Models\Setting::get('pdetail_sec3_badge_ar', 'الجرعات والتكامل الحيوي'),
-            'pdetail_sec3_title_en' => \App\Models\Setting::get('pdetail_sec3_title_en', 'Clinical Protocol & Usage Guidelines'),
-            'pdetail_sec3_title_ar' => \App\Models\Setting::get('pdetail_sec3_title_ar', 'بروتوكول الاستخدام والتوجيهات السريرية'),
-
-            'pdetail_sec4_badge_en' => \App\Models\Setting::get('pdetail_sec4_badge_en', 'Molecular Pharmacokinetics'),
-            'pdetail_sec4_badge_ar' => \App\Models\Setting::get('pdetail_sec4_badge_ar', 'الأبحاث الصيدلانية وطول العمر'),
-            'pdetail_sec4_title_en' => \App\Models\Setting::get('pdetail_sec4_title_en', 'Cellular Science & Mechanism of Action'),
-            'pdetail_sec4_title_ar' => \App\Models\Setting::get('pdetail_sec4_title_ar', 'الآلية العلمية الدوائية المتقدمة'),
-
-            'pdetail_sec5_badge_en' => \App\Models\Setting::get('pdetail_sec5_badge_en', 'Clinical Safety & Warnings'),
-            'pdetail_sec5_badge_ar' => \App\Models\Setting::get('pdetail_sec5_badge_ar', 'الأمان والنزاهة الصيدلانية'),
-            'pdetail_sec5_title_en' => \App\Models\Setting::get('pdetail_sec5_title_en', 'Safety Profile, Warnings & Precautions'),
-            'pdetail_sec5_title_ar' => \App\Models\Setting::get('pdetail_sec5_title_ar', 'إرشادات السلامة، التحذيرات وموانع الاستعمال'),
-
-            'pdetail_sec6_badge_en' => \App\Models\Setting::get('pdetail_sec6_badge_en', 'Batch Certification'),
-            'pdetail_sec6_badge_ar' => \App\Models\Setting::get('pdetail_sec6_badge_ar', 'بيانات التوثيق والضمان'),
-            'pdetail_sec6_title_en' => \App\Models\Setting::get('pdetail_sec6_title_en', 'Monograph & Supply Specifications'),
-            'pdetail_sec6_title_ar' => \App\Models\Setting::get('pdetail_sec6_title_ar', 'المواصفات الفنية، التعبئة وضمان النقاء'),
-
-            'pdetail_related_badge_en' => \App\Models\Setting::get('pdetail_related_badge_en', 'SYNERGISTIC LONGEVITY PROTOCOLS'),
-            'pdetail_related_badge_ar' => \App\Models\Setting::get('pdetail_related_badge_ar', 'التكامل الحيوي'),
-            'pdetail_related_title_en' => \App\Models\Setting::get('pdetail_related_title_en', 'Complementary Formulations'),
-            'pdetail_related_title_ar' => \App\Models\Setting::get('pdetail_related_title_ar', 'تركيبات متكاملة تعزز النتائج'),
-        ];
+        $detailsSettings = $this->getGlobalDetailsSettings();
 
         return view('admin.products.index', [
             'products' => $products,
@@ -187,6 +146,7 @@ class ProductController extends Controller
         return view('admin.products.create', [
             'categories' => $categories,
             'taxInfo' => $taxInfo,
+            'detailsSettings' => $this->getGlobalDetailsSettings(),
         ]);
     }
 
@@ -207,6 +167,7 @@ class ProductController extends Controller
         $data['landing_badge_en'] = $request->input('landing_badge_en');
         $data['landing_badge_ar'] = $request->input('landing_badge_ar');
         $this->formatScienceInputs($data);
+        $this->formatSectionSettings($data, $request);
         $fallbackImage = $data['image'] ?? null;
         unset($data['image'], $data['images']);
         $product = Product::create($data);
@@ -493,6 +454,8 @@ class ProductController extends Controller
             'taxInfo' => $taxInfo,
             'inventoryBreakdown' => $inventoryBreakdown,
             'locations' => $locations,
+            'detailsSettings' => $this->getGlobalDetailsSettings(),
+            'sectionSettings' => $dbProduct?->section_settings ?? ($product['section_settings'] ?? []),
         ]);
     }
 
@@ -536,6 +499,7 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         $this->formatScienceInputs($data);
+        $this->formatSectionSettings($data, $request);
         $fallbackImage = $data['image'] ?? null;
         unset($data['image'], $data['images'], $data['stock_online'], $data['stock_offline']);
 
@@ -774,6 +738,36 @@ class ProductController extends Controller
     }
 
     /**
+     * Normalize and sanitize per-product section settings (viewport visibility, titles, badges, bespoke content).
+     */
+    protected function formatSectionSettings(array &$data, Request $request): void
+    {
+        if ($request->has('section_settings') || isset($data['section_settings'])) {
+            $raw = $request->input('section_settings', $data['section_settings'] ?? []);
+            $clean = [];
+            $allKeys = ['dossier', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'buy_box', 'related'];
+
+            foreach ($allKeys as $key) {
+                $sec = is_array($raw) ? ($raw[$key] ?? []) : [];
+                $clean[$key] = [
+                    'enabled_desktop' => isset($sec['enabled_desktop']) && ($sec['enabled_desktop'] === '1' || $sec['enabled_desktop'] === 1 || $sec['enabled_desktop'] === true),
+                    'enabled_mobile' => isset($sec['enabled_mobile']) && ($sec['enabled_mobile'] === '1' || $sec['enabled_mobile'] === 1 || $sec['enabled_mobile'] === true),
+                    'default_open' => isset($sec['default_open']) && ($sec['default_open'] === '1' || $sec['default_open'] === 1 || $sec['default_open'] === true),
+                    'custom_content_enabled' => isset($sec['custom_content_enabled']) && ($sec['custom_content_enabled'] === '1' || $sec['custom_content_enabled'] === 1 || $sec['custom_content_enabled'] === true),
+                    'title_en' => trim($sec['title_en'] ?? ''),
+                    'title_ar' => trim($sec['title_ar'] ?? ''),
+                    'badge_en' => trim($sec['badge_en'] ?? ''),
+                    'badge_ar' => trim($sec['badge_ar'] ?? ''),
+                    'custom_content_en' => $sec['custom_content_en'] ?? '',
+                    'custom_content_ar' => $sec['custom_content_ar'] ?? '',
+                ];
+            }
+
+            $data['section_settings'] = $clean;
+        }
+    }
+
+    /**
      * Update global landing page products showcase section settings.
      */
     public function updateLandingSectionSettings(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
@@ -915,5 +909,54 @@ class ProductController extends Controller
         }
 
         return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Get baseline global product detail page section settings from Setting model.
+     */
+    protected function getGlobalDetailsSettings(): array
+    {
+        return [
+            'pdetail_dossier_enabled' => (bool) \App\Models\Setting::get('pdetail_dossier_enabled', true),
+            'pdetail_dossier_badge_en' => \App\Models\Setting::get('pdetail_dossier_badge_en', 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH'),
+            'pdetail_dossier_badge_ar' => \App\Models\Setting::get('pdetail_dossier_badge_ar', 'الملف الطبي والموا مواصفات السريرية المعتمدة'),
+            'pdetail_dossier_title_en' => \App\Models\Setting::get('pdetail_dossier_title_en', 'Comprehensive Formulation Specifications'),
+            'pdetail_dossier_title_ar' => \App\Models\Setting::get('pdetail_dossier_title_ar', 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر'),
+
+            'pdetail_sec1_badge_en' => \App\Models\Setting::get('pdetail_sec1_badge_en', 'Standardized Monograph'),
+            'pdetail_sec1_badge_ar' => \App\Models\Setting::get('pdetail_sec1_badge_ar', 'النقاء والجرعات القياسية'),
+            'pdetail_sec1_title_en' => \App\Models\Setting::get('pdetail_sec1_title_en', 'Active Bio-Compounds & Potencies'),
+            'pdetail_sec1_title_ar' => \App\Models\Setting::get('pdetail_sec1_title_ar', 'المكونات الفعالة والجرعات المعيارية'),
+
+            'pdetail_sec2_badge_en' => \App\Models\Setting::get('pdetail_sec2_badge_en', 'Physiological Biomarkers'),
+            'pdetail_sec2_badge_ar' => \App\Models\Setting::get('pdetail_sec2_badge_ar', 'الأثر الفسيولوجي المباشر والمستدام'),
+            'pdetail_sec2_title_en' => \App\Models\Setting::get('pdetail_sec2_title_en', 'Clinical Benefits & Physiological Targets'),
+            'pdetail_sec2_title_ar' => \App\Models\Setting::get('pdetail_sec2_title_ar', 'الفوائد السريرية والمسارات البيولوجية'),
+
+            'pdetail_sec3_badge_en' => \App\Models\Setting::get('pdetail_sec3_badge_en', 'Synergistic Protocol'),
+            'pdetail_sec3_badge_ar' => \App\Models\Setting::get('pdetail_sec3_badge_ar', 'الجرعات والتكامل الحيوي'),
+            'pdetail_sec3_title_en' => \App\Models\Setting::get('pdetail_sec3_title_en', 'Clinical Protocol & Usage Guidelines'),
+            'pdetail_sec3_title_ar' => \App\Models\Setting::get('pdetail_sec3_title_ar', 'بروتوكول الاستخدام والتوجيهات السريرية'),
+
+            'pdetail_sec4_badge_en' => \App\Models\Setting::get('pdetail_sec4_badge_en', 'Molecular Pharmacokinetics'),
+            'pdetail_sec4_badge_ar' => \App\Models\Setting::get('pdetail_sec4_badge_ar', 'الأبحاث الصيدلانية وطول العمر'),
+            'pdetail_sec4_title_en' => \App\Models\Setting::get('pdetail_sec4_title_en', 'Cellular Science & Mechanism of Action'),
+            'pdetail_sec4_title_ar' => \App\Models\Setting::get('pdetail_sec4_title_ar', 'الآلية العلمية الدوائية المتقدمة'),
+
+            'pdetail_sec5_badge_en' => \App\Models\Setting::get('pdetail_sec5_badge_en', 'Clinical Safety & Warnings'),
+            'pdetail_sec5_badge_ar' => \App\Models\Setting::get('pdetail_sec5_badge_ar', 'الأمان والنزاهة الصيدلانية'),
+            'pdetail_sec5_title_en' => \App\Models\Setting::get('pdetail_sec5_title_en', 'Safety Profile, Warnings & Precautions'),
+            'pdetail_sec5_title_ar' => \App\Models\Setting::get('pdetail_sec5_title_ar', 'إرشادات السلامة، التحذيرات وموانع الاستعمال'),
+
+            'pdetail_sec6_badge_en' => \App\Models\Setting::get('pdetail_sec6_badge_en', 'Batch Certification'),
+            'pdetail_sec6_badge_ar' => \App\Models\Setting::get('pdetail_sec6_badge_ar', 'بيانات التوثيق والضمان'),
+            'pdetail_sec6_title_en' => \App\Models\Setting::get('pdetail_sec6_title_en', 'Monograph & Supply Specifications'),
+            'pdetail_sec6_title_ar' => \App\Models\Setting::get('pdetail_sec6_title_ar', 'المواصفات الفنية، التعبئة وضمان النقاء'),
+
+            'pdetail_related_badge_en' => \App\Models\Setting::get('pdetail_related_badge_en', 'SYNERGISTIC LONGEVITY PROTOCOLS'),
+            'pdetail_related_badge_ar' => \App\Models\Setting::get('pdetail_related_badge_ar', 'التكامل الحيوي'),
+            'pdetail_related_title_en' => \App\Models\Setting::get('pdetail_related_title_en', 'Complementary Formulations'),
+            'pdetail_related_title_ar' => \App\Models\Setting::get('pdetail_related_title_ar', 'تركيبات متكاملة تعزز النتائج'),
+        ];
     }
 }

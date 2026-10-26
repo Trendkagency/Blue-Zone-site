@@ -64,39 +64,60 @@
     $pReviewsCount = $isObj ? ($product->reviews_count ?? 340) : ($product['reviews_count'] ?? 340);
     $pStock = $isObj ? ($product->stock_online ?? 95) : ($product['stock_online'] ?? 95);
 
-    // Product Details Dynamic Section Settings from Admin Dashboard
+    // Product Details Dynamic Section Settings (resolved with product-level overrides & device responsiveness)
+    $getSecConf = function (string $key) use ($product, $isObj) {
+        if ($isObj && method_exists($product, 'getSectionConfig')) {
+            return $product->getSectionConfig($key);
+        }
+        $dummy = new \App\Models\Product();
+        if (is_array($product) && isset($product['section_settings'])) {
+            $dummy->section_settings = $product['section_settings'];
+        }
+        return $dummy->getSectionConfig($key);
+    };
+
+    $secDossier = $getSecConf('dossier');
+    $sec1 = $getSecConf('sec1');
+    $sec2 = $getSecConf('sec2');
+    $sec3 = $getSecConf('sec3');
+    $sec4 = $getSecConf('sec4');
+    $sec5 = $getSecConf('sec5');
+    $sec6 = $getSecConf('sec6');
+    $secBuyBox = $getSecConf('buy_box');
+    $secRelated = $getSecConf('related');
+
     $pdSettings = [
-        'dossier_enabled' => (bool) \App\Models\Setting::get('pdetail_dossier_enabled', true),
-        'dossier_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_dossier_badge_ar' : 'pdetail_dossier_badge_en', $isRtl ? 'الملف الطبي والمواصفات السريرية المعتمدة' : 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH'),
-        'dossier_title' => \App\Models\Setting::get($isRtl ? 'pdetail_dossier_title_ar' : 'pdetail_dossier_title_en', $isRtl ? 'التفاصيل الدقيقة والخصائص الدوائية للمستحضر' : 'Comprehensive Formulation Specifications'),
+        'dossier_enabled' => $secDossier['is_visible'],
+        'dossier_badge' => $secDossier['badge'],
+        'dossier_title' => $secDossier['title'],
         
-        'sec1_enabled' => (bool) \App\Models\Setting::get('pdetail_sec1_enabled', true),
-        'sec1_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec1_badge_ar' : 'pdetail_sec1_badge_en', $isRtl ? 'النقاء والجرعات القياسية' : 'Standardized Monograph'),
-        'sec1_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec1_title_ar' : 'pdetail_sec1_title_en', $isRtl ? 'المكونات الفعالة والجرعات المعيارية' : 'Active Bio-Compounds & Potencies'),
+        'sec1_enabled' => $sec1['is_visible'],
+        'sec1_badge' => $sec1['badge'],
+        'sec1_title' => $sec1['title'],
 
-        'sec2_enabled' => (bool) \App\Models\Setting::get('pdetail_sec2_enabled', true),
-        'sec2_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec2_badge_ar' : 'pdetail_sec2_badge_en', $isRtl ? 'الأثر الفسيولوجي المباشر والمستدام' : 'Physiological Biomarkers'),
-        'sec2_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec2_title_ar' : 'pdetail_sec2_title_en', $isRtl ? 'الفوائد السريرية والمسارات البيولوجية' : 'Clinical Benefits & Physiological Targets'),
+        'sec2_enabled' => $sec2['is_visible'],
+        'sec2_badge' => $sec2['badge'],
+        'sec2_title' => $sec2['title'],
 
-        'sec3_enabled' => (bool) \App\Models\Setting::get('pdetail_sec3_enabled', true),
-        'sec3_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec3_badge_ar' : 'pdetail_sec3_badge_en', $isRtl ? 'الجرعات والتكامل الحيوي' : 'Synergistic Protocol'),
-        'sec3_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec3_title_ar' : 'pdetail_sec3_title_en', $isRtl ? 'بروتوكول الاستخدام والتوجيهات السريرية' : 'Clinical Protocol & Usage Guidelines'),
+        'sec3_enabled' => $sec3['is_visible'],
+        'sec3_badge' => $sec3['badge'],
+        'sec3_title' => $sec3['title'],
 
-        'sec4_enabled' => (bool) \App\Models\Setting::get('pdetail_sec4_enabled', true),
-        'sec4_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec4_badge_ar' : 'pdetail_sec4_badge_en', $isRtl ? 'الأبحاث الصيدلانية وطول العمر' : 'Molecular Pharmacokinetics'),
-        'sec4_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec4_title_ar' : 'pdetail_sec4_title_en', $isRtl ? 'الآلية العلمية الدوائية المتقدمة' : 'Cellular Science & Mechanism of Action'),
+        'sec4_enabled' => $sec4['is_visible'],
+        'sec4_badge' => $sec4['badge'],
+        'sec4_title' => $sec4['title'],
 
-        'sec5_enabled' => (bool) \App\Models\Setting::get('pdetail_sec5_enabled', true),
-        'sec5_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec5_badge_ar' : 'pdetail_sec5_badge_en', $isRtl ? 'الأمان والنزاهة الصيدلانية' : 'Clinical Safety & Warnings'),
-        'sec5_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec5_title_ar' : 'pdetail_sec5_title_en', $isRtl ? 'إرشادات السلامة، التحذيرات وموانع الاستعمال' : 'Safety Profile, Warnings & Precautions'),
+        'sec5_enabled' => $sec5['is_visible'],
+        'sec5_badge' => $sec5['badge'],
+        'sec5_title' => $sec5['title'],
 
-        'sec6_enabled' => (bool) \App\Models\Setting::get('pdetail_sec6_enabled', true),
-        'sec6_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_sec6_badge_ar' : 'pdetail_sec6_badge_en', $isRtl ? 'بيانات التوثيق والضمان' : 'Batch Certification'),
-        'sec6_title' => \App\Models\Setting::get($isRtl ? 'pdetail_sec6_title_ar' : 'pdetail_sec6_title_en', $isRtl ? 'المواصفات الفنية، التعبئة وضمان النقاء' : 'Monograph & Supply Specifications'),
+        'sec6_enabled' => $sec6['is_visible'],
+        'sec6_badge' => $sec6['badge'],
+        'sec6_title' => $sec6['title'],
 
-        'related_enabled' => (bool) \App\Models\Setting::get('pdetail_related_enabled', true),
-        'related_badge' => \App\Models\Setting::get($isRtl ? 'pdetail_related_badge_ar' : 'pdetail_related_badge_en', $isRtl ? 'التكامل الحيوي' : 'SYNERGISTIC LONGEVITY PROTOCOLS'),
-        'related_title' => \App\Models\Setting::get($isRtl ? 'pdetail_related_title_ar' : 'pdetail_related_title_en', $isRtl ? 'تركيبات متكاملة تعزز النتائج' : 'Complementary Formulations'),
+        'related_enabled' => $secRelated['is_visible'],
+        'related_badge' => $secRelated['badge'],
+        'related_title' => $secRelated['title'],
     ];
 
     // Dynamic resolution helper
@@ -266,7 +287,8 @@
         </div>
 
         <!-- 1. PRODUCT HERO & BUY BOX -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+        @if($secBuyBox['is_visible'])
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start {{ $secBuyBox['responsive_class'] }}">
           
           <!-- Image Gallery Container -->
           <div class="lg:col-span-6 space-y-4">
@@ -440,11 +462,13 @@
 
           </div>
         </div>
+        @endif
 
         <!-- ========================================================================= -->
         <!-- 2. PROFESSIONAL COLLAPSIBLE PRODUCT DETAILS ACCORDION STUDIO              -->
         <!-- ========================================================================= -->
-        <div class="space-y-6 pt-6" id="clinical-specifications-dossier">
+        @if($secDossier['is_visible'])
+        <div class="space-y-6 pt-6 {{ $secDossier['responsive_class'] }}" id="clinical-specifications-dossier">
           
           <!-- Dossier Section Header & Interactive Controls -->
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b border-[#0A4F78]/20">
@@ -474,43 +498,61 @@
 
           <!-- Quick Navigation Jump Filter Pills -->
           <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
+            @if($sec1['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-ingredients')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec1['responsive_class'] }}">
               <i class="fa-solid fa-flask-vial text-[#67B34A]"></i>
-              <span>{{ $isRtl ? 'المكونات الفعالة' : 'Active Compounds' }}</span>
+              <span>{{ $sec1['title'] ?: ($isRtl ? 'المكونات الفعالة' : 'Active Compounds') }}</span>
             </button>
+            @endif
+
+            @if($sec2['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-benefits')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec2['responsive_class'] }}">
               <i class="fa-solid fa-bolt text-amber-500"></i>
-              <span>{{ $isRtl ? 'الفوائد السريرية' : 'Clinical Benefits' }}</span>
+              <span>{{ $sec2['title'] ?: ($isRtl ? 'الفوائد السريرية' : 'Clinical Benefits') }}</span>
             </button>
+            @endif
+
+            @if($sec3['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-usage')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec3['responsive_class'] }}">
               <i class="fa-solid fa-calendar-check text-[#2A8FC2]"></i>
-              <span>{{ $isRtl ? 'بروتوكول الاستخدام' : 'Usage Protocol' }}</span>
+              <span>{{ $sec3['title'] ?: ($isRtl ? 'بروتوكول الاستخدام' : 'Usage Protocol') }}</span>
             </button>
+            @endif
+
+            @if($sec4['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-science')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec4['responsive_class'] }}">
               <i class="fa-solid fa-dna text-purple-500"></i>
-              <span>{{ $isRtl ? 'الآلية العلمية' : 'Cellular Science' }}</span>
+              <span>{{ $sec4['title'] ?: ($isRtl ? 'الآلية العلمية' : 'Cellular Science') }}</span>
             </button>
+            @endif
+
+            @if($sec5['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-safety')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec5['responsive_class'] }}">
               <i class="fa-solid fa-shield-halved text-emerald-600"></i>
-              <span>{{ $isRtl ? 'السلامة والتحذيرات' : 'Safety & Warnings' }}</span>
+              <span>{{ $sec5['title'] ?: ($isRtl ? 'السلامة والتحذيرات' : 'Safety & Warnings') }}</span>
             </button>
+            @endif
+
+            @if($sec6['is_visible'])
             <button type="button" onclick="openAndScrollToAccordion('accordion-specs')" 
-              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer">
+              class="filter-tab-pill px-4 py-2 rounded-full border border-[#0A4F78]/20 text-[#031827] dark:text-[#F6F5EF] hover:border-[#0A4F78] transition-all shrink-0 flex items-center gap-2 cursor-pointer {{ $sec6['responsive_class'] }}">
               <i class="fa-solid fa-certificate text-indigo-500"></i>
-              <span>{{ $isRtl ? 'المواصفات والضمان' : 'Monograph & Specs' }}</span>
+              <span>{{ $sec6['title'] ?: ($isRtl ? 'المواصفات والضمان' : 'Monograph & Specs') }}</span>
             </button>
+            @endif
           </div>
 
           <!-- THE 6 COLLAPSIBLE ACCORDION ITEMS -->
           <div class="space-y-4">
             
             <!-- 1. ACCORDION: ACTIVE BIO-COMPOUNDS & INGREDIENTS -->
-            <div id="accordion-ingredients" class="bz-collapsible-item is-open rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec1['is_visible'])
+            <div id="accordion-ingredients" class="bz-collapsible-item {{ $sec1['default_open'] ? 'is-open' : '' }} {{ $sec1['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-ingredients')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -520,10 +562,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#67B34A]/15 text-[#67B34A] font-extrabold">SECTION 01</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec1_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec1['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec1_title'] }}
+                      {{ $sec1['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -540,53 +582,61 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-medium">
-                    {{ $isRtl 
-                        ? 'تخضع جميع المواد الفعالة في هذه التركيبة لمعايرة مخبرية دقيقة وفق دستور الأدوية العالمي، لضمان أعلى توافر حيوي وامتصاص خلوي دون أي شوائب اصطناعية.'
-                        : 'Every active bio-compound in this formulation is calibrated to therapeutic clinical thresholds using triple third-party HPLC verification, guaranteeing maximum cellular uptake and batch-to-batch consistency.' }}
-                  </p>
+                  @if($sec1['custom_content_enabled'] && !empty($sec1['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec1['custom_content'] !!}
+                    </div>
+                  @else
+                    <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-medium">
+                      {{ $isRtl 
+                          ? 'تخضع جميع المواد الفعالة في هذه التركيبة لمعايرة مخبرية دقيقة وفق دستور الأدوية العالمي، لضمان أعلى توافر حيوي وامتصاص خلوي دون أي شوائب اصطناعية.'
+                          : 'Every active bio-compound in this formulation is calibrated to therapeutic clinical thresholds using triple third-party HPLC verification, guaranteeing maximum cellular uptake and batch-to-batch consistency.' }}
+                    </p>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($ingredientsList as $ing)
-                      @php
-                        $ingName = $isRtl ? ($ing['name_ar'] ?? $ing['name_en'] ?? $ing['name'] ?? '') : ($ing['name_en'] ?? $ing['name'] ?? '');
-                        $ingDose = $ing['dose'] ?? $ing['dosage'] ?? $ing['amount'] ?? 'Standardized';
-                        $ingRole = $ing['role'] ?? ($isRtl ? 'دعم الوظائف الحيوية الخلوية' : 'Targeted cellular biological pathway');
-                        $ingOrigin = $ing['origin'] ?? ($isRtl ? 'مستخلص طبيعي' : 'Botanical Bio-Active');
-                      @endphp
-                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 relative overflow-hidden group/ing hover:border-[#67B34A]/50 transition-colors">
-                        <div class="flex justify-between items-start gap-2">
-                          <span class="text-xs font-bold text-[#031827] dark:text-[#F6F5EF] leading-snug">
-                            {{ $ingName }}
-                          </span>
-                          <span class="px-2.5 py-0.5 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-[11px] font-mono font-black shrink-0">
-                            {{ $ingDose }}
-                          </span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      @foreach($ingredientsList as $ing)
+                        @php
+                          $ingName = $isRtl ? ($ing['name_ar'] ?? $ing['name_en'] ?? $ing['name'] ?? '') : ($ing['name_en'] ?? $ing['name'] ?? '');
+                          $ingDose = $ing['dose'] ?? $ing['dosage'] ?? $ing['amount'] ?? 'Standardized';
+                          $ingRole = $ing['role'] ?? ($isRtl ? 'دعم الوظائف الحيوية الخلوية' : 'Targeted cellular biological pathway');
+                          $ingOrigin = $ing['origin'] ?? ($isRtl ? 'مستخلص طبيعي' : 'Botanical Bio-Active');
+                        @endphp
+                        <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 relative overflow-hidden group/ing hover:border-[#67B34A]/50 transition-colors">
+                          <div class="flex justify-between items-start gap-2">
+                            <span class="text-xs font-bold text-[#031827] dark:text-[#F6F5EF] leading-snug">
+                              {{ $ingName }}
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-[11px] font-mono font-black shrink-0">
+                              {{ $ingDose }}
+                            </span>
+                          </div>
+                          <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-medium">
+                            {{ $ingRole }}
+                          </p>
+                          <div class="pt-2 border-t border-[#0A4F78]/10 flex items-center justify-between text-[10px] text-[#0A4F78] dark:text-[#2A8FC2] font-mono">
+                            <span><i class="fa-solid fa-seedling mr-1 ml-1 text-[#67B34A]"></i> {{ $ingOrigin }}</span>
+                            <span>99%+ PURE</span>
+                          </div>
                         </div>
-                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-medium">
-                          {{ $ingRole }}
-                        </p>
-                        <div class="pt-2 border-t border-[#0A4F78]/10 flex items-center justify-between text-[10px] text-[#0A4F78] dark:text-[#2A8FC2] font-mono">
-                          <span><i class="fa-solid fa-seedling mr-1 ml-1 text-[#67B34A]"></i> {{ $ingOrigin }}</span>
-                          <span>99%+ PURE</span>
-                        </div>
-                      </div>
-                    @endforeach
-                  </div>
+                      @endforeach
+                    </div>
 
-                  <!-- Quality Standards Badges -->
-                  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-white/5 border border-[#0A4F78]/10 flex flex-wrap gap-4 items-center justify-around text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2]">
-                    <span><i class="fa-solid fa-check-double text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'فحص HPLC ثلاثي' : 'Triple HPLC Assayed' }}</span>
-                    <span><i class="fa-solid fa-shield-virus text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'خالٍ من الملوثات والسموم' : 'Heavy Metal Screened' }}</span>
-                    <span><i class="fa-solid fa-dna text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'نباتي غير معدل وراثياً' : '100% Non-GMO & Vegan' }}</span>
-                    <span><i class="fa-solid fa-snowflake text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'معبأ بتقنية حفظ النيتروجين' : 'Nitrogen Flushed' }}</span>
-                  </div>
+                    <!-- Quality Standards Badges -->
+                    <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-white/5 border border-[#0A4F78]/10 flex flex-wrap gap-4 items-center justify-around text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2]">
+                      <span><i class="fa-solid fa-check-double text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'فحص HPLC ثلاثي' : 'Triple HPLC Assayed' }}</span>
+                      <span><i class="fa-solid fa-shield-virus text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'خالٍ من الملوثات والسموم' : 'Heavy Metal Screened' }}</span>
+                      <span><i class="fa-solid fa-dna text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'نباتي غير معدل وراثياً' : '100% Non-GMO & Vegan' }}</span>
+                      <span><i class="fa-solid fa-snowflake text-[#67B34A] mr-1.5 ml-1.5"></i> {{ $isRtl ? 'معبأ بتقنية حفظ النيتروجين' : 'Nitrogen Flushed' }}</span>
+                    </div>
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
             <!-- 2. ACCORDION: CLINICAL BENEFITS & TIMELINE -->
-            <div id="accordion-benefits" class="bz-collapsible-item rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec2['is_visible'])
+            <div id="accordion-benefits" class="bz-collapsible-item {{ $sec2['default_open'] ? 'is-open' : '' }} {{ $sec2['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-benefits')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -596,10 +646,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 font-extrabold">SECTION 02</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec2_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec2['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec2_title'] }}
+                      {{ $sec2['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -616,59 +666,65 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  
-                  <!-- Bullet list of clinical outcomes -->
-                  <div class="space-y-3">
-                    @foreach($benefitsList as $benefit)
-                      <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
-                        <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
-                          <i class="fa-solid fa-check"></i>
-                        </span>
-                        <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed">
-                          {{ $benefit }}
-                        </span>
-                      </div>
-                    @endforeach
-                  </div>
+                  @if($sec2['custom_content_enabled'] && !empty($sec2['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec2['custom_content'] !!}
+                    </div>
+                  @else
+                    <!-- Bullet list of clinical outcomes -->
+                    <div class="space-y-3">
+                      @foreach($benefitsList as $benefit)
+                        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
+                          <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                            <i class="fa-solid fa-check"></i>
+                          </span>
+                          <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed">
+                            {{ $benefit }}
+                          </span>
+                        </div>
+                      @endforeach
+                    </div>
 
-                  <!-- 3-Phase Cumulative Timeline -->
-                  <div class="space-y-3 pt-2">
-                    <span class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] block">
-                      {{ $isRtl ? 'مراحل التراكم الحيوي واستجابة الجسم:' : 'Progressive Biological Timeline:' }}
-                    </span>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
-                        <span class="text-xs font-extrabold text-[#67B34A] font-mono uppercase block">{{ $isRtl ? 'المرحلة 1 · اليوم 1 إلى 7' : 'Phase 1 · Days 1–7' }}</span>
-                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'الاستجابة الخلوية الفورية' : 'Acute Perfusion & Alertness' }}</h4>
-                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                          {{ $isRtl ? 'تحسين تدفق الدم الدماغي، رفع مستوى اليقظة، وتحييد بوادر الإجهاد الذهني اليومي.' : 'Immediate microcirculation enhancement and neural stamina without nervous system crash.' }}
-                        </p>
-                      </div>
+                    <!-- 3-Phase Cumulative Timeline -->
+                    <div class="space-y-3 pt-2">
+                      <span class="text-xs font-extrabold uppercase tracking-widest text-[#0A4F78] dark:text-[#2A8FC2] block">
+                        {{ $isRtl ? 'مراحل التراكم الحيوي واستجابة الجسم:' : 'Progressive Biological Timeline:' }}
+                      </span>
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+                          <span class="text-xs font-extrabold text-[#67B34A] font-mono uppercase block">{{ $isRtl ? 'المرحلة 1 · اليوم 1 إلى 7' : 'Phase 1 · Days 1–7' }}</span>
+                          <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'الاستجابة الخلوية الفورية' : 'Acute Perfusion & Alertness' }}</h4>
+                          <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                            {{ $isRtl ? 'تحسين تدفق الدم الدماغي، رفع مستوى اليقظة، وتحييد بوادر الإجهاد الذهني اليومي.' : 'Immediate microcirculation enhancement and neural stamina without nervous system crash.' }}
+                          </p>
+                        </div>
 
-                      <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
-                        <span class="text-xs font-extrabold text-[#2A8FC2] font-mono uppercase block">{{ $isRtl ? 'المرحلة 2 · اليوم 14 إلى 30' : 'Phase 2 · Days 14–30' }}</span>
-                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'تجدد المشابك العصبية' : 'Synaptic Consolidation' }}</h4>
-                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                          {{ $isRtl ? 'تحفيز إشارات BDNF، استقرار غشاء الخلايا الفسفوليبيدي، وزيادة كفاءة الذاكرة العاملة.' : 'Elevated BDNF growth signaling and sustained neurotransmitter balance for cognitive resilience.' }}
-                        </p>
-                      </div>
+                        <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+                          <span class="text-xs font-extrabold text-[#2A8FC2] font-mono uppercase block">{{ $isRtl ? 'المرحلة 2 · اليوم 14 إلى 30' : 'Phase 2 · Days 14–30' }}</span>
+                          <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'تجدد المشابك العصبية' : 'Synaptic Consolidation' }}</h4>
+                          <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                            {{ $isRtl ? 'تحفيز إشارات BDNF، استقرار غشاء الخلايا الفسفوليبيدي، وزيادة كفاءة الذاكرة العاملة.' : 'Elevated BDNF growth signaling and sustained neurotransmitter balance for cognitive resilience.' }}
+                          </p>
+                        </div>
 
-                      <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
-                        <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#67B34A] font-mono uppercase block">{{ $isRtl ? 'المرحلة 3 · اليوم 60 فما فوق' : 'Phase 3 · Days 60+' }}</span>
-                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'حماية طول العمر الخلوي' : 'Deep Cellular Longevity' }}</h4>
-                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                          {{ $isRtl ? 'حماية شاملة للميتوكوندريا، ودعم صحة الأوعية الدموية ومرونة الأداء الدماغي الممتد.' : 'Mitochondrial resilience and ongoing genomic stability supporting lifelong cognitive health.' }}
-                        </p>
+                        <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+                          <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#67B34A] font-mono uppercase block">{{ $isRtl ? 'المرحلة 3 · اليوم 60 فما فوق' : 'Phase 3 · Days 60+' }}</span>
+                          <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'حماية طول العمر الخلوي' : 'Deep Cellular Longevity' }}</h4>
+                          <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                            {{ $isRtl ? 'حماية شاملة للميتوكوندريا، ودعم صحة الأوعية الدموية ومرونة الأداء الدماغي الممتد.' : 'Mitochondrial resilience and ongoing genomic stability supporting lifelong cognitive health.' }}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
             <!-- 3. ACCORDION: PROTOCOL & USAGE INSTRUCTIONS -->
-            <div id="accordion-usage" class="bz-collapsible-item rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec3['is_visible'])
+            <div id="accordion-usage" class="bz-collapsible-item {{ $sec3['default_open'] ? 'is-open' : '' }} {{ $sec3['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-usage')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -678,10 +734,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#2A8FC2]/15 text-[#2A8FC2] font-extrabold">SECTION 03</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec3_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec3['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec3_title'] }}
+                      {{ $sec3['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -698,65 +754,71 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  
-                  <div class="p-4 sm:p-6 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border-inline-start-4 border-primary space-y-2">
-                    <span class="text-xs font-extrabold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] block">
-                      <i class="fa-solid fa-circle-info mr-1 ml-1"></i> {{ $isRtl ? 'الإرشاد السريري المباشر:' : 'Primary Administration Directive:' }}
-                    </span>
-                    <p class="text-xs sm:text-sm text-[#031827] dark:text-[#F6F5EF] font-medium leading-relaxed">
-                      {{ $usageText }}
-                    </p>
-                  </div>
-
-                  <!-- Visual Protocol Cards -->
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
-                      <div class="w-10 h-10 rounded-full bg-[#67B34A]/15 text-[#67B34A] mx-auto flex items-center justify-center text-base">
-                        <i class="fa-solid fa-sun"></i>
-                      </div>
-                      <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '1. التوقيت اليومي' : '1. Timing' }}</h4>
-                      <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                        {{ $isRtl ? 'يُفضل تناوله صباحاً ليتزامن مع إيقاع الساعة البيولوجية للجسم.' : 'Administer each morning to harmonize with your natural circadian cortisol curve.' }}
+                  @if($sec3['custom_content_enabled'] && !empty($sec3['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec3['custom_content'] !!}
+                    </div>
+                  @else
+                    <div class="p-4 sm:p-6 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border-inline-start-4 border-primary space-y-2">
+                      <span class="text-xs font-extrabold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] block">
+                        <i class="fa-solid fa-circle-info mr-1 ml-1"></i> {{ $isRtl ? 'الإرشاد السريري المباشر:' : 'Primary Administration Directive:' }}
+                      </span>
+                      <p class="text-xs sm:text-sm text-[#031827] dark:text-[#F6F5EF] font-medium leading-relaxed">
+                        {{ $usageText }}
                       </p>
                     </div>
 
-                    <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
-                      <div class="w-10 h-10 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] mx-auto flex items-center justify-center text-base">
-                        <i class="fa-solid fa-glass-water"></i>
+                    <!-- Visual Protocol Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+                        <div class="w-10 h-10 rounded-full bg-[#67B34A]/15 text-[#67B34A] mx-auto flex items-center justify-center text-base">
+                          <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '1. التوقيت اليومي' : '1. Timing' }}</h4>
+                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                          {{ $isRtl ? 'يُفضل تناوله صباحاً ليتزامن مع إيقاع الساعة البيولوجية للجسم.' : 'Administer each morning to harmonize with your natural circadian cortisol curve.' }}
+                        </p>
                       </div>
-                      <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '2. السائل الناقل' : '2. Hydration' }}</h4>
-                      <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                        {{ $isRtl ? '250 مل من الماء النقي لتسريع ذوبان الكبسولة المعوية النباتية.' : '250ml mineralized water facilitates rapid gastro-resistant dissolution.' }}
-                      </p>
-                    </div>
 
-                    <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
-                      <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-500 mx-auto flex items-center justify-center text-base">
-                        <i class="fa-solid fa-bottle-droplet"></i>
+                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+                        <div class="w-10 h-10 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] mx-auto flex items-center justify-center text-base">
+                          <i class="fa-solid fa-glass-water"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '2. السائل الناقل' : '2. Hydration' }}</h4>
+                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                          {{ $isRtl ? '250 مل من الماء النقي لتسريع ذوبان الكبسولة المعوية النباتية.' : '250ml mineralized water facilitates rapid gastro-resistant dissolution.' }}
+                        </p>
                       </div>
-                      <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '3. تعزيز الامتصاص' : '3. Lipid Synergy' }}</h4>
-                      <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                        {{ $isRtl ? 'تناوله مع زيت الزيتون البكر الممتاز يضاعف امتصاص مضادات الأكسدة.' : 'Ingesting with healthy fats boosts lipophilic flavonoid bioavailability by up to 300%.' }}
-                      </p>
-                    </div>
 
-                    <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
-                      <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-500 mx-auto flex items-center justify-center text-base">
-                        <i class="fa-solid fa-repeat"></i>
+                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+                        <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-500 mx-auto flex items-center justify-center text-base">
+                          <i class="fa-solid fa-bottle-droplet"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '3. تعزيز الامتصاص' : '3. Lipid Synergy' }}</h4>
+                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                          {{ $isRtl ? 'تناوله مع زيت الزيتون البكر الممتاز يضاعف امتصاص مضادات الأكسدة.' : 'Ingesting with healthy fats boosts lipophilic flavonoid bioavailability by up to 300%.' }}
+                        </p>
                       </div>
-                      <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '4. الاستمرارية' : '4. Regularity' }}</h4>
-                      <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
-                        {{ $isRtl ? 'لا يسبب الإدمان أو الاعتمادية، ومصمم للاستخدام اليومي المستمر بأمان.' : 'Zero tolerance buildup or dependency. Engineered for uninterrupted daily longevity.' }}
-                      </p>
-                    </div>
-                  </div>
 
+                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+                        <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-500 mx-auto flex items-center justify-center text-base">
+                          <i class="fa-solid fa-repeat"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-[#031827] dark:text-white">{{ $isRtl ? '4. الاستمرارية' : '4. Regularity' }}</h4>
+                        <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">
+                          {{ $isRtl ? 'لا يسبب الإدمان أو الاعتمادية، ومصمم للاستخدام اليومي المستمر بأمان.' : 'Zero tolerance buildup or dependency. Engineered for uninterrupted daily longevity.' }}
+                        </p>
+                      </div>
+                    </div>
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
             <!-- 4. ACCORDION: CELLULAR SCIENCE & PHARMACOKINETICS -->
-            <div id="accordion-science" class="bz-collapsible-item rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec4['is_visible'])
+            <div id="accordion-science" class="bz-collapsible-item {{ $sec4['default_open'] ? 'is-open' : '' }} {{ $sec4['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-science')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -766,10 +828,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-purple-500/15 text-purple-600 dark:text-purple-400 font-extrabold">SECTION 04</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec4_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec4['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec4_title'] }}
+                      {{ $sec4['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -786,48 +848,54 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  
-                  <div class="space-y-4">
-                    <p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed font-medium">
-                      {{ $clinicalMechanism }}
-                    </p>
+                  @if($sec4['custom_content_enabled'] && !empty($sec4['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec4['custom_content'] !!}
+                    </div>
+                  @else
+                    <div class="space-y-4">
+                      <p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed font-medium">
+                        {{ $clinicalMechanism }}
+                      </p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
-                        <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
-                          <i class="fa-solid fa-microchip mr-1 ml-1 text-[#67B34A]"></i> {{ $isRtl ? 'نفاذية الحاجز الدموي الدماغي (BBB):' : 'Blood-Brain Barrier (BBB) Kinetics:' }}
-                        </span>
-                        <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
-                          {{ $isRtl ? 'مركبات الفسفوليبيد المرفقة تمكن الجزيئات الحيوية من عبور الحاجز الدموي الدماغي بكفاءة، مما يوفر تركيزاً نشطاً داخل المشابك العصبية دون فقدان هضمي.' : 'Phospholipid-conjugated carriers enable efficient transport across the blood-brain barrier for localized neuronal receptor binding.' }}
-                        </p>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+                          <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
+                            <i class="fa-solid fa-microchip mr-1 ml-1 text-[#67B34A]"></i> {{ $isRtl ? 'نفاذية الحاجز الدموي الدماغي (BBB):' : 'Blood-Brain Barrier (BBB) Kinetics:' }}
+                          </span>
+                          <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
+                            {{ $isRtl ? 'مركبات الفسفوليبيد المرفقة تمكن الجزيئات الحيوية من عبور الحاجز الدموي الدماغي بكفاءة، مما يوفر تركيزاً نشطاً داخل المشابك العصبية دون فقدان هضمي.' : 'Phospholipid-conjugated carriers enable efficient transport across the blood-brain barrier for localized neuronal receptor binding.' }}
+                          </p>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+                          <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
+                            <i class="fa-solid fa-atom mr-1 ml-1 text-purple-500"></i> {{ $isRtl ? 'حماية ميتوكوندريا الخلية والتنفس الهوائي:' : 'Mitochondrial Redox Equilibrium:' }}
+                          </span>
+                          <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
+                            {{ $isRtl ? 'يحمي الإنزيم المساعد CoQ10 وسلسلة مضادات الأكسدة المعقدة من تسرب الإلكترونات والإجهاد التأكسدي، مما يعزز عمر الخلية وقدرتها الإنتاجية.' : 'Sustains electron transport chain integrity (Complexes I & III), shielding mitochondrial DNA from premature senescence.' }}
+                          </p>
+                        </div>
                       </div>
 
-                      <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
-                        <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
-                          <i class="fa-solid fa-atom mr-1 ml-1 text-purple-500"></i> {{ $isRtl ? 'حماية ميتوكوندريا الخلية والتنفس الهوائي:' : 'Mitochondrial Redox Equilibrium:' }}
+                      <div class="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-purple-500 text-white flex items-center justify-center shrink-0 font-bold">
+                          <i class="fa-solid fa-book-bookmark"></i>
                         </span>
-                        <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
-                          {{ $isRtl ? 'يحمي الإنزيم المساعد CoQ10 وسلسلة مضادات الأكسدة المعقدة من تسرب الإلكترونات والإجهاد التأكسدي، مما يعزز عمر الخلية وقدرتها الإنتاجية.' : 'Sustains electron transport chain integrity (Complexes I & III), shielding mitochondrial DNA from premature senescence.' }}
-                        </p>
+                        <span>
+                          {{ $isRtl ? 'مبني على أبحاث طول العمر المستوحاة من دراسات المعمرين في المناطق الزرقاء الخمس المنشورة في كبرى الدوريات الطبية.' : 'Validated against empirical longevity data from centenarian cohort studies published in peer-reviewed journals of cellular pharmacology.' }}
+                        </span>
                       </div>
                     </div>
-
-                    <div class="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs text-[#031827] dark:text-[#F6F5EF] flex items-center gap-3">
-                      <span class="w-8 h-8 rounded-lg bg-purple-500 text-white flex items-center justify-center shrink-0 font-bold">
-                        <i class="fa-solid fa-book-bookmark"></i>
-                      </span>
-                      <span>
-                        {{ $isRtl ? 'مبني على أبحاث طول العمر المستوحاة من دراسات المعمرين في المناطق الزرقاء الخمس المنشورة في كبرى الدوريات الطبية.' : 'Validated against empirical longevity data from centenarian cohort studies published in peer-reviewed journals of cellular pharmacology.' }}
-                      </span>
-                    </div>
-                  </div>
-
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
             <!-- 5. ACCORDION: SAFETY, WARNINGS & QUALITY CONTROLS -->
-            <div id="accordion-safety" class="bz-collapsible-item rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec5['is_visible'])
+            <div id="accordion-safety" class="bz-collapsible-item {{ $sec5['default_open'] ? 'is-open' : '' }} {{ $sec5['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-safety')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -837,10 +905,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold">SECTION 05</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec5_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec5['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec5_title'] }}
+                      {{ $sec5['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -857,44 +925,50 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  
-                  <!-- Amber Medical Warning Box -->
-                  <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2">
-                    <div class="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-                      <i class="fa-solid fa-triangle-exclamation"></i>
-                      <span>{{ $isRtl ? 'تنبيه سريري وإرشادات الحفظ:' : 'Medical Advisory & Precautions:' }}</span>
+                  @if($sec5['custom_content_enabled'] && !empty($sec5['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec5['custom_content'] !!}
                     </div>
-                    <p class="text-xs leading-relaxed">
-                      {{ $warningsText }}
-                    </p>
-                  </div>
+                  @else
+                    <!-- Amber Medical Warning Box -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2">
+                      <div class="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>{{ $isRtl ? 'تنبيه سريري وإرشادات الحفظ:' : 'Medical Advisory & Precautions:' }}</span>
+                      </div>
+                      <p class="text-xs leading-relaxed">
+                        {{ $warningsText }}
+                      </p>
+                    </div>
 
-                  <!-- Allergen & Purity Grid -->
-                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs font-bold">
-                    <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
-                      <i class="fa-solid fa-ban text-[#67B34A] text-base"></i>
-                      <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من الجلوتين' : 'Gluten-Free' }}</span>
+                    <!-- Allergen & Purity Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs font-bold">
+                      <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+                        <i class="fa-solid fa-ban text-[#67B34A] text-base"></i>
+                        <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من الجلوتين' : 'Gluten-Free' }}</span>
+                      </div>
+                      <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+                        <i class="fa-solid fa-leaf text-[#67B34A] text-base"></i>
+                        <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من الصويا' : 'Soy-Free' }}</span>
+                      </div>
+                      <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+                        <i class="fa-solid fa-droplet-slash text-[#67B34A] text-base"></i>
+                        <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من المشتقات الحيوانية' : '100% Vegan' }}</span>
+                      </div>
+                      <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+                        <i class="fa-solid fa-flask text-[#67B34A] text-base"></i>
+                        <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'دون مواد حافظة' : 'No Preservatives' }}</span>
+                      </div>
                     </div>
-                    <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
-                      <i class="fa-solid fa-leaf text-[#67B34A] text-base"></i>
-                      <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من الصويا' : 'Soy-Free' }}</span>
-                    </div>
-                    <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
-                      <i class="fa-solid fa-droplet-slash text-[#67B34A] text-base"></i>
-                      <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'خالٍ من المشتقات الحيوانية' : '100% Vegan' }}</span>
-                    </div>
-                    <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
-                      <i class="fa-solid fa-flask text-[#67B34A] text-base"></i>
-                      <span class="block text-[#031827] dark:text-white">{{ $isRtl ? 'دون مواد حافظة' : 'No Preservatives' }}</span>
-                    </div>
-                  </div>
-
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
             <!-- 6. ACCORDION: CLINICAL MONOGRAPH & SUPPLY SPECIFICATIONS -->
-            <div id="accordion-specs" class="bz-collapsible-item rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
+            @if($sec6['is_visible'])
+            <div id="accordion-specs" class="bz-collapsible-item {{ $sec6['default_open'] ? 'is-open' : '' }} {{ $sec6['responsive_class'] }} rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/20 transition-all duration-300 overflow-hidden">
               <button type="button" onclick="toggleProductDetailItem('accordion-specs')" 
                 class="w-full p-5 sm:p-7 flex justify-between items-center text-left rtl:text-right cursor-pointer select-none group">
                 <div class="flex items-center gap-4">
@@ -904,10 +978,10 @@
                   <div>
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                       <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-extrabold">SECTION 06</span>
-                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $pdSettings['sec6_badge'] }}</span>
+                      <span class="text-[11px] font-bold text-[#031827]/60 dark:text-[#F6F5EF]/60 uppercase tracking-widest">{{ $sec6['badge'] }}</span>
                     </div>
                     <h3 class="text-lg sm:text-xl font-black text-[#031827] dark:text-[#F6F5EF]">
-                      {{ $pdSettings['sec6_title'] }}
+                      {{ $sec6['title'] }}
                     </h3>
                   </div>
                 </div>
@@ -924,46 +998,52 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-medium">
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'حجم العبوة والجرعات:' : 'Supply Volume:' }}</span>
-                      <span class="font-bold text-[#031827] dark:text-white">{{ $packageSize }}</span>
+                  @if($sec6['custom_content_enabled'] && !empty($sec6['custom_content']))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
+                      {!! $sec6['custom_content'] !!}
                     </div>
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'رمز المنتج SKU:' : 'Product SKU:' }}</span>
-                      <span class="font-bold text-[#0A4F78] dark:text-[#2A8FC2] font-mono">{{ $pSku }}</span>
+                  @else
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-medium">
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'حجم العبوة والجرعات:' : 'Supply Volume:' }}</span>
+                        <span class="font-bold text-[#031827] dark:text-white">{{ $packageSize }}</span>
+                      </div>
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'رمز المنتج SKU:' : 'Product SKU:' }}</span>
+                        <span class="font-bold text-[#0A4F78] dark:text-[#2A8FC2] font-mono">{{ $pSku }}</span>
+                      </div>
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'جهة التصنيع المعتمدة:' : 'Facility Standards:' }}</span>
+                        <span class="font-bold text-[#67B34A]">cGMP & FDA Registered</span>
+                      </div>
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'صيغة الكبسولة:' : 'Delivery Matrix:' }}</span>
+                        <span class="font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'كبسولات نباتية معوية' : 'Enteric Veg Capsule' }}</span>
+                      </div>
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'العمر التخزيني:' : 'Shelf Life Stability:' }}</span>
+                        <span class="font-bold text-[#031827] dark:text-white">24 Months Unopened</span>
+                      </div>
+                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'ضمان الرضا الطبي:' : 'Satisfaction Guarantee:' }}</span>
+                        <span class="font-bold text-[#67B34A]">{{ $isRtl ? '30 يوماً استرداد كامل' : '30-Day Clinical Refund' }}</span>
+                      </div>
                     </div>
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'جهة التصنيع المعتمدة:' : 'Facility Standards:' }}</span>
-                      <span class="font-bold text-[#67B34A]">cGMP & FDA Registered</span>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'صيغة الكبسولة:' : 'Delivery Matrix:' }}</span>
-                      <span class="font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'كبسولات نباتية معوية' : 'Enteric Veg Capsule' }}</span>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'العمر التخزيني:' : 'Shelf Life Stability:' }}</span>
-                      <span class="font-bold text-[#031827] dark:text-white">24 Months Unopened</span>
-                    </div>
-                    <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                      <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'ضمان الرضا الطبي:' : 'Satisfaction Guarantee:' }}</span>
-                      <span class="font-bold text-[#67B34A]">{{ $isRtl ? '30 يوماً استرداد كامل' : '30-Day Clinical Refund' }}</span>
-                    </div>
-                  </div>
-
+                  @endif
                 </div>
               </div>
             </div>
+            @endif
 
           </div>
         </div>
+        @endif
 
         <!-- ========================================================================= -->
         <!-- 3. COMPLEMENTARY PROTOCOL FORMULATIONS (RELATED PRODUCTS)                 -->
         <!-- ========================================================================= -->
-        @if(isset($relatedProducts) && count($relatedProducts) > 0)
-          <div class="space-y-6 pt-10 border-t border-[#0A4F78]/20">
+        @if($secRelated['is_visible'] && isset($relatedProducts) && count($relatedProducts) > 0)
+          <div class="space-y-6 pt-10 border-t border-[#0A4F78]/20 {{ $secRelated['responsive_class'] }}">
             <div class="flex justify-between items-end">
               <div>
                 <span class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-[#0A4F78] dark:text-[#2A8FC2] block mb-1">
