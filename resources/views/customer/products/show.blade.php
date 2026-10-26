@@ -535,6 +535,21 @@
             </div>
           </div>
 
+          @if(!empty($secDossier['custom_content_enabled']) && (!empty($secDossier['custom_content']) || !empty($secDossier['custom_content_mobile'])))
+            <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed py-2 text-[#031827] dark:text-[#F6F5EF]">
+              @if(!empty($secDossier['custom_content_mobile']) && !empty($secDossier['custom_content']))
+                <div class="hidden md:block">
+                  {!! $secDossier['custom_content'] !!}
+                </div>
+                <div class="block md:hidden">
+                  {!! $secDossier['custom_content_mobile'] !!}
+                </div>
+              @else
+                {!! $secDossier['custom_content'] ?: $secDossier['custom_content_mobile'] !!}
+              @endif
+            </div>
+          @endif
+
           <!-- Quick Navigation Jump Filter Pills -->
           <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
             @if($sec1['is_visible'])
@@ -621,9 +636,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec1['custom_content_enabled'] && !empty($sec1['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec1['custom_content'] !!}
+                  @if($sec1['custom_content_enabled'] && (!empty($sec1['custom_content']) || !empty($sec1['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec1['custom_content_mobile']) && !empty($sec1['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec1['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec1['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec1['custom_content'] ?: $sec1['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-medium">
@@ -705,9 +729,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec2['custom_content_enabled'] && !empty($sec2['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec2['custom_content'] !!}
+                  @if($sec2['custom_content_enabled'] && (!empty($sec2['custom_content']) || !empty($sec2['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec2['custom_content_mobile']) && !empty($sec2['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec2['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec2['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec2['custom_content'] ?: $sec2['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <!-- Bullet list of clinical outcomes -->
@@ -793,9 +826,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec3['custom_content_enabled'] && !empty($sec3['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec3['custom_content'] !!}
+                  @if($sec3['custom_content_enabled'] && (!empty($sec3['custom_content']) || !empty($sec3['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec3['custom_content_mobile']) && !empty($sec3['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec3['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec3['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec3['custom_content'] ?: $sec3['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <div class="p-4 sm:p-6 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border-inline-start-4 border-primary space-y-2">
@@ -887,9 +929,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec4['custom_content_enabled'] && !empty($sec4['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec4['custom_content'] !!}
+                  @if($sec4['custom_content_enabled'] && (!empty($sec4['custom_content']) || !empty($sec4['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec4['custom_content_mobile']) && !empty($sec4['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec4['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec4['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec4['custom_content'] ?: $sec4['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <div class="space-y-4">
@@ -964,9 +1015,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec5['custom_content_enabled'] && !empty($sec5['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec5['custom_content'] !!}
+                  @if($sec5['custom_content_enabled'] && (!empty($sec5['custom_content']) || !empty($sec5['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec5['custom_content_mobile']) && !empty($sec5['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec5['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec5['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec5['custom_content'] ?: $sec5['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <!-- Amber Medical Warning Box -->
@@ -1037,9 +1097,18 @@
 
               <div class="bz-collapsible-grid">
                 <div class="bz-collapsible-inner p-5 sm:p-8 pt-0 border-t border-[#0A4F78]/10 dark:border-[#0A4F78]/20 space-y-6">
-                  @if($sec6['custom_content_enabled'] && !empty($sec6['custom_content']))
-                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6">
-                      {!! $sec6['custom_content'] !!}
+                  @if($sec6['custom_content_enabled'] && (!empty($sec6['custom_content']) || !empty($sec6['custom_content_mobile'])))
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed pt-6 text-[#031827] dark:text-[#F6F5EF]">
+                      @if(!empty($sec6['custom_content_mobile']) && !empty($sec6['custom_content']))
+                        <div class="hidden md:block">
+                          {!! $sec6['custom_content'] !!}
+                        </div>
+                        <div class="block md:hidden">
+                          {!! $sec6['custom_content_mobile'] !!}
+                        </div>
+                      @else
+                        {!! $sec6['custom_content'] ?: $sec6['custom_content_mobile'] !!}
+                      @endif
                     </div>
                   @else
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-medium">

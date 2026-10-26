@@ -13,7 +13,7 @@
             'name_ar' => 'رأس ملف المواصفات السريرية والحاوية الرئيسية',
             'tag' => 'CORE CONTAINER',
             'has_open_state' => false,
-            'has_custom_content' => false,
+            'has_custom_content' => true,
             'default_badge_en' => $detailsSettings['pdetail_dossier_badge_en'] ?? 'CLINICAL DOSSIER & BIO-MOLECULAR MONOGRAPH',
             'default_badge_ar' => $detailsSettings['pdetail_dossier_badge_ar'] ?? 'الملف الطبي والمواصفات السريرية المعتمدة',
             'default_title_en' => $detailsSettings['pdetail_dossier_title_en'] ?? 'Comprehensive Formulation Specifications',
@@ -482,8 +482,11 @@
                     $enMobile = array_key_exists('enabled_mobile', $sConf) ? (bool) $sConf['enabled_mobile'] : true;
                     $defOpen = array_key_exists('default_open', $sConf) ? (bool) $sConf['default_open'] : ($sDef['default_open'] ?? false);
                     $hasCustom = !empty($sConf['custom_content_enabled']);
+                    $contentScreenMode = $sConf['content_screen_mode'] ?? 'unified';
                     $contentEn = $sConf['custom_content_en'] ?? '';
                     $contentAr = $sConf['custom_content_ar'] ?? '';
+                    $contentMobileEn = $sConf['custom_content_mobile_en'] ?? '';
+                    $contentMobileAr = $sConf['custom_content_mobile_ar'] ?? '';
 
                     $titleEn = $sConf['title_en'] ?? '';
                     $titleAr = $sConf['title_ar'] ?? '';
@@ -803,10 +806,241 @@
                         @endif
 
                         @if($sDef['has_custom_content'])
-                            {{-- Preserved hidden inputs so existing values are maintained upon save without exposing dev-only UI --}}
-                            <input type="hidden" name="section_settings[{{ $sKey }}][custom_content_enabled]" value="{{ $hasCustom ? '1' : '0' }}">
-                            <input type="hidden" name="section_settings[{{ $sKey }}][custom_content_en]" value="{{ $contentEn }}">
-                            <input type="hidden" name="section_settings[{{ $sKey }}][custom_content_ar]" value="{{ $contentAr }}">
+                            <!-- ==========================================================
+                                 SECTION CONTENT & VISUAL ELEMENTS STUDIO
+                                 ========================================================== -->
+                            <div class="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-800 space-y-4">
+                                <!-- Studio Master Bar: Title, Description, and Master Toggle -->
+                                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-50 via-white to-amber-50/20 dark:from-[#031827] dark:via-[#062B49] dark:to-amber-950/20 border-2 {{ $hasCustom ? 'border-amber-500/50 dark:border-amber-500/40 shadow-md' : 'border-slate-200 dark:border-slate-700/80' }} transition-all">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div class="space-y-1 min-w-0 flex-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full {{ $hasCustom ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300' }} font-mono text-[10px] font-black uppercase tracking-wider transition-all"
+                                                      id="badge-custom-status-{{ $sKey }}">
+                                                    <i class="fa-solid {{ $hasCustom ? 'fa-wand-magic-sparkles' : 'fa-cubes' }}"></i>
+                                                    <span>{{ $hasCustom ? ($isAr ? 'عناصر مخصصة مفعلة' : 'BESPOKE ELEMENTS ACTIVE') : ($isAr ? 'القالب التلقائي الافتراضي' : 'STANDARD SYSTEM TEMPLATE') }}</span>
+                                                </span>
+                                                <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                                                    {{ $isAr ? 'التحكم الدقيق بمحتوى وعناصر القسم' : 'Granular Content & Screen Overrides' }}
+                                                </span>
+                                            </div>
+
+                                            <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                <span>{{ $isAr ? 'استوديو تخصيص محتوى وعناصر القسم' : 'Section Content & Elements Studio' }}</span>
+                                            </h4>
+                                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                                                {{ $isAr 
+                                                    ? 'يتيح لك استبدال الهيكل التلقائي بمحتوى وعناصر بصرية مخصصة، مع إمكانية التخصيص حسب نوع الشاشة (كمبيوتر وهاتف) وإدراج قوالب جاهزة بضغطة زر.'
+                                                    : 'Override default automated elements with bespoke content, cards, badges, and directives with screen-specific targeting (Desktop vs Mobile).' }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Master Content Studio Switch Pill -->
+                                        <div class="shrink-0 flex items-center gap-3">
+                                            <label class="bz-switch-pill {{ $hasCustom ? 'is-active' : 'is-inactive' }}" 
+                                                   id="pill-custom-master-{{ $sKey }}"
+                                                   style="{{ $hasCustom ? 'background-color: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.6); color: #f59e0b;' : '' }}">
+                                                <input type="hidden" name="section_settings[{{ $sKey }}][custom_content_enabled]" value="0">
+                                                <input type="checkbox" name="section_settings[{{ $sKey }}][custom_content_enabled]" value="1" 
+                                                       id="input-custom-master-{{ $sKey }}"
+                                                       class="sr-only"
+                                                       onchange="toggleSectionContentStudio(this, '{{ $sKey }}')"
+                                                       {{ $hasCustom ? 'checked' : '' }}>
+                                                <span class="bz-switch-thumb" style="{{ $hasCustom ? 'background-color: #f59e0b; color: #fff;' : '' }}">
+                                                    <i class="fa-solid {{ $hasCustom ? 'fa-wand-magic-sparkles' : 'fa-xmark' }}"></i>
+                                                </span>
+                                                <i class="fa-solid fa-code text-xs"></i>
+                                                <span class="switch-label">{{ $isAr ? 'تخصيص المحتوى' : 'Custom Content' }}</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Studio Drawer Panels (Visible only when custom_content_enabled is checked) -->
+                                <div class="{{ $hasCustom ? 'block' : 'hidden' }} space-y-4 pt-1" 
+                                     id="studio-drawer-{{ $sKey }}">
+
+                                    <!-- Studio Controls Bar: Screen Mode + Quick Blueprints + Element Inserters -->
+                                    <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#031827] border-2 border-slate-200 dark:border-slate-700/80 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+                                        
+                                        <!-- Screen Viewport Target Selector -->
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mr-1 ml-1">
+                                                <i class="fa-solid fa-sliders text-[#0A4F78] dark:text-[#2A8FC2]"></i>
+                                                <span>{{ $isAr ? 'توجيه الشاشات:' : 'Screen Targeting:' }}</span>
+                                            </span>
+
+                                            <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700">
+                                                <label class="px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 {{ $contentScreenMode === 'unified' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900' }}"
+                                                       id="lbl-screen-unified-{{ $sKey }}">
+                                                    <input type="radio" name="section_settings[{{ $sKey }}][content_screen_mode]" value="unified" 
+                                                           class="sr-only" onchange="setSectionScreenMode('{{ $sKey }}', 'unified')"
+                                                           {{ $contentScreenMode === 'unified' ? 'checked' : '' }}>
+                                                    <i class="fa-solid fa-globe text-[11px]"></i>
+                                                    <span>{{ $isAr ? 'جميع الشاشات (متجاوب)' : 'All Screens (Unified)' }}</span>
+                                                </label>
+
+                                                <label class="px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 {{ $contentScreenMode === 'per_screen' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900' }}"
+                                                       id="lbl-screen-perscreen-{{ $sKey }}">
+                                                    <input type="radio" name="section_settings[{{ $sKey }}][content_screen_mode]" value="per_screen" 
+                                                           class="sr-only" onchange="setSectionScreenMode('{{ $sKey }}', 'per_screen')"
+                                                           {{ $contentScreenMode === 'per_screen' ? 'checked' : '' }}>
+                                                    <i class="fa-solid fa-mobile-screen text-[11px]"></i>
+                                                    <span>{{ $isAr ? 'تخصيص محتوى الهاتف منفصلاً' : 'Dedicated Mobile Content' }}</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Blueprint & Quick Snippet Inserters -->
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <button type="button" onclick="loadSectionBlueprint('{{ $sKey }}')" 
+                                                    class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-black transition-all flex items-center gap-1.5 border border-amber-500/30 cursor-pointer shadow-xs active:scale-95"
+                                                    title="{{ $isAr ? 'تحميل كود القالب الافتراضي لتعديل العناصر الجاهزة' : 'Load default system layout elements into editors' }}">
+                                                <i class="fa-solid fa-bolt text-amber-500"></i>
+                                                <span>{{ $isAr ? 'تحميل قالب القسم' : 'Load Blueprint' }}</span>
+                                            </button>
+
+                                            <div class="hidden sm:flex items-center gap-1">
+                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'card')" 
+                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                                                    + {{ $isAr ? 'بطاقة' : 'Card' }}
+                                                </button>
+                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'pill')" 
+                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                                                    + {{ $isAr ? 'شارة' : 'Pill' }}
+                                                </button>
+                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'callout')" 
+                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                                                    + {{ $isAr ? 'تنبيه' : 'Alert' }}
+                                                </button>
+                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'grid')" 
+                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                                                    + {{ $isAr ? 'شبكة' : 'Grid' }}
+                                                </button>
+                                            </div>
+
+                                            <button type="button" onclick="toggleInCardPreview('{{ $sKey }}')" 
+                                                    class="px-3 py-1.5 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78]/20 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] text-xs font-bold transition-all flex items-center gap-1.5 border border-[#0A4F78]/20 cursor-pointer">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span id="btn-text-preview-{{ $sKey }}">{{ $isAr ? 'معاينة العناصر' : 'Live Preview' }}</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bilingual Language Tabs -->
+                                    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                                        <button type="button" onclick="setStudioLangTab('{{ $sKey }}', 'en')" 
+                                                id="tab-btn-en-{{ $sKey }}"
+                                                class="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-[#0A4F78] text-white shadow-xs">
+                                            <span>🇬🇧 English Content</span>
+                                        </button>
+                                        <button type="button" onclick="setStudioLangTab('{{ $sKey }}', 'ar')" 
+                                                id="tab-btn-ar-{{ $sKey }}"
+                                                class="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-[#062B49] text-slate-700 dark:text-slate-300 hover:text-[#67B34A]">
+                                            <span>🇸🇦 المحتوى بالعربية</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- English Editor Pane -->
+                                    <div class="space-y-4" id="pane-lang-en-{{ $sKey }}">
+                                        <!-- Desktop / Standard EN Editor -->
+                                        <div class="space-y-2 bg-white dark:bg-[#031827] p-4 sm:p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/80 shadow-inner">
+                                            <div class="flex items-center justify-between">
+                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 rounded bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-[10px] font-mono font-bold">🇬🇧 EN DESKTOP / MAIN</span>
+                                                    <span>{{ $isAr ? 'المحتوى الرئيسي / سطح المكتب (HTML أو نصوص):' : 'Main / Desktop Content (HTML / Rich Elements):' }}</span>
+                                                </label>
+                                                <span class="text-[10px] font-mono text-slate-400">Responsive Elements</span>
+                                            </div>
+                                            <textarea name="section_settings[{{ $sKey }}][custom_content_en]" 
+                                                      id="editor-en-{{ $sKey }}"
+                                                      rows="7"
+                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'en')"
+                                                      placeholder="<div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-4&quot;>&#10;  <!-- Insert custom cards, clinical parameters or directives here -->&#10;</div>"
+                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#062B49] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-[#0A4F78] dark:focus:border-[#2A8FC2] focus:ring-4 focus:ring-[#0A4F78]/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentEn }}</textarea>
+                                        </div>
+
+                                        <!-- Mobile-Dedicated EN Editor (Conditioned by per_screen mode) -->
+                                        <div class="{{ $contentScreenMode === 'per_screen' ? 'block' : 'hidden' }} space-y-2 bg-slate-50/80 dark:bg-[#062B49]/40 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-[#0A4F78]/40 shadow-inner"
+                                             id="wrapper-mobile-en-{{ $sKey }}">
+                                            <div class="flex items-center justify-between">
+                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold">📱 EN MOBILE EXCLUSIVE</span>
+                                                    <span>{{ $isAr ? 'محتوى مخصص للهاتف فقط (English Mobile Override):' : 'Mobile-Exclusive Viewport Content (English):' }}</span>
+                                                </label>
+                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold">Visible on Phones Only</span>
+                                            </div>
+                                            <textarea name="section_settings[{{ $sKey }}][custom_content_mobile_en]" 
+                                                      id="editor-mobile-en-{{ $sKey }}"
+                                                      rows="5"
+                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'en')"
+                                                      placeholder="Compact cards or touch-optimized elements for smartphones..."
+                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#031827] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentMobileEn }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Arabic Editor Pane -->
+                                    <div class="space-y-4 hidden" id="pane-lang-ar-{{ $sKey }}">
+                                        <!-- Desktop / Standard AR Editor -->
+                                        <div class="space-y-2 bg-white dark:bg-[#031827] p-4 sm:p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/80 shadow-inner">
+                                            <div class="flex items-center justify-between" dir="rtl">
+                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 rounded bg-[#67B34A]/15 text-[#67B34A] text-[10px] font-mono font-bold">🇸🇦 AR DESKTOP / MAIN</span>
+                                                    <span class="font-tajawal">{{ $isAr ? 'المحتوى الرئيسي / سطح المكتب (عربي):' : 'Main / Desktop Content (Arabic):' }}</span>
+                                                </label>
+                                                <span class="text-[10px] font-tajawal text-slate-400">عناصر متجاوبة</span>
+                                            </div>
+                                            <textarea name="section_settings[{{ $sKey }}][custom_content_ar]" 
+                                                      id="editor-ar-{{ $sKey }}"
+                                                      dir="rtl"
+                                                      rows="7"
+                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'ar')"
+                                                      placeholder="<div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-4&quot; dir=&quot;rtl&quot;>&#10;  <!-- أضف البطاقات أو التوجيهات السريرية المخصصة هنا -->&#10;</div>"
+                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#062B49] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-[#67B34A] focus:ring-4 focus:ring-[#67B34A]/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentAr }}</textarea>
+                                        </div>
+
+                                        <!-- Mobile-Dedicated AR Editor (Conditioned by per_screen mode) -->
+                                        <div class="{{ $contentScreenMode === 'per_screen' ? 'block' : 'hidden' }} space-y-2 bg-slate-50/80 dark:bg-[#062B49]/40 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-[#67B34A]/40 shadow-inner"
+                                             id="wrapper-mobile-ar-{{ $sKey }}">
+                                            <div class="flex items-center justify-between" dir="rtl">
+                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold">📱 AR MOBILE EXCLUSIVE</span>
+                                                    <span class="font-tajawal">{{ $isAr ? 'محتوى مخصص للهاتف فقط (بالعربية):' : 'Mobile-Exclusive Viewport Content (Arabic):' }}</span>
+                                                </label>
+                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold font-tajawal">يظهر على الهواتف الذكية فقط</span>
+                                            </div>
+                                            <textarea name="section_settings[{{ $sKey }}][custom_content_mobile_ar]" 
+                                                      id="editor-mobile-ar-{{ $sKey }}"
+                                                      dir="rtl"
+                                                      rows="5"
+                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'ar')"
+                                                      placeholder="بطاقات ملائمة لشاشات اللمس والهواتف الذكية..."
+                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#031827] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentMobileAr }}</textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- In-Card Live Rendered Elements Preview Box -->
+                                    <div class="hidden p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#031827] border-2 border-dashed border-[#0A4F78]/30 shadow-md space-y-3"
+                                         id="incard-preview-{{ $sKey }}">
+                                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                                            <span class="text-xs font-black text-[#0A4F78] dark:text-[#2A8FC2] uppercase tracking-wider flex items-center gap-1.5">
+                                                <i class="fa-solid fa-sparkles"></i>
+                                                <span>{{ $isAr ? 'معاينة العناصر الحية في هذه البطاقة' : 'In-Card Rendered Elements Preview' }}</span>
+                                            </span>
+                                            <button type="button" onclick="renderInCardPreviewContent('{{ $sKey }}')" 
+                                                    class="text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+                                                <i class="fa-solid fa-rotate text-[10px]"></i>
+                                                <span>{{ $isAr ? 'تحديث' : 'Refresh' }}</span>
+                                            </button>
+                                        </div>
+                                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] text-xs leading-relaxed text-slate-900 dark:text-slate-100 overflow-x-auto min-h-[60px]"
+                                             id="incard-preview-body-{{ $sKey }}">
+                                            <!-- Rendered HTML will inject here -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
                         @endif
 
                         <!-- ==========================================================
@@ -1159,8 +1393,25 @@
                                             Renders complementary formulations catalog grid.
                                         </div>
                                     @else
-                                        <div class="text-[10px] leading-relaxed text-slate-600 dark:text-slate-300">
-                                            {{ $sDef['description_en'] }}
+                                        @php
+                                            $sHasCustom = !empty($sConf['custom_content_enabled']);
+                                            $sCustomEn = $sConf['custom_content_en'] ?? '';
+                                            $sCustomAr = $sConf['custom_content_ar'] ?? '';
+                                            $sCustomText = app()->getLocale() === 'ar' ? ($sCustomAr ?: $sCustomEn) : ($sCustomEn ?: $sCustomAr);
+                                        @endphp
+                                        <div class="text-[10px] leading-relaxed text-slate-600 dark:text-slate-300" id="sim-content-{{ $sKey }}">
+                                            @if($sHasCustom && !empty($sCustomText))
+                                                <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/25 space-y-1">
+                                                    <span class="font-bold text-amber-600 dark:text-amber-400 block text-[9px] uppercase tracking-wider">
+                                                        <i class="fa-solid fa-wand-magic-sparkles mr-1 ml-1"></i> {{ $isAr ? 'عناصر مخصصة نشطة' : 'Bespoke Elements Active' }}
+                                                    </span>
+                                                    <div class="line-clamp-2 text-[9px] font-mono text-slate-500 dark:text-slate-400">
+                                                        {{ strip_tags($sCustomText) }}
+                                                    </div>
+                                                </div>
+                                            @else
+                                                {{ $sDef['description_en'] }}
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -1592,7 +1843,541 @@
         }
     }
 
-    function triggerStickyPreviewSync() {
+    // ==========================================================
+    // SECTION CONTENT & VISUAL ELEMENTS STUDIO CONTROLLER
+    // ==========================================================
+    const sectionBlueprints = {
+        dossier: {
+            en: `<div class="p-6 rounded-3xl bg-[#0A4F78]/5 dark:bg-[#062B49]/50 border border-[#0A4F78]/15 space-y-3">
+  <div class="flex items-center gap-2">
+    <span class="w-2.5 h-2.5 rounded-full bg-[#67B34A]"></span>
+    <span class="text-xs font-mono font-bold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2]">Master Monograph Overview</span>
+  </div>
+  <p class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed">
+    Comprehensive pharmaceutical monograph and clinical protocol dossier for this advanced longevity formulation.
+  </p>
+</div>`,
+            ar: `<div class="p-6 rounded-3xl bg-[#0A4F78]/5 dark:bg-[#062B49]/50 border border-[#0A4F78]/15 space-y-3" dir="rtl">
+  <div class="flex items-center gap-2">
+    <span class="w-2.5 h-2.5 rounded-full bg-[#67B34A]"></span>
+    <span class="text-xs font-tajawal font-bold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2]">نظرة عامة على الملف الطبي المعتمد</span>
+  </div>
+  <p class="text-xs sm:text-sm text-[#031827]/80 dark:text-[#F6F5EF]/80 font-medium leading-relaxed font-tajawal">
+    الملف الدوائي والمواصفات السريرية المعتمدة لهذا المستحضر المتطور لدعم طول العمر والنشاط الخلوي.
+  </p>
+</div>`
+        },
+        sec1: {
+            en: `<p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-medium mb-4">
+  Every active bio-compound in this formulation is calibrated to therapeutic clinical thresholds using triple third-party HPLC verification, guaranteeing maximum cellular uptake and batch-to-batch consistency.
+</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 hover:border-[#67B34A]/50 transition-colors">
+    <div class="flex justify-between items-start gap-2">
+      <span class="text-xs font-bold text-[#031827] dark:text-[#F6F5EF]">Active Bio-Compound Matrix</span>
+      <span class="px-2.5 py-0.5 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-[11px] font-mono font-black shrink-0">Standardized</span>
+    </div>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-medium">Targeted cellular biological pathway and cellular energy support.</p>
+    <div class="pt-2 border-t border-[#0A4F78]/10 flex items-center justify-between text-[10px] text-[#0A4F78] dark:text-[#2A8FC2] font-mono">
+      <span><i class="fa-solid fa-seedling mr-1 text-[#67B34A]"></i> Botanical Bio-Active</span>
+      <span>99%+ PURE</span>
+    </div>
+  </div>
+</div>
+<div class="mt-4 p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-white/5 border border-[#0A4F78]/10 flex flex-wrap gap-4 items-center justify-around text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2]">
+  <span><i class="fa-solid fa-check-double text-[#67B34A] mr-1.5"></i> Triple HPLC Assayed</span>
+  <span><i class="fa-solid fa-shield-virus text-[#67B34A] mr-1.5"></i> Heavy Metal Screened</span>
+  <span><i class="fa-solid fa-dna text-[#67B34A] mr-1.5"></i> 100% Non-GMO & Vegan</span>
+</div>`,
+            ar: `<p class="text-xs sm:text-sm text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-medium mb-4 font-tajawal" dir="rtl">
+  تخضع جميع المواد الفعالة في هذه التركيبة لمعايرة مخبرية دقيقة وفق دستور الأدوية العالمي، لضمان أعلى توافر حيوي وامتصاص خلوي دون أي شوائب اصطناعية.
+</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" dir="rtl">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 hover:border-[#67B34A]/50 transition-colors">
+    <div class="flex justify-between items-start gap-2">
+      <span class="text-xs font-bold text-[#031827] dark:text-[#F6F5EF] font-tajawal">مصفوفة المركبات النشطة المعتمدة</span>
+      <span class="px-2.5 py-0.5 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-[11px] font-mono font-black shrink-0">معياري</span>
+    </div>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-medium font-tajawal">دعم الوظائف الحيوية الخلوية وتنشيط مسارات الطاقة الميتوكوندرية.</p>
+    <div class="pt-2 border-t border-[#0A4F78]/10 flex items-center justify-between text-[10px] text-[#0A4F78] dark:text-[#2A8FC2] font-mono">
+      <span><i class="fa-solid fa-seedling ml-1 text-[#67B34A]"></i> مستخلص نقي</span>
+      <span>99%+ نقاء</span>
+    </div>
+  </div>
+</div>
+<div class="mt-4 p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-white/5 border border-[#0A4F78]/10 flex flex-wrap gap-4 items-center justify-around text-xs font-bold text-[#0A4F78] dark:text-[#2A8FC2]" dir="rtl">
+  <span><i class="fa-solid fa-check-double text-[#67B34A] ml-1.5"></i> فحص HPLC ثلاثي</span>
+  <span><i class="fa-solid fa-shield-virus text-[#67B34A] ml-1.5"></i> خالٍ من الملوثات</span>
+  <span><i class="fa-solid fa-dna text-[#67B34A] ml-1.5"></i> نباتي غير معدل وراثياً</span>
+</div>`
+        },
+        sec2: {
+            en: `<div class="space-y-3 mb-5">
+  <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
+    <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+      <i class="fa-solid fa-check"></i>
+    </span>
+    <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed">
+      Sustained mitochondrial energy output and cellular ATP production without jitter or crash.
+    </span>
+  </div>
+  <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
+    <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+      <i class="fa-solid fa-check"></i>
+    </span>
+    <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed">
+      Supports cellular autophagy and youthful biomarker signaling.
+    </span>
+  </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#67B34A] font-mono uppercase block">Phase 1 · Days 1–7</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">Acute Cellular Perfusion</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Immediate microcirculation and vitality enhancement.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#2A8FC2] font-mono uppercase block">Phase 2 · Days 14–30</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">Synaptic Consolidation</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Enhanced metabolic balance and cellular resilience.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#67B34A] font-mono uppercase block">Phase 3 · Days 60+</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">Deep Longevity Defense</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Ongoing genomic stability and mitochondrial defense.</p>
+  </div>
+</div>`,
+            ar: `<div class="space-y-3 mb-5" dir="rtl">
+  <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
+    <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+      <i class="fa-solid fa-check"></i>
+    </span>
+    <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed font-tajawal">
+      دعم مستدام لإنتاج الطاقة الميتوكوندرية وتوليد ATP دون أي إجهاد عصبي.
+    </span>
+  </div>
+  <div class="flex items-start gap-3 p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/10">
+    <span class="w-6 h-6 rounded-full bg-[#67B34A] text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+      <i class="fa-solid fa-check"></i>
+    </span>
+    <span class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 font-medium leading-relaxed font-tajawal">
+      تحفيز الالتهام الذاتي الخلوي وتجديد المؤشرات الحيوية للشباب.
+    </span>
+  </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4" dir="rtl">
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#67B34A] font-tajawal uppercase block">المرحلة 1 · اليوم 1 إلى 7</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">الاستجابة الفورية</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">تحسين تدفق الدورة الدموية الدقيقة وتعزيز النشاط.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#2A8FC2] font-tajawal uppercase block">المرحلة 2 · اليوم 14 إلى 30</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">استقرار المسارات</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">توازن التمثيل الغذائي الخلوي ومقاومة الإجهاد.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1.5">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#67B34A] font-tajawal uppercase block">المرحلة 3 · اليوم 60 فما فوق</span>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">حماية طول العمر</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">حماية مستمرة لجينوم الخلية وسلامة الميتوكوندريا.</p>
+  </div>
+</div>`
+        },
+        sec3: {
+            en: `<div class="p-4 sm:p-6 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border-inline-start-4 border-primary space-y-2 mb-4">
+  <span class="text-xs font-extrabold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] block">
+    <i class="fa-solid fa-circle-info mr-1"></i> Primary Administration Directive:
+  </span>
+  <p class="text-xs sm:text-sm text-[#031827] dark:text-[#F6F5EF] font-medium leading-relaxed">
+    Take 2 capsules each morning with 250ml of pure water, preferably alongside healthy fats such as cold-pressed extra virgin olive oil.
+  </p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-[#67B34A]/15 text-[#67B34A] mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-sun"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">1. Timing</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Administer each morning to align with circadian rhythm.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-glass-water"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">2. Hydration</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">250ml pure mineral water aids rapid enteric dissolution.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-500 mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-bottle-droplet"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">3. Lipid Synergy</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Consuming with healthy fats boosts bio-absorption.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-500 mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-repeat"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white">4. Regularity</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Engineered for safe, uninterrupted daily longevity support.</p>
+  </div>
+</div>`,
+            ar: `<div class="p-4 sm:p-6 rounded-2xl bg-[#0A4F78]/5 dark:bg-[#031827] border-inline-start-4 border-primary space-y-2 mb-4" dir="rtl">
+  <span class="text-xs font-extrabold uppercase tracking-wider text-[#0A4F78] dark:text-[#2A8FC2] block font-tajawal">
+    <i class="fa-solid fa-circle-info ml-1"></i> الإرشاد السريري المباشر:
+  </span>
+  <p class="text-xs sm:text-sm text-[#031827] dark:text-[#F6F5EF] font-medium leading-relaxed font-tajawal">
+    تناول كبسولتين صباحاً مع 250 مل من الماء النقي، يفضل مع مصدر دهون صحية كزيت الزيتون البكر الممتاز لتعزيز الامتصاص.
+  </p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" dir="rtl">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-[#67B34A]/15 text-[#67B34A] mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-sun"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">1. التوقيت</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">يُفضل تناوله صباحاً ليتزامن مع إيقاع الساعة البيولوجية.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-[#2A8FC2]/15 text-[#2A8FC2] mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-glass-water"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">2. الترطيب</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">250 مل ماء نقي لتسهيل ذوبان الكبسولة المعوية.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-amber-500/15 text-amber-500 mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-bottle-droplet"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">3. الدهون الصحية</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">تناوله مع زيت الزيتون يضاعف الامتصاص الحيوي.</p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2 text-center">
+    <div class="w-10 h-10 rounded-full bg-purple-500/15 text-purple-500 mx-auto flex items-center justify-center text-base"><i class="fa-solid fa-repeat"></i></div>
+    <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">4. الاستمرارية</h4>
+    <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">مصمم للاستخدام اليومي المستمر دون أي اعتياد.</p>
+  </div>
+</div>`
+        },
+        sec4: {
+            en: `<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed font-medium mb-4">
+  Formulated to activate cellular bio-energetics, support endogenous NAD+ synthesis, and protect mitochondrial DNA from oxidative stress.
+</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
+      <i class="fa-solid fa-microchip mr-1 text-[#67B34A]"></i> Blood-Brain Barrier (BBB) Kinetics:
+    </span>
+    <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
+      Phospholipid carriers enable efficient bioavailability and localized receptor binding.
+    </p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block">
+      <i class="fa-solid fa-atom mr-1 text-purple-500"></i> Mitochondrial Redox Equilibrium:
+    </span>
+    <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed">
+      Shields respiratory electron chain complexes against premature cellular senescence.
+    </p>
+  </div>
+</div>`,
+            ar: `<p class="text-xs sm:text-sm text-[#031827]/85 dark:text-[#F6F5EF]/85 leading-relaxed font-medium mb-4 font-tajawal" dir="rtl">
+  مُصمم لتنشيط مسارات الطاقة الخلوية، تحفيز التخليق الحيوي لمركب NAD+، وحماية الميتوكوندريا من التلف التأكسدي.
+</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4" dir="rtl">
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block font-tajawal">
+      <i class="fa-solid fa-microchip ml-1 text-[#67B34A]"></i> نفاذية الحاجز الدموي الدماغي:
+    </span>
+    <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-tajawal">
+      مركبات الفسفوليبيد تدعم الامتصاص السريع والنفاذ الخلوي بكفاءة عالية.
+    </p>
+  </div>
+  <div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">
+    <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2] uppercase block font-tajawal">
+      <i class="fa-solid fa-atom ml-1 text-purple-500"></i> التوازن الميتوكوندري:
+    </span>
+    <p class="text-[11px] text-[#031827]/75 dark:text-[#F6F5EF]/75 leading-relaxed font-tajawal">
+      حماية متقدمة لسلسلة نقل الإلكترونات وحماية DNA الخلية من الشيخوخة المبكرة.
+    </p>
+  </div>
+</div>`
+        },
+        sec5: {
+            en: `<div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2 mb-4">
+  <div class="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>Medical Advisory & Precautions:</span>
+  </div>
+  <p class="text-xs leading-relaxed">
+    Keep out of reach of children. Store in a cool, dry environment below 25°C away from direct sunlight. Individuals on clinical supervision or pregnant/nursing mothers should consult their physician before use.
+  </p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs font-bold">
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-ban text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white">Gluten-Free</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-leaf text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white">Soy-Free</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-droplet-slash text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white">100% Vegan</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-flask text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white">No Preservatives</span>
+  </div>
+</div>`,
+            ar: `<div class="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-2 mb-4" dir="rtl">
+  <div class="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider font-tajawal">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>تنبيه سريري وإرشادات الاستعمال:</span>
+  </div>
+  <p class="text-xs leading-relaxed font-tajawal">
+    يُحفظ بعيداً عن متناول الأطفال في مكان جاف وبارد تحت 25 درجة مئوية بعيداً عن أشعة الشمس المباشرة. يُنصح باستشارة الطبيب المعالج لمن يتناولون أدوية موصوفة أو الحوامل والمرضعات.
+  </p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs font-bold" dir="rtl">
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-ban text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white font-tajawal">خالٍ من الجلوتين</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-leaf text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white font-tajawal">خالٍ من الصويا</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-droplet-slash text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white font-tajawal">100% نباتي</span>
+  </div>
+  <div class="p-3 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-1">
+    <i class="fa-solid fa-flask text-[#67B34A] text-base"></i>
+    <span class="block text-[#031827] dark:text-white font-tajawal">دون مواد حافظة</span>
+  </div>
+</div>`
+        },
+        sec6: {
+            en: `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-medium">
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">Supply Volume:</span>
+    <span class="font-bold text-[#031827] dark:text-white">60 Veg Capsules</span>
+  </div>
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">Facility Standards:</span>
+    <span class="font-bold text-[#67B34A]">cGMP & ISO Assayed</span>
+  </div>
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">Satisfaction Guarantee:</span>
+    <span class="font-bold text-[#67B34A]">30-Day Clinical Refund</span>
+  </div>
+</div>`,
+            ar: `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs font-medium" dir="rtl">
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70 font-tajawal">حجم العبوة:</span>
+    <span class="font-bold text-[#031827] dark:text-white font-tajawal">60 كبسولة نباتية</span>
+  </div>
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70 font-tajawal">معايير التصنيع:</span>
+    <span class="font-bold text-[#67B34A]">cGMP & ISO</span>
+  </div>
+  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
+    <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70 font-tajawal">ضمان الرضا الطبي:</span>
+    <span class="font-bold text-[#67B34A] font-tajawal">استرداد كامل خلال 30 يوماً</span>
+  </div>
+</div>`
+        }
+    };
+
+    function toggleSectionContentStudio(checkbox, secKey) {
+        if (!checkbox) return;
+        const isChecked = checkbox.checked;
+        const pill = document.getElementById('pill-custom-master-' + secKey);
+        const drawer = document.getElementById('studio-drawer-' + secKey);
+        const badge = document.getElementById('badge-custom-status-' + secKey);
+        const isAr = {{ $isAr ? 'true' : 'false' }};
+
+        if (isChecked) {
+            pill.classList.remove('is-inactive');
+            pill.classList.add('is-active');
+            pill.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
+            pill.style.borderColor = 'rgba(245, 158, 11, 0.6)';
+            pill.style.color = '#f59e0b';
+            pill.querySelector('.bz-switch-thumb').style.backgroundColor = '#f59e0b';
+            pill.querySelector('.bz-switch-thumb').style.color = '#fff';
+            pill.querySelector('.bz-switch-thumb i').className = 'fa-solid fa-wand-magic-sparkles';
+            if (drawer) drawer.classList.remove('hidden');
+            if (badge) {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500 text-white font-mono text-[10px] font-black uppercase tracking-wider transition-all';
+                badge.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span>' + (isAr ? 'عناصر مخصصة مفعلة' : 'BESPOKE ELEMENTS ACTIVE') + '</span>';
+            }
+        } else {
+            pill.classList.remove('is-active');
+            pill.classList.add('is-inactive');
+            pill.style.backgroundColor = '';
+            pill.style.borderColor = '';
+            pill.style.color = '';
+            pill.querySelector('.bz-switch-thumb').style.backgroundColor = '';
+            pill.querySelector('.bz-switch-thumb').style.color = '';
+            pill.querySelector('.bz-switch-thumb i').className = 'fa-solid fa-xmark';
+            if (drawer) drawer.classList.add('hidden');
+            if (badge) {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px] font-black uppercase tracking-wider transition-all';
+                badge.innerHTML = '<i class="fa-solid fa-cubes"></i> <span>' + (isAr ? 'القالب التلقائي الافتراضي' : 'STANDARD SYSTEM TEMPLATE') + '</span>';
+            }
+        }
+
+        syncSimulatorCard(secKey);
+    }
+
+    function setSectionScreenMode(secKey, mode) {
+        const lblUnified = document.getElementById('lbl-screen-unified-' + secKey);
+        const lblPerScreen = document.getElementById('lbl-screen-perscreen-' + secKey);
+        const wrapMobileEn = document.getElementById('wrapper-mobile-en-' + secKey);
+        const wrapMobileAr = document.getElementById('wrapper-mobile-ar-' + secKey);
+
+        if (mode === 'unified') {
+            if (lblUnified) lblUnified.className = 'px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-xs';
+            if (lblPerScreen) lblPerScreen.className = 'px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:text-slate-900';
+            if (wrapMobileEn) wrapMobileEn.classList.add('hidden');
+            if (wrapMobileAr) wrapMobileAr.classList.add('hidden');
+        } else {
+            if (lblPerScreen) lblPerScreen.className = 'px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 bg-[#0A4F78] text-white shadow-xs';
+            if (lblUnified) lblUnified.className = 'px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 text-slate-700 dark:text-slate-300 hover:text-slate-900';
+            if (wrapMobileEn) wrapMobileEn.classList.remove('hidden');
+            if (wrapMobileAr) wrapMobileAr.classList.remove('hidden');
+        }
+    }
+
+    let activeStudioLangs = {};
+    function setStudioLangTab(secKey, lang) {
+        activeStudioLangs[secKey] = lang;
+        const btnEn = document.getElementById('tab-btn-en-' + secKey);
+        const btnAr = document.getElementById('tab-btn-ar-' + secKey);
+        const paneEn = document.getElementById('pane-lang-en-' + secKey);
+        const paneAr = document.getElementById('pane-lang-ar-' + secKey);
+
+        if (lang === 'en') {
+            if (btnEn) btnEn.className = 'px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-[#0A4F78] text-white shadow-xs';
+            if (btnAr) btnAr.className = 'px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-[#062B49] text-slate-700 dark:text-slate-300 hover:text-[#67B34A]';
+            if (paneEn) paneEn.classList.remove('hidden');
+            if (paneAr) paneAr.classList.add('hidden');
+        } else {
+            if (btnAr) btnAr.className = 'px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-[#67B34A] text-white shadow-xs';
+            if (btnEn) btnEn.className = 'px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-[#062B49] text-slate-700 dark:text-slate-300 hover:text-[#0A4F78]';
+            if (paneAr) paneAr.classList.remove('hidden');
+            if (paneEn) paneEn.classList.add('hidden');
+        }
+
+        renderInCardPreviewContent(secKey);
+    }
+
+    function loadSectionBlueprint(secKey) {
+        const bp = sectionBlueprints[secKey];
+        if (!bp) return;
+
+        const editorEn = document.getElementById('editor-en-' + secKey);
+        const editorAr = document.getElementById('editor-ar-' + secKey);
+
+        if (editorEn) editorEn.value = bp.en.trim();
+        if (editorAr) editorAr.value = bp.ar.trim();
+
+        // Make sure studio switch is ON
+        const masterInput = document.getElementById('input-custom-master-' + secKey);
+        if (masterInput && !masterInput.checked) {
+            masterInput.checked = true;
+            toggleSectionContentStudio(masterInput, secKey);
+        }
+
+        renderInCardPreviewContent(secKey);
+        syncCustomContentToSimulator(secKey, 'en');
+        syncCustomContentToSimulator(secKey, 'ar');
+    }
+
+    function insertStudioSnippet(secKey, type) {
+        const activeLang = activeStudioLangs[secKey] || 'en';
+        const editor = activeLang === 'ar' 
+            ? document.getElementById('editor-ar-' + secKey) 
+            : document.getElementById('editor-en-' + secKey);
+        if (!editor) return;
+
+        let snippet = '';
+        if (type === 'card') {
+            snippet = activeLang === 'ar'
+                ? `\n<div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2" dir="rtl">\n  <h4 class="text-xs font-bold text-[#031827] dark:text-white font-tajawal">عنوان البطاقة</h4>\n  <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed font-tajawal">وصف الميزة أو العنصر هنا...</p>\n</div>\n`
+                : `\n<div class="p-4 rounded-2xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 space-y-2">\n  <h4 class="text-xs font-bold text-[#031827] dark:text-white">Feature Card Heading</h4>\n  <p class="text-[11px] text-[#031827]/70 dark:text-[#F6F5EF]/70 leading-relaxed">Detailed clinical benefit or parameter description...</p>\n</div>\n`;
+        } else if (type === 'pill') {
+            snippet = ` <span class="px-2.5 py-0.5 rounded-full bg-[#67B34A]/15 text-[#67B34A] text-[10px] font-mono font-bold">Standardized Purity</span> `;
+        } else if (type === 'callout') {
+            snippet = activeLang === 'ar'
+                ? `\n<div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1" dir="rtl">\n  <span class="text-xs font-bold block font-tajawal"><i class="fa-solid fa-triangle-exclamation ml-1"></i> تنبيه هام:</span>\n  <p class="text-[11px] leading-relaxed font-tajawal">نص التحذير أو التوجيه هنا...</p>\n</div>\n`
+                : `\n<div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 space-y-1">\n  <span class="text-xs font-bold block"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Important Advisory:</span>\n  <p class="text-[11px] leading-relaxed">Enter cautionary directives or safety advisory text here...</p>\n</div>\n`;
+        } else if (type === 'grid') {
+            snippet = `\n<div class="grid grid-cols-1 md:grid-cols-2 gap-4">\n  <!-- Item 1 -->\n  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15">Column 1</div>\n  <!-- Item 2 -->\n  <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15">Column 2</div>\n</div>\n`;
+        }
+
+        const start = editor.selectionStart || editor.value.length;
+        const end = editor.selectionEnd || editor.value.length;
+        editor.value = editor.value.substring(0, start) + snippet + editor.value.substring(end);
+        editor.focus();
+
+        renderInCardPreviewContent(secKey);
+        syncCustomContentToSimulator(secKey, activeLang);
+    }
+
+    function toggleInCardPreview(secKey) {
+        const box = document.getElementById('incard-preview-' + secKey);
+        const btnText = document.getElementById('btn-text-preview-' + secKey);
+        const isAr = {{ $isAr ? 'true' : 'false' }};
+        if (!box) return;
+
+        if (box.classList.contains('hidden')) {
+            box.classList.remove('hidden');
+            renderInCardPreviewContent(secKey);
+            if (btnText) btnText.textContent = isAr ? 'إخفاء المعاينة' : 'Hide Preview';
+        } else {
+            box.classList.add('hidden');
+            if (btnText) btnText.textContent = isAr ? 'معاينة العناصر' : 'Live Preview';
+        }
+    }
+
+    function renderInCardPreviewContent(secKey) {
+        const box = document.getElementById('incard-preview-' + secKey);
+        if (!box || box.classList.contains('hidden')) return;
+
+        const body = document.getElementById('incard-preview-body-' + secKey);
+        if (!body) return;
+
+        const activeLang = activeStudioLangs[secKey] || 'en';
+        const editor = activeLang === 'ar'
+            ? document.getElementById('editor-ar-' + secKey)
+            : document.getElementById('editor-en-' + secKey);
+
+        const content = editor?.value?.trim() || '';
+        if (content) {
+            body.innerHTML = content;
+        } else {
+            body.innerHTML = '<span class="text-slate-400 italic font-mono text-[11px]">' + (activeLang === 'ar' ? 'المحرر فارغ، اكتب محتوى أو اضغط "تحميل قالب القسم"' : 'Editor is empty. Type content or click "Load Blueprint".') + '</span>';
+        }
+    }
+
+    function syncCustomContentToSimulator(secKey, lang) {
+        const simBox = document.getElementById('sim-content-' + secKey);
+        if (!simBox) return;
+
+        const editor = lang === 'ar' 
+            ? document.getElementById('editor-ar-' + secKey) 
+            : document.getElementById('editor-en-' + secKey);
+
+        const val = editor?.value?.trim() || '';
+        const isAr = {{ $isAr ? 'true' : 'false' }};
+
+        if (val) {
+            // Strip tags for clean snippet preview
+            const tmp = document.createElement('div');
+            tmp.innerHTML = val;
+            const cleanText = tmp.textContent || tmp.innerText || '';
+
+            simBox.innerHTML = `
+                <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/25 space-y-1">
+                    <span class="font-bold text-amber-600 dark:text-amber-400 block text-[9px] uppercase tracking-wider">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1 ml-1"></i> ${isAr ? 'عناصر مخصصة نشطة' : 'Bespoke Elements Active'}
+                    </span>
+                    <div class="line-clamp-2 text-[9px] font-mono text-slate-500 dark:text-slate-400">
+                        ${cleanText.substring(0, 100)}...
+                    </div>
+                </div>
+            `;
+        }
+    }
         document.querySelectorAll('.sim-section-card').forEach(simCard => {
             const secKey = simCard.id.replace('sim-sec-', '');
             syncSimulatorCard(secKey);

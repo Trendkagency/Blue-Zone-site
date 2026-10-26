@@ -761,12 +761,15 @@ class ProductController extends Controller
                     'enabled_mobile' => isset($sec['enabled_mobile']) && ($sec['enabled_mobile'] === '1' || $sec['enabled_mobile'] === 1 || $sec['enabled_mobile'] === true),
                     'default_open' => isset($sec['default_open']) && ($sec['default_open'] === '1' || $sec['default_open'] === 1 || $sec['default_open'] === true),
                     'custom_content_enabled' => isset($sec['custom_content_enabled']) && ($sec['custom_content_enabled'] === '1' || $sec['custom_content_enabled'] === 1 || $sec['custom_content_enabled'] === true),
+                    'content_screen_mode' => in_array($sec['content_screen_mode'] ?? 'unified', ['unified', 'per_screen']) ? $sec['content_screen_mode'] : 'unified',
                     'title_en' => trim($sec['title_en'] ?? ''),
                     'title_ar' => trim($sec['title_ar'] ?? ''),
                     'badge_en' => trim($sec['badge_en'] ?? ''),
                     'badge_ar' => trim($sec['badge_ar'] ?? ''),
                     'custom_content_en' => $sec['custom_content_en'] ?? '',
                     'custom_content_ar' => $sec['custom_content_ar'] ?? '',
+                    'custom_content_mobile_en' => $sec['custom_content_mobile_en'] ?? '',
+                    'custom_content_mobile_ar' => $sec['custom_content_mobile_ar'] ?? '',
                 ];
 
                 if ($key === 'related' && isset($sec['bundle'])) {

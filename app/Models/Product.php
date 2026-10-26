@@ -535,6 +535,13 @@ class Product extends Model implements HasMedia
             ? $productSettings['custom_content_ar'] 
             : ($productSettings['custom_content_en'] ?? $productSettings['custom_content_ar'] ?? null);
 
+        $contentScreenMode = $productSettings['content_screen_mode'] ?? 'unified';
+        $customContentMobileEn = $productSettings['custom_content_mobile_en'] ?? '';
+        $customContentMobileAr = $productSettings['custom_content_mobile_ar'] ?? '';
+        $customContentMobile = $isRtl && !empty($customContentMobileAr)
+            ? $customContentMobileAr
+            : ($customContentMobileEn ?: $customContentMobileAr ?: null);
+
         $isVisible = $globalEnabled && ($enabledDesktop || $enabledMobile);
 
         $responsiveClass = '';
@@ -569,9 +576,13 @@ class Product extends Model implements HasMedia
             'title_en' => $titleEn,
             'title_ar' => $titleAr,
             'custom_content_enabled' => $customContentEnabled,
+            'content_screen_mode' => $contentScreenMode,
             'custom_content' => $customContent,
             'custom_content_en' => $productSettings['custom_content_en'] ?? '',
             'custom_content_ar' => $productSettings['custom_content_ar'] ?? '',
+            'custom_content_mobile' => $customContentMobile,
+            'custom_content_mobile_en' => $customContentMobileEn,
+            'custom_content_mobile_ar' => $customContentMobileAr,
             'bundle' => $bundleConfig,
         ];
     }
