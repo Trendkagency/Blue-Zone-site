@@ -316,7 +316,6 @@ class User extends Authenticatable implements FilamentUser
         // Module aliases
         $module = match ($module) {
             'cms' => 'content',
-            'pos' => 'offline_sales',
             'product' => 'products',
             'order' => 'orders',
             'customer', 'client', 'clients' => 'customers',

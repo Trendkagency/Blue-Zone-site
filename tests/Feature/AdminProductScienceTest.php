@@ -64,7 +64,6 @@ class AdminProductScienceTest extends TestCase
             'price' => 85.00,
             'cost_price' => 30.00,
             'stock_online' => 60,
-            'stock_offline' => 25,
             'low_stock_threshold' => 10,
             'status' => 'active',
             'science_en' => 'Engineered to support electron transport chain Complex I through IV.',
@@ -153,7 +152,6 @@ class AdminProductScienceTest extends TestCase
             'price' => 50.00,
             'cost_price' => 15.00,
             'stock_online' => 20,
-            'stock_offline' => 10,
             'low_stock_threshold' => 5,
             'status' => 'active',
             'science_en' => 'Initial science draft.',
@@ -168,7 +166,6 @@ class AdminProductScienceTest extends TestCase
             'price' => 55.00,
             'cost_price' => 18.00,
             'stock_online' => 30,
-            'stock_offline' => 12,
             'low_stock_threshold' => 5,
             'status' => 'active',
             'science_en' => 'Fully updated molecular longevity dossier.',
@@ -207,7 +204,6 @@ class AdminProductScienceTest extends TestCase
             'price' => 90.00,
             'cost_price' => 35.00,
             'stock_online' => 50,
-            'stock_offline' => 20,
             'low_stock_threshold' => 5,
             'status' => 'active',
             'is_active' => true,
@@ -218,6 +214,8 @@ class AdminProductScienceTest extends TestCase
                 ['name_en' => 'Astaxanthin Complex', 'dose' => '12 mg'],
             ],
         ]);
+
+        \App\Models\Setting::set('landing_our_science_enabled', true);
 
         $response = $this->get(route('customer.home'));
 

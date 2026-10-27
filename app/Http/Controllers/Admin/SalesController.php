@@ -54,7 +54,7 @@ class SalesController extends Controller
         foreach ($allProducts as $p) {
             $price = (float) $p->price;
             $cost = (float) ($p->cost_price ?? ($price * 0.45));
-            $totalStock = (int) $p->stock_online + (int) $p->stock_offline;
+            $totalStock = (int) $p->stock_online;
             $totalRetailValuation += ($totalStock * $price);
             if ($price > 0) {
                 $margins[] = (($price - $cost) / $price) * 100;
@@ -82,7 +82,7 @@ class SalesController extends Controller
     }
 
     /**
-     * Unified Sales Orders Command Center (Online, POS, and B2B Quotations).
+     * Unified Sales Orders Command Center (Online and B2B Quotations).
      */
     public function orders(Request $request): View
     {

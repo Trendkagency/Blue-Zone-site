@@ -800,8 +800,7 @@
                         <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الرمز والباركود' : 'SKU / Barcode' }}</th>
                         <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'التصنيف' : 'Category' }}</th>
                         <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'سعر البيع' : 'Retail Price' }}</th>
-                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون الأونلاين' : 'Online Stock' }}</th>
-                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'مخزون المستودع' : 'Warehouse Stock' }}</th>
+                        <th data-sort-type="number">{{ app()->getLocale() === 'ar' ? 'المخزون' : 'Stock' }}</th>
                         <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الصفحة الرئيسية' : 'Landing Page' }}</th>
                         <th data-sort-type="text">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</th>
                         <th style="text-align: center;" data-no-sort data-no-export>{{ app()->getLocale() === 'ar' ? 'الإجراءات' : 'Actions' }}</th>
@@ -819,7 +818,6 @@
                             $pCat = $product['category_en'] ?? $product['category_name_en'] ?? 'Precision Cellular';
                             $pPrice = $product['price'] ?? $product->price ?? 0;
                             $pOnlineStock = $product['stock_online'] ?? $product->stock_online ?? 0;
-                            $pOfflineStock = $product['stock_offline'] ?? $product->stock_offline ?? 0;
                             $pLowThreshold = $product['low_stock_threshold'] ?? $product->low_stock_threshold ?? 10;
                             $pStatus = $product['status'] ?? $product->status ?? 'active';
                             $rawImage = $product['image'] ?? ($product->primary_image_url ?? 'assets/products/blue-mind.jpg');
@@ -887,11 +885,6 @@
                                 </span>
                             </td>
                             <td>
-                                <span class="badge {{ $pOfflineStock <= $pLowThreshold ? 'badge-danger' : 'badge-neutral' }}">
-                                    {{ $pOfflineStock }} units
-                                </span>
-                            </td>
-                            <td>
                                 @if(!$isItemTrashed)
                                     <button type="button" 
                                             onclick="toggleProductLanding(this, {{ $pId }})"
@@ -956,7 +949,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center py-8 text-muted">
+                            <td colspan="9" class="text-center py-8 text-muted">
                                 <div class="flex flex-col items-center justify-center gap-2">
                                     <i class="fa-solid fa-box-open text-3xl text-gray-400"></i>
                                     <p class="text-sm font-semibold">{{ app()->getLocale() === 'ar' ? 'لا توجد عناصر مطابقة في هذا القسم' : 'No formulations found matching criteria' }}</p>

@@ -31,12 +31,12 @@
 
         <div class="card stat-card stat-warning">
             <div class="stat-header">
-                <span class="stat-label">{{ __('admin.kpi.offline_channel') }}</span>
-                <span class="stat-icon"><i class="fa-solid fa-store text-warning"></i></span>
+                <span class="stat-label">{{ __('admin.menu.orders') }}</span>
+                <span class="stat-icon"><i class="fa-solid fa-box text-warning"></i></span>
             </div>
-            <div class="stat-value">@currency($kpi['offline_sales'])</div>
+            <div class="stat-value">{{ $kpi['total_orders'] ?? ($kpi['orders_count'] ?? 0) }}</div>
             <div class="stat-footer text-muted">
-                28.4% {{ __('admin.dashboard.pct_of_gross') }}
+                {{ __('admin.kpi.active_fulfillment') }}
             </div>
         </div>
 
@@ -151,8 +151,8 @@
     <div class="card" style="padding: 1.5rem; background: var(--color-bg-subtle);">
         <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;">{{ __('admin.dashboard.quick_actions') }}</h4>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-primary">
-                <i class="fa-solid fa-cash-register mr-1.5 ml-1.5"></i> {{ __('admin.dashboard.open_pos') }}
+            <a href="{{ route('admin.sales.orders.index') }}" class="btn btn-primary">
+                <i class="fa-solid fa-receipt mr-1.5 ml-1.5"></i> {{ __('admin.menu.orders') }}
             </a>
             <a href="{{ route('admin.inventory.transfers') }}" class="btn btn-secondary">
                 <i class="fa-solid fa-arrow-right-arrow-left mr-1.5 ml-1.5"></i> {{ __('admin.dashboard.stock_transfer') }}

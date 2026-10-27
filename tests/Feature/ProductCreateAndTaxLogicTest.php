@@ -57,7 +57,7 @@ class ProductCreateAndTaxLogicTest extends TestCase
     public function test_product_store_validation_fails_when_mandatory_step_fields_are_missing(): void
     {
         $response = $this->actingAs($this->admin, 'web')->post(route('admin.products.store'), []);
-        $response->assertSessionHasErrors(['sku', 'category_id', 'brand', 'name_en', 'name_ar', 'price', 'cost_price', 'stock_online', 'stock_offline', 'low_stock_threshold', 'status']);
+        $response->assertSessionHasErrors(['sku', 'category_id', 'brand', 'name_en', 'name_ar', 'price', 'cost_price', 'stock_online', 'low_stock_threshold', 'status']);
         $response->assertSessionDoesntHaveErrors(['description_en', 'description_ar']);
     }
 
@@ -88,7 +88,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'clinical_mechanism' => 'Activates AMPK and sirtuin longevity pathways.',
             'formula_details' => '99.8% pure stabilized NADH and CoQ10.',
             'stock_online' => 120,
-            'stock_offline' => 60,
             'low_stock_threshold' => 15,
             'status' => 'active',
             'is_featured' => 1,
@@ -115,8 +114,7 @@ class ProductCreateAndTaxLogicTest extends TestCase
         ]);
         $this->assertDatabaseHas('inventory_items', [
             'product_id' => $product->id,
-            'location_id' => 'offline',
-            'available_stock' => 60,
+            'location_id' => 'central_wh',
         ]);
     }
 
@@ -131,7 +129,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 45.00,
             'cost_price' => 15.00,
             'stock_online' => 50,
-            'stock_offline' => 25,
             'low_stock_threshold' => 10,
             'status' => 'active',
             // description_en and description_ar omitted intentionally
@@ -163,7 +160,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 50.00,
             'cost_price' => 15.00,
             'stock_online' => 30,
-            'stock_offline' => 20,
             'low_stock_threshold' => 5,
             'status' => 'active',
         ]);
@@ -179,7 +175,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 58.00,
             'cost_price' => 18.00,
             'stock_online' => 45,
-            'stock_offline' => 25,
             'low_stock_threshold' => 8,
             'status' => 'active',
         ];
@@ -256,7 +251,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 99.00,
             'cost_price' => 30.00,
             'stock_online' => 20,
-            'stock_offline' => 10,
             'low_stock_threshold' => 5,
             'status' => 'active',
             'primary_image' => $primaryImage,
@@ -288,7 +282,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 70.00,
             'cost_price' => 25.00,
             'stock_online' => 15,
-            'stock_offline' => 10,
             'low_stock_threshold' => 5,
             'status' => 'active',
         ]);
@@ -305,7 +298,6 @@ class ProductCreateAndTaxLogicTest extends TestCase
             'price' => 75.00,
             'cost_price' => 25.00,
             'stock_online' => 15,
-            'stock_offline' => 10,
             'low_stock_threshold' => 5,
             'status' => 'active',
             'primary_image' => $newPrimary,

@@ -13,8 +13,7 @@ class ReportViewModel
     {
         return [
             'total_sales' => 124890.00,
-            'online_sales' => 89450.00,
-            'offline_sales' => 35440.00,
+            'online_sales' => 124890.00,
             'total_orders' => 1482,
             'pending_orders' => 18,
             'total_customers' => 934,
@@ -35,12 +34,12 @@ class ReportViewModel
     {
         return [
             'monthly' => [
-                ['month' => 'Jan', 'online' => 11200, 'offline' => 4500],
-                ['month' => 'Feb', 'online' => 12800, 'offline' => 4900],
-                ['month' => 'Mar', 'online' => 14500, 'offline' => 5200],
-                ['month' => 'Apr', 'online' => 13900, 'offline' => 5800],
-                ['month' => 'May', 'online' => 16200, 'offline' => 6400],
-                ['month' => 'Jun', 'online' => 18400, 'offline' => 7100],
+                ['month' => 'Jan', 'online' => 15700],
+                ['month' => 'Feb', 'online' => 17700],
+                ['month' => 'Mar', 'online' => 19700],
+                ['month' => 'Apr', 'online' => 19700],
+                ['month' => 'May', 'online' => 22600],
+                ['month' => 'Jun', 'online' => 25500],
             ],
             'categories' => [
                 ['name' => 'Cellular Longevity', 'percentage' => 38, 'amount' => 47458.20],

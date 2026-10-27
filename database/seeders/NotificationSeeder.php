@@ -46,10 +46,10 @@ class NotificationSeeder extends Seeder
                 'fa-solid fa-triangle-exclamation text-amber-500'
             ));
 
-            // 3. New POS Offline Sale (Unread)
+            // 3. New Tax Invoice Generated (Unread)
             $admin->notify(new AdminNotification(
-                'Walk-in Sale Registered #INV-1042',
-                'Cash counter generated invoice for $195.00 via Riyadh Flagship Clinic.',
+                'New Tax Invoice Generated #INV-1042',
+                'Electronic tax invoice generated for 195.00 SAR via Online Store.',
                 'invoice',
                 '/admin/invoices',
                 'fa-solid fa-file-invoice-dollar text-emerald-500'

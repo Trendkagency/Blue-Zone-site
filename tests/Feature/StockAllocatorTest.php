@@ -48,7 +48,6 @@ class StockAllocatorTest extends TestCase
             'price' => 120.00,
             'cost_price' => 40.00,
             'stock_online' => 60,
-            'stock_offline' => 30,
             'low_stock_threshold' => 10,
             'status' => 'active',
         ]);
@@ -62,7 +61,6 @@ class StockAllocatorTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('hub_online');
-        $response->assertSee('hub_offline');
         $response->assertSee('hub_central_wh');
         $response->assertSee('Allocator Bioceutical');
         $response->assertSee('BZ-ALLOC-001');
@@ -73,7 +71,7 @@ class StockAllocatorTest extends TestCase
         $payload = [
             'product_id' => $this->product->id,
             'from_location' => 'online',
-            'to_location' => 'offline',
+            'to_location' => 'central_wh',
             'quantity' => 15,
             'reason' => 'Live Drag & Drop Test',
         ];
@@ -86,13 +84,12 @@ class StockAllocatorTest extends TestCase
             'product' => [
                 'id' => $this->product->id,
                 'stock_online' => 45,
-                'stock_offline' => 45,
+                'stock_central' => 65,
             ],
         ]);
 
         $this->product->refresh();
         $this->assertEquals(45, $this->product->stock_online);
-        $this->assertEquals(45, $this->product->stock_offline);
 
         $this->assertDatabaseHas('inventory_movements', [
             'product_id' => $this->product->id,
@@ -105,9 +102,9 @@ class StockAllocatorTest extends TestCase
     {
         $payload = [
             'product_id' => $this->product->id,
-            'from_location' => 'offline',
-            'to_location' => 'online',
-            'quantity' => 9999, // Exceeds available stock (30)
+            'from_location' => 'online',
+            'to_location' => 'central_wh',
+            'quantity' => 9999, // Exceeds available stock (60)
         ];
 
         $response = $this->actingAs($this->admin, 'web')->postJson(route('admin.inventory.allocator.transfer'), $payload);
@@ -118,13 +115,12 @@ class StockAllocatorTest extends TestCase
 
     public function test_ajax_batch_split_rebalances_selected_products_by_ratio(): void
     {
-        // Total stock for this product = 60 (online) + 30 (offline) + 50 (central default) = 140
+        // Total stock for this product = 60 (online) + 50 (central default) = 110
         $payload = [
             'product_ids' => [$this->product->id],
-            'online_pct' => 50,
-            'offline_pct' => 30,
-            'central_pct' => 20,
-            'reason' => 'Batch 50/30/20 rebalancing',
+            'online_pct' => 60,
+            'central_pct' => 40,
+            'reason' => 'Batch 60/40 rebalancing',
         ];
 
         $response = $this->actingAs($this->admin, 'web')->postJson(route('admin.inventory.allocator.batch_split'), $payload);
@@ -133,11 +129,10 @@ class StockAllocatorTest extends TestCase
         $response->assertJson(['success' => true]);
 
         $this->product->refresh();
-        // 50% of 140 = 70, 30% of 140 = 42, 20% of 140 = 28
-        $this->assertEquals(70, $this->product->stock_online);
-        $this->assertEquals(42, $this->product->stock_offline);
+        // 60% of 110 = 66, 40% of 110 = 44
+        $this->assertEquals(66, $this->product->stock_online);
 
         $centralItem = InventoryItem::where('product_id', $this->product->id)->where('location_id', 'central_wh')->first();
-        $this->assertEquals(28, $centralItem->current_stock);
+        $this->assertEquals(44, $centralItem->current_stock);
     }
 }

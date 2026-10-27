@@ -13,11 +13,6 @@
             {{ app()->getLocale() === 'ar' ? 'إنشاء عرض سعر' : 'New Quotation' }}
         </a>
 
-        <!-- New POS Sale Action -->
-        <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-secondary font-semibold text-xs sm:text-sm">
-            <i class="fa-solid fa-calculator text-emerald-400 mr-1.5 ml-1.5"></i>
-            {{ app()->getLocale() === 'ar' ? 'نقطة بيع سريعة (POS)' : 'New POS Sale' }}
-        </a>
 
         <!-- Add New Formulation or Service -->
         <a href="{{ route('admin.products.create') }}" class="btn btn-primary font-bold text-xs sm:text-sm shadow-sm">
@@ -179,7 +174,7 @@
                                 $cost = (float) ($item->cost_price ?? ($price * 0.45));
                                 $margin = $price > 0 ? round((($price - $cost) / $price) * 100, 1) : 0;
                                 $isService = ($item->type === 'service');
-                                $totalStock = (int) $item->stock_online + (int) $item->stock_offline;
+                                $totalStock = (int) $item->stock_online;
                             @endphp
                             <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                                 <!-- Item Info -->
@@ -278,11 +273,6 @@
                                             {{ app()->getLocale() === 'ar' ? 'تسعير' : 'Quote' }}
                                         </a>
 
-                                        <!-- POS Direct Sale -->
-                                        <a href="{{ route('admin.offline-sales.create', ['product_id' => $item->id]) }}" class="btn btn-primary btn-sm text-[11px] font-bold py-1 px-2.5 shadow-xs" title="{{ app()->getLocale() === 'ar' ? 'بيع مباشر بالكاشير' : 'POS Checkout' }}">
-                                            <i class="fa-solid fa-cash-register mr-1 ml-1"></i>
-                                            {{ app()->getLocale() === 'ar' ? 'بيع' : 'Sell' }}
-                                        </a>
                                     </div>
                                 </td>
                             </tr>

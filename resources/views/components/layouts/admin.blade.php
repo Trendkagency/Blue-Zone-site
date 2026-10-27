@@ -41,7 +41,7 @@
                     $isSupplyChainActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
-                    $isSalesActive = request()->routeIs('admin.sales.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*');
+                    $isSalesActive = request()->routeIs('admin.sales.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
                     $isMrActive = request()->routeIs('admin.mr.*') || request()->is('admin/mr*');
                     $isCrmActive = request()->routeIs('admin.crm.*');
@@ -470,7 +470,7 @@
                 @endif
 
                 <!-- Unified SALES Section (Based on Design Screen) -->
-                @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('offline_sales.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('offline_sales') || $u->hasPermission('invoices') || $u->isSuperAdmin() || $u->isAdmin()))
+                @if($u && ($u->hasPermission('orders.view') || $u->hasPermission('invoices.view') || $u->hasPermission('orders') || $u->hasPermission('invoices') || $u->isSuperAdmin() || $u->isAdmin()))
                     <div class="sidebar-dropdown-group {{ $isSalesActive ? 'is-open' : '' }}" id="group-sales">
                         <button type="button" class="sidebar-dropdown-btn {{ $isSalesActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales')">
                             <div class="sidebar-dropdown-label">
@@ -498,7 +498,7 @@
 
                             <!-- 3. Sales Orders -->
                             <a href="{{ route('admin.sales.orders.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.sales.orders.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.offline-sales.*') || request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
+                                class="sidebar-sublink {{ request()->routeIs('admin.sales.orders.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-receipt text-xs text-amber-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'أوامر البيع' : 'Sales Orders' }}</span>
                             </a>

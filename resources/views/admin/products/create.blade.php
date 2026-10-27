@@ -897,22 +897,13 @@
                         <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 7 / 7' : 'Step 7 / 7' }}</span>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <x-forms.input 
                             name="stock_online" 
                             type="number" 
                             min="0"
                             :label="__('admin.products.fields.online_stock')" 
                             :value="old('stock_online')" 
-                            required 
-                        />
-
-                        <x-forms.input 
-                            name="stock_offline" 
-                            type="number" 
-                            min="0"
-                            :label="__('admin.products.fields.offline_stock')" 
-                            :value="old('stock_offline')" 
                             required 
                         />
 
@@ -1473,7 +1464,6 @@
             const nameAr = document.querySelector('input[name="name_ar"]')?.value || document.querySelector('input[name="name_en"]')?.value || 'N/A';
             const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 0;
             const stockOnline = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 0;
-            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 0;
 
             const rSKU = document.getElementById('reviewSKU');
             const rName = document.getElementById('reviewNameAR');
@@ -1483,7 +1473,7 @@
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
             if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
-            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Warehouse)';
+            if (rStock) rStock.innerText = stockOnline + ' Units';
         }
 
         // Dynamic Active Compounds Repeater
@@ -1560,7 +1550,7 @@
             const descEn = document.querySelector('textarea[name="short_description_en"]')?.value || document.querySelector('textarea[name="description_en"]')?.value || 'Bioceutical formulation engineered for optimal longevity and cellular energy.';
             const descAr = document.querySelector('textarea[name="short_description_ar"]')?.value || document.querySelector('textarea[name="description_ar"]')?.value || descEn;
             const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 68.00;
-            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 50;
+            const stockOnline = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 50;
 
             const title = isAr ? nameAr : nameEn;
             const tagline = isAr ? taglineAr : taglineEn;
@@ -1572,7 +1562,7 @@
             document.getElementById('prevCardTitle').innerText = title;
             document.getElementById('prevCardSku').innerText = sku;
             document.getElementById('prevCardPrice').innerText = formatC(price);
-            document.getElementById('prevCardStock').innerText = stockOffline + (isAr ? ' وحدة' : ' units');
+            document.getElementById('prevCardStock').innerText = stockOnline + (isAr ? ' وحدة' : ' units');
 
             // Update Dossier Elements
             document.getElementById('prevDossierTitle').innerText = title;

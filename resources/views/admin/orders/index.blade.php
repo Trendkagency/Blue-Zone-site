@@ -44,7 +44,7 @@
             <select name="channel" onchange="this.form.submit()" class="form-select text-sm" style="width: auto;">
                 <option value="">{{ app()->getLocale() == 'ar' ? 'جميع القنوات' : 'All Channels' }}</option>
                 <option value="online" {{ request('channel') === 'online' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'المتجر الإلكتروني' : 'Online Hub' }}</option>
-                <option value="offline" {{ request('channel') === 'offline' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'مستودع المبيعات (POS)' : 'POS Warehouse' }}</option>
+                <option value="offline" {{ request('channel') === 'offline' ? 'selected' : '' }}>{{ app()->getLocale() == 'ar' ? 'الأرشيف التاريخي' : 'Historical Archive' }}</option>
             </select>
 
             <button type="submit" class="btn btn-secondary btn-sm font-bold">
@@ -102,7 +102,7 @@
                             </td>
                             <td>
                                 <span class="badge {{ $channel === 'online' ? 'badge-accent' : 'badge-warning' }} text-xs">
-                                    {{ $channel === 'online' ? (app()->getLocale() == 'ar' ? 'متجر إلكتروني' : 'Online') : (app()->getLocale() == 'ar' ? 'معرض POS' : 'POS') }}
+                                    {{ $channel === 'online' ? (app()->getLocale() == 'ar' ? 'متجر إلكتروني' : 'Online Hub') : (app()->getLocale() == 'ar' ? 'سجل مؤرشف' : 'Archived') }}
                                 </span>
                             </td>
                             <td>

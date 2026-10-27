@@ -91,9 +91,9 @@
                         <i class="fa-solid fa-shield-halved text-sm"></i>
                     </div>
                 </div>
-                <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">3</div>
+                <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">2</div>
                 <div class="text-xs text-cyan-600 dark:text-cyan-400 mt-1 font-semibold">
-                    {{ app()->getLocale() === 'ar' ? 'Online + POS + Central' : 'Online + POS + Central' }}
+                    {{ app()->getLocale() === 'ar' ? 'Online + Central' : 'Online + Central' }}
                 </div>
             </div>
 
@@ -362,7 +362,6 @@
                         <select name="type" required class="form-select text-sm w-full">
                             <option value="warehouse">{{ app()->getLocale() === 'ar' ? 'مستودع لوجستي' : 'Logistics Warehouse' }}</option>
                             <option value="branch">{{ app()->getLocale() === 'ar' ? 'فرع إقليمي' : 'Regional Branch' }}</option>
-                            <option value="offline">{{ app()->getLocale() === 'ar' ? 'مستودع / نقطة بيع POS' : 'Warehouse / POS' }}</option>
                             <option value="online">{{ app()->getLocale() === 'ar' ? 'مركز طلبات إلكترونية' : 'E-Commerce Hub' }}</option>
                         </select>
                     </div>

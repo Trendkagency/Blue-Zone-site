@@ -30,8 +30,6 @@ class InventoryService
                     $initialStock = 0;
                     if ($loc->id === 'online') {
                         $initialStock = $product->stock_online ?? 0;
-                    } elseif ($loc->id === 'offline') {
-                        $initialStock = $product->stock_offline ?? 0;
                     } elseif ($loc->id === 'central_wh') {
                         $initialStock = 50; // default central logistics buffer
                     }
@@ -57,9 +55,6 @@ class InventoryService
                     if ($loc->id === 'online' && $product->stock_online !== $item->current_stock) {
                         $product->stock_online = $item->current_stock;
                         $product->save();
-                    } elseif ($loc->id === 'offline' && $product->stock_offline !== $item->current_stock) {
-                        $product->stock_offline = $item->current_stock;
-                        $product->save();
                     }
                 }
             }
@@ -82,8 +77,6 @@ class InventoryService
                 $stock = $initialStock;
                 if ($location->id === 'online') {
                     $stock = $product->stock_online ?? $initialStock;
-                } elseif ($location->id === 'offline') {
-                    $stock = $product->stock_offline ?? $initialStock;
                 } elseif ($location->id === 'central_wh') {
                     $stock = 50;
                 }
@@ -129,11 +122,6 @@ class InventoryService
             $product->stock_online = $onlineItem->current_stock;
         }
 
-        $offlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'offline')->first();
-        if ($offlineItem) {
-            $product->stock_offline = $offlineItem->current_stock;
-        }
-
         $product->save();
     }
 
@@ -156,8 +144,6 @@ class InventoryService
             $initialStock = 0;
             if ($locationId === 'online') {
                 $initialStock = (int) ($product->stock_online ?? 0);
-            } elseif ($locationId === 'offline') {
-                $initialStock = (int) ($product->stock_offline ?? 0);
             }
 
             $item->current_stock = $initialStock;
@@ -286,52 +272,7 @@ class InventoryService
         });
     }
 
-    /**
-     * Process offline POS sale deduction.
-     */
-    public static function processOfflineSale(
-        Product $product,
-        int $quantity,
-        string $orderNumber,
-        ?string $userName = null,
-        ?string $variant = null
-    ): InventoryMovement {
-        if ($product->stock_offline < $quantity) {
-            throw new InvalidArgumentException(app()->getLocale() === 'ar'
-                ? "الرصيد المتوفر في مخزون المستودع ({$product->stock_offline} وحدة) غير كافٍ لإتمام عملية البيع."
-                : "Insufficient offline warehouse stock ({$product->stock_offline} units) for this sale.");
-        }
 
-        return DB::transaction(function () use ($product, $quantity, $orderNumber, $userName, $variant) {
-            $offlineItem = self::getItem($product, 'offline');
-            $prevQty = $product->stock_offline;
-            $newQty = max(0, $prevQty - $quantity);
-
-            $product->stock_offline = $newQty;
-            $product->save();
-
-            $offlineItem->current_stock = $newQty;
-            $offlineItem->refreshStatus();
-
-            return self::recordMovement([
-                'product_id' => $product->id,
-                'product_name_en' => $product->name_en,
-                'product_name_ar' => $product->name_ar,
-                'sku' => $product->sku,
-                'variant' => $variant ?? $offlineItem->variant_en ?? 'Standard Pack',
-                'movement_type' => 'Offline Sale',
-                'from_location' => 'Warehouse / POS',
-                'to_location' => 'Customer Handover',
-                'quantity' => -$quantity,
-                'previous_qty' => $prevQty,
-                'new_qty' => $newQty,
-                'date' => now()->toDateString(),
-                'time' => now()->format('H:i:s'),
-                'user' => $userName ?? auth()->user()?->name ?? 'POS Cashier',
-                'note' => "Offline POS Sale #{$orderNumber}",
-            ]);
-        });
-    }
 
     /**
      * Record an auditable InventoryMovement.

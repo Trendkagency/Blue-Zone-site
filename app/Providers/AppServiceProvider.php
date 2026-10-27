@@ -107,7 +107,6 @@ class AppServiceProvider extends ServiceProvider
             'manage_products',
             'manage_inventory',
             'manage_orders',
-            'manage_offline_sales',
             'manage_customers',
             'manage_users',
             'manage_roles',

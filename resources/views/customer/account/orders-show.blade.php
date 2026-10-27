@@ -159,7 +159,7 @@
 
                     <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
                         <div style="display: flex; justify-content: space-between;">
-                            <span class="text-muted">{{ __('admin.pos.subtotal') }}:</span>
+                            <span class="text-muted">{{ __('admin.invoices.subtotal') }}:</span>
                             <span class="font-bold">@currency((float)$oSubtotal)</span>
                         </div>
 
@@ -181,7 +181,7 @@
                         </div>
 
                         <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--color-border); padding-top: 0.75rem; font-size: 1.1rem; font-weight: 800;">
-                            <span>{{ __('admin.pos.total_payable') }}:</span>
+                            <span>{{ __('admin.invoices.grand_total') }}:</span>
                             <span class="text-primary font-black">@currency((float)$oTotal)</span>
                         </div>
                     </div>

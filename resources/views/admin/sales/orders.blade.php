@@ -1,6 +1,6 @@
 <x-layouts.admin 
     :pageTitle="app()->getLocale() == 'ar' ? 'أوامر المبيعات' : 'Sales Orders'" 
-    :pageSubtitle="app()->getLocale() == 'ar' ? 'إدارة مركزية لجميع أوامر المبيعات (المتجر، نقاط البيع، وعروض الأسعار المعمدة)' : 'Unified omnichannel sales orders hub (E-Commerce, POS, and Converted Quotations)'"
+    :pageSubtitle="app()->getLocale() == 'ar' ? 'إدارة مركزية لجميع أوامر المبيعات (المتجر الإلكتروني وعروض الأسعار المعمدة)' : 'Unified omnichannel sales orders hub (E-Commerce and Converted Quotations)'"
     :breadcrumbs="[
         (app()->getLocale() == 'ar' ? 'المبيعات' : 'Sales') => route('admin.sales.orders.index'),
         (app()->getLocale() == 'ar' ? 'أوامر المبيعات' : 'Sales Orders') => route('admin.sales.orders.index')
@@ -11,10 +11,6 @@
             <a href="{{ route('admin.sales.quotations.create') }}" class="btn btn-outline font-bold shadow-sm">
                 <i class="fa-solid fa-file-circle-plus mr-1.5 ml-1.5 text-sky-500"></i>
                 {{ app()->getLocale() == 'ar' ? 'إنشاء عرض سعر' : 'New Quotation' }}
-            </a>
-            <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-outline font-bold shadow-sm">
-                <i class="fa-solid fa-cash-register mr-1.5 ml-1.5 text-emerald-500"></i>
-                {{ app()->getLocale() == 'ar' ? 'نقطة بيع سريعة (POS)' : 'POS Retail Terminal' }}
             </a>
             <a href="{{ route('admin.invoices.index') }}" class="btn btn-secondary font-bold">
                 <i class="fa-solid fa-file-invoice-dollar mr-1.5 ml-1.5 text-amber-500"></i>
@@ -67,8 +63,10 @@
             </div>
             <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-2">
                 <span class="text-sky-500 font-semibold">Web: {{ $onlineCount }}</span> •
-                <span class="text-emerald-500 font-semibold">POS: {{ $offlineCount }}</span> •
                 <span class="text-indigo-500 font-semibold">B2B: {{ $quotationCount }}</span>
+                @if($offlineCount > 0)
+                    • <span class="text-slate-400 font-medium">{{ app()->getLocale() == 'ar' ? 'سجل مؤرشف' : 'Archived' }}: {{ $offlineCount }}</span>
+                @endif
             </div>
         </div>
 
@@ -126,10 +124,12 @@
                     <i class="fa-solid fa-cart-shopping mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'المتجر الإلكتروني' : 'E-Commerce' }} ({{ $onlineCount }})
                 </a>
 
+                @if($offlineCount > 0)
                 <a href="{{ route('admin.sales.orders.index', array_merge(request()->query(), ['channel' => 'offline'])) }}" 
-                   class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ $selectedChannel === 'offline' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200' }}">
-                    <i class="fa-solid fa-store mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'نقاط البيع (POS)' : 'Retail POS' }} ({{ $offlineCount }})
+                   class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ $selectedChannel === 'offline' ? 'bg-slate-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200' }}">
+                    <i class="fa-solid fa-box-archive mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'الأرشيف التاريخي' : 'Historical Archive' }} ({{ $offlineCount }})
                 </a>
+                @endif
 
                 <a href="{{ route('admin.sales.orders.index', array_merge(request()->query(), ['channel' => 'quotation'])) }}" 
                    class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ $selectedChannel === 'quotation' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200' }}">
@@ -211,7 +211,7 @@
                             $channel = $ord->channel ?? 'online';
                             
                             $channelBadge = match($channel) {
-                                'offline' => ['bg' => 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', 'icon' => 'fa-store', 'label' => 'POS Store'],
+                                'offline' => ['bg' => 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20', 'icon' => 'fa-box-archive', 'label' => app()->getLocale() == 'ar' ? 'سجل مؤرشف' : 'Archived'],
                                 'quotation' => ['bg' => 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20', 'icon' => 'fa-file-invoice', 'label' => 'B2B Quote'],
                                 default => ['bg' => 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20', 'icon' => 'fa-globe', 'label' => 'Online Hub'],
                             };
@@ -266,7 +266,7 @@
                                     {{ ucfirst($ord->payment_status ?? 'Pending') }}
                                 </span>
                                 <div class="text-[11px] text-slate-400 mt-0.5">
-                                    {{ $ord->payment_method ?? 'MADA / Card' }}
+                                    {{ str_ireplace(['POS Terminal', 'POS'], ['Payment Terminal', 'Archived Terminal'], $ord->payment_method ?? 'MADA / Card') }}
                                 </div>
                             </td>
 

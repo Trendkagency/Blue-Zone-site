@@ -5,7 +5,7 @@ namespace App\View\ViewModels;
 class OrderViewModel
 {
     /**
-     * Get all mock orders (both online and offline channels).
+     * Get all mock orders.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -172,74 +172,7 @@ class OrderViewModel
         ];
     }
 
-    /**
-     * Offline Sales / POS Transactions.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public static function offlineSales(): array
-    {
-        return [
-            [
-                'id' => 4081,
-                'sale_number' => 'POS-4081',
-                'invoice_number' => 'INV-POS-4081',
-                'cashier' => 'Sarah Jenkins',
-                'store_location' => 'Warehouse / POS',
-                'customer_name' => 'Walk-in Guest (Fahad M.)',
-                'date' => '2026-09-01',
-                'time' => '18:40:02',
-                'payment_method' => 'Credit / POS Terminal (Mada)',
-                'subtotal' => 52.00,
-                'discount' => 0.00,
-                'tax' => 7.80,
-                'total' => 59.80,
-                'items' => [
-                    [
-                        'product_name_en' => 'BLUE DEFENSE',
-                        'product_name_ar' => 'بلو ديفينس',
-                        'sku' => 'BZ-DEF-003',
-                        'unit_price' => 52.00,
-                        'quantity' => 1,
-                        'total' => 52.00,
-                    ],
-                ],
-            ],
-            [
-                'id' => 4080,
-                'sale_number' => 'POS-4080',
-                'invoice_number' => 'INV-POS-4080',
-                'cashier' => 'Sarah Jenkins',
-                'store_location' => 'Warehouse / POS',
-                'customer_name' => 'Walk-in Guest (VIP Member)',
-                'date' => '2026-09-01',
-                'time' => '15:20:18',
-                'payment_method' => 'Cash',
-                'subtotal' => 142.00,
-                'discount' => 14.20,
-                'tax' => 19.17,
-                'total' => 146.97,
-                'items' => [
-                    [
-                        'product_name_en' => 'BLUE MIND',
-                        'product_name_ar' => 'بلو مايند',
-                        'sku' => 'BZ-MND-001',
-                        'unit_price' => 68.00,
-                        'quantity' => 1,
-                        'total' => 68.00,
-                    ],
-                    [
-                        'product_name_en' => 'BLUE CELL',
-                        'product_name_ar' => 'بلو سيل',
-                        'sku' => 'BZ-CEL-002',
-                        'unit_price' => 74.00,
-                        'quantity' => 1,
-                        'total' => 74.00,
-                    ],
-                ],
-            ],
-        ];
-    }
+
 
     /**
      * Find order by number or ID.
@@ -247,7 +180,7 @@ class OrderViewModel
     public static function find(string|int $identifier): ?array
     {
         foreach (self::all() as $order) {
-            if ($order['id'] == $identifier || $order['order_number'] === (string)$identifier) {
+            if ($order['id'] == $identifier || $order['order_number'] === (string) $identifier) {
                 return $order;
             }
         }

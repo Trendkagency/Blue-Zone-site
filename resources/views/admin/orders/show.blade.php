@@ -252,7 +252,7 @@
                         <i class="fa-solid fa-address-card text-sky-600"></i>
                         {{ app()->getLocale() == 'ar' ? 'ملخص بيانات العميل' : 'Customer Overview' }}
                     </h4>
-                    <span class="badge badge-accent text-xs">{{ $channel === 'online' ? 'Online' : 'POS' }}</span>
+                    <span class="badge {{ $channel === 'online' ? 'badge-accent' : 'badge-neutral' }} text-xs">{{ $channel === 'online' ? 'Online Hub' : (app()->getLocale() == 'ar' ? 'سجل مؤرشف' : 'Archived') }}</span>
                 </div>
                 <div class="space-y-3 text-sm">
                     <div class="flex items-center gap-3">
@@ -319,7 +319,7 @@
 
                     @if((float)$discount > 0)
                         <div class="flex justify-between text-emerald-600 font-semibold">
-                            <span>{{ __('admin.pos.discount') }}:</span>
+                            <span>{{ __('shop.checkout.discount') }}:</span>
                             <span>-@currency((float)$discount)</span>
                         </div>
                     @endif

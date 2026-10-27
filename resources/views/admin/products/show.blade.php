@@ -57,10 +57,6 @@
                         <span class="badge badge-success font-bold">{{ $product['stock_online'] }} units</span>
                     </div>
                     <div class="summary-row">
-                        <span>Flagship POS Stock:</span>
-                        <span class="badge badge-neutral font-bold">{{ $product['stock_offline'] }} units</span>
-                    </div>
-                    <div class="summary-row">
                         <span>Low Stock Alert at:</span>
                         <span class="text-muted">{{ $product['low_stock_threshold'] }} units</span>
                     </div>

@@ -255,16 +255,11 @@ class ProductResource extends Resource
                         ->schema([
                             Section::make('Inventory Thresholds & Location Allocation')
                                 ->schema([
-                                    Grid::make(3)->schema([
+                                    Grid::make(2)->schema([
                                         Forms\Components\TextInput::make('stock_online')
                                             ->label('Initial Online Stock')
                                             ->numeric()
                                             ->default(100)
-                                            ->required(),
-                                        Forms\Components\TextInput::make('stock_offline')
-                                            ->label('Initial Flagship POS Stock')
-                                            ->numeric()
-                                            ->default(30)
                                             ->required(),
                                         Forms\Components\TextInput::make('low_stock_threshold')
                                             ->label('Low Stock Warning Threshold')
@@ -320,13 +315,6 @@ class ProductResource extends Resource
                     ->badge()
                     ->suffix(' units')
                     ->color(fn (Product $record): string => $record->stock_online <= $record->low_stock_threshold ? 'warning' : 'success'
-                    )
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('stock_offline')
-                    ->label('Offline Stock')
-                    ->badge()
-                    ->suffix(' units')
-                    ->color(fn (Product $record): string => $record->stock_offline <= $record->low_stock_threshold ? 'danger' : 'gray'
                     )
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')

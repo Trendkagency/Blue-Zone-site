@@ -60,11 +60,10 @@ class InventoryController extends Controller
             $threshold = (int) ($product->low_stock_threshold ?? 10);
             
             $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
-            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
             $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $fStock = 0;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
 
             $prodTotalStock = 0;
@@ -286,13 +285,12 @@ class InventoryController extends Controller
             $criticalThreshold = max(1, (int) ceil($threshold * 0.25));
 
             $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
-            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
             $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $fStock = 0;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
-            $totalStock = $oStock + $fStock + $cStock;
+            $totalStock = $oStock + $cStock;
 
             $isLow = false;
             $severity = 'healthy';
@@ -352,7 +350,6 @@ class InventoryController extends Controller
             $loc = $request->location_id;
             $alertItems = $alertItems->filter(function ($i) use ($loc) {
                 if ($loc === 'online') return $i['stock_online'] <= $i['threshold'];
-                if ($loc === 'offline') return $i['stock_offline'] <= $i['threshold'];
                 if ($loc === 'central_wh') return $i['stock_central'] <= 10;
                 return true;
             })->values();
@@ -586,7 +583,7 @@ class InventoryController extends Controller
                 $product->refresh();
                 $items = InventoryItem::where('product_id', $product->id)->get();
                 $centralUnits = (int) $items->where('location_id', 'central_wh')->sum('current_stock');
-                $totalStock = (int) $product->stock_online + (int) $product->stock_offline + $centralUnits;
+                $totalStock = (int) $product->stock_online + $centralUnits;
 
                 return response()->json([
                     'success' => true,
@@ -594,7 +591,7 @@ class InventoryController extends Controller
                         ? "تم تسجيل حركة المخزون بنجاح ({$type}: " . ($delta > 0 ? "+{$delta}" : "{$delta}") . " وحدة)."
                         : "Inventory movement recorded successfully ({$type}: " . ($delta > 0 ? "+{$delta}" : "{$delta}") . " units).",
                     'stock_online' => (int) $product->stock_online,
-                    'stock_offline' => (int) $product->stock_offline,
+                    'stock_offline' => 0,
                     'stock_central' => $centralUnits,
                     'total_stock' => $totalStock,
                     'location_id' => $validated['location_id'],
@@ -703,32 +700,29 @@ class InventoryController extends Controller
         $dbProducts = Product::with(['category', 'inventoryItems'])->orderBy('name_en')->get();
 
         $onlineUnits = 0;
-        $offlineUnits = 0;
         $centralUnits = 0;
         $lowStockCount = 0;
         $outOfStockCount = 0;
 
-        $allocatedProducts = $dbProducts->map(function ($product) use (&$onlineUnits, &$offlineUnits, &$centralUnits, &$lowStockCount, &$outOfStockCount) {
+        $allocatedProducts = $dbProducts->map(function ($product) use (&$onlineUnits, &$centralUnits, &$lowStockCount, &$outOfStockCount) {
             $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
-            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
             $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $fStock = 0;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
 
-            $totalStock = $oStock + $fStock + $cStock;
+            $totalStock = $oStock + $cStock;
             $threshold = (int) ($product->low_stock_threshold ?? 10);
 
             $onlineUnits += $oStock;
-            $offlineUnits += $fStock;
             $centralUnits += $cStock;
 
             $status = 'healthy';
             if ($totalStock <= 0) {
                 $status = 'out_of_stock';
                 $outOfStockCount++;
-            } elseif ($oStock <= $threshold || $fStock <= $threshold) {
+            } elseif ($oStock <= $threshold) {
                 $status = 'low_stock';
                 $lowStockCount++;
             }
@@ -753,18 +747,18 @@ class InventoryController extends Controller
             ];
         })->values();
 
-        $totalUnits = $onlineUnits + $offlineUnits + $centralUnits;
+        $totalUnits = $onlineUnits + $centralUnits;
 
         $kpis = [
             'total_units' => $totalUnits,
             'online_units' => $onlineUnits,
-            'offline_units' => $offlineUnits,
+            'offline_units' => 0,
             'central_units' => $centralUnits,
             'online_pct' => $totalUnits > 0 ? round(($onlineUnits / $totalUnits) * 100, 1) : 0,
-            'offline_pct' => $totalUnits > 0 ? round(($offlineUnits / $totalUnits) * 100, 1) : 0,
+            'offline_pct' => 0,
             'central_pct' => $totalUnits > 0 ? round(($centralUnits / $totalUnits) * 100, 1) : 0,
             'low_stock_count' => $lowStockCount,
-            'out_of_stock_count' => $outOfStockCount,
+            'outOfStockCount' => $outOfStockCount,
             'total_products' => $allocatedProducts->count(),
         ];
 
@@ -805,19 +799,16 @@ class InventoryController extends Controller
 
             $product->refresh();
             $onlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'online')->first();
-            $offlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'offline')->first();
             $centralItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'central_wh')->first();
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 0;
-            $total = $oStock + $fStock + $cStock;
+            $total = $oStock + $cStock;
 
             // Global KPI update
             $allOnline = (int) InventoryItem::where('location_id', 'online')->sum('current_stock');
-            $allOffline = (int) InventoryItem::where('location_id', 'offline')->sum('current_stock');
             $allCentral = (int) InventoryItem::where('location_id', 'central_wh')->sum('current_stock');
-            $allTotal = $allOnline + $allOffline + $allCentral;
+            $allTotal = $allOnline + $allCentral;
 
             return response()->json([
                 'success' => true,
@@ -827,7 +818,7 @@ class InventoryController extends Controller
                 'product' => [
                     'id' => $product->id,
                     'stock_online' => $oStock,
-                    'stock_offline' => $fStock,
+                    'stock_offline' => 0,
                     'stock_central' => $cStock,
                     'total_stock' => $total,
                 ],
@@ -845,10 +836,10 @@ class InventoryController extends Controller
                 'kpis' => [
                     'total_units' => $allTotal,
                     'online_units' => $allOnline,
-                    'offline_units' => $allOffline,
+                    'offline_units' => 0,
                     'central_units' => $allCentral,
                     'online_pct' => $allTotal > 0 ? round(($allOnline / $allTotal) * 100, 1) : 0,
-                    'offline_pct' => $allTotal > 0 ? round(($allOffline / $allTotal) * 100, 1) : 0,
+                    'offline_pct' => 0,
                     'central_pct' => $allTotal > 0 ? round(($allCentral / $allTotal) * 100, 1) : 0,
                 ],
             ]);
@@ -874,22 +865,21 @@ class InventoryController extends Controller
             'product_ids' => 'required|array|min:1',
             'product_ids.*' => 'required|exists:products,id',
             'online_pct' => 'required|numeric|min:0|max:100',
-            'offline_pct' => 'required|numeric|min:0|max:100',
             'central_pct' => 'required|numeric|min:0|max:100',
+            'offline_pct' => 'nullable|numeric',
             'reason' => 'nullable|string',
         ]);
 
         $onlinePct = (float) $validated['online_pct'];
-        $offlinePct = (float) $validated['offline_pct'];
         $centralPct = (float) $validated['central_pct'];
 
-        $sumPct = $onlinePct + $offlinePct + $centralPct;
+        $sumPct = $onlinePct + $centralPct;
         if (abs($sumPct - 100.0) > 0.5) {
             return response()->json([
                 'success' => false,
                 'message' => app()->getLocale() === 'ar'
-                    ? 'يجب أن يكون مجموع نسب التوزيع مساوياً لـ 100%.'
-                    : 'Total allocation ratio must equal 100%.',
+                    ? 'يجب أن يكون مجموع نسب التوزيع مساوياً لـ 100% (بين المتجر الإلكتروني والمستودع المركزي).'
+                    : 'Total allocation ratio between Online Store and Central Depot must equal 100%.',
             ], 422);
         }
 
@@ -900,33 +890,22 @@ class InventoryController extends Controller
             foreach ($validated['product_ids'] as $pId) {
                 $product = Product::findOrFail($pId);
                 $onlineItem = InventoryService::getItem($product, 'online');
-                $offlineItem = InventoryService::getItem($product, 'offline');
                 $centralItem = InventoryService::getItem($product, 'central_wh');
 
-                $totalStock = $onlineItem->current_stock + $offlineItem->current_stock + $centralItem->current_stock;
+                $totalStock = $onlineItem->current_stock + $centralItem->current_stock;
 
                 if ($totalStock <= 0) {
                     continue;
                 }
 
-                // Compute targets
+                // Compute targets (2-pool model)
                 $targetOnline = (int) round(($onlinePct / 100.0) * $totalStock);
-                $targetOffline = (int) round(($offlinePct / 100.0) * $totalStock);
-                $targetCentral = $totalStock - ($targetOnline + $targetOffline);
-                if ($targetCentral < 0) {
-                    $targetCentral = 0;
-                    $targetOnline = $totalStock - $targetOffline;
-                }
+                $targetCentral = $totalStock - $targetOnline;
 
                 $onlineItem->current_stock = $targetOnline;
                 $onlineItem->available_stock = $targetOnline;
                 $onlineItem->refreshStatus();
                 $onlineItem->save();
-
-                $offlineItem->current_stock = $targetOffline;
-                $offlineItem->available_stock = $targetOffline;
-                $offlineItem->refreshStatus();
-                $offlineItem->save();
 
                 $centralItem->current_stock = $targetCentral;
                 $centralItem->available_stock = $targetCentral;
@@ -942,21 +921,21 @@ class InventoryController extends Controller
                     'product_name_ar' => $product->name_ar ?? $product->name_en,
                     'sku' => $product->sku,
                     'movement_type' => 'Stock Transfer',
-                    'from_location' => 'Multi-Hub Rebalance',
-                    'to_location' => "Online: {$targetOnline}, POS: {$targetOffline}, Central: {$targetCentral}",
+                    'from_location' => 'Two-Hub Rebalance',
+                    'to_location' => "Online: {$targetOnline}, Central: {$targetCentral}",
                     'quantity' => $totalStock,
                     'previous_qty' => $totalStock,
                     'new_qty' => $totalStock,
                     'date' => now()->toDateString(),
                     'time' => now()->format('H:i:s'),
                     'user' => auth()->user()?->name ?? 'Admin Allocator',
-                    'note' => $validated['reason'] ?? "Batch split ratio ({$onlinePct}% Online / {$offlinePct}% POS / {$centralPct}% Central)",
+                    'note' => $validated['reason'] ?? "Batch split ratio ({$onlinePct}% Online / {$centralPct}% Central)",
                 ]);
 
                 $updatedProducts[] = [
                     'id' => $product->id,
                     'stock_online' => $targetOnline,
-                    'stock_offline' => $targetOffline,
+                    'stock_offline' => 0,
                     'stock_central' => $targetCentral,
                     'total_stock' => $totalStock,
                 ];
@@ -965,9 +944,8 @@ class InventoryController extends Controller
             DB::commit();
 
             $allOnline = (int) InventoryItem::where('location_id', 'online')->sum('current_stock');
-            $allOffline = (int) InventoryItem::where('location_id', 'offline')->sum('current_stock');
             $allCentral = (int) InventoryItem::where('location_id', 'central_wh')->sum('current_stock');
-            $allTotal = $allOnline + $allOffline + $allCentral;
+            $allTotal = $allOnline + $allCentral;
 
             return response()->json([
                 'success' => true,
@@ -978,10 +956,10 @@ class InventoryController extends Controller
                 'kpis' => [
                     'total_units' => $allTotal,
                     'online_units' => $allOnline,
-                    'offline_units' => $allOffline,
+                    'offline_units' => 0,
                     'central_units' => $allCentral,
                     'online_pct' => $allTotal > 0 ? round(($allOnline / $allTotal) * 100, 1) : 0,
-                    'offline_pct' => $allTotal > 0 ? round(($allOffline / $allTotal) * 100, 1) : 0,
+                    'offline_pct' => 0,
                     'central_pct' => $allTotal > 0 ? round(($allCentral / $allTotal) * 100, 1) : 0,
                 ],
             ]);
@@ -1034,21 +1012,19 @@ class InventoryController extends Controller
         $outOfStockCount = 0;
         $totalValuation = 0.0;
 
-        $controlProducts = $allProducts->map(function ($product) use (&$onlineUnits, &$offlineUnits, &$centralUnits, &$lowStockCount, &$outOfStockCount, &$totalValuation) {
+        $controlProducts = $allProducts->map(function ($product) use (&$onlineUnits, &$centralUnits, &$lowStockCount, &$outOfStockCount, &$totalValuation) {
             $onlineItem = $product->inventoryItems->firstWhere('location_id', 'online');
-            $offlineItem = $product->inventoryItems->firstWhere('location_id', 'offline');
             $centralItem = $product->inventoryItems->firstWhere('location_id', 'central_wh');
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $fStock = 0;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 50;
 
-            $totalStock = $oStock + $fStock + $cStock;
+            $totalStock = $oStock + $cStock;
             $threshold = (int) ($product->low_stock_threshold ?? 10);
             $cost = (float) ($product->cost_price ?? ($product->price * 0.4));
 
             $onlineUnits += $oStock;
-            $offlineUnits += $fStock;
             $centralUnits += $cStock;
             $totalValuation += ($totalStock * $cost);
 
@@ -1056,7 +1032,7 @@ class InventoryController extends Controller
             if ($totalStock <= 0) {
                 $status = 'out_of_stock';
                 $outOfStockCount++;
-            } elseif ($oStock <= $threshold || $fStock <= $threshold) {
+            } elseif ($oStock <= $threshold) {
                 $status = 'low_stock';
                 $lowStockCount++;
             }
@@ -1091,12 +1067,12 @@ class InventoryController extends Controller
             })->values();
         }
 
-        $totalUnits = $onlineUnits + $offlineUnits + $centralUnits;
+        $totalUnits = $onlineUnits + $centralUnits;
 
         $kpis = [
             'total_units' => $totalUnits,
             'online_units' => $onlineUnits,
-            'offline_units' => $offlineUnits,
+            'offline_units' => 0,
             'central_units' => $centralUnits,
             'low_stock_count' => $lowStockCount,
             'out_of_stock_count' => $outOfStockCount,
@@ -1157,13 +1133,12 @@ class InventoryController extends Controller
 
             $product->refresh();
             $onlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'online')->first();
-            $offlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'offline')->first();
             $centralItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'central_wh')->first();
 
             $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-            $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+            $fStock = 0;
             $cStock = $centralItem ? (int) $centralItem->current_stock : 0;
-            $total = $oStock + $fStock + $cStock;
+            $total = $oStock + $cStock;
 
             $cost = (float) ($product->cost_price ?? ($product->price * 0.4));
             $threshold = (int) ($product->low_stock_threshold ?? 10);
@@ -1171,25 +1146,23 @@ class InventoryController extends Controller
             $status = 'healthy';
             if ($total <= 0) {
                 $status = 'out_of_stock';
-            } elseif ($oStock <= $threshold || $fStock <= $threshold) {
+            } elseif ($oStock <= $threshold) {
                 $status = 'low_stock';
             }
 
-            // Global KPI update
             $allOnline = (int) InventoryItem::where('location_id', 'online')->sum('current_stock');
-            $allOffline = (int) InventoryItem::where('location_id', 'offline')->sum('current_stock');
             $allCentral = (int) InventoryItem::where('location_id', 'central_wh')->sum('current_stock');
-            $allTotal = $allOnline + $allOffline + $allCentral;
+            $allTotal = $allOnline + $allCentral;
 
             return response()->json([
                 'success' => true,
                 'message' => app()->getLocale() === 'ar'
-                    ? "تم " . ($isIncrease ? "إضافة" : "خصم") . " {$qty} وحدة للمنتج ({$product->sku}) في " . ($validated['location_id'] === 'online' ? 'المتجر الإلكتروني' : ($validated['location_id'] === 'offline' ? 'المعرض وPOS' : 'المستودع المركزي')) . " بنجاح!"
+                    ? "تم " . ($isIncrease ? "إضافة" : "خصم") . " {$qty} وحدة للمنتج ({$product->sku}) بنجاح!"
                     : ($isIncrease ? "Added" : "Deducted") . " {$qty} units for {$product->sku} in [{$validated['location_id']}] successfully!",
                 'product' => [
                     'id' => $product->id,
                     'stock_online' => $oStock,
-                    'stock_offline' => $fStock,
+                    'stock_offline' => 0,
                     'stock_central' => $cStock,
                     'total_stock' => $total,
                     'valuation' => round($total * $cost, 2),
@@ -1206,7 +1179,7 @@ class InventoryController extends Controller
                 'kpis' => [
                     'total_units' => $allTotal,
                     'online_units' => $allOnline,
-                    'offline_units' => $allOffline,
+                    'offline_units' => 0,
                     'central_units' => $allCentral,
                 ],
             ]);
@@ -1263,13 +1236,12 @@ class InventoryController extends Controller
 
                 $product->refresh();
                 $onlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'online')->first();
-                $offlineItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'offline')->first();
                 $centralItem = InventoryItem::where('product_id', $product->id)->where('location_id', 'central_wh')->first();
 
                 $oStock = $onlineItem ? (int) $onlineItem->current_stock : (int) $product->stock_online;
-                $fStock = $offlineItem ? (int) $offlineItem->current_stock : (int) $product->stock_offline;
+                $fStock = 0;
                 $cStock = $centralItem ? (int) $centralItem->current_stock : 0;
-                $total = $oStock + $fStock + $cStock;
+                $total = $oStock + $cStock;
 
                 $cost = (float) ($product->cost_price ?? ($product->price * 0.4));
                 $threshold = (int) ($product->low_stock_threshold ?? 10);
@@ -1277,14 +1249,14 @@ class InventoryController extends Controller
                 $status = 'healthy';
                 if ($total <= 0) {
                     $status = 'out_of_stock';
-                } elseif ($oStock <= $threshold || $fStock <= $threshold) {
+                } elseif ($oStock <= $threshold) {
                     $status = 'low_stock';
                 }
 
                 $updatedProducts[] = [
                     'id' => $product->id,
                     'stock_online' => $oStock,
-                    'stock_offline' => $fStock,
+                    'stock_offline' => 0,
                     'stock_central' => $cStock,
                     'total_stock' => $total,
                     'valuation' => round($total * $cost, 2),
@@ -1295,9 +1267,8 @@ class InventoryController extends Controller
             DB::commit();
 
             $allOnline = (int) InventoryItem::where('location_id', 'online')->sum('current_stock');
-            $allOffline = (int) InventoryItem::where('location_id', 'offline')->sum('current_stock');
             $allCentral = (int) InventoryItem::where('location_id', 'central_wh')->sum('current_stock');
-            $allTotal = $allOnline + $allOffline + $allCentral;
+            $allTotal = $allOnline + $allCentral;
 
             return response()->json([
                 'success' => true,
@@ -1308,7 +1279,7 @@ class InventoryController extends Controller
                 'kpis' => [
                     'total_units' => $allTotal,
                     'online_units' => $allOnline,
-                    'offline_units' => $allOffline,
+                    'offline_units' => 0,
                     'central_units' => $allCentral,
                 ],
             ]);

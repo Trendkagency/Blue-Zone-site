@@ -571,8 +571,8 @@ class ReportController extends Controller
         echo '   <Row ss:Height="22">' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SKU</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'المستحضر' : 'Product') . '</Data></Cell>' . "\n";
-        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'مستودع رئيسي' : 'Warehouse') . '</Data></Cell>' . "\n";
-        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'مستودع المبيعات' : 'Warehouse POS') . '</Data></Cell>' . "\n";
+        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'مستودع المتجر' : 'Online Store') . '</Data></Cell>' . "\n";
+        echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'المستودع المركزي' : 'Central Depot') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'إجمالي الوحدات' : 'Total Units') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'سعر الوحدة' : 'Retail Price') . '</Data></Cell>' . "\n";
         echo '    <Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">' . ($isAr ? 'إجمالي التقييم' : 'Total Valuation') . '</Data></Cell>' . "\n";
@@ -585,8 +585,8 @@ class ReportController extends Controller
 
         foreach ($products as $idx => $p) {
             $online = (int)$p->stock_online;
-            $offline = (int)$p->stock_offline;
-            $tot = $online + $offline;
+            $central = (int)($p->inventoryItems()->where('location_id', 'central_wh')->value('current_stock') ?? 0);
+            $tot = $online + $central;
             $val = $tot * (float)$p->price;
             $grandUnits += $tot;
             $grandVal += $val;
@@ -596,7 +596,7 @@ class ReportController extends Controller
             echo '    <Cell><Data ss:Type="String">' . $p->sku . '</Data></Cell>' . "\n";
             echo '    <Cell ss:StyleID="Bold"><Data ss:Type="String">' . htmlspecialchars($isAr ? ($p->name_ar ?? $p->name_en) : $p->name_en) . '</Data></Cell>' . "\n";
             echo '    <Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $online . '</Data></Cell>' . "\n";
-            echo '    <Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $offline . '</Data></Cell>' . "\n";
+            echo '    <Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $central . '</Data></Cell>' . "\n";
             echo '    <Cell ss:StyleID="Integer"><Data ss:Type="Number">' . $tot . '</Data></Cell>' . "\n";
             echo '    <Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $p->price . '</Data></Cell>' . "\n";
             echo '    <Cell ss:StyleID="Currency"><Data ss:Type="Number">' . $val . '</Data></Cell>' . "\n";
@@ -907,8 +907,8 @@ class ReportController extends Controller
 
         foreach ($allProducts as $p) {
             $onlineStock = (int) $p->stock_online;
-            $offlineStock = (int) $p->stock_offline;
-            $totalStock = $onlineStock + $offlineStock;
+            $centralStock = (int) ($p->inventoryItems()->where('location_id', 'central_wh')->value('current_stock') ?? 0);
+            $totalStock = $onlineStock + $centralStock;
             $threshold = (int) ($p->low_stock_threshold ?? 10);
 
             $statusKey = $totalStock <= 0 ? 'out_of_stock' : ($totalStock <= $threshold ? 'low_stock' : 'in_stock');
@@ -928,7 +928,7 @@ class ReportController extends Controller
                 'share_pct'          => 0.0,
                 'total_stock'        => $totalStock,
                 'online_stock'       => $onlineStock,
-                'offline_stock'      => $offlineStock,
+                'central_stock'      => $centralStock,
                 'stock_status'       => $statusKey,
                 'stock_status_label' => $statusLabel,
             ];
@@ -1026,7 +1026,8 @@ class ReportController extends Controller
         $outOfStockCount = 0;
 
         foreach ($products as $p) {
-            $units = ((int) $p->stock_online) + ((int) $p->stock_offline);
+            $central = (int)($p->inventoryItems()->where('location_id', 'central_wh')->value('current_stock') ?? 0);
+            $units = ((int) $p->stock_online) + $central;
             $totalUnits += $units;
             $totalValuation += $units * (float) $p->price;
 

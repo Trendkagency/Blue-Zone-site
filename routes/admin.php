@@ -35,7 +35,6 @@ use App\Http\Controllers\Admin\Mr\MrReportController;
 use App\Http\Controllers\Admin\Mr\SpecialtyController as MrSpecialtyController;
 use App\Http\Controllers\Admin\Mr\VisitController as MrVisitController;
 use App\Http\Controllers\Admin\NotificationController;
-use App\Http\Controllers\Admin\OfflineSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -237,14 +236,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{id}', [InvoiceController::class, 'show'])->middleware('permission:invoices.view')->name('show');
             Route::get('/{id}/print', [InvoiceController::class, 'print'])->middleware('permission:invoices.view')->name('print');
             Route::get('/{id}/label', [InvoiceController::class, 'averyLabel'])->middleware('permission:invoices.view')->name('label');
-        });
-
-        // Offline POS Sales Management
-        Route::prefix('offline-sales')->name('offline-sales.')->group(function () {
-            Route::get('/', [OfflineSaleController::class, 'index'])->middleware('permission:offline_sales.view')->name('index');
-            Route::get('/create', [OfflineSaleController::class, 'create'])->middleware('permission:offline_sales.create')->name('create');
-            Route::post('/', [OfflineSaleController::class, 'store'])->middleware('permission:offline_sales.create')->name('store');
-            Route::get('/{id}', [OfflineSaleController::class, 'show'])->middleware('permission:offline_sales.view')->name('show');
         });
 
         // Commercial Sales Management (Products & Services, Quotations, Sales Orders)

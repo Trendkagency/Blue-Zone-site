@@ -1,6 +1,6 @@
 <x-layouts.admin 
     :pageTitle="app()->getLocale() === 'ar' ? 'إضافة منشأة أو مستودع جديد' : 'Add New Storage Facility'"
-    :pageSubtitle="app()->getLocale() === 'ar' ? 'تسجيل مستودع لوجستي، فرع إقليمي، أو نقطة بيع وربطها بالدولة والمدينة.' : 'Register a new warehouse, regional hub, or warehouse POS linked to a dynamic country & city.'"
+    :pageSubtitle="app()->getLocale() === 'ar' ? 'تسجيل مستودع لوجستي أو فرع إقليمي وربطه بالدولة والمدينة.' : 'Register a new warehouse or regional distribution hub linked to a dynamic country & city.'"
     :breadcrumbs="[
         (app()->getLocale() === 'ar' ? 'المخزون' : 'Inventory') => route('admin.inventory.index'),
         (app()->getLocale() === 'ar' ? 'المستودعات' : 'Warehouses') => route('admin.warehouses.index'),
@@ -75,7 +75,6 @@
                         <select name="type" required class="form-select text-sm w-full">
                             <option value="warehouse" {{ old('type') === 'warehouse' ? 'selected' : '' }}>{{ app()->getLocale() === 'ar' ? 'مستودع لوجستي' : 'Logistics Warehouse' }}</option>
                             <option value="branch" {{ old('type') === 'branch' ? 'selected' : '' }}>{{ app()->getLocale() === 'ar' ? 'فرع إقليمي' : 'Regional Branch' }}</option>
-                            <option value="offline" {{ old('type') === 'offline' ? 'selected' : '' }}>{{ app()->getLocale() === 'ar' ? 'مستودع / نقطة بيع POS' : 'Warehouse / POS' }}</option>
                             <option value="online" {{ old('type') === 'online' ? 'selected' : '' }}>{{ app()->getLocale() === 'ar' ? 'مركز طلبات إلكترونية' : 'E-Commerce Hub' }}</option>
                         </select>
                     </div>

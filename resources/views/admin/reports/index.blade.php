@@ -526,36 +526,33 @@
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
                     <div>
                         <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--color-text);">
-                            <i class="fa-solid fa-cash-register text-warning mr-1 ml-1"></i> {{ __('admin.reports.pos_only') }}
+                            <i class="fa-solid fa-box-archive text-warning mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'مبيعات المتجر السابقة (مؤرشفة)' : 'Counter Sales (Archived)' }}
                         </h3>
                         <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin: 0.2rem 0 0 0;">
-                            Physical Wellness POS Warehouse
+                            {{ app()->getLocale() === 'ar' ? 'سجل العمليات التاريخية للمبيعات المباشرة' : 'Historical Direct Sales Archive' }}
                         </p>
                     </div>
-                    <span class="badge badge-warning font-bold text-sm">{{ $channels['pos']['percentage'] }}% {{ __('admin.reports.share_pct') }}</span>
+                    <span class="badge badge-warning font-bold text-sm">{{ $channels['pos']['percentage'] ?? 0 }}% {{ __('admin.reports.share_pct') }}</span>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.gross_revenue') }}:</span>
-                        <span class="font-extrabold text-sm" style="color: #F59E0B;">@currency($channels['pos']['revenue'])</span>
+                        <span class="font-extrabold text-sm" style="color: #F59E0B;">@currency($channels['pos']['revenue'] ?? 0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.total_transactions') }}:</span>
-                        <span class="font-extrabold text-sm">{{ $channels['pos']['orders_count'] }} Tickets</span>
+                        <span class="font-extrabold text-sm">{{ $channels['pos']['orders_count'] ?? 0 }} {{ app()->getLocale() === 'ar' ? 'سجل' : 'Records' }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius: 0.5rem;">
                         <span class="font-bold text-sm">{{ __('admin.reports.avg_order_value') }}:</span>
-                        <span class="font-extrabold text-sm">@currency($channels['pos']['avg_ticket'])</span>
+                        <span class="font-extrabold text-sm">@currency($channels['pos']['avg_ticket'] ?? 0)</span>
                     </div>
                 </div>
 
-                <div class="no-print" style="display: flex; gap: 0.75rem;">
-                    <a href="{{ route('admin.offline-sales.create') }}" class="btn btn-warning btn-sm" style="flex: 1; justify-content: center; font-weight: 700;">
-                        <i class="fa-solid fa-plus mr-1 ml-1"></i> {{ __('admin.dashboard.open_pos') }}
-                    </a>
-                    <a href="{{ route('admin.offline-sales.index') }}" class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;">
-                        <i class="fa-solid fa-list mr-1 ml-1"></i> {{ __('admin.menu.offline_sales') }}
+                <div class="no-print">
+                    <a href="{{ route('admin.orders.index', ['channel' => 'offline']) }}" class="btn btn-secondary btn-sm w-full" style="justify-content: center;">
+                        <i class="fa-solid fa-receipt mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'عرض السجلات التاريخية' : 'View Archived Orders' }}
                     </a>
                 </div>
             </div>

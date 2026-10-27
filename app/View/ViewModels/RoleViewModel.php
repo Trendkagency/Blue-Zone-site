@@ -181,12 +181,6 @@ class RoleViewModel
                         'desc_en' => 'Customer orders, dispatch statuses, payments, and shipping labels.',
                         'desc_ar' => 'إدارة الطلبات وحالات الشحن والدفع وتتبع التوصيل.',
                     ],
-                    'offline_sales' => [
-                        'name_en' => 'Offline Counter & POS Sales',
-                        'name_ar' => 'المبيعات المباشرة ونقاط البيع (POS)',
-                        'desc_en' => 'Counter sales registers, direct receipts, and in-store cash outs.',
-                        'desc_ar' => 'عمليات البيع المباشر والكاشير وإيصالات نقاط البيع.',
-                    ],
                     'customers' => [
                         'name_en' => 'Customer Accounts & Directory',
                         'name_ar' => 'حسابات وبيانات العملاء والمرضى',
@@ -372,7 +366,6 @@ class RoleViewModel
                     'crm_leads' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
                     'crm_opportunities' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
                     'crm_activities' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
-                    'offline_sales' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
                     'orders' => ['view' => true, 'create' => true, 'edit' => false, 'delete' => false],
                     'customers' => ['view' => true, 'create' => true, 'edit' => true, 'delete' => false],
                     'invoices' => ['view' => true, 'create' => false, 'edit' => false, 'delete' => false],

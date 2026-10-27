@@ -47,11 +47,11 @@ class WarehouseManagementTest extends TestCase
         Location::firstOrCreate(
             ['id' => 'offline'],
             [
-                'name_en' => 'Warehouse / POS',
-                'name_ar' => 'المتجر الرئيسي / المبيعات المباشرة',
-                'code' => 'LOC-POS',
-                'type' => 'offline',
-                'is_active' => true,
+                'name_en' => 'Regional Fulfillment Hub',
+                'name_ar' => 'مركز التوزيع الإقليمي',
+                'code' => 'LOC-REG',
+                'type' => 'warehouse',
+                'is_active' => false,
             ]
         );
 
@@ -82,7 +82,6 @@ class WarehouseManagementTest extends TestCase
             'price' => 120.00,
             'cost_price' => 50.00,
             'stock_online' => 60,
-            'stock_offline' => 30,
             'is_active' => true,
         ]);
 
@@ -95,7 +94,6 @@ class WarehouseManagementTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Online Fulfillment Hub');
-        $response->assertSee('Warehouse / POS');
         $response->assertSee('Central Quarantine Warehouse');
     }
 

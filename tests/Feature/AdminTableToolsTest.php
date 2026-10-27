@@ -107,15 +107,6 @@ class AdminTableToolsTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('data-export-excel="#customersTable"', false);
-        $response->assertSee('data-print-table="#customersTable"', false);
-    }
-
-    public function test_offline_sales_index_renders_with_table_tools(): void
-    {
-        $response = $this->actingAs($this->admin, 'web')->get(route('admin.offline-sales.index'));
-
-        $response->assertStatus(200);
-        $response->assertSee('data-export-excel="#offlineSalesTable"', false);
-        $response->assertSee('data-print-table="#offlineSalesTable"', false);
     }
 }
+

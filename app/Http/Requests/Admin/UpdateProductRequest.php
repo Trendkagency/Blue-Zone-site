@@ -83,7 +83,6 @@ class UpdateProductRequest extends FormRequest
 
             // Step 7: Inventory & Controls (Audited via Inventory Movements)
             'stock_online' => ['nullable', 'integer', 'min:0'],
-            'stock_offline' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:1'],
             'enable_backorders' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
@@ -112,7 +111,6 @@ class UpdateProductRequest extends FormRequest
             'price' => __('admin.products.fields.retail_price'),
             'cost_price' => __('admin.products.fields.cost_price'),
             'stock_online' => __('admin.products.fields.online_stock'),
-            'stock_offline' => __('admin.products.fields.offline_stock'),
             'low_stock_threshold' => __('admin.products.fields.low_stock_threshold'),
         ];
     }

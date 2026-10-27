@@ -39,7 +39,7 @@
         }
         .allocator-hubs-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
             align-items: start;
             margin-bottom: 2rem;
@@ -221,21 +221,6 @@
             </div>
         </div>
 
-        <div class="allocator-kpi-card" style="border-inline-start: 4px solid #10B981;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="text-xs text-muted font-bold" style="text-transform: uppercase;">
-                    {{ app()->getLocale() === 'ar' ? 'مستودع المبيعات (POS)' : 'Warehouse (POS)' }}
-                </div>
-                <span class="badge badge-neutral font-mono text-xs" id="kpiOfflinePct">{{ $kpis['offline_pct'] }}%</span>
-            </div>
-            <div class="font-black text-2xl text-emerald-600 dark:text-emerald-400" style="margin-top: 0.35rem;" id="kpiOfflineUnits">
-                {{ number_format($kpis['offline_units']) }} <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
-            </div>
-            <div class="text-xs text-muted" style="margin-top: 0.25rem;">
-                {{ app()->getLocale() === 'ar' ? 'متاح للمبيعات المباشرة' : 'Direct retail stock' }}
-            </div>
-        </div>
-
         <div class="allocator-kpi-card" style="border-inline-start: 4px solid #8B5CF6;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="text-xs text-muted font-bold" style="text-transform: uppercase;">
@@ -351,15 +336,11 @@
                             </div>
                         </div>
 
-                        <!-- All-Hubs Live Breakdown Pills -->
+                        <!-- Hubs Live Breakdown Pills -->
                         <div class="hub-breakdown-pills">
                             <div class="hub-pill-item active-hub">
                                 <span class="text-blue-600 font-bold">🌐 Web</span>
                                 <strong id="pill_online_{{ $p['id'] }}_online">{{ $p['stock_online'] }}</strong>
-                            </div>
-                            <div class="hub-pill-item">
-                                <span class="text-emerald-600">🏬 POS</span>
-                                <strong id="pill_online_{{ $p['id'] }}_offline">{{ $p['stock_offline'] }}</strong>
                             </div>
                             <div class="hub-pill-item">
                                 <span class="text-purple-600">🏭 Cent.</span>
@@ -367,16 +348,14 @@
                             </div>
                         </div>
 
-                        <!-- Mini progress representation: Online / Offline / Central -->
+                        <!-- Mini progress representation: Online / Central -->
                         @php
                             $totalP = max(1, $p['total_stock']);
                             $onlPct = round(($p['stock_online'] / $totalP) * 100);
-                            $offPct = round(($p['stock_offline'] / $totalP) * 100);
-                            $cenPct = 100 - ($onlPct + $offPct);
+                            $cenPct = 100 - $onlPct;
                         @endphp
-                        <div class="stock-progress-bar" id="pbar_online_{{ $p['id'] }}" title="Online: {{ $p['stock_online'] }} | POS: {{ $p['stock_offline'] }} | Central: {{ $p['stock_central'] }}">
+                        <div class="stock-progress-bar" id="pbar_online_{{ $p['id'] }}" title="Online: {{ $p['stock_online'] }} | Central: {{ $p['stock_central'] }}">
                             <div class="bar-onl" style="width: {{ $onlPct }}%; background: #3B82F6;"></div>
-                            <div class="bar-off" style="width: {{ $offPct }}%; background: #10B981;"></div>
                             <div class="bar-cen" style="width: {{ $cenPct }}%; background: #8B5CF6;"></div>
                         </div>
 
@@ -386,8 +365,8 @@
                                 {{ app()->getLocale() === 'ar' ? 'إجمالي الرصيد: ' : 'Total: ' }} <strong class="total-stock-display text-primary font-bold">{{ $p['total_stock'] }}</strong>
                             </span>
                             <div style="display: flex; gap: 0.35rem;">
-                                <button type="button" class="btn btn-xs btn-outline" onclick="event.stopPropagation(); quickTransferPrompt({{ $p['id'] }}, 'online', 'offline', 5)" title="{{ app()->getLocale() === 'ar' ? 'تحويل 5 وحدات إلى المعرض' : 'Move 5 to POS' }}">
-                                    ➔ POS (5)
+                                <button type="button" class="btn btn-xs btn-outline" onclick="event.stopPropagation(); quickTransferPrompt({{ $p['id'] }}, 'online', 'central_wh', 5)" title="{{ app()->getLocale() === 'ar' ? 'تحويل 5 وحدات للمستودع المركزي' : 'Move 5 to Central' }}">
+                                    ➔ Central (5)
                                 </button>
                                 <button type="button" class="btn btn-xs btn-ghost" onclick="event.stopPropagation(); openManualTransferModal({{ $p['id'] }}, 'online')" title="{{ app()->getLocale() === 'ar' ? 'تحويل مخصص' : 'Custom Transfer' }}">
                                     <i class="fa-solid fa-arrows-split-up-and-left text-primary"></i>
@@ -399,109 +378,7 @@
             </div>
         </div>
 
-        <!-- HUB 2: POS Warehouse (offline) -->
-        <div class="hub-column" id="hub_offline" data-location="offline" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'offline')">
-            <div class="hub-header hub-header-offline">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 38px; height: 38px; border-radius: var(--radius-md); background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
-                        <i class="fa-solid fa-cash-register"></i>
-                    </div>
-                    <div>
-                        <h4 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #065F46;">
-                            {{ app()->getLocale() === 'ar' ? 'مستودع المبيعات المباشرة (POS)' : 'POS Warehouse' }}
-                        </h4>
-                        <div class="text-xs text-muted" style="margin-top: 0.15rem;">
-                            {{ app()->getLocale() === 'ar' ? 'مبيعات الكاشير المباشرة للعملاء' : 'Direct retail walk-in counter' }}
-                        </div>
-                    </div>
-                </div>
-                <span class="badge badge-success font-mono text-xs" id="hubTotalBadge_offline">
-                    {{ number_format($kpis['offline_units']) }} units
-                </span>
-            </div>
-
-            <div class="hub-dropzone" id="dropzone_offline">
-                @foreach($products as $p)
-                    <div class="draggable-stock-card product-card-item" 
-                         id="card_offline_{{ $p['id'] }}"
-                         data-product-id="{{ $p['id'] }}"
-                         data-current-location="offline"
-                         data-category-id="{{ $p['category_id'] }}"
-                         data-status="{{ $p['status'] }}"
-                         data-search-text="{{ strtolower($p['name_en'] . ' ' . $p['name_ar'] . ' ' . $p['sku'] . ' ' . $p['barcode']) }}"
-                         draggable="true" 
-                         ondragstart="handleDragStart(event, {{ $p['id'] }}, 'offline')">
-                        
-                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <input type="checkbox" class="batch-product-checkbox form-check-input" value="{{ $p['id'] }}" onclick="event.stopPropagation(); updateBatchCount();">
-                            <img src="{{ $p['image'] }}" alt="{{ $p['name_en'] }}" style="width: 48px; height: 48px; border-radius: var(--radius-md); object-fit: cover; background: var(--color-bg-subtle);" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; gap: 0.5rem;">
-                                    <div class="font-bold text-sm" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        {{ app()->getLocale() === 'ar' ? $p['name_ar'] : $p['name_en'] }}
-                                    </div>
-                                    <span class="font-mono text-xs font-black text-emerald-600 dark:text-emerald-400 stock-qty-display" id="stock_offline_{{ $p['id'] }}">
-                                        {{ $p['stock_offline'] }} {{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}
-                                    </span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
-                                    <span class="font-mono text-xs text-muted">{{ $p['sku'] }}</span>
-                                    <span class="badge {{ $p['stock_offline'] <= $p['low_stock_threshold'] ? 'badge-danger' : 'badge-neutral' }} text-xs">
-                                        @currency($p['price'])
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- All-Hubs Live Breakdown Pills -->
-                        <div class="hub-breakdown-pills">
-                            <div class="hub-pill-item">
-                                <span class="text-blue-600">🌐 Web</span>
-                                <strong id="pill_offline_{{ $p['id'] }}_online">{{ $p['stock_online'] }}</strong>
-                            </div>
-                            <div class="hub-pill-item active-hub">
-                                <span class="text-emerald-600 font-bold">🏬 POS</span>
-                                <strong id="pill_offline_{{ $p['id'] }}_offline">{{ $p['stock_offline'] }}</strong>
-                            </div>
-                            <div class="hub-pill-item">
-                                <span class="text-purple-600">🏭 Cent.</span>
-                                <strong id="pill_offline_{{ $p['id'] }}_central">{{ $p['stock_central'] }}</strong>
-                            </div>
-                        </div>
-
-                        <!-- Mini progress representation -->
-                        @php
-                            $totalP = max(1, $p['total_stock']);
-                            $onlPct = round(($p['stock_online'] / $totalP) * 100);
-                            $offPct = round(($p['stock_offline'] / $totalP) * 100);
-                            $cenPct = 100 - ($onlPct + $offPct);
-                        @endphp
-                        <div class="stock-progress-bar" id="pbar_offline_{{ $p['id'] }}" title="Online: {{ $p['stock_online'] }} | POS: {{ $p['stock_offline'] }} | Central: {{ $p['stock_central'] }}">
-                            <div class="bar-onl" style="width: {{ $onlPct }}%; background: #3B82F6;"></div>
-                            <div class="bar-off" style="width: {{ $offPct }}%; background: #10B981;"></div>
-                            <div class="bar-cen" style="width: {{ $cenPct }}%; background: #8B5CF6;"></div>
-                        </div>
-
-                        <!-- Card Transfer Actions -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.65rem; border-top: 1px dashed var(--color-border); padding-top: 0.45rem;">
-                            <span class="text-xs text-muted">
-                                {{ app()->getLocale() === 'ar' ? 'إجمالي الرصيد: ' : 'Total: ' }} <strong class="total-stock-display text-primary font-bold">{{ $p['total_stock'] }}</strong>
-                            </span>
-                            <div style="display: flex; gap: 0.35rem;">
-                                <button type="button" class="btn btn-xs btn-outline" onclick="event.stopPropagation(); quickTransferPrompt({{ $p['id'] }}, 'offline', 'online', 5)" title="{{ app()->getLocale() === 'ar' ? 'تحويل 5 وحدات إلى الأونلاين' : 'Move 5 to Online' }}">
-                                    ➔ Web (5)
-                                </button>
-                                <button type="button" class="btn btn-xs btn-ghost" onclick="event.stopPropagation(); openManualTransferModal({{ $p['id'] }}, 'offline')" title="{{ app()->getLocale() === 'ar' ? 'تحويل مخصص' : 'Custom Transfer' }}">
-                                    <i class="fa-solid fa-arrows-split-up-and-left text-primary"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
-        <!-- HUB 3: Central Logistics Depot (central_wh) -->
+        <!-- HUB 2: Central Logistics Depot (central_wh) -->
         <div class="hub-column" id="hub_central_wh" data-location="central_wh" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'central_wh')">
             <div class="hub-header hub-header-central">
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -555,15 +432,11 @@
                             </div>
                         </div>
 
-                        <!-- All-Hubs Live Breakdown Pills -->
+                        <!-- Hubs Live Breakdown Pills -->
                         <div class="hub-breakdown-pills">
                             <div class="hub-pill-item">
                                 <span class="text-blue-600">🌐 Web</span>
                                 <strong id="pill_central_{{ $p['id'] }}_online">{{ $p['stock_online'] }}</strong>
-                            </div>
-                            <div class="hub-pill-item">
-                                <span class="text-emerald-600">🏬 POS</span>
-                                <strong id="pill_central_{{ $p['id'] }}_offline">{{ $p['stock_offline'] }}</strong>
                             </div>
                             <div class="hub-pill-item active-hub">
                                 <span class="text-purple-600 font-bold">🏭 Cent.</span>
@@ -575,12 +448,10 @@
                         @php
                             $totalP = max(1, $p['total_stock']);
                             $onlPct = round(($p['stock_online'] / $totalP) * 100);
-                            $offPct = round(($p['stock_offline'] / $totalP) * 100);
-                            $cenPct = 100 - ($onlPct + $offPct);
+                            $cenPct = 100 - $onlPct;
                         @endphp
-                        <div class="stock-progress-bar" id="pbar_central_wh_{{ $p['id'] }}" title="Online: {{ $p['stock_online'] }} | POS: {{ $p['stock_offline'] }} | Central: {{ $p['stock_central'] }}">
+                        <div class="stock-progress-bar" id="pbar_central_wh_{{ $p['id'] }}" title="Online: {{ $p['stock_online'] }} | Central: {{ $p['stock_central'] }}">
                             <div class="bar-onl" style="width: {{ $onlPct }}%; background: #3B82F6;"></div>
-                            <div class="bar-off" style="width: {{ $offPct }}%; background: #10B981;"></div>
                             <div class="bar-cen" style="width: {{ $cenPct }}%; background: #8B5CF6;"></div>
                         </div>
 
@@ -590,8 +461,8 @@
                                 {{ app()->getLocale() === 'ar' ? 'إجمالي الرصيد: ' : 'Total: ' }} <strong class="total-stock-display text-primary font-bold">{{ $p['total_stock'] }}</strong>
                             </span>
                             <div style="display: flex; gap: 0.35rem;">
-                                <button type="button" class="btn btn-xs btn-outline" onclick="event.stopPropagation(); quickTransferPrompt({{ $p['id'] }}, 'central_wh', 'offline', 10)" title="{{ app()->getLocale() === 'ar' ? 'تزويد المعرض بـ 10 وحدات' : 'Supply 10 to POS' }}">
-                                    ➔ POS (10)
+                                <button type="button" class="btn btn-xs btn-outline" onclick="event.stopPropagation(); quickTransferPrompt({{ $p['id'] }}, 'central_wh', 'online', 10)" title="{{ app()->getLocale() === 'ar' ? 'تزويد المتجر بـ 10 وحدات' : 'Supply 10 to Web' }}">
+                                    ➔ Web (10)
                                 </button>
                                 <button type="button" class="btn btn-xs btn-ghost" onclick="event.stopPropagation(); openManualTransferModal({{ $p['id'] }}, 'central_wh')" title="{{ app()->getLocale() === 'ar' ? 'تحويل مخصص' : 'Custom Transfer' }}">
                                     <i class="fa-solid fa-arrows-split-up-and-left text-primary"></i>
@@ -780,14 +651,14 @@
             <div style="margin-bottom: 1.25rem;">
                 <label class="form-label font-bold text-xs" style="margin-bottom: 0.5rem;">{{ app()->getLocale() === 'ar' ? 'القوالب الجاهزة:' : 'Quick Presets:' }}</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
-                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(50, 50, 0)">
-                        50% Web / 50% POS
+                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(50, 50)">
+                        50% Web / 50% Cent.
                     </button>
-                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(70, 30, 0)">
-                        70% Web / 30% POS
+                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(70, 30)">
+                        70% Web / 30% Cent.
                     </button>
-                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(60, 30, 10)">
-                        60 / 30 / 10%
+                    <button type="button" class="btn btn-xs btn-outline" onclick="applyRatioPreset(80, 20)">
+                        80% Web / 20% Cent.
                     </button>
                 </div>
             </div>
@@ -803,22 +674,13 @@
                     <input type="range" id="batchOnlineRange" min="0" max="100" value="50" style="width: 100%; accent-color: #2563EB;" oninput="updateBatchRatioSliders('online')">
                 </div>
 
-                <!-- Offline POS Slider -->
-                <div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: #059669; margin-bottom: 0.25rem;">
-                        <span>🏬 {{ app()->getLocale() === 'ar' ? 'مستودع المبيعات (POS):' : 'POS Warehouse:' }}</span>
-                        <span id="batchOfflinePctDisplay" class="font-mono">50%</span>
-                    </div>
-                    <input type="range" id="batchOfflineRange" min="0" max="100" value="50" style="width: 100%; accent-color: #059669;" oninput="updateBatchRatioSliders('offline')">
-                </div>
-
                 <!-- Central Buffer Slider -->
                 <div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 800; color: #7C3AED; margin-bottom: 0.25rem;">
                         <span>🏭 {{ app()->getLocale() === 'ar' ? 'المستودع المركزي (Central Buffer):' : 'Central Depot Buffer:' }}</span>
-                        <span id="batchCentralPctDisplay" class="font-mono">0%</span>
+                        <span id="batchCentralPctDisplay" class="font-mono">50%</span>
                     </div>
-                    <input type="range" id="batchCentralRange" min="0" max="100" value="0" style="width: 100%; accent-color: #7C3AED;" oninput="updateBatchRatioSliders('central')">
+                    <input type="range" id="batchCentralRange" min="0" max="100" value="50" style="width: 100%; accent-color: #7C3AED;" oninput="updateBatchRatioSliders('central')">
                 </div>
 
                 <!-- Sum Indicator -->
@@ -853,7 +715,6 @@
 
         const locationNames = {
             online: isAr ? 'مستودع الأونلاين (Online Hub)' : 'Online Store Hub',
-            offline: isAr ? 'مستودع المبيعات (POS Warehouse)' : 'POS Warehouse',
             central_wh: isAr ? 'المستودع المركزي (Central Depot)' : 'Central Depot Buffer'
         };
 
@@ -869,7 +730,6 @@
             const p = productsData.find(item => item.id === productId);
             if (!p) return 0;
             if (location === 'online') return parseInt(p.stock_online) || 0;
-            if (location === 'offline') return parseInt(p.stock_offline) || 0;
             if (location === 'central_wh') return parseInt(p.stock_central) || 0;
             return 0;
         }
@@ -1001,7 +861,7 @@
         }
 
         function openManualTransferModal(productId, fromLocation) {
-            const target = fromLocation === 'online' ? 'offline' : 'online';
+            const target = fromLocation === 'online' ? 'central_wh' : 'online';
             openTransferModal(productId, fromLocation, target);
         }
 
@@ -1064,45 +924,37 @@
             const p = productsData.find(item => item.id === updatedProd.id);
             if (p) {
                 p.stock_online = updatedProd.stock_online;
-                p.stock_offline = updatedProd.stock_offline;
                 p.stock_central = updatedProd.stock_central;
                 p.total_stock = updatedProd.total_stock;
             }
 
             // Update main quantity labels
             const onlDisp = document.getElementById(`stock_online_${updatedProd.id}`);
-            const offDisp = document.getElementById(`stock_offline_${updatedProd.id}`);
             const cenDisp = document.getElementById(`stock_central_${updatedProd.id}`);
 
             if (onlDisp) onlDisp.innerText = updatedProd.stock_online + (isAr ? ' وحدة' : ' units');
-            if (offDisp) offDisp.innerText = updatedProd.stock_offline + (isAr ? ' وحدة' : ' units');
             if (cenDisp) cenDisp.innerText = updatedProd.stock_central + (isAr ? ' وحدة' : ' units');
 
-            // Update all 3 location pill breakdowns across every hub card
-            ['online', 'offline', 'central'].forEach(hubPrefix => {
+            // Update location pill breakdowns across hub cards
+            ['online', 'central'].forEach(hubPrefix => {
                 const pOnl = document.getElementById(`pill_${hubPrefix}_${updatedProd.id}_online`);
-                const pOff = document.getElementById(`pill_${hubPrefix}_${updatedProd.id}_offline`);
                 const pCen = document.getElementById(`pill_${hubPrefix}_${updatedProd.id}_central`);
 
                 if (pOnl) pOnl.innerText = updatedProd.stock_online;
-                if (pOff) pOff.innerText = updatedProd.stock_offline;
                 if (pCen) pCen.innerText = updatedProd.stock_central;
             });
 
             // Update progress bars
             const total = Math.max(1, updatedProd.total_stock);
             const onlPct = Math.round((updatedProd.stock_online / total) * 100);
-            const offPct = Math.round((updatedProd.stock_offline / total) * 100);
-            const cenPct = Math.max(0, 100 - (onlPct + offPct));
+            const cenPct = Math.max(0, 100 - onlPct);
 
-            ['online', 'offline', 'central_wh'].forEach(loc => {
+            ['online', 'central_wh'].forEach(loc => {
                 const pbar = document.getElementById(`pbar_${loc}_${updatedProd.id}`);
                 if (pbar) {
                     const bOnl = pbar.querySelector('.bar-onl');
-                    const bOff = pbar.querySelector('.bar-off');
                     const bCen = pbar.querySelector('.bar-cen');
                     if (bOnl) bOnl.style.width = onlPct + '%';
-                    if (bOff) bOff.style.width = offPct + '%';
                     if (bCen) bCen.style.width = cenPct + '%';
                 }
                 const card = document.getElementById(`card_${loc}_${updatedProd.id}`);
@@ -1159,16 +1011,14 @@
         function updateKpiUI(kpis) {
             document.getElementById('kpiTotalUnits').innerHTML = Number(kpis.total_units).toLocaleString() + ` <span class="text-xs text-muted font-normal">${isAr ? 'وحدة' : 'units'}</span>`;
             document.getElementById('kpiOnlineUnits').innerHTML = Number(kpis.online_units).toLocaleString() + ` <span class="text-xs text-muted font-normal">${isAr ? 'وحدة' : 'units'}</span>`;
-            document.getElementById('kpiOfflineUnits').innerHTML = Number(kpis.offline_units).toLocaleString() + ` <span class="text-xs text-muted font-normal">${isAr ? 'وحدة' : 'units'}</span>`;
             document.getElementById('kpiCentralUnits').innerHTML = Number(kpis.central_units).toLocaleString() + ` <span class="text-xs text-muted font-normal">${isAr ? 'وحدة' : 'units'}</span>`;
 
             document.getElementById('kpiOnlinePct').innerText = kpis.online_pct + '%';
-            document.getElementById('kpiOfflinePct').innerText = kpis.offline_pct + '%';
             document.getElementById('kpiCentralPct').innerText = kpis.central_pct + '%';
 
             document.getElementById('hubTotalBadge_online').innerText = Number(kpis.online_units).toLocaleString() + ' units';
-            document.getElementById('hubTotalBadge_offline').innerText = Number(kpis.offline_units).toLocaleString() + ' units';
-            document.getElementById('hubTotalBadge_central_wh').innerText = Number(kpis.central_units).toLocaleString() + ' units';
+            const hubCen = document.getElementById('hubTotalBadge_central_wh');
+            if (hubCen) hubCen.innerText = Number(kpis.central_units).toLocaleString() + ' units';
         }
 
         // --- Filtering Engine ---
@@ -1225,25 +1075,29 @@
             document.getElementById('batchSplitModal').style.display = 'none';
         }
 
-        function applyRatioPreset(onl, off, cen) {
+        function applyRatioPreset(onl, cen) {
             document.getElementById('batchOnlineRange').value = onl;
-            document.getElementById('batchOfflineRange').value = off;
             document.getElementById('batchCentralRange').value = cen;
 
             document.getElementById('batchOnlinePctDisplay').innerText = onl + '%';
-            document.getElementById('batchOfflinePctDisplay').innerText = off + '%';
             document.getElementById('batchCentralPctDisplay').innerText = cen + '%';
 
             validateBatchRatioSum();
         }
 
         function updateBatchRatioSliders(changed) {
-            const onl = parseInt(document.getElementById('batchOnlineRange').value) || 0;
-            const off = parseInt(document.getElementById('batchOfflineRange').value) || 0;
-            const cen = parseInt(document.getElementById('batchCentralRange').value) || 0;
+            let onl = parseInt(document.getElementById('batchOnlineRange').value) || 0;
+            let cen = parseInt(document.getElementById('batchCentralRange').value) || 0;
+
+            if (changed === 'online') {
+                cen = 100 - onl;
+                document.getElementById('batchCentralRange').value = cen;
+            } else {
+                onl = 100 - cen;
+                document.getElementById('batchOnlineRange').value = onl;
+            }
 
             document.getElementById('batchOnlinePctDisplay').innerText = onl + '%';
-            document.getElementById('batchOfflinePctDisplay').innerText = off + '%';
             document.getElementById('batchCentralPctDisplay').innerText = cen + '%';
 
             validateBatchRatioSum();
@@ -1251,9 +1105,8 @@
 
         function validateBatchRatioSum() {
             const onl = parseInt(document.getElementById('batchOnlineRange').value) || 0;
-            const off = parseInt(document.getElementById('batchOfflineRange').value) || 0;
             const cen = parseInt(document.getElementById('batchCentralRange').value) || 0;
-            const sum = onl + off + cen;
+            const sum = onl + cen;
 
             const badge = document.getElementById('batchRatioSumBadge');
             const submitBtn = document.getElementById('btnSubmitBatchSplit');
@@ -1278,7 +1131,6 @@
             }
 
             const onl = parseInt(document.getElementById('batchOnlineRange').value) || 0;
-            const off = parseInt(document.getElementById('batchOfflineRange').value) || 0;
             const cen = parseInt(document.getElementById('batchCentralRange').value) || 0;
 
             const btn = document.getElementById('btnSubmitBatchSplit');
@@ -1295,9 +1147,9 @@
                 body: JSON.stringify({
                     product_ids: pIds,
                     online_pct: onl,
-                    offline_pct: off,
                     central_pct: cen,
-                    reason: `Batch ratio split (${onl}% Online / ${off}% POS / ${cen}% Central)`
+                    offline_pct: 0,
+                    reason: `Batch ratio split (${onl}% Online / ${cen}% Central)`
                 })
             })
             .then(res => res.json())

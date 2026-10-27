@@ -47,7 +47,6 @@ class AdminInventoryControlTest extends TestCase
             'price' => 150.00,
             'cost_price' => 50.00,
             'stock_online' => 20,
-            'stock_offline' => 10,
             'low_stock_threshold' => 5,
             'status' => 'active',
         ]);
@@ -81,7 +80,7 @@ class AdminInventoryControlTest extends TestCase
             'product' => [
                 'id' => $this->product->id,
                 'stock_online' => 25,
-                'total_stock' => 85,
+                'total_stock' => 75,
             ],
         ]);
 
@@ -96,7 +95,7 @@ class AdminInventoryControlTest extends TestCase
     {
         $response = $this->actingAs($this->admin, 'web')->postJson(route('admin.inventory.quick-adjust'), [
             'product_id' => $this->product->id,
-            'location_id' => 'offline',
+            'location_id' => 'online',
             'action' => 'decrease',
             'movement_type' => 'Damaged',
             'quantity' => 2,
@@ -108,7 +107,7 @@ class AdminInventoryControlTest extends TestCase
             'success' => true,
             'product' => [
                 'id' => $this->product->id,
-                'stock_offline' => 8,
+                'stock_online' => 18,
             ],
         ]);
     }
@@ -126,7 +125,6 @@ class AdminInventoryControlTest extends TestCase
             'price' => 250.00,
             'cost_price' => 100.00,
             'stock_online' => 15,
-            'stock_offline' => 5,
             'low_stock_threshold' => 5,
             'status' => 'active',
         ]);

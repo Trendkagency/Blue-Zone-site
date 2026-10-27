@@ -970,27 +970,7 @@
                             </div>
                         </div>
 
-                        <!-- 2. POS Warehouse -->
-                        <div class="card" style="padding: 1.25rem; border: 1px solid rgba(16, 185, 129, 0.2); background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), rgba(255,255,255,0.9)); position: relative; border-radius: var(--radius-lg);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
-                                    🏬 {{ app()->getLocale() === 'ar' ? 'مستودع المبيعات المباشرة' : 'POS Sales Warehouse' }}
-                                </span>
-                                <span class="badge badge-success font-mono text-xs" id="badgeOfflineStatus">POS</span>
-                            </div>
-                            <div class="font-black text-2xl font-mono text-success" style="margin: 0.35rem 0;" id="liveStockOfflineDisplay">
-                                {{ number_format($inventoryBreakdown['offline'] ?? $product['stock_offline']) }}
-                                <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border);">
-                                <span class="text-xs text-muted">{{ app()->getLocale() === 'ar' ? 'متاح لكاشير الصندوق' : 'Direct POS sales' }}</span>
-                                <button type="button" class="btn btn-xs btn-outline" onclick="openProductStockInModal('offline')" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
-                                    + {{ app()->getLocale() === 'ar' ? 'توريد' : 'Intake' }}
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 3. Central Warehouse Buffer -->
+                        <!-- 2. Central Warehouse Buffer -->
                         <div class="card" style="padding: 1.25rem; border: 1px solid rgba(139, 92, 246, 0.2); background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(255,255,255,0.9)); position: relative; border-radius: var(--radius-lg);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
@@ -1010,7 +990,7 @@
                             </div>
                         </div>
 
-                        <!-- 4. Total Physical Stock & Valuation -->
+                        <!-- 3. Total Physical Stock & Valuation -->
                         <div class="card" style="padding: 1.25rem; border: 1px solid rgba(15, 23, 42, 0.15); background: var(--color-bg-subtle); border-radius: var(--radius-lg);">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <span class="text-xs font-bold text-muted" style="text-transform: uppercase;">
@@ -1019,22 +999,21 @@
                                 <span class="badge badge-neutral font-mono text-xs">{{ app()->getLocale() === 'ar' ? 'شامل' : 'Global' }}</span>
                             </div>
                             <div class="font-black text-2xl font-mono" style="margin: 0.35rem 0; color: var(--color-text-emphasis);" id="liveStockTotalDisplay">
-                                {{ number_format($inventoryBreakdown['total'] ?? ($product['stock_online'] + $product['stock_offline'])) }}
+                                {{ number_format($inventoryBreakdown['total'] ?? $product['stock_online']) }}
                                 <span class="text-xs text-muted font-normal">{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-border); font-size: 0.75rem;" class="text-muted">
                                 <span>{{ app()->getLocale() === 'ar' ? 'القيمة التقديرية:' : 'Asset Valuation:' }}</span>
                                 <strong class="font-mono text-primary" id="liveStockValuationDisplay">
-                                    @currency($inventoryBreakdown['valuation'] ?? (($product['stock_online'] + $product['stock_offline']) * $product['price']))
+                                    @currency($inventoryBreakdown['valuation'] ?? ($product['stock_online'] * $product['price']))
                                 </strong>
                             </div>
                         </div>
 
                     </div>
 
-                    <!-- Hidden inputs preserving values for client review step without manual overwriting -->
+                    <!-- Hidden input preserving values for client review step without manual overwriting -->
                     <input type="hidden" name="stock_online" id="stock_online" value="{{ $product['stock_online'] }}">
-                    <input type="hidden" name="stock_offline" id="stock_offline" value="{{ $product['stock_offline'] }}">
 
                     <!-- Threshold & Controls Section -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
@@ -1197,7 +1176,7 @@
                         </div>
                         <div>
                             <span class="text-muted">{{ app()->getLocale() === 'ar' ? 'إجمالي المخزون الأولي' : 'Total Initial Units' }}:</span>
-                            <div class="font-bold font-mono text-success" id="reviewStock">{{ ($product['stock_online'] + $product['stock_offline']) }} Units</div>
+                            <div class="font-bold font-mono text-success" id="reviewStock">{{ $product['stock_online'] }} Units</div>
                         </div>
                     </div>
 
@@ -1596,7 +1575,6 @@
             const nameAr = document.querySelector('input[name="name_ar"]')?.value || document.querySelector('input[name="name_en"]')?.value || 'N/A';
             const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 0;
             const stockOnline = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 0;
-            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 0;
 
             const rSKU = document.getElementById('reviewSKU');
             const rName = document.getElementById('reviewNameAR');
@@ -1606,7 +1584,7 @@
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
             if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
-            if (rStock) rStock.innerText = (stockOnline + stockOffline) + ' Units (' + stockOnline + ' Online / ' + stockOffline + ' Warehouse)';
+            if (rStock) rStock.innerText = stockOnline + ' Units';
         }
 
         // Dynamic Active Compounds Repeater
@@ -1683,7 +1661,7 @@
             const descEn = document.querySelector('textarea[name="short_description_en"]')?.value || document.querySelector('textarea[name="description_en"]')?.value || 'Bioceutical formulation engineered for optimal longevity and cellular energy.';
             const descAr = document.querySelector('textarea[name="short_description_ar"]')?.value || document.querySelector('textarea[name="description_ar"]')?.value || descEn;
             const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 68.00;
-            const stockOffline = parseInt(document.querySelector('input[name="stock_offline"]')?.value) || 50;
+            const stockOnline = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 50;
 
             const title = isAr ? nameAr : nameEn;
             const tagline = isAr ? taglineAr : taglineEn;
@@ -1695,7 +1673,7 @@
             document.getElementById('prevCardTitle').innerText = title;
             document.getElementById('prevCardSku').innerText = sku;
             document.getElementById('prevCardPrice').innerText = formatC(price);
-            document.getElementById('prevCardStock').innerText = stockOffline + (isAr ? ' وحدة' : ' units');
+            document.getElementById('prevCardStock').innerText = stockOnline + (isAr ? ' وحدة' : ' units');
 
             // Update Dossier Elements
             document.getElementById('prevDossierTitle').innerText = title;
@@ -1797,12 +1775,6 @@
                         if (elOnline) elOnline.innerText = data.stock_online;
                         const hiddenOnline = document.getElementById('stock_online');
                         if (hiddenOnline) hiddenOnline.value = data.stock_online;
-                    }
-                    if (data.stock_offline !== undefined) {
-                        const elOffline = document.getElementById('liveStockOfflineDisplay');
-                        if (elOffline) elOffline.innerText = data.stock_offline;
-                        const hiddenOffline = document.getElementById('stock_offline');
-                        if (hiddenOffline) hiddenOffline.value = data.stock_offline;
                     }
                     if (data.stock_central !== undefined) {
                         const elCentral = document.getElementById('liveStockCentralDisplay');
@@ -2227,7 +2199,7 @@
                             @currency($product['price'] ?? 68)
                         </div>
                         <div class="text-xs text-muted" style="margin-top: 0.25rem; font-size: 0.68rem;">
-                            {{ app()->getLocale() === 'ar' ? 'مخزون المستودع: ' : 'Warehouse Stock: ' }} <strong id="prevCardStock" style="color: var(--color-success);">{{ $product['stock_offline'] ?? 50 }} units</strong>
+                            {{ app()->getLocale() === 'ar' ? 'رصيد المتجر: ' : 'Store Stock: ' }} <strong id="prevCardStock" style="color: var(--color-success);">{{ $product['stock_online'] ?? 50 }} units</strong>
                         </div>
                     </div>
                 </div>

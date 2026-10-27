@@ -121,9 +121,6 @@ class RoleController extends Controller
                     if ($modKey === 'hr_departments') {
                         $aliases[] = 'positions';
                     }
-                    if ($modKey === 'offline_sales') {
-                        $aliases[] = 'pos';
-                    }
                     if ($modKey === 'content') {
                         $aliases[] = 'cms';
                     }

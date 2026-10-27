@@ -36,9 +36,9 @@ class ProductController extends Controller
         } else {
             if ($status && in_array($status, ['active', 'inactive', 'out_of_stock', 'low_stock'])) {
                 if ($status === 'out_of_stock') {
-                    $query->whereRaw('(stock_online + stock_offline) <= 0');
+                    $query->where('stock_online', '<=', 0);
                 } elseif ($status === 'low_stock') {
-                    $query->whereRaw('(stock_online + stock_offline) > 0 AND (stock_online + stock_offline) <= low_stock_threshold');
+                    $query->where('stock_online', '>', 0)->whereColumn('stock_online', '<=', 'low_stock_threshold');
                 } else {
                     $query->where('status', $status);
                 }
@@ -79,7 +79,6 @@ class ProductController extends Controller
                     'sale_price' => $p->sale_price ? (float) $p->sale_price : null,
                     'cost_price' => (float) $p->cost_price,
                     'stock_online' => $p->stock_online,
-                    'stock_offline' => $p->stock_offline,
                     'low_stock_threshold' => $p->low_stock_threshold ?? 10,
                     'status' => $p->status ?? 'active',
                     'show_on_landing' => (bool) ($p->show_on_landing ?? true),
@@ -272,11 +271,11 @@ class ProductController extends Controller
 
         InventoryItem::create([
             'product_id' => $product->id,
-            'location_id' => 'offline',
-            'location_name_en' => 'Warehouse POS',
-            'location_name_ar' => 'مستودع المبيعات المباشرة',
-            'current_stock' => $product->stock_offline,
-            'available_stock' => $product->stock_offline,
+            'location_id' => 'central_wh',
+            'location_name_en' => 'Central Depot Buffer',
+            'location_name_ar' => 'المستودع المركزي الاحتياطي',
+            'current_stock' => 0,
+            'available_stock' => 0,
             'reserved_stock' => 0,
             'low_stock_threshold' => $product->low_stock_threshold,
             'unit_cost' => $product->cost_price,
@@ -291,10 +290,10 @@ class ProductController extends Controller
             'sku' => $product->sku,
             'movement_type' => 'Stock In',
             'from_location' => 'Supplier Lab',
-            'to_location' => 'Central Hub',
-            'quantity' => $product->stock_online + $product->stock_offline,
+            'to_location' => 'Online Hub',
+            'quantity' => $product->stock_online,
             'previous_qty' => 0,
-            'new_qty' => $product->stock_online + $product->stock_offline,
+            'new_qty' => $product->stock_online,
             'date' => now()->toDateString(),
             'time' => now()->format('H:i:s'),
             'user' => auth()->user()?->name ?? 'Clinical Admin',
@@ -326,7 +325,6 @@ class ProductController extends Controller
                 'sale_price' => $dbProduct->sale_price ? (float) $dbProduct->sale_price : null,
                 'cost_price' => (float) $dbProduct->cost_price,
                 'stock_online' => $dbProduct->stock_online,
-                'stock_offline' => $dbProduct->stock_offline,
                 'low_stock_threshold' => $dbProduct->low_stock_threshold ?? 10,
                 'status' => $dbProduct->status ?? 'active',
                 'image' => $dbProduct->primary_image_url,
@@ -372,7 +370,6 @@ class ProductController extends Controller
                 'sale_price' => $dbProduct->sale_price ? (float) $dbProduct->sale_price : null,
                 'cost_price' => (float) $dbProduct->cost_price,
                 'stock_online' => $dbProduct->stock_online,
-                'stock_offline' => $dbProduct->stock_offline,
                 'low_stock_threshold' => $dbProduct->low_stock_threshold ?? 10,
                 'status' => $dbProduct->status ?? 'active',
                 'image' => $dbProduct->primary_image_url,
@@ -430,13 +427,11 @@ class ProductController extends Controller
         );
 
         $onlineStock = (int) ($dbProduct->stock_online ?? ($product['stock_online'] ?? 0));
-        $offlineStock = (int) ($dbProduct->stock_offline ?? ($product['stock_offline'] ?? 0));
         $centralStock = (int) ($dbProduct?->inventoryItems?->where('location_id', 'central_wh')->sum('current_stock') ?? 0);
-        $totalStock = $onlineStock + $offlineStock + $centralStock;
+        $totalStock = $onlineStock + $centralStock;
 
         $inventoryBreakdown = [
             'online' => $onlineStock,
-            'offline' => $offlineStock,
             'central' => $centralStock,
             'total' => $totalStock,
             'valuation' => $totalStock * (float) ($product['price'] ?? 68.00),
@@ -446,7 +441,6 @@ class ProductController extends Controller
         if ($locations->isEmpty()) {
             $locations = collect([
                 (object) ['id' => 'online', 'name_en' => 'Online Fulfillment Hub', 'name_ar' => 'مستودع المتجر الإلكتروني', 'code' => 'LOC-ONL'],
-                (object) ['id' => 'offline', 'name_en' => 'POS Sales Warehouse', 'name_ar' => 'مستودع المبيعات المباشرة', 'code' => 'LOC-POS'],
                 (object) ['id' => 'central_wh', 'name_en' => 'Central Quarantine Warehouse', 'name_ar' => 'المستودع المركزي الرئيسي', 'code' => 'LOC-CWH'],
             ]);
         }
@@ -508,7 +502,7 @@ class ProductController extends Controller
         $this->formatScienceInputs($data);
         $this->formatSectionSettings($data, $request);
         $fallbackImage = $data['image'] ?? null;
-        unset($data['image'], $data['images'], $data['stock_online'], $data['stock_offline']);
+        unset($data['image'], $data['images'], $data['stock_online']);
 
         /*
         |--------------------------------------------------------------------------
@@ -756,12 +750,13 @@ class ProductController extends Controller
 
             foreach ($allKeys as $key) {
                 $sec = is_array($raw) ? ($raw[$key] ?? []) : [];
+                $contentScreenMode = $sec['content_screen_mode'] ?? 'unified';
                 $clean[$key] = [
                     'enabled_desktop' => isset($sec['enabled_desktop']) && ($sec['enabled_desktop'] === '1' || $sec['enabled_desktop'] === 1 || $sec['enabled_desktop'] === true),
                     'enabled_mobile' => isset($sec['enabled_mobile']) && ($sec['enabled_mobile'] === '1' || $sec['enabled_mobile'] === 1 || $sec['enabled_mobile'] === true),
                     'default_open' => isset($sec['default_open']) && ($sec['default_open'] === '1' || $sec['default_open'] === 1 || $sec['default_open'] === true),
                     'custom_content_enabled' => isset($sec['custom_content_enabled']) && ($sec['custom_content_enabled'] === '1' || $sec['custom_content_enabled'] === 1 || $sec['custom_content_enabled'] === true),
-                    'content_screen_mode' => in_array($sec['content_screen_mode'] ?? 'unified', ['unified', 'per_screen']) ? $sec['content_screen_mode'] : 'unified',
+                    'content_screen_mode' => in_array($contentScreenMode, ['unified', 'per_screen']) ? $contentScreenMode : 'unified',
                     'title_en' => trim($sec['title_en'] ?? ''),
                     'title_ar' => trim($sec['title_ar'] ?? ''),
                     'badge_en' => trim($sec['badge_en'] ?? ''),
@@ -1094,7 +1089,6 @@ class ProductController extends Controller
             $product->price = (float) $request->input('price', 60.00);
             $product->sale_price = $request->input('sale_price') ? (float) $request->input('sale_price') : null;
             $product->stock_online = 0;
-            $product->stock_offline = 0;
             $product->status = 'inactive';
             $product->save();
 

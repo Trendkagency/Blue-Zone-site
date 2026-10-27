@@ -52,7 +52,6 @@ class AdminTablesAndPrintTest extends TestCase
                 'price' => 68.00,
                 'cost_price' => 22.00,
                 'stock_online' => 100,
-                'stock_offline' => 50,
                 'status' => 'active',
             ]
         );
@@ -147,7 +146,6 @@ class AdminTablesAndPrintTest extends TestCase
     public function test_inventory_management_and_real_time_stock_transfer(): void
     {
         $initialOnline = $this->product->stock_online;
-        $initialOffline = $this->product->stock_offline;
 
         $indexRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index'));
         $indexRes->assertStatus(200);
@@ -155,11 +153,11 @@ class AdminTablesAndPrintTest extends TestCase
         $transfersRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.transfers'));
         $transfersRes->assertStatus(200);
 
-        // Execute Real-time Stock Transfer (move 5 units from online to offline)
+        // Execute Real-time Stock Transfer (move 5 units from online to central warehouse)
         $postRes = $this->actingAs($this->admin, 'web')->post(route('admin.inventory.transfers.store'), [
             'product_id' => $this->product->id,
             'from_location' => 'online',
-            'to_location' => 'offline',
+            'to_location' => 'central_wh',
             'quantity' => 5,
             'reason' => 'Warehouse Restock Event',
         ]);
@@ -168,40 +166,11 @@ class AdminTablesAndPrintTest extends TestCase
         
         $this->product->refresh();
         $this->assertEquals($initialOnline - 5, $this->product->stock_online);
-        $this->assertEquals($initialOffline + 5, $this->product->stock_offline);
 
         $this->assertDatabaseHas('inventory_movements', [
             'product_id' => $this->product->id,
             'movement_type' => 'Stock Transfer',
             'quantity' => 5,
-        ]);
-    }
-
-    public function test_offline_pos_sales_checkout_and_real_time_deduction(): void
-    {
-        $initialOffline = $this->product->stock_offline;
-
-        $createRes = $this->actingAs($this->admin, 'web')->get(route('admin.offline-sales.create'));
-        $createRes->assertStatus(200);
-
-        // Complete POS sale
-        $postRes = $this->actingAs($this->admin, 'web')->post(route('admin.offline-sales.store'), [
-            'customer_name' => 'Walk-In VIP Patient',
-            'customer_phone' => '+966 55 999 8877',
-            'payment_method' => 'Mada / Debit POS Terminal',
-            'product_id' => $this->product->id,
-            'quantity' => 2,
-        ]);
-
-        $postRes->assertRedirect(); // Redirects to print invoice
-        
-        $this->product->refresh();
-        $this->assertEquals($initialOffline - 2, $this->product->stock_offline);
-
-        $this->assertDatabaseHas('orders', [
-            'channel' => 'offline',
-            'customer_name' => 'Walk-In VIP Patient',
-            'status' => 'delivered',
         ]);
     }
 

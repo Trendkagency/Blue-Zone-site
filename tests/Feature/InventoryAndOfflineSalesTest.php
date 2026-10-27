@@ -53,7 +53,6 @@ class InventoryAndOfflineSalesTest extends TestCase
                 'price' => 68.00,
                 'cost_price' => 22.00,
                 'stock_online' => 100,
-                'stock_offline' => 50,
                 'low_stock_threshold' => 15,
                 'status' => 'active',
             ]
@@ -66,15 +65,15 @@ class InventoryAndOfflineSalesTest extends TestCase
     {
         // Test in Arabic
         app()->setLocale('ar');
-        $responseAr = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index'));
+        $responseAr = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.overview'));
         $responseAr->assertStatus(200);
         $responseAr->assertSee('جميع المواقع');
-        $responseAr->assertSee('المتجر الرئيسي');
+        $responseAr->assertSee('مستودع الطلبات الإلكترونية');
         $responseAr->assertSee('إجمالي المخزون الفعلي');
 
         // Test in English
         app()->setLocale('en');
-        $responseEn = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index'));
+        $responseEn = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.overview'));
         $responseEn->assertStatus(200);
         $responseEn->assertSee('All Locations');
         $responseEn->assertSee('Total Physical Stock');
@@ -83,17 +82,17 @@ class InventoryAndOfflineSalesTest extends TestCase
     public function test_inventory_filtering_by_location_and_status(): void
     {
         // Filter by online location
-        $onlineRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index', ['location' => 'online']));
+        $onlineRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.overview', ['location' => 'online']));
         $onlineRes->assertStatus(200);
         $onlineRes->assertSee('Online Fulfillment Hub');
 
-        // Filter by offline location
-        $offlineRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index', ['location' => 'offline']));
-        $offlineRes->assertStatus(200);
-        $offlineRes->assertSee('Warehouse / POS');
+        // Filter by central_wh location
+        $centralRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.overview', ['location' => 'central_wh']));
+        $centralRes->assertStatus(200);
+        $centralRes->assertSee('Central');
 
         // Filter by search
-        $searchRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.index', ['search' => 'BZ-MND-001']));
+        $searchRes = $this->actingAs($this->admin, 'web')->get(route('admin.inventory.overview', ['search' => 'BZ-MND-001']));
         $searchRes->assertStatus(200);
         $searchRes->assertSee('BLUE MIND');
     }
@@ -101,11 +100,10 @@ class InventoryAndOfflineSalesTest extends TestCase
     public function test_stock_transfer_between_locations_with_product_sync_and_movement_logged(): void
     {
         $initialOnline = $this->product->stock_online;
-        $initialOffline = $this->product->stock_offline;
 
         $response = $this->actingAs($this->admin, 'web')->post(route('admin.inventory.transfers.store'), [
             'product_id' => $this->product->id,
-            'from_location' => 'offline',
+            'from_location' => 'central_wh',
             'to_location' => 'online',
             'quantity' => 20,
             'reason' => 'Online flash sale replenishment',
@@ -115,7 +113,6 @@ class InventoryAndOfflineSalesTest extends TestCase
         $response->assertSessionHas('status');
 
         $this->product->refresh();
-        $this->assertEquals($initialOffline - 20, $this->product->stock_offline);
         $this->assertEquals($initialOnline + 20, $this->product->stock_online);
 
         // Verify movement audit record
@@ -140,7 +137,7 @@ class InventoryAndOfflineSalesTest extends TestCase
         // Insufficient stock transfer
         $excessRes = $this->actingAs($this->admin, 'web')->post(route('admin.inventory.transfers.store'), [
             'product_id' => $this->product->id,
-            'from_location' => 'offline',
+            'from_location' => 'central_wh',
             'to_location' => 'online',
             'quantity' => 9999,
         ]);
@@ -180,116 +177,6 @@ class InventoryAndOfflineSalesTest extends TestCase
             'movement_type' => 'Damaged',
             'quantity' => -2,
         ]);
-    }
-
-    public function test_offline_sale_pos_creates_order_deducts_offline_stock_and_logs_offline_sale_movement(): void
-    {
-        $initialOffline = $this->product->stock_offline;
-
-        $response = $this->actingAs($this->admin, 'web')->post(route('admin.offline-sales.store'), [
-            'customer_name' => 'Sheikh Fahad Al-Otaibi',
-            'customer_phone' => '+966 50 111 2233',
-            'payment_method' => 'Apple Pay / Contactless',
-            'product_id' => $this->product->id,
-            'variant' => 'Standard Pack (60 Caps)',
-            'unit_price' => 68.00,
-            'quantity' => 3,
-            'discount' => 10.00,
-        ]);
-
-        $response->assertRedirect(); // Redirects to invoice print
-
-        $this->product->refresh();
-        $this->assertEquals($initialOffline - 3, $this->product->stock_offline);
-
-        // Order recorded with discount
-        $this->assertDatabaseHas('orders', [
-            'channel' => 'offline',
-            'customer_name' => 'Sheikh Fahad Al-Otaibi',
-            'discount' => 10.00,
-            'status' => 'delivered',
-            'payment_status' => 'paid',
-        ]);
-
-        // Stock movement recorded as Offline Sale
-        $this->assertDatabaseHas('inventory_movements', [
-            'product_id' => $this->product->id,
-            'movement_type' => 'Offline Sale',
-            'quantity' => -3,
-        ]);
-    }
-
-    public function test_multi_item_offline_sale_pos_creates_order_and_deducts_all_items(): void
-    {
-        $secondProduct = Product::firstOrCreate(
-            ['slug' => 'blue-cell-test'],
-            [
-                'sku' => 'BZ-CEL-TEST',
-                'name_en' => 'BLUE CELL Longevity',
-                'name_ar' => 'بلو سيل',
-                'category_id' => $this->category->id,
-                'price' => 74.00,
-                'cost_price' => 25.00,
-                'stock_online' => 80,
-                'stock_offline' => 30,
-                'low_stock_threshold' => 10,
-                'status' => 'active',
-            ]
-        );
-        InventoryService::syncAllProductsInventory();
-
-        $initialOffline1 = $this->product->stock_offline;
-        $initialOffline2 = $secondProduct->stock_offline;
-
-        $cartItems = [
-            [
-                'product_id' => $this->product->id,
-                'quantity' => 2,
-                'unit_price' => 68.00,
-                'variant' => 'Standard Pack (60 Caps)',
-            ],
-            [
-                'product_id' => $secondProduct->id,
-                'quantity' => 1,
-                'unit_price' => 74.00,
-                'variant' => 'Standard Pack (60 Caps)',
-            ],
-        ];
-
-        $response = $this->actingAs($this->admin, 'web')->post(route('admin.offline-sales.store'), [
-            'customer_name' => 'VIP Dr. Khalid',
-            'payment_method' => 'Mada / Debit POS Terminal',
-            'discount' => 10.00,
-            'cart_items' => json_encode($cartItems),
-        ]);
-
-        $response->assertRedirect();
-
-        $this->product->refresh();
-        $secondProduct->refresh();
-
-        $this->assertEquals($initialOffline1 - 2, $this->product->stock_offline);
-        $this->assertEquals($initialOffline2 - 1, $secondProduct->stock_offline);
-
-        $order = Order::where('customer_name', 'VIP Dr. Khalid')->first();
-        $this->assertNotNull($order);
-        $this->assertCount(2, $order->items);
-        $this->assertEquals(210.00, (float) $order->subtotal); // 2*68 + 74 = 136 + 74 = 210
-        $this->assertEquals(10.00, (float) $order->discount);
-        $this->assertEquals(30.00, (float) $order->tax); // (210 - 10) * 0.15 = 200 * 0.15 = 30.00
-        $this->assertEquals(230.00, (float) $order->total); // 200 + 30 = 230.00
-    }
-
-    public function test_offline_sale_pos_rejects_quantity_greater_than_available_offline_stock(): void
-    {
-        $response = $this->actingAs($this->admin, 'web')->post(route('admin.offline-sales.store'), [
-            'customer_name' => 'Overdraft Tester',
-            'payment_method' => 'Cash Tender',
-            'product_id' => $this->product->id,
-            'quantity' => 99999,
-        ]);
-
-        $response->assertSessionHasErrors('sale_error');
     }
 
     public function test_inventory_history_ledger_displays_movements(): void
@@ -363,7 +250,7 @@ class InventoryAndOfflineSalesTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($this->product->name_en);
         $response->assertSee('Online Fulfillment Hub');
-        $response->assertSee('Warehouse / POS');
+        $response->assertSee('Central');
         $response->assertSee('Stock Progression Audit Trail');
     }
 }

@@ -88,7 +88,7 @@
                                 <i class="fa-solid fa-coins text-primary mr-1.5 ml-1.5"></i> {{ app()->getLocale() == 'ar' ? 'إعدادات العملة والأسعار الديناميكية (Currency Settings)' : 'Dynamic Currency & Pricing Settings' }}
                             </h4>
                             <p style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
-                                {{ app()->getLocale() == 'ar' ? 'تحديد عملة النظام والمتاجر والرموز وموضع العرض عبر واجهات المتجر والسلة والطلبات ونقاط البيع.' : 'Configure active storefront currency, localized symbols, and display positions across catalog, cart, checkout, and invoices.' }}
+                                {{ app()->getLocale() == 'ar' ? 'تحديد عملة النظام والمتاجر والرموز وموضع العرض عبر واجهات المتجر والسلة والطلبات والفواتير.' : 'Configure active storefront currency, localized symbols, and display positions across catalog, cart, checkout, and invoices.' }}
                             </p>
                         </div>
                         <span class="badge badge-primary font-mono text-xs px-2.5 py-1">
@@ -1141,7 +1141,7 @@
                         max="100"
                         :label="__('admin.settings.fields.tax_percentage')" 
                         :value="$settings['tax_percentage'] ?? 15" 
-                        :hint="app()->getLocale() == 'ar' ? 'النسبة الضريبية المطبقة على المنتجات والفواتير (افتراضياً 15% VAT).' : 'VAT rate applied to products, cart, POS, and tax invoices.'"
+                        :hint="app()->getLocale() == 'ar' ? 'النسبة الضريبية المطبقة على المنتجات والفواتير (افتراضياً 15% VAT).' : 'VAT rate applied to products, cart, and tax invoices.'"
                         required 
                     />
                     <x-forms.input 
@@ -1157,7 +1157,7 @@
                     <x-forms.toggle 
                         name="enable_tax" 
                         :label="app()->getLocale() == 'ar' ? 'تفعيل حساب ضريبة القيمة المضافة (VAT)' : 'Enable Dynamic VAT Calculations'" 
-                        :description="app()->getLocale() == 'ar' ? 'عند التفعيل يتم احتساب الضريبة تلقائياً في المتجر، ونقطة البيع، والفواتير.' : 'When enabled, VAT will be automatically computed on store checkout, POS cashier, and tax invoices.'" 
+                        :description="app()->getLocale() == 'ar' ? 'عند التفعيل يتم احتساب الضريبة تلقائياً في المتجر والفواتير.' : 'When enabled, VAT will be automatically computed on store checkout and tax invoices.'" 
                         :checked="$settings['enable_tax'] ?? true" 
                     />
 

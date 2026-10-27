@@ -42,7 +42,6 @@ class Product extends Model implements HasMedia
         'image',
         'images',
         'stock_online',
-        'stock_offline',
         'low_stock_threshold',
         'short_description_en',
         'short_description_ar',
@@ -420,7 +419,10 @@ class Product extends Model implements HasMedia
      */
     public function getStockStatusAttribute(): string
     {
-        $total = $this->stock_online + $this->stock_offline;
+        $total = (int) $this->stock_online;
+        if ($this->relationLoaded('inventoryItems')) {
+            $total += (int) $this->inventoryItems->where('location_id', 'central_wh')->sum('quantity');
+        }
         if ($total <= 0) {
             return 'out_of_stock';
         }

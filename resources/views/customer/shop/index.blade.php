@@ -135,14 +135,13 @@
                         </div>
 
                         <div class="pt-4 border-t border-[#0A4F78]/10 mt-5 space-y-3">
-                            {{-- Our Science Details (Commented out for future use)
+                            <!-- Our Science Details -->
                             <a href="{{ route('customer.science.product', $pSlug) }}"
-                                class="w-full py-2.5 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
+                                class="w-full py-2 px-4 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78] dark:bg-[#2A8FC2]/15 dark:hover:bg-[#2A8FC2] text-[#0A4F78] hover:text-white dark:text-[#2A8FC2] dark:hover:text-white border border-[#0A4F78]/20 dark:border-[#2A8FC2]/30 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 group/btn cursor-pointer shadow-sm">
                                 <i class="fa-solid fa-flask-vial group-hover/btn:rotate-12 transition-transform"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'تفاصيل العلوم والتركيبة' : 'Our Science Details' }}</span>
                                 <i class="fa-solid {{ app()->getLocale() === 'ar' ? 'fa-arrow-left' : 'fa-arrow-right' }} text-[10px] opacity-70 group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform"></i>
                             </a>
-                            --}}
 
                             <!-- Product Details Direct Action -->
                             <a href="{{ route('customer.product.show', $pSlug) }}"
