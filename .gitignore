@@ -24,3 +24,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/docs/pos-removal/exports/
+/scratch/
+/storage/backups/
