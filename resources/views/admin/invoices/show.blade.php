@@ -36,21 +36,38 @@
 
     $items = $isModel ? $order->items : ($order['items'] ?? []);
     
-    // Financials
+    // Financials Pre-Calculation
     $subtotal = (float) ($isModel ? ($order->subtotal ?? 0) : ($order['subtotal'] ?? 0));
     $discount = (float) ($isModel ? ($order->discount ?? 0) : ($order['discount'] ?? 0));
     $tax = (float) ($isModel ? ($order->tax ?? 0) : ($order['tax'] ?? 0));
     $total = (float) ($isModel ? ($order->total ?? 0) : ($order['total'] ?? 0));
 
-    if ($subtotal <= 0 && count($items) > 0) {
+    $calcSubtotal = 0;
+    $calcTax = 0;
+    $calcTotal = 0;
+
+    if (count($items) > 0) {
         foreach ($items as $it) {
-            $q = (float) ($isModel ? $it->quantity : ($it['quantity'] ?? 1));
-            $p = (float) ($isModel ? ($it->unit_price ?? $it->price) : ($it['unit_price'] ?? ($it['price'] ?? 0)));
-            $subtotal += ($q * $p);
+            $isObj = is_object($it);
+            $q = (float) ($isObj ? $it->quantity : ($it['quantity'] ?? 1));
+            $p = (float) ($isObj ? ($it->unit_price ?? $it->price) : ($it['unit_price'] ?? ($it['price'] ?? 0)));
+            $d1 = (float) ($isObj ? ($it->disc_1 ?? ($it->discount ?? 0)) : ($it['disc_1'] ?? ($it['discount'] ?? 0)));
+            $d2 = (float) ($isObj ? ($it->disc_2 ?? 0) : ($it['disc_2'] ?? 0));
+            $gross = $q * $p;
+            $discAmount = $gross * ($d1 / 100) + ($gross * (1 - $d1 / 100)) * ($d2 / 100);
+            $lineExc = max(0, $gross - $discAmount);
+            $lineTax = $lineExc * 0.15;
+            $calcSubtotal += $lineExc;
+            $calcTax += $lineTax;
+            $calcTotal += ($lineExc + $lineTax);
         }
     }
-    if ($total <= 0) {
-        $total = max(0, $subtotal - $discount + $tax);
+
+    $finalSubtotal = $calcSubtotal > 0 ? $calcSubtotal : $subtotal;
+    $finalTax = $calcTax > 0 ? $calcTax : $tax;
+    $finalTotal = $calcTotal > 0 ? $calcTotal : $total;
+    if ($finalTotal <= 0) {
+        $finalTotal = max(0, $finalSubtotal - $discount + $finalTax);
     }
 
     // Payments
@@ -58,12 +75,18 @@
     $payStatus = strtolower($isModel ? ($order->payment_status ?? 'partially_paid') : ($order['payment_status'] ?? 'partially_paid'));
     
     $paidAmount = $isModel 
-        ? (float) ($order->paid_amount ?? ($payStatus === 'paid' ? $total : 3000.00)) 
-        : (float) ($order['paid_amount'] ?? ($payStatus === 'paid' ? $total : 3000.00));
+        ? (float) ($order->paid_amount ?? ($payStatus === 'paid' ? $finalTotal : 3000.00)) 
+        : (float) ($order['paid_amount'] ?? ($payStatus === 'paid' ? $finalTotal : 3000.00));
         
+    $finalDue = max(0, $finalTotal - $paidAmount);
     $dueBalance = $isModel 
-        ? (float) ($order->due_balance ?? max(0, $total - $paidAmount)) 
-        : (float) ($order['due_balance'] ?? max(0, $total - $paidAmount));
+        ? (float) ($order->due_balance ?? $finalDue) 
+        : (float) ($order['due_balance'] ?? $finalDue);
+
+    $isCash = in_array($payMethod, ['cash', 'نقداً'], true);
+    $isBank = in_array($payMethod, ['bank_transfer', 'wire', 'تحويل بنكي'], true);
+    $isCheque = in_array($payMethod, ['cheque', 'check', 'شيك'], true);
+    $isPartial = $payStatus === 'partially_paid' || ($paidAmount > 0 && $finalDue > 0);
 
     $bankRef = $isModel 
         ? ($order->payment_transaction_id ?? ($order->payment_payload['reference'] ?? 'WIRE-SNB-9940128')) 
@@ -809,18 +832,6 @@
                         </div>
 
                     @elseif($secKey === 'totals_and_payments')
-                        @php
-                            $finalSubtotal = $calcSubtotal > 0 ? $calcSubtotal : $subtotal;
-                            $finalTax = $calcTax > 0 ? $calcTax : $tax;
-                            $finalTotal = $calcTotal > 0 ? $calcTotal : $total;
-                            $finalDue = max(0, $finalTotal - $paidAmount);
-
-                            $isCash = in_array($payMethod, ['cash', 'نقداً'], true);
-                            $isBank = in_array($payMethod, ['bank_transfer', 'wire', 'تحويل بنكي'], true);
-                            $isCheque = in_array($payMethod, ['cheque', 'check', 'شيك'], true);
-                            $isPartial = $payStatus === 'partially_paid' || ($paidAmount > 0 && $finalDue > 0);
-                        @endphp
-
                         <!-- SECTION: Financial Totals & Payments Settlement -->
                         <div class="inv-drag-block" draggable="false" data-section-id="totals_and_payments">
                             <span class="inv-drag-handle">

@@ -46,6 +46,10 @@
         $tax = (float) ($isModel ? ($order->tax ?? 0) : ($order['tax'] ?? 0));
         $total = (float) ($isModel ? ($order->total ?? 0) : ($order['total'] ?? 0));
 
+        $calcSubtotal = 0;
+        $calcTax = 0;
+        $calcTotal = 0;
+
         if ($subtotal <= 0 && count($items) > 0) {
             foreach ($items as $it) {
                 $q = (float) ($isModel ? $it->quantity : ($it['quantity'] ?? 1));
