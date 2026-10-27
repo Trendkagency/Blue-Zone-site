@@ -270,15 +270,19 @@
         /* Header Grid: Right (Company Info) | Center (Name+Logo) | Left (Customer+QR) */
         .inv-header-grid {
             display: grid;
-            grid-template-columns: 37% 23% 40%;
+            grid-template-columns: 36% 22% 42%;
             gap: 0.6rem;
             align-items: start;
             padding-bottom: 0.25rem;
             width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
         }
         .company-meta-box {
             font-size: 0.74rem;
             line-height: 1.45;
+            min-width: 0;
+            overflow: hidden;
         }
         .meta-line {
             display: flex;
@@ -290,6 +294,7 @@
         .meta-line.meta-wrap {
             white-space: normal;
             line-height: 1.3;
+            word-break: break-word;
         }
         .meta-label {
             font-weight: 800;
@@ -307,6 +312,7 @@
             font-weight: 700;
             color: #0f172a;
             font-size: 0.74rem;
+            min-width: 0;
         }
 
         /* Center Column (Logo & Name) */
@@ -316,6 +322,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-width: 0;
         }
         .company-center-col h1 {
             font-size: 1.08rem;
@@ -324,6 +331,7 @@
             letter-spacing: -0.01em;
             margin-bottom: 0.2rem;
             line-height: 1.2;
+            word-break: break-word;
         }
         .company-logo-img {
             max-height: 46px;
@@ -333,22 +341,33 @@
             display: block;
         }
 
-        /* Left Column (Customer & QR) */
+        /* Left Column (Customer & QR) - Fully Responsive & Contained */
         .client-qr-box {
             display: flex;
             gap: 0.5rem;
             align-items: flex-start;
-            justify-content: flex-end;
+            justify-content: space-between;
             direction: rtl;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         .qr-wrapper {
             flex-shrink: 0;
-            width: 70px;
-            height: 70px;
+            width: 68px;
+            height: 68px;
+            max-width: 68px;
+            max-height: 68px;
+            aspect-ratio: 1 / 1;
             border: 1px solid #cbd5e1;
             padding: 2px;
-            background: #fff;
+            background: #ffffff;
             border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
         .qr-wrapper img {
             width: 100%;
@@ -357,9 +376,12 @@
             display: block;
         }
         .client-info-fields {
-            flex: 1;
+            flex: 1 1 0%;
+            min-width: 0; /* CRITICAL: allows flex child to shrink properly */
             font-size: 0.74rem;
             line-height: 1.35;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
         .client-meta-line {
             display: flex;
@@ -367,17 +389,23 @@
             gap: 0.25rem;
             margin-bottom: 0.12rem;
             font-size: 0.74rem;
+            min-width: 0;
         }
         .client-meta-line .meta-label {
             font-weight: 800;
             color: #1e293b;
             flex-shrink: 0;
-            min-width: 62px;
             font-size: 0.73rem;
+            white-space: nowrap;
         }
         .client-meta-line .meta-value {
             font-weight: 700;
             color: #0f172a;
+            font-size: 0.73rem;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
+        }
             font-size: 0.73rem;
             word-break: break-word;
         }
@@ -590,6 +618,49 @@
                 margin-bottom: 0 !important;
                 background: transparent !important;
             }
+            .inv-header-grid {
+                grid-template-columns: 36% 22% 42% !important;
+                gap: 0.35rem !important;
+                width: 100% !important;
+            }
+            .client-qr-box {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                justify-content: space-between !important;
+                gap: 0.35rem !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
+            }
+            .client-info-fields {
+                flex: 1 1 0% !important;
+                min-width: 0 !important;
+                word-break: break-word !important;
+            }
+            .qr-wrapper {
+                width: 16mm !important;
+                height: 16mm !important;
+                min-width: 16mm !important;
+                min-height: 16mm !important;
+                max-width: 16mm !important;
+                max-height: 16mm !important;
+                flex-shrink: 0 !important;
+                page-break-inside: avoid !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border: 1px solid #000000 !important;
+                padding: 1px !important;
+                background: #ffffff !important;
+            }
+            .qr-wrapper img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
         }
     </style>
 
@@ -614,26 +685,26 @@
                                 <!-- Right: Company Corporate & Tax Details -->
                                 <div class="company-meta-box">
                                     <div class="meta-line meta-wrap">
-                                        <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'العنوان:' : 'Address:' }}</span>
+                                        <span class="meta-label">العنوان:</span>
                                         <span class="meta-value live-edit-field" contenteditable="false" data-field="address_ar">{{ $tpl['address_ar'] }}</span>
                                     </div>
                                     <div class="meta-line">
-                                        <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'هاتف:' : 'Phone:' }}</span>
+                                        <span class="meta-label">هاتف:</span>
                                         <span class="meta-dots"></span>
                                         <span class="meta-value font-mono"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="phone">{{ $tpl['phone'] }}</span></bdi></span>
                                     </div>
                                     <div class="meta-line">
-                                        <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'البريد الإلكتروني:' : 'Email:' }}</span>
+                                        <span class="meta-label">البريد الإلكتروني:</span>
                                         <span class="meta-dots"></span>
                                         <span class="meta-value font-mono"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="email">{{ $tpl['email'] }}</span></bdi></span>
                                     </div>
                                     <div class="meta-line">
-                                        <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'الرقم الضريبي (.VAT No):' : 'VAT No:' }}</span>
+                                        <span class="meta-label">الرقم الضريبي (.VAT No):</span>
                                         <span class="meta-dots"></span>
                                         <span class="meta-value font-mono font-bold"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="vat_number">{{ $siteInfo['tax_number'] ?? ($tpl['vat_number'] ?? '31004829100003') }}</span></bdi></span>
                                     </div>
                                     <div class="meta-line">
-                                        <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'السجل التجاري:' : 'CR No:' }}</span>
+                                        <span class="meta-label">السجل التجاري:</span>
                                         <span class="meta-dots"></span>
                                         <span class="meta-value font-mono font-bold"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="cr_number">{{ $siteInfo['commercial_record'] ?? ($tpl['cr_number'] ?? 'CR-1010842910') }}</span></bdi></span>
                                     </div>
@@ -652,28 +723,28 @@
                                 <div class="client-qr-box">
                                     <div class="client-info-fields">
                                         <div class="client-meta-line">
-                                            <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'اسم العميل:' : 'Client:' }}</span>
+                                            <span class="meta-label">اسم العميل:</span>
                                             <span class="meta-value font-bold live-edit-field" contenteditable="false" data-field="customer_name" id="disp-cust-name">{{ $custName }}</span>
                                         </div>
                                         <div class="client-meta-line">
-                                            <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'رقم العميل:' : 'Phone:' }}</span>
+                                            <span class="meta-label">رقم العميل:</span>
                                             <span class="meta-value font-mono"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="customer_phone" id="disp-cust-phone">{{ $custPhone }}</span></bdi></span>
                                         </div>
                                         <div class="client-meta-line">
-                                            <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'العنوان:' : 'Address:' }}</span>
+                                            <span class="meta-label">العنوان:</span>
                                             <span class="meta-value live-edit-field" contenteditable="false" data-field="shipping_address" id="disp-cust-addr" style="font-size: 0.72rem;">{{ $custAddress }}</span>
                                         </div>
                                         <div class="client-meta-line" style="margin-top: 0.15rem;">
-                                            <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'تاريخ الفاتورة:' : 'Date:' }}</span>
+                                            <span class="meta-label">تاريخ الفاتورة:</span>
                                             <span class="meta-value font-mono"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="date" id="disp-inv-date">{{ $invDate }}</span></bdi></span>
                                         </div>
                                         <div class="client-meta-line">
-                                            <span class="meta-label">{{ app()->getLocale() === 'ar' ? 'رقم الفاتورة:' : 'Inv No:' }}</span>
+                                            <span class="meta-label">رقم الفاتورة:</span>
                                             <span class="meta-value font-mono font-bold"><bdi dir="ltr"><span class="live-edit-field" contenteditable="false" data-field="invoice_number" id="disp-inv-num">{{ $invNum }}</span></bdi></span>
                                         </div>
                                     </div>
                                     <div class="qr-wrapper" title="Scan for Official Verification">
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ urlencode($verificationUrl) }}" alt="QR Code">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ urlencode($verificationUrl) }}" alt="QR Code" loading="eager">
                                     </div>
                                 </div>
                             </div>
