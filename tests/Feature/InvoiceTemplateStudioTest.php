@@ -127,4 +127,42 @@ class InvoiceTemplateStudioTest extends TestCase
         $downloadRes->assertSee('ORD-INV-9901');
         $downloadRes->assertSee('فاتورة مبيعات');
     }
+
+    public function test_admin_can_view_invoice_show_with_new_official_format(): void
+    {
+        $response = $this->actingAs($this->admin, 'web')->get(route('admin.invoices.show', $this->order->id));
+        $response->assertStatus(200);
+        $response->assertSee('فاتورة مبيعات');
+        $response->assertSee('TAX INVOICE');
+        $response->assertSee('invoice-3d-scene');
+        $response->assertSee('invoice-3d-canvas');
+        $response->assertSee('inv-header-grid');
+        $response->assertSee('sheet-table');
+        $response->assertSee('ORD-INV-9901');
+    }
+
+    public function test_admin_can_update_invoice_details_and_layout_in_realtime(): void
+    {
+        $response = $this->actingAs($this->admin, 'web')->postJson(route('admin.invoices.update', $this->order->id), [
+            'customer_name' => 'Realtime Updated Medical Center',
+            'discount' => 150.00,
+            'sections_order' => [
+                'title_banner',
+                'header_company_client',
+                'items_table',
+                'totals_and_payments',
+                'signatures_stamp',
+                'footer_notes',
+            ],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $this->order->refresh();
+        $this->assertEquals('Realtime Updated Medical Center', $this->order->customer_name);
+        $this->assertEquals(150.00, (float)$this->order->discount);
+    }
 }

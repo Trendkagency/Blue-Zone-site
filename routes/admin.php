@@ -241,6 +241,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('invoices')->name('invoices.')->group(function () {
             Route::get('/', [InvoiceController::class, 'index'])->middleware('permission:invoices.view')->name('index');
             Route::get('/{id}', [InvoiceController::class, 'show'])->middleware('permission:invoices.view')->name('show');
+            Route::match(['post', 'patch'], '/{id}', [InvoiceController::class, 'update'])->middleware('permission:orders.edit')->name('update');
             Route::get('/{id}/print', [InvoiceController::class, 'print'])->middleware('permission:invoices.view')->name('print');
             Route::get('/{id}/label', [InvoiceController::class, 'averyLabel'])->middleware('permission:invoices.view')->name('label');
         });
