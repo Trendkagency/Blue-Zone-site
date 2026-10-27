@@ -1,29 +1,94 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<html lang="{{ app()->getLocale() }}" dir="rtl">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tax Invoice - {{ is_array($order) ? ($order['invoice_number'] ?? $order['order_number']) : ($order->invoice_number ?? $order->order_number) }} | BLUE ZONE™</title>
-    
-    <!-- Google Fonts -->
+    @php
+        $tpl = \App\Services\InvoiceTemplateService::getTemplate();
+        
+        $isModel = $order instanceof \Illuminate\Database\Eloquent\Model;
+        $ordNum = $isModel ? $order->order_number : ($order['order_number'] ?? 'ORD-000');
+        $invNum = $isModel ? ($order->invoice_number ?? $ordNum) : ($order['invoice_number'] ?? $ordNum);
+        
+        $rawDate = $isModel ? ($order->invoice_date ?? $order->date) : ($order['invoice_date'] ?? ($order['date'] ?? now()));
+        $invDate = $rawDate instanceof \Carbon\Carbon ? $rawDate->format('Y-m-d') : (is_string($rawDate) ? substr($rawDate, 0, 10) : date('Y-m-d'));
+
+        $dueDate = $isModel && !empty($order->due_date) 
+            ? ($order->due_date instanceof \Carbon\Carbon ? $order->due_date->format('Y-m-d') : substr($order->due_date, 0, 10))
+            : \Carbon\Carbon::parse($invDate)->addDays(30)->format('Y-m-d');
+        
+        $custName = $isModel 
+            ? ($order->customer_name ?? ($order->customer?->name ?? 'عميل معتمد')) 
+            : ($order['customer_name'] ?? 'عميل معتمد');
+            
+        $custPhone = $isModel 
+            ? ($order->customer_phone ?? ($order->customer?->phone ?? '—')) 
+            : ($order['customer_phone'] ?? '—');
+            
+        $custEmail = $isModel 
+            ? ($order->customer_email ?? ($order->customer?->email ?? '—')) 
+            : ($order['customer_email'] ?? '—');
+            
+        $rawAddr = $isModel ? $order->shipping_address : ($order['shipping_address'] ?? null);
+        if (is_array($rawAddr)) {
+            $custAddress = implode(', ', array_filter([$rawAddr['street'] ?? '', $rawAddr['city'] ?? '', $rawAddr['country'] ?? '']));
+        } elseif (is_string($rawAddr) && !empty($rawAddr)) {
+            $custAddress = $rawAddr;
+        } else {
+            $custAddress = 'المملكة العربية السعودية';
+        }
+
+        $items = $isModel ? $order->items : ($order['items'] ?? []);
+        
+        // Financials
+        $subtotal = (float) ($isModel ? ($order->subtotal ?? 0) : ($order['subtotal'] ?? 0));
+        $discount = (float) ($isModel ? ($order->discount ?? 0) : ($order['discount'] ?? 0));
+        $tax = (float) ($isModel ? ($order->tax ?? 0) : ($order['tax'] ?? 0));
+        $total = (float) ($isModel ? ($order->total ?? 0) : ($order['total'] ?? 0));
+
+        if ($subtotal <= 0 && count($items) > 0) {
+            foreach ($items as $it) {
+                $q = (float) ($isModel ? $it->quantity : ($it['quantity'] ?? 1));
+                $p = (float) ($isModel ? ($it->unit_price ?? $it->price) : ($it['unit_price'] ?? ($it['price'] ?? 0)));
+                $subtotal += ($q * $p);
+            }
+        }
+        if ($total <= 0) {
+            $total = max(0, $subtotal - $discount + $tax);
+        }
+
+        // Payments
+        $payMethod = strtolower($isModel ? ($order->payment_method ?? '') : ($order['payment_method'] ?? ''));
+        $payStatus = strtolower($isModel ? ($order->payment_status ?? 'unpaid') : ($order['payment_status'] ?? 'unpaid'));
+        
+        $paidAmount = $isModel 
+            ? (float) ($order->paid_amount ?? ($payStatus === 'paid' ? $total : 0)) 
+            : (float) ($order['paid_amount'] ?? ($payStatus === 'paid' ? $total : 0));
+            
+        $dueBalance = $isModel 
+            ? (float) ($order->due_balance ?? max(0, $total - $paidAmount)) 
+            : (float) ($order['due_balance'] ?? max(0, $total - $paidAmount));
+
+        $bankRef = $isModel 
+            ? ($order->payment_transaction_id ?? ($order->payment_payload['reference'] ?? '—')) 
+            : ($order['payment_transaction_id'] ?? ($order['bank_reference'] ?? '—'));
+
+        // Public verification URL encoded in QR Code
+        $verificationUrl = route('orders.verify', ['order' => $ordNum]);
+    @endphp
+
+    <title>{{ $tpl['title_ar'] }} - {{ $invNum }} | {{ $tpl['company_name_en'] }}</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=cairo:400,600,700,800,900|inter:400,500,600,700,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bz-navy: #031827;
-            --bz-cyan: #00D2D3;
-            --bz-teal: #0A9396;
-            --bz-gold: #D4AF37;
-            --bz-gray-50: #F8FAFC;
-            --bz-gray-100: #F1F5F9;
-            --bz-gray-200: #E2E8F0;
-            --bz-gray-500: #64748B;
-            --bz-gray-700: #334155;
-            --bz-gray-900: #0F172A;
-            --bz-green: #059669;
+            --inv-border: {{ $tpl['styling']['border_color'] ?? '#0f172a' }};
+            --inv-th-bg: {{ $tpl['styling']['header_bg'] ?? '#d4dfe8' }};
+            --inv-font: {{ $tpl['styling']['font_family'] ?? "'Tajawal', 'Outfit', sans-serif" }};
         }
 
         * {
@@ -33,673 +98,715 @@
         }
 
         body {
-            font-family: 'Inter', 'Cairo', sans-serif;
-            background-color: #E2E8F0;
-            color: var(--bz-navy);
-            line-height: 1.5;
-            padding: 2rem 1rem;
-            -webkit-font-smoothing: antialiased;
+            font-family: var(--inv-font);
+            background: #f1f5f9;
+            color: #0f172a;
+            direction: rtl;
+            text-align: right;
+            padding: 1.5rem;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        .no-print-toolbar {
-            max-width: 860px;
-            margin: 0 auto 1.5rem auto;
+        .no-print-bar {
+            max-width: 1040px;
+            margin: 0 auto 1rem auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .btn {
+        .no-print-bar button, .no-print-bar a {
+            font-family: var(--inv-font);
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.6rem 1.25rem;
-            font-size: 0.875rem;
-            font-weight: 700;
-            border-radius: 8px;
-            text-decoration: none;
-            cursor: pointer;
             transition: all 0.2s ease;
-            border: 1px solid transparent;
         }
 
-        .btn-primary {
-            background-color: var(--bz-navy);
+        .btn-print {
+            background: #0284c7;
             color: #ffffff;
         }
-        .btn-primary:hover {
-            background-color: #0A2540;
+        .btn-print:hover {
+            background: #0369a1;
         }
-
-        .btn-secondary {
-            background-color: #F1F5F9;
+        .btn-close {
+            background: #e2e8f0;
             color: #334155;
-            border-color: #CBD5E1;
-        }
-        .btn-secondary:hover {
-            background-color: #E2E8F0;
         }
 
-        /* Invoice Container */
-        .invoice-sheet {
-            max-width: 860px;
+        /* Main Printable Sheet */
+        .invoice-canvas {
+            max-width: 1040px;
             margin: 0 auto;
             background: #ffffff;
-            padding: 3.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(3, 24, 39, 0.08);
+            padding: 1.25rem 1.5rem;
+            border: 2px solid var(--inv-border);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             position: relative;
-            overflow: hidden;
         }
 
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            font-size: 8rem;
-            font-weight: 900;
-            color: rgba(3, 24, 39, 0.02);
-            pointer-events: none;
-            user-select: none;
-            white-space: nowrap;
-            letter-spacing: 0.2em;
+        /* Header Grid (Top section) */
+        .inv-header-grid {
+            display: grid;
+            grid-template-columns: 310px 1fr 310px;
+            gap: 1rem;
+            align-items: start;
+            padding-bottom: 0.5rem;
         }
 
-        /* Top Header */
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid var(--bz-navy);
-            padding-bottom: 2rem;
-            margin-bottom: 2rem;
+        /* Top Center */
+        .company-center-col {
+            text-align: center;
         }
-
-        .brand-block {
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-        }
-
-        .brand-logo-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .brand-logo-img {
-            height: 48px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .brand-name-en {
+        .company-center-col h1 {
             font-size: 1.35rem;
             font-weight: 900;
+            color: #0f172a;
             letter-spacing: -0.02em;
-            color: var(--bz-navy);
-            line-height: 1.1;
+            margin-bottom: 0.35rem;
+        }
+        .company-logo-img {
+            max-height: 52px;
+            max-width: 170px;
+            object-fit: contain;
+            margin: 0 auto;
+            display: block;
         }
 
-        .brand-name-ar {
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--bz-teal);
-        }
-
-        .brand-meta {
+        /* Top Right (Company/Seller Details) */
+        .company-meta-box {
             font-size: 0.8rem;
-            color: var(--bz-gray-500);
-            line-height: 1.4;
-        }
-
-        .invoice-meta-block {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 0.25rem;
-        }
-
-        .invoice-title {
-            font-size: 1.75rem;
-            font-weight: 900;
-            color: var(--bz-navy);
-            letter-spacing: 0.05em;
-        }
-
-        .invoice-title-ar {
-            font-family: 'Cairo', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--bz-teal);
-            margin-top: -0.35rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .invoice-number-badge {
-            background: var(--bz-gray-100);
-            padding: 0.35rem 0.75rem;
-            border-radius: 6px;
-            font-family: monospace;
-            font-weight: 800;
-            font-size: 1.05rem;
-            color: var(--bz-navy);
-            border: 1px solid var(--bz-gray-200);
-        }
-
-        /* Two Column Info Section */
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2.5rem;
-            padding-bottom: 2rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--bz-gray-200);
-        }
-
-        .info-box-title {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--bz-teal);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
-        .info-box-content {
-            font-size: 0.875rem;
-            color: var(--bz-gray-700);
             line-height: 1.6;
         }
-
-        .info-box-content strong {
-            font-size: 1.05rem;
-            color: var(--bz-navy);
-            display: block;
-            margin-bottom: 0.25rem;
+        .meta-line {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35rem;
+            margin-bottom: 0.2rem;
         }
-
-        /* Items Table */
-        .table-wrap {
-            margin-bottom: 2.5rem;
-        }
-
-        .invoice-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        .invoice-table th {
-            background: var(--bz-navy);
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-            padding: 0.85rem 1rem;
-            text-align: left;
-        }
-
-        .invoice-table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--bz-gray-200);
-            color: var(--bz-gray-900);
-        }
-
-        .invoice-table tr:nth-child(even) td {
-            background-color: var(--bz-gray-50);
-        }
-
-        .item-title {
+        .meta-label {
             font-weight: 800;
-            color: var(--bz-navy);
-            font-size: 0.95rem;
+            color: #1e293b;
+            white-space: nowrap;
+        }
+        .meta-dots {
+            flex: 1;
+            border-bottom: 1px dotted #94a3b8;
+            height: 0.85em;
+        }
+        .meta-value {
+            font-weight: 700;
+            color: #0f172a;
         }
 
-        .item-subtitle {
-            font-size: 0.75rem;
-            color: var(--bz-gray-500);
-            margin-top: 0.2rem;
-        }
-
-        .item-sku {
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: var(--bz-teal);
-            font-weight: 600;
-        }
-
-        /* Calculation & QR Section */
-        .bottom-calc-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 2.5rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .qr-verification-card {
+        /* Top Left (Customer Details + QR) */
+        .client-qr-box {
             display: flex;
-            gap: 1.25rem;
-            background: var(--bz-gray-50);
-            border: 1px dashed var(--bz-gray-200);
-            border-radius: 12px;
-            padding: 1.25rem;
-            align-items: center;
+            gap: 0.75rem;
+            align-items: flex-start;
         }
-
-        .qr-box {
-            width: 90px;
-            height: 90px;
-            background: #ffffff;
-            padding: 6px;
-            border-radius: 8px;
-            border: 1px solid var(--bz-gray-200);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .qr-wrapper {
             flex-shrink: 0;
+            width: 82px;
+            height: 82px;
+            border: 1px solid #cbd5e1;
+            padding: 3px;
+            background: #fff;
+            border-radius: 6px;
         }
-
-        .qr-box img {
+        .qr-wrapper img {
             width: 100%;
             height: 100%;
-        }
-
-        .qr-text {
-            font-size: 0.75rem;
-            color: var(--bz-gray-500);
-            line-height: 1.4;
-        }
-
-        .qr-text strong {
-            color: var(--bz-navy);
+            object-fit: contain;
             display: block;
-            margin-bottom: 0.25rem;
-            font-size: 0.8125rem;
         }
-
-        .totals-card {
-            background: var(--bz-gray-50);
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 1px solid var(--bz-gray-200);
-        }
-
-        .totals-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.875rem;
-            margin-bottom: 0.65rem;
-            color: var(--bz-gray-700);
-        }
-
-        .totals-row.discount {
-            color: var(--bz-green);
-            font-weight: 700;
-        }
-
-        .totals-row.grand-total {
-            border-top: 2px solid var(--bz-navy);
-            padding-top: 0.85rem;
-            margin-top: 0.85rem;
-            margin-bottom: 0;
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: var(--bz-navy);
-        }
-
-        .grand-price {
-            color: var(--bz-teal);
-            font-size: 1.35rem;
-        }
-
-        /* Paid Badge Stamp */
-        .status-stamp {
-            display: inline-block;
-            border: 3px solid var(--bz-green);
-            color: var(--bz-green);
-            font-weight: 900;
-            text-transform: uppercase;
-            padding: 0.35rem 1rem;
-            border-radius: 8px;
-            letter-spacing: 0.1em;
-            transform: rotate(-5deg);
-            margin-top: 1rem;
-        }
-
-        /* Footer Notes */
-        .invoice-footer {
-            border-top: 1px solid var(--bz-gray-200);
-            padding-top: 1.5rem;
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-            font-size: 0.75rem;
-            color: var(--bz-gray-500);
+        .client-info-fields {
+            flex: 1;
+            font-size: 0.8rem;
             line-height: 1.5;
         }
 
-        .signature-box {
-            border-top: 1px dashed var(--bz-gray-500);
-            margin-top: 2.5rem;
-            padding-top: 0.5rem;
+        /* Centered Big Invoice Title */
+        .invoice-main-title {
             text-align: center;
-            font-weight: 700;
-            color: var(--bz-navy);
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0.75rem 0 0.5rem 0;
+            letter-spacing: -0.01em;
         }
 
-        /* PRINT STYLES */
+        /* Spreadsheet-Styled Line Items Table */
+        .sheet-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 0.75rem;
+        }
+        .sheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+            border: 1.5px solid var(--inv-border);
+        }
+        .sheet-table th, .sheet-table td {
+            border: 1px solid var(--inv-border);
+            padding: 0.35rem 0.4rem;
+            vertical-align: middle;
+        }
+        .sheet-table th {
+            background-color: var(--inv-th-bg);
+            color: #0f172a;
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.25;
+        }
+        .th-ar {
+            display: block;
+            font-size: 0.78rem;
+        }
+        .th-en {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #334155;
+            direction: ltr;
+        }
+        .sheet-table tbody tr {
+            min-height: 28px;
+        }
+        .sheet-table tbody td {
+            color: #0f172a;
+        }
+        .text-center { text-align: center; }
+        .text-start { text-align: right; }
+        .text-end { text-align: left; }
+        .font-mono { font-family: monospace, monospace; }
+        .font-bold { font-weight: 800; }
+
+        /* Bottom Section: Totals & Payments side-by-side */
+        .inv-bottom-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            align-items: start;
+            margin-top: 0.5rem;
+        }
+
+        /* Left Payment Box */
+        .payment-box-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            border: 1px solid var(--inv-border);
+        }
+        .payment-box-table th, .payment-box-table td {
+            border: 1px solid var(--inv-border);
+            padding: 0.35rem 0.5rem;
+        }
+        .payment-box-table th {
+            background-color: var(--inv-th-bg);
+            font-weight: 900;
+            text-align: center;
+        }
+        .payment-methods-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+        .chk-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            white-space: nowrap;
+        }
+        .chk-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 13px;
+            height: 13px;
+            border: 1.5px solid #0f172a;
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 1;
+            background: #fff;
+        }
+
+        /* Right Totals Box */
+        .totals-box-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            border: 1px solid var(--inv-border);
+        }
+        .totals-box-table th, .totals-box-table td {
+            border: 1px solid var(--inv-border);
+            padding: 0.35rem 0.5rem;
+        }
+        .totals-box-table th {
+            background-color: var(--inv-th-bg);
+            font-weight: 900;
+            text-align: center;
+        }
+
+        /* Signatures Section */
+        .signatures-grid {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .sig-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .sig-line {
+            border-bottom: 1.5px dashed #64748b;
+            width: 80%;
+            margin: 0 auto;
+        }
+        .stamp-box {
+            width: 75px;
+            height: 75px;
+            border: 1.5px dashed #94a3b8;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Footer Terms */
+        .inv-footer-notes {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #cbd5e1;
+            text-align: center;
+            font-size: 0.72rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
         @media print {
             body {
-                background: #ffffff !important;
-                padding: 0 !important;
-                color: #000000 !important;
+                background: #ffffff;
+                padding: 0;
             }
-
-            .no-print-toolbar {
+            .no-print-bar {
                 display: none !important;
             }
-
-            .invoice-sheet {
+            .invoice-canvas {
+                border: 1.5px solid #000000 !important;
                 box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
                 max-width: 100% !important;
-                border-radius: 0 !important;
+                padding: 0.75rem 1rem !important;
             }
-
-            .invoice-table th {
-                background-color: #031827 !important;
-                color: #ffffff !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .invoice-table tr:nth-child(even) td {
-                background-color: #F8FAFC !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .totals-card, .qr-verification-card {
-                background-color: #F8FAFC !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
             @page {
-                size: A4;
-                margin: 1.5cm;
+                size: A4 portrait;
+                margin: 0.6cm;
             }
         }
     </style>
 </head>
 <body>
 
-    @php
-        $invNum = is_array($order) ? ($order['invoice_number'] ?? $order['order_number']) : ($order->invoice_number ?? $order->order_number);
-        $ordNum = is_array($order) ? ($order['order_number'] ?? $invNum) : ($order->order_number ?? $invNum);
-        $ordDate = is_array($order) ? ($order['date'] ?? now()->format('Y-m-d')) : ($order->date?->format('Y-m-d') ?? now()->format('Y-m-d'));
-        $custName = is_array($order) ? ($order['customer_name'] ?? 'Authorized Client') : ($order->customer_name ?? 'Authorized Client');
-        $custEmail = is_array($order) ? ($order['customer_email'] ?? 'care@bluezone.com') : ($order->customer_email ?? 'care@bluezone.com');
-        $custPhone = is_array($order) ? ($order['customer_phone'] ?? '+966 50 000 0000') : ($order->customer_phone ?? '+966 50 000 0000');
-        $channel = is_array($order) ? ($order['channel'] ?? 'online') : ($order->channel ?? 'online');
-        $payMethod = is_array($order) ? ($order['payment_method'] ?? 'Mada / Visa') : ($order->payment_method ?? 'Mada / Visa');
-        $payStatus = is_array($order) ? ($order['payment_status'] ?? 'paid') : ($order->payment_status ?? 'paid');
-        $subtotal = is_array($order) ? ($order['subtotal'] ?? 0) : ($order->subtotal ?? 0);
-        $discount = is_array($order) ? ($order['discount'] ?? 0) : ($order->discount ?? 0);
-        $tax = is_array($order) ? ($order['tax'] ?? 0) : ($order->tax ?? 0);
-        $shipping = is_array($order) ? ($order['shipping'] ?? 0) : ($order->shipping ?? 0);
-        $total = is_array($order) ? ($order['total'] ?? 0) : ($order->total ?? 0);
-        
-        $shippingAddr = is_array($order) ? ($order['shipping_address'] ?? []) : ($order->shipping_address ?? []);
-        $items = is_array($order) ? ($order['items'] ?? []) : ($order->items ?? []);
-    @endphp
-
-    @php
-        $trackUrl = route('orders.track', $ordNum);
-    @endphp
-
-    <!-- Screen Toolbar -->
-    <div class="no-print-toolbar">
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <a href="{{ route('admin.invoices.index') }}" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left mr-1.5 ml-1.5"></i> Back to Invoices
-            </a>
-            <a href="{{ route('admin.invoices.label', $invNum) }}" class="btn btn-secondary" title="Print Avery 4x6 / 5163 Shipping Label">
-                <i class="fa-solid fa-tags mr-1.5 ml-1.5 text-sky-600"></i> Avery Shipping Label
-            </a>
-            <a href="{{ $trackUrl }}" target="_blank" class="btn btn-secondary" title="Open Public Tracking Page">
-                <i class="fa-solid fa-arrow-up-right-from-square mr-1.5 ml-1.5 text-teal-600"></i> Open Live Web Details
-            </a>
+    <!-- Toolbar for Screen/Print Action -->
+    <div class="no-print-bar">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-file-invoice text-sky-600 text-lg"></i>
+            <span style="font-weight: 800; color: #0f172a;">{{ $tpl['title_ar'] }} — {{ $invNum }}</span>
         </div>
-        <div class="btn-group">
-            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
-                Close
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick="window.print()" class="btn-print">
+                <i class="fa-solid fa-print"></i>
+                <span>طباعة الفاتورة الرسمية / Print</span>
             </button>
-            <button type="button" class="btn btn-primary" onclick="window.print()">
-                <i class="fa-solid fa-print mr-1.5 ml-1.5"></i> Print Tax Invoice / طباعة الفاتورة
+            <button onclick="window.close()" class="btn-close">
+                <span>إغلاق / Close</span>
             </button>
         </div>
     </div>
 
-    <!-- Official Printable Invoice Sheet -->
-    <div class="invoice-sheet">
-        <div class="watermark">BLUE ZONE</div>
+    <!-- Official Invoice Canvas -->
+    <div class="invoice-canvas">
 
-        <!-- Header -->
-        <header class="invoice-header">
-            <div class="brand-block">
-                <div class="brand-logo-title">
-                    <img src="{{ asset('assets/logo/logo-main.png') }}" alt="BLUE ZONE Logo" class="brand-logo-img" onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
-                    <div>
-                        <h1 class="brand-name-en">{{ $siteInfo['brand_name'] ?? 'BLUE ZONE™ Bioceuticals' }}</h1>
-                        <div class="brand-name-ar">شركة بلو زون للمستحضرات الحيوية والمكملات الدقيقة</div>
+        <!-- 1. Top Header Grid -->
+        <div class="inv-header-grid">
+            <!-- Left: Client Info & QR Code -->
+            <div class="client-qr-box">
+                <div class="qr-wrapper" title="Scan for Official Verification">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ urlencode($verificationUrl) }}" alt="QR Code">
+                </div>
+                <div class="client-info-fields">
+                    <div class="meta-line">
+                        <span class="meta-label">اسم العميل:</span>
+                        <span class="meta-value">{{ $custName }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">رقم العميل:</span>
+                        <span class="meta-value font-mono">{{ $custPhone }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">العنوان:</span>
+                        <span class="meta-value" style="font-size: 0.75rem;">{{ $custAddress }}</span>
+                    </div>
+                    <div class="meta-line" style="margin-top: 0.35rem;">
+                        <span class="meta-label">تاريخ الفاتورة:</span>
+                        <span class="meta-value font-mono">{{ $invDate }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="meta-label">رقم الفاتورة:</span>
+                        <span class="meta-value font-mono font-bold">{{ $invNum }}</span>
                     </div>
                 </div>
-                <div class="brand-meta" style="margin-top: 0.5rem;">
-                    <div><strong>Tax Registration / الرقم الضريبي:</strong> {{ $siteInfo['tax_number'] ?? '31004829100003' }}</div>
-                    <div><strong>Commercial Record / السجل التجاري:</strong> {{ $siteInfo['commercial_record'] ?? 'CR-1010842910' }}</div>
-                    <div><strong>Clinical License / ترخيص المنشأة:</strong> {{ $siteInfo['clinical_license'] ?? 'MOH-CERT-2026-BZ884' }}</div>
-                    <div>{{ $siteInfo['address_en'] ?? 'King Fahd Road, Al-Olaya, Riyadh 12213, Saudi Arabia' }}</div>
-                </div>
             </div>
 
-            <div class="invoice-meta-block">
-                <div class="invoice-title">TAX INVOICE</div>
-                <div class="invoice-title-ar">فاتورة ضريبية رسمية</div>
-                <div class="invoice-number-badge">{{ $invNum }}</div>
-                
-                <div style="font-size: 0.8125rem; color: var(--bz-gray-500); margin-top: 0.5rem; text-align: right;">
-                    <div><strong>Date / التاريخ:</strong> {{ $ordDate }}</div>
-                    <div><strong>Order Ref / رقم الطلب:</strong> {{ $ordNum }}</div>
-                    <div><strong>Channel / القناة:</strong> <span style="text-transform: uppercase; font-weight: 700;">{{ $channel }}</span></div>
-                </div>
+            <!-- Center: Company Name & Logo -->
+            <div class="company-center-col">
+                <h1>{{ $tpl['company_name_en'] }}</h1>
+                <img src="{{ asset('assets/logo/logo-main.png') }}" 
+                     alt="Blue Zone Logo" 
+                     class="company-logo-img" 
+                     onerror="this.onerror=null; this.src='{{ asset('bluezone logo.png') }}';">
+            </div>
 
-                @if(strtolower($payStatus) === 'paid' || strtolower($payStatus) === 'completed')
-                    <div class="status-stamp"><i class="fa-solid fa-check mr-1.5 ml-1.5"></i> PAID / مسدد بالكامل</div>
-                @else
-                    <div class="status-stamp" style="border-color: #E11D48; color: #E11D48;">{{ strtoupper($payStatus) }}</div>
+            <!-- Right: Company Corporate & Tax Details -->
+            <div class="company-meta-box">
+                <div class="meta-line">
+                    <span class="meta-label">العنوان:</span>
+                    <span class="meta-dots"></span>
+                    <span class="meta-value">{{ $tpl['address_ar'] }}</span>
+                </div>
+                <div class="meta-line">
+                    <span class="meta-label">هاتف:</span>
+                    <span class="meta-dots"></span>
+                    <span class="meta-value font-mono">{{ $tpl['phone'] }}</span>
+                </div>
+                <div class="meta-line">
+                    <span class="meta-label">البريد الإلكتروني:</span>
+                    <span class="meta-dots"></span>
+                    <span class="meta-value font-mono">{{ $tpl['email'] }}</span>
+                </div>
+                <div class="meta-line">
+                    <span class="meta-label">الرقم الضريبي (.VAT No):</span>
+                    <span class="meta-dots"></span>
+                    <span class="meta-value font-mono font-bold">{{ $siteInfo['tax_number'] ?? ($tpl['vat_number'] ?? '31004829100003') }}</span>
+                </div>
+                <div class="meta-line">
+                    <span class="meta-label">السجل التجاري:</span>
+                    <span class="meta-dots"></span>
+                    <span class="meta-value font-mono font-bold">{{ $siteInfo['commercial_record'] ?? ($tpl['cr_number'] ?? 'CR-1010842910') }}</span>
+                </div>
+                @if(!empty($siteInfo['clinical_license']))
+                    <div class="meta-line">
+                        <span class="meta-label">الترخيص الطبي:</span>
+                        <span class="meta-dots"></span>
+                        <span class="meta-value font-mono font-bold">{{ $siteInfo['clinical_license'] }}</span>
+                    </div>
                 @endif
             </div>
-        </header>
+        </div>
 
-        <!-- Customer & Order Information Grid -->
-        <section class="info-grid">
-            <div>
-                <div class="info-box-title">
-                    <i class="fa-regular fa-user mr-1.5 ml-1.5 text-primary"></i> Billed To / العميل المكرم
-                </div>
-                <div class="info-box-content">
-                    <strong>{{ $custName }}</strong>
-                    <div>{{ $custEmail }}</div>
-                    <div>{{ $custPhone }}</div>
-                    @if(!empty($shippingAddr))
-                        <div style="margin-top: 0.35rem; color: var(--bz-gray-500);">
-                            {{ is_array($shippingAddr) ? ($shippingAddr['street'] ?? '') : '' }}
-                            {{ is_array($shippingAddr) ? ($shippingAddr['city'] ?? '') : '' }}, 
-                            {{ is_array($shippingAddr) ? ($shippingAddr['country'] ?? '') : '' }}
-                        </div>
-                    @endif
-                </div>
-            </div>
+        <!-- 2. Centered Big Invoice Title -->
+        <div class="invoice-main-title">
+            {{ $tpl['title_ar'] ?? 'فاتورة مبيعات' }}
+            <span style="display: block; font-size: 0.78rem; font-weight: 700; color: #475569; letter-spacing: 0.05em; margin-top: 0.15rem;">
+                فاتورة ضريبية رسمية &bull; TAX INVOICE
+            </span>
+        </div>
 
-            <div>
-                <div class="info-box-title">
-                    <i class="fa-regular fa-credit-card mr-1.5 ml-1.5 text-primary"></i> Payment & Fulfillment / بيانات الدفع والتسليم
-                </div>
-                <div class="info-box-content">
-                    <div><strong>Method:</strong> {{ $payMethod }}</div>
-                    <div><strong>Payment Status:</strong> <span style="font-weight: 700; color: var(--bz-green);">{{ ucfirst($payStatus) }}</span></div>
-                    <div><strong>Fulfillment Center:</strong> Blue Zone Main Cellular Depot (Riyadh HQ)</div>
-                    <div><strong>Origin:</strong> Licensed GMP Bio-Facility</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Product Breakdown Table -->
-        <section class="table-wrap">
-            <table class="invoice-table">
+        <!-- 3. Line Items Table (11 Columns) -->
+        <div class="sheet-table-wrap">
+            <table class="sheet-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">#</th>
-                        <th style="width: 45%;">Item / Description (الصنف والمواصفات)</th>
-                        <th style="width: 15%;">SKU</th>
-                        <th style="width: 12%; text-align: right;">Unit Price</th>
-                        <th style="width: 8%; text-align: center;">Qty</th>
-                        <th style="width: 15%; text-align: right;">Total ($)</th>
+                        <th style="width: 4%;">
+                            <span class="th-ar">م</span>
+                            <span class="th-en">N</span>
+                        </th>
+                        <th style="width: 10%;">
+                            <span class="th-ar">كود الصنف</span>
+                            <span class="th-en">Item Code</span>
+                        </th>
+                        <th style="width: 25%;">
+                            <span class="th-ar">اسم الصنف</span>
+                            <span class="th-en">Item Descreption</span>
+                        </th>
+                        <th style="width: 7%;">
+                            <span class="th-ar">الكمية</span>
+                            <span class="th-en">Quantity</span>
+                        </th>
+                        <th style="width: 13%;">
+                            <span class="th-ar">تاريخ الصلاحية / التشغيلة</span>
+                            <span class="th-en">Expiry Date / Batch No.</span>
+                        </th>
+                        <th style="width: 8%;">
+                            <span class="th-ar">سعر الوحدة</span>
+                            <span class="th-en">Price</span>
+                        </th>
+                        <th style="width: 6%;">
+                            <span class="th-ar">نسبة الخصم 1</span>
+                            <span class="th-en">Disc. 1</span>
+                        </th>
+                        <th style="width: 6%;">
+                            <span class="th-ar">نسبة الخصم 2</span>
+                            <span class="th-en">Disc. 2</span>
+                        </th>
+                        <th style="width: 9%;">
+                            <span class="th-ar">إجمالي بدون الضريبة</span>
+                            <span class="th-en">Totat Exc. VAT</span>
+                        </th>
+                        <th style="width: 6%;">
+                            <span class="th-ar">الضريبة</span>
+                            <span class="th-en">VAT</span>
+                        </th>
+                        <th style="width: 10%;">
+                            <span class="th-ar">إجمالي الصنف شامل الضريبة</span>
+                            <span class="th-en">Total Inc. VAT</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php $idx = 1; @endphp
-                    @forelse($items as $item)
+                    @php 
+                        $rowCount = 0; 
+                        $calcSubtotal = 0;
+                        $calcTax = 0;
+                        $calcTotal = 0;
+                    @endphp
+                    @forelse($items as $idx => $item)
                         @php
-                            $iNameEn = is_array($item) ? ($item['product_name_en'] ?? 'Longevity Protocol') : ($item->product_name_en ?? 'Longevity Protocol');
-                            $iNameAr = is_array($item) ? ($item['product_name_ar'] ?? '') : ($item->product_name_ar ?? '');
-                            $iVar = is_array($item) ? ($item['variant_en'] ?? '') : ($item->variant_en ?? '');
-                            $iSku = is_array($item) ? ($item['sku'] ?? 'BZ-PROD') : ($item->sku ?? 'BZ-PROD');
-                            $iPrice = is_array($item) ? ($item['unit_price'] ?? 0) : ($item->unit_price ?? 0);
-                            $iQty = is_array($item) ? ($item['quantity'] ?? 1) : ($item->quantity ?? 1);
-                            $iTotal = is_array($item) ? ($item['total'] ?? ($iPrice * $iQty)) : ($item->total ?? ($iPrice * $iQty));
+                            $rowCount++;
+                            $isItemObj = is_object($item);
+                            $sku = $isItemObj ? ($item->sku ?? ($item->product?->sku ?? 'BZ-' . $rowCount)) : ($item['sku'] ?? 'BZ-' . $rowCount);
+                            $name = $isItemObj 
+                                ? ($item->product_name_ar ?? ($item->product?->name_ar ?? ($item->product_name_en ?? ($item->product?->name_en ?? 'صنف حيوي'))))
+                                : ($item['name_ar'] ?? ($item['name_en'] ?? ($item['product_name_ar'] ?? ($item['product_name_en'] ?? 'صنف حيوي'))));
+                            
+                            $qty = (float) ($isItemObj ? $item->quantity : ($item['quantity'] ?? 1));
+                            $unitPrice = (float) ($isItemObj ? ($item->unit_price ?? $item->price) : ($item['unit_price'] ?? ($item['price'] ?? 0)));
+                            
+                            $disc1 = (float) ($isItemObj ? ($item->disc_1 ?? ($item->discount ?? 0)) : ($item['disc_1'] ?? ($item['discount'] ?? 0)));
+                            $disc2 = (float) ($isItemObj ? ($item->disc_2 ?? 0) : ($item['disc_2'] ?? 0));
+                            
+                            $batch = $isItemObj ? ($item->batch_number ?? ($item->batch?->batch_number ?? '—')) : ($item['batch_number'] ?? '—');
+                            $expiry = $isItemObj ? ($item->expiry_date ?? ($item->batch?->expiry_date ?? '—')) : ($item['expiry_date'] ?? '—');
+                            if ($expiry instanceof \Carbon\Carbon) {
+                                $expiry = $expiry->format('Y-m-d');
+                            }
+                            $batchExpiryText = ($batch !== '—' || $expiry !== '—') ? ($expiry . ' / ' . $batch) : '—';
+
+                            // Calculations
+                            $gross = $qty * $unitPrice;
+                            $discAmount = $gross * ($disc1 / 100) + ($gross * (1 - $disc1 / 100)) * ($disc2 / 100);
+                            $lineExcVat = max(0, $gross - $discAmount);
+                            $lineVat = $lineExcVat * 0.15;
+                            $lineIncVat = $lineExcVat + $lineVat;
+
+                            $calcSubtotal += $lineExcVat;
+                            $calcTax += $lineVat;
+                            $calcTotal += $lineIncVat;
                         @endphp
                         <tr>
-                            <td>{{ $idx++ }}</td>
-                            <td>
-                                <div class="item-title">{{ $iNameEn }}</div>
-                                @if($iNameAr)
-                                    <div style="font-family: 'Cairo', sans-serif; font-size: 0.8rem; color: var(--bz-teal);">{{ $iNameAr }}</div>
-                                @endif
-                                @if($iVar)
-                                    <div class="item-subtitle">{{ $iVar }}</div>
-                                @endif
-                            </td>
-                            <td class="item-sku">{{ $iSku }}</td>
-                            <td style="text-align: right;">@currency((float)$iPrice)</td>
-                            <td style="text-align: center; font-weight: 700;">{{ $iQty }}</td>
-                            <td style="text-align: right; font-weight: 800;">@currency((float)$iTotal)</td>
+                            <td class="text-center font-mono">{{ $rowCount }}</td>
+                            <td class="text-center font-mono font-bold">{{ $sku }}</td>
+                            <td class="text-start font-bold">{{ $name }}</td>
+                            <td class="text-center font-mono font-bold">{{ $qty }}</td>
+                            <td class="text-center font-mono" style="font-size: 0.72rem;">{{ $batchExpiryText }}</td>
+                            <td class="text-center font-mono">{{ number_format($unitPrice, 2) }}</td>
+                            <td class="text-center font-mono">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
+                            <td class="text-center font-mono">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
+                            <td class="text-center font-mono">{{ number_format($lineExcVat, 2) }}</td>
+                            <td class="text-center font-mono">{{ number_format($lineVat, 2) }}</td>
+                            <td class="text-center font-mono font-bold">{{ number_format($lineIncVat, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" style="text-align: center; color: var(--bz-gray-500); padding: 2rem;">
-                                No item records found for this invoice.
-                            </td>
+                            <td colspan="11" class="text-center" style="padding: 1.5rem; color: #64748b;">لا توجد أصناف مدرجة في الفاتورة.</td>
                         </tr>
                     @endforelse
+
+                    <!-- Empty filler rows for authentic spreadsheet look (minimum 6 rows) -->
+                    @for($i = $rowCount; $i < 6; $i++)
+                        <tr>
+                            <td class="text-center font-mono text-slate-300">{{ $i + 1 }}</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    @endfor
                 </tbody>
             </table>
-        </section>
+        </div>
 
-        <!-- Calculation Summary & QR Section -->
-        <section class="bottom-calc-grid">
-            <!-- QR and Compliance -->
+        @php
+            $finalSubtotal = $calcSubtotal > 0 ? $calcSubtotal : $subtotal;
+            $finalTax = $calcTax > 0 ? $calcTax : $tax;
+            $finalTotal = $calcTotal > 0 ? $calcTotal : $total;
+            $finalDue = max(0, $finalTotal - $paidAmount);
+
+            $isCash = in_array($payMethod, ['cash', 'نقداً'], true);
+            $isBank = in_array($payMethod, ['bank_transfer', 'wire', 'تحويل بنكي'], true);
+            $isCheque = in_array($payMethod, ['cheque', 'check', 'شيك'], true);
+            $isPartial = $payStatus === 'partially_paid' || ($paidAmount > 0 && $finalDue > 0);
+        @endphp
+
+        <!-- 4. Bottom Section: Left (Payment) & Right (Totals) -->
+        <div class="inv-bottom-section">
+            <!-- Left: Payment Settlement & Details Table -->
             <div>
-                <div class="qr-verification-card">
-                    <div class="qr-box">
-                        <!-- ZATCA & Web Verification Dynamic QR Code Generator -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ urlencode($trackUrl) }}" alt="Scan for Order Details">
+                <table class="payment-box-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%;">البيان</th>
+                            <th style="width: 55%;">القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">طريقة الدفع:</td>
+                            <td>
+                                <div class="payment-methods-row">
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isPartial ? '✓' : '' }}</span>
+                                        <span>دفع جزئي Partial</span>
+                                    </span>
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isCheque ? '✓' : '' }}</span>
+                                        <span>شيك Cheque</span>
+                                    </span>
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isBank ? '✓' : '' }}</span>
+                                        <span>تحويل بنكي Bank</span>
+                                    </span>
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isCash ? '✓' : '' }}</span>
+                                        <span>نقداً Cash</span>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">المبلغ المدفوع:</td>
+                            <td class="font-mono font-bold">{{ number_format($paidAmount, 2) }} SAR</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">المبلغ المتبقي:</td>
+                            <td class="font-mono font-bold" style="color: {{ $finalDue > 0 ? '#b91c1c' : '#047857' }};">
+                                {{ number_format($finalDue, 2) }} SAR
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">تاريخ الاستحقاق:</td>
+                            <td class="font-mono">{{ $finalDue > 0 ? $dueDate : 'مسدد بالكامل' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">مرجع التحويل البنكي:</td>
+                            <td class="font-mono">{{ $bankRef ?: '—' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Signatures & Stamp -->
+                <div class="signatures-grid">
+                    <div class="sig-item">
+                        <span class="font-bold">المستلم:</span>
+                        <div class="sig-line"></div>
                     </div>
-                    <div class="qr-text">
-                        <strong>ZATCA E-Invoice Verification & Live Tracking</strong>
-                        <div>Scan with any smartphone camera to open full order details, live tracking, and digital ledger verification on the web.</div>
-                        <div style="margin-top: 0.35rem; font-family: monospace; font-size: 0.7rem; color: var(--bz-teal);">
-                            <span>HASH: {{ md5($invNum . $total) }}</span> &bull; 
-                            <a href="{{ $trackUrl }}" target="_blank" style="color: var(--bz-teal); text-decoration: underline;">Open Web Verification</a>
+                    <div class="sig-item">
+                        <span class="font-bold">التوقيع:</span>
+                        <div class="sig-line"></div>
+                    </div>
+                    <div class="sig-item">
+                        <span class="font-bold">الختم:</span>
+                        <div class="stamp-box">
+                            Official Seal
                         </div>
                     </div>
                 </div>
-
-                <div style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--bz-gray-500);">
-                    <div>• All bioceutical products stored under cold-chain regulated conditions (15°C - 25°C).</div>
-                    <div>• 14-day replacement warranty for sealed clinical packaging.</div>
-                </div>
             </div>
 
-            <!-- Financial Totals -->
-            <div class="totals-card">
-                <div class="totals-row">
-                    <span>Taxable Subtotal / المجموع الفرعي:</span>
-                    <span style="font-weight: 700;">@currency((float)$subtotal)</span>
-                </div>
-
-                @if((float)$discount > 0)
-                    <div class="totals-row discount">
-                        <span>Discount / الخصم المعتمد:</span>
-                        <span>-@currency((float)$discount)</span>
-                    </div>
-                @endif
-
-                <div class="totals-row">
-                    <span>Shipping & Handling / الشحن والتسليم:</span>
-                    <span>{{ (float)$shipping > 0 ? format_currency((float)$shipping) : 'Free Shipping' }}</span>
-                </div>
-
-                <div class="totals-row">
-                    <span>VAT (15%) / ضريبة القيمة المضافة:</span>
-                    <span>@currency((float)$tax)</span>
-                </div>
-
-                <div class="totals-row grand-total">
-                    <div>
-                        <div>Grand Total</div>
-                        <div style="font-family: 'Cairo', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--bz-gray-500);">المبلغ الإجمالي المستحق</div>
-                    </div>
-                    <div class="grand-price">@currency((float)$total)</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer / Legal & Signature -->
-        <footer class="invoice-footer">
+            <!-- Right: Financial Summary Totals Table -->
             <div>
-                <strong>BLUE ZONE™ Cellular Longevity Systems</strong>
-                <p>Corporate Office: Level 24, Al-Olaya Towers, King Fahd Rd, Riyadh 12213, KSA.<br>
-                For clinical inquiries & prescription validation: care@bluezone.com | +966 11 482 9100</p>
-                <p style="margin-top: 0.25rem;">This is an electronically generated and certified tax invoice under the Kingdom of Saudi Arabia Electronic Invoicing Regulations.</p>
+                <table class="totals-box-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 55%;">البيان</th>
+                            <th style="width: 45%;">القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="font-bold">{{ $tpl['totals_box']['label_subtotal_ar'] }}</td>
+                            <td class="text-center font-mono font-bold">{{ number_format($finalSubtotal, 2) }} SAR</td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tpl['totals_box']['label_extra_disc_pct_ar'] }}</td>
+                            <td class="text-center font-mono">0%</td>
+                        </tr>
+                        <tr>
+                            <td>{{ $tpl['totals_box']['label_extra_disc_val_ar'] }}</td>
+                            <td class="text-center font-mono">{{ number_format($discount, 2) }} SAR</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">{{ $tpl['totals_box']['label_net_before_vat_ar'] }}</td>
+                            <td class="text-center font-mono font-bold">{{ number_format(max(0, $finalSubtotal - $discount), 2) }} SAR</td>
+                        </tr>
+                        <tr>
+                            <td class="font-bold">{{ $tpl['totals_box']['label_vat_ar'] }}</td>
+                            <td class="text-center font-mono font-bold">{{ number_format($finalTax, 2) }} SAR</td>
+                        </tr>
+                        <tr style="background-color: var(--inv-th-bg);">
+                            <td class="font-bold" style="font-size: 0.88rem;">{{ $tpl['totals_box']['label_grand_total_ar'] }}</td>
+                            <td class="text-center font-mono font-bold" style="font-size: 0.95rem;">
+                                {{ number_format($finalTotal, 2) }} SAR
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-            <div>
-                <div class="signature-box">
-                    Authorized Electronic Stamp
-                </div>
+        <!-- 5. Footer Notes & Regulatory Compliance -->
+        @if(!empty($tpl['footer']['enabled']))
+            <div class="inv-footer-notes">
+                <p>{{ $tpl['footer']['terms_ar'] }}</p>
+                <p style="font-size: 0.68rem; margin-top: 0.2rem; font-family: 'Outfit', sans-serif; direction: ltr;">
+                    {{ $tpl['footer']['terms_en'] }} &bull; ZATCA Tax Compliance &bull; SFDA Serialized
+                </p>
             </div>
-        </footer>
+        @endif
     </div>
 
 </body>

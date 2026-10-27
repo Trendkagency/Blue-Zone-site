@@ -55,6 +55,8 @@ class SettingController extends Controller
             'settings' => $settings,
             'landingSectionsOrder' => $landingSectionsOrder,
             'landingSectionsMeta' => SettingViewModel::landingSections(),
+            'invoiceTemplate' => \App\Services\InvoiceTemplateService::getTemplate(),
+            'invoicePreviewOrder' => \App\Services\InvoiceTemplateService::getPreviewOrder(),
         ]);
     }
 
@@ -669,21 +671,72 @@ class SettingController extends Controller
             }
         }
 
+        // Invoice Template Customizer Persistence
+        if ($request->has('invoice_template_json')) {
+            $decoded = json_decode($request->input('invoice_template_json'), true);
+            if (is_array($decoded)) {
+                \App\Services\InvoiceTemplateService::saveTemplate($decoded);
+            }
+        } elseif ($request->has('invoice_template') && is_array($request->input('invoice_template'))) {
+            \App\Services\InvoiceTemplateService::saveTemplate($request->input('invoice_template'));
+        }
+
         \Illuminate\Support\Facades\Cache::flush();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => app()->getLocale() === 'ar'
-                    ? 'تم حفظ وتطبيق إعدادات الخطوط والطباعة بنجاح على كامل النظام!'
-                    : 'Typography settings saved and applied globally across the entire system!',
-                'config' => \App\Services\TypographyService::getActiveConfig(),
+                    ? 'تم حفظ وتطبيق إعدادات النظام وقالب الفاتورة بنجاح!'
+                    : 'Settings and invoice template configuration saved successfully!',
+                'invoiceTemplate' => \App\Services\InvoiceTemplateService::getTemplate(),
             ]);
         }
 
         return redirect()->route('admin.settings.index')
             ->with('success', app()->getLocale() === 'ar'
-                ? 'تم حفظ وتحديث إعدادات النظام ومحتوى وترتيب وتفعيل أقسام الصفحة الرئيسية بنجاح!'
-                : 'Platform settings, landing page sections order, and visibility toggles updated successfully!');
+                ? 'تم حفظ وتحديث إعدادات النظام ومحتوى وترتيب وتفعيل أقسام الصفحة الرئيسية وقالب الفاتورة بنجاح!'
+                : 'Platform settings, landing page sections, and official invoice template updated successfully!');
+    }
+
+    /**
+     * Reset invoice template back to system default.
+     */
+    public function resetInvoiceTemplate(Request $request)
+    {
+        \App\Services\InvoiceTemplateService::resetToDefault();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => app()->getLocale() === 'ar' ? 'تم استعادة قالب الفاتورة الافتراضي بنجاح.' : 'Invoice template reset to default successfully.',
+                'template' => \App\Services\InvoiceTemplateService::getTemplate(),
+            ]);
+        }
+
+        return redirect()->route('admin.settings.index')
+            ->with('success', app()->getLocale() === 'ar' ? 'تم استعادة قالب الفاتورة الافتراضي بنجاح.' : 'Invoice template reset to default successfully.');
+    }
+
+    /**
+     * Render live interactive preview of the invoice template.
+     */
+    public function previewInvoiceTemplate(Request $request): View
+    {
+        $previewOrder = \App\Services\InvoiceTemplateService::getPreviewOrder();
+        $siteInfo = [
+            'brand_name' => 'Blue Zone Pharmaceuticals',
+            'tax_number' => '31004829100003',
+            'commercial_record' => 'CR-1010884920',
+            'phone' => '+966 800 123 4567',
+            'email' => 'sales@bluezonepharma.com',
+            'website' => 'www.bluezonepharma.com',
+        ];
+
+        return view('admin.invoices.print', [
+            'order' => $previewOrder,
+            'siteInfo' => $siteInfo,
+        ]);
     }
 }
+

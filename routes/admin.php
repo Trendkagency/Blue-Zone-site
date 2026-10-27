@@ -583,6 +583,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [SettingController::class, 'index'])->middleware('permission:settings.view')->name('index');
             Route::post('/', [SettingController::class, 'update'])->middleware('permission:settings.edit')->name('update');
+            Route::post('/invoice-template/reset', [SettingController::class, 'resetInvoiceTemplate'])->middleware('permission:settings.edit')->name('invoice-template.reset');
+            Route::get('/invoice-template/preview', [SettingController::class, 'previewInvoiceTemplate'])->middleware('permission:settings.view')->name('invoice-template.preview');
             Route::get('/geo', [CountryController::class, 'index'])->middleware('permission:settings.view')->name('geo.index');
         });
 
