@@ -103,13 +103,13 @@
             color: #0f172a;
             direction: rtl;
             text-align: right;
-            padding: 1.5rem;
+            padding: 1.25rem 1rem;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
         .no-print-bar {
-            max-width: 820px;
+            max-width: 840px;
             margin: 0 auto 1rem auto;
             display: flex;
             justify-content: space-between;
@@ -147,49 +147,70 @@
             color: #334155;
         }
 
-        /* Main Printable Sheet (Calibrated for A4 Single Page Fit) */
-        .invoice-canvas {
-            max-width: 820px;
+        /* Screen Responsive Viewport */
+        .invoice-page-viewport {
             width: 100%;
-            margin: 0 auto;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            justify-content: center;
+            padding: 0.25rem 0 1.5rem 0;
+        }
+
+        /* Main Printable Sheet (Calibrated for A4 Single Page Fit & Exact Spreadsheet Design) */
+        .invoice-canvas {
+            max-width: 840px;
+            width: 100%;
             background: #ffffff;
-            padding: 1rem 1.25rem;
+            padding: 0.85rem 1.15rem;
             border: 2px solid var(--inv-border);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             position: relative;
             page-break-inside: avoid;
         }
 
-        /* Header Grid: Right (Company Info) | Center (Name+Logo) | Left (Customer+QR) */
+        /* Responsive Breakpoint for Mobile/Tablet Screens */
+        @media screen and (max-width: 860px) {
+            body {
+                padding: 0.6rem 0.35rem;
+            }
+            .invoice-canvas {
+                min-width: 780px; /* guarantees table geometry and no clipping */
+            }
+        }
+
+        /* Header Grid: Right (Company Info) | Center (Name+Logo) | Left (Customer+QR) in RTL */
         .inv-header-grid {
             display: grid;
-            grid-template-columns: 36% 28% 36%;
-            gap: 0.75rem;
+            grid-template-columns: 37% 23% 40%;
+            gap: 0.6rem;
             align-items: start;
-            padding-bottom: 0.35rem;
+            padding-bottom: 0.25rem;
             width: 100%;
         }
 
         /* Right Column (Company Details in RTL) */
         .company-meta-box {
-            font-size: 0.76rem;
-            line-height: 1.55;
-            overflow: hidden;
+            font-size: 0.74rem;
+            line-height: 1.45;
         }
         .meta-line {
             display: flex;
             align-items: baseline;
-            gap: 0.3rem;
-            margin-bottom: 0.15rem;
+            gap: 0.25rem;
+            margin-bottom: 0.12rem;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        }
+        .meta-line.meta-wrap {
+            white-space: normal;
+            line-height: 1.3;
         }
         .meta-label {
             font-weight: 800;
             color: #1e293b;
             flex-shrink: 0;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
         }
         .meta-dots {
             flex: 1;
@@ -200,26 +221,28 @@
         .meta-value {
             font-weight: 700;
             color: #0f172a;
-            font-size: 0.75rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 0.74rem;
         }
 
         /* Center Column (Name & Logo) */
         .company-center-col {
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         .company-center-col h1 {
-            font-size: 1.15rem;
+            font-size: 1.08rem;
             font-weight: 900;
             color: #0f172a;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.25rem;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.2rem;
             line-height: 1.2;
         }
         .company-logo-img {
-            max-height: 48px;
-            max-width: 140px;
+            max-height: 46px;
+            max-width: 130px;
             object-fit: contain;
             margin: 0 auto;
             display: block;
@@ -235,8 +258,8 @@
         }
         .qr-wrapper {
             flex-shrink: 0;
-            width: 72px;
-            height: 72px;
+            width: 70px;
+            height: 70px;
             border: 1px solid #cbd5e1;
             padding: 2px;
             background: #fff;
@@ -250,37 +273,56 @@
         }
         .client-info-fields {
             flex: 1;
-            font-size: 0.76rem;
-            line-height: 1.45;
-            overflow: hidden;
+            font-size: 0.74rem;
+            line-height: 1.35;
+        }
+        .client-meta-line {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+            margin-bottom: 0.12rem;
+            font-size: 0.74rem;
+        }
+        .client-meta-line .meta-label {
+            font-weight: 800;
+            color: #1e293b;
+            flex-shrink: 0;
+            min-width: 62px;
+            font-size: 0.73rem;
+        }
+        .client-meta-line .meta-value {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.73rem;
+            word-break: break-word;
         }
 
         /* Centered Big Invoice Title */
         .invoice-main-title {
             text-align: center;
-            font-size: 1.45rem;
+            font-size: 1.38rem;
             font-weight: 900;
             color: #0f172a;
-            margin: 0.5rem 0 0.4rem 0;
+            margin: 0.35rem 0 0.35rem 0;
             letter-spacing: -0.01em;
-            line-height: 1.2;
+            line-height: 1.15;
         }
 
         /* Spreadsheet-Styled Line Items Table */
         .sheet-table-wrap {
             width: 100%;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.45rem;
         }
         .sheet-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.73rem;
+            font-size: 0.72rem;
             border: 1.5px solid var(--inv-border);
             table-layout: fixed;
         }
         .sheet-table th, .sheet-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.24rem 0.25rem;
+            padding: 0.22rem 0.2rem;
             vertical-align: middle;
             overflow: hidden;
             word-wrap: break-word;
@@ -291,15 +333,15 @@
             font-weight: 900;
             text-align: center;
             line-height: 1.15;
-            padding: 0.3rem 0.2rem;
+            padding: 0.28rem 0.15rem;
         }
         .th-ar {
             display: block;
-            font-size: 0.72rem;
+            font-size: 0.71rem;
         }
         .th-en {
             display: block;
-            font-size: 0.62rem;
+            font-size: 0.61rem;
             font-weight: 700;
             color: #334155;
             direction: ltr;
@@ -312,14 +354,20 @@
         .text-end { text-align: left; }
         .font-mono { font-family: monospace, monospace; }
         .font-bold { font-weight: 800; }
+        .sheet-table td.cell-num {
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            padding: 0.22rem 0.15rem;
+        }
 
         /* Bottom Section: Right (Totals) | Left (Payment & Signatures) */
         .inv-bottom-section {
             display: grid;
             grid-template-columns: 50% 50%;
-            gap: 0.85rem;
+            gap: 0.75rem;
             align-items: start;
-            margin-top: 0.4rem;
+            margin-top: 0.35rem;
             width: 100%;
             page-break-inside: avoid;
         }
@@ -328,12 +376,12 @@
         .totals-box-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             border: 1px solid var(--inv-border);
         }
         .totals-box-table th, .totals-box-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.25rem 0.45rem;
+            padding: 0.24rem 0.4rem;
         }
         .totals-box-table th {
             background-color: var(--inv-th-bg);
@@ -345,31 +393,29 @@
         .payment-box-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             border: 1px solid var(--inv-border);
         }
         .payment-box-table th, .payment-box-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.25rem 0.45rem;
+            padding: 0.24rem 0.4rem;
         }
         .payment-box-table th {
             background-color: var(--inv-th-bg);
             font-weight: 900;
             text-align: center;
         }
-        .payment-methods-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.2rem;
-            flex-wrap: wrap;
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.2rem 0.35rem;
             font-size: 0.68rem;
             font-weight: 800;
         }
         .chk-item {
             display: inline-flex;
             align-items: center;
-            gap: 0.2rem;
+            gap: 0.25rem;
             white-space: nowrap;
         }
         .chk-box {
@@ -383,22 +429,23 @@
             font-weight: 900;
             line-height: 1;
             background: #fff;
+            flex-shrink: 0;
         }
 
         /* Signatures Section */
         .signatures-grid {
-            margin-top: 0.6rem;
-            padding-top: 0.35rem;
+            margin-top: 0.5rem;
+            padding-top: 0.25rem;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.75rem;
+            gap: 0.65rem;
             text-align: center;
-            font-size: 0.74rem;
+            font-size: 0.73rem;
         }
         .sig-item {
             display: flex;
             flex-direction: column;
-            gap: 0.9rem;
+            gap: 0.75rem;
         }
         .sig-line {
             border-bottom: 1.5px dashed #64748b;
@@ -406,8 +453,8 @@
             margin: 0 auto;
         }
         .stamp-box {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border: 1.5px dashed #94a3b8;
             border-radius: 50%;
             margin: 0 auto;
@@ -415,20 +462,20 @@
             align-items: center;
             justify-content: center;
             color: #94a3b8;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-weight: 800;
             text-transform: uppercase;
         }
 
         /* Footer Terms */
         .inv-footer-notes {
-            margin-top: 0.6rem;
-            padding-top: 0.4rem;
+            margin-top: 0.45rem;
+            padding-top: 0.35rem;
             border-top: 1px solid #cbd5e1;
             text-align: center;
-            font-size: 0.68rem;
+            font-size: 0.67rem;
             color: #64748b;
-            line-height: 1.4;
+            line-height: 1.35;
             page-break-inside: avoid;
         }
 
@@ -436,7 +483,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 6mm 8mm;
+                margin: 5mm 7mm;
             }
             html, body {
                 background: #ffffff !important;
@@ -448,13 +495,20 @@
             .no-print-bar {
                 display: none !important;
             }
+            .invoice-page-viewport {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+            }
             .invoice-canvas {
                 border: 1.5px solid #000000 !important;
                 box-shadow: none !important;
                 max-width: 100% !important;
+                min-width: 0 !important;
                 width: 100% !important;
                 margin: 0 auto !important;
-                padding: 0.4rem 0.5rem !important;
+                padding: 0.35rem 0.45rem !important;
                 page-break-inside: avoid !important;
                 page-break-after: avoid !important;
             }
@@ -486,43 +540,44 @@
         </div>
     </div>
 
-    <!-- Official Invoice Canvas -->
-    <div class="invoice-canvas">
+    <!-- Responsive Viewport Wrapper -->
+    <div class="invoice-page-viewport">
+        <!-- Official Invoice Canvas -->
+        <div class="invoice-canvas">
 
         <!-- 1. Top Header Grid: RIGHT (Company Info) | CENTER (Logo & Name) | LEFT (Client Info & QR) in RTL -->
         <div class="inv-header-grid">
             <!-- Right: Company Corporate & Tax Details -->
             <div class="company-meta-box">
-                <div class="meta-line">
+                <div class="meta-line meta-wrap">
                     <span class="meta-label">العنوان:</span>
-                    <span class="meta-dots"></span>
                     <span class="meta-value">{{ $tpl['address_ar'] }}</span>
                 </div>
                 <div class="meta-line">
                     <span class="meta-label">هاتف:</span>
                     <span class="meta-dots"></span>
-                    <span class="meta-value font-mono">{{ $tpl['phone'] }}</span>
+                    <span class="meta-value font-mono"><bdi dir="ltr">{{ $tpl['phone'] }}</bdi></span>
                 </div>
                 <div class="meta-line">
                     <span class="meta-label">البريد الإلكتروني:</span>
                     <span class="meta-dots"></span>
-                    <span class="meta-value font-mono">{{ $tpl['email'] }}</span>
+                    <span class="meta-value font-mono"><bdi dir="ltr">{{ $tpl['email'] }}</bdi></span>
                 </div>
                 <div class="meta-line">
                     <span class="meta-label">الرقم الضريبي (.VAT No):</span>
                     <span class="meta-dots"></span>
-                    <span class="meta-value font-mono font-bold">{{ $siteInfo['tax_number'] ?? ($tpl['vat_number'] ?? '31004829100003') }}</span>
+                    <span class="meta-value font-mono font-bold"><bdi dir="ltr">{{ $siteInfo['tax_number'] ?? ($tpl['vat_number'] ?? '31004829100003') }}</bdi></span>
                 </div>
                 <div class="meta-line">
                     <span class="meta-label">السجل التجاري:</span>
                     <span class="meta-dots"></span>
-                    <span class="meta-value font-mono font-bold">{{ $siteInfo['commercial_record'] ?? ($tpl['cr_number'] ?? 'CR-1010842910') }}</span>
+                    <span class="meta-value font-mono font-bold"><bdi dir="ltr">{{ $siteInfo['commercial_record'] ?? ($tpl['cr_number'] ?? 'CR-1010842910') }}</bdi></span>
                 </div>
                 @if(!empty($siteInfo['clinical_license']))
                     <div class="meta-line">
                         <span class="meta-label">الترخيص الطبي:</span>
                         <span class="meta-dots"></span>
-                        <span class="meta-value font-mono font-bold">{{ $siteInfo['clinical_license'] }}</span>
+                        <span class="meta-value font-mono font-bold"><bdi dir="ltr">{{ $siteInfo['clinical_license'] }}</bdi></span>
                     </div>
                 @endif
             </div>
@@ -539,25 +594,25 @@
             <!-- Left: Client Info & QR Code -->
             <div class="client-qr-box">
                 <div class="client-info-fields">
-                    <div class="meta-line">
+                    <div class="client-meta-line">
                         <span class="meta-label">اسم العميل:</span>
-                        <span class="meta-value">{{ $custName }}</span>
+                        <span class="meta-value font-bold" style="white-space: normal; line-height: 1.3;">{{ $custName }}</span>
                     </div>
-                    <div class="meta-line">
+                    <div class="client-meta-line">
                         <span class="meta-label">رقم العميل:</span>
-                        <span class="meta-value font-mono">{{ $custPhone }}</span>
+                        <span class="meta-value font-mono"><bdi dir="ltr">{{ $custPhone }}</bdi></span>
                     </div>
-                    <div class="meta-line">
+                    <div class="client-meta-line">
                         <span class="meta-label">العنوان:</span>
-                        <span class="meta-value" style="font-size: 0.72rem;">{{ $custAddress }}</span>
+                        <span class="meta-value" style="white-space: normal; line-height: 1.25; font-size: 0.72rem;">{{ $custAddress }}</span>
                     </div>
-                    <div class="meta-line" style="margin-top: 0.2rem;">
+                    <div class="client-meta-line" style="margin-top: 0.15rem;">
                         <span class="meta-label">تاريخ الفاتورة:</span>
-                        <span class="meta-value font-mono">{{ $invDate }}</span>
+                        <span class="meta-value font-mono"><bdi dir="ltr">{{ $invDate }}</bdi></span>
                     </div>
-                    <div class="meta-line">
+                    <div class="client-meta-line">
                         <span class="meta-label">رقم الفاتورة:</span>
-                        <span class="meta-value font-mono font-bold">{{ $invNum }}</span>
+                        <span class="meta-value font-mono font-bold"><bdi dir="ltr">{{ $invNum }}</bdi></span>
                     </div>
                 </div>
                 <div class="qr-wrapper" title="Scan for Official Verification">
@@ -579,47 +634,47 @@
             <table class="sheet-table">
                 <thead>
                     <tr>
-                        <th style="width: 3.5%;">
+                        <th style="width: 3%;">
                             <span class="th-ar">م</span>
                             <span class="th-en">N</span>
                         </th>
-                        <th style="width: 9.5%;">
+                        <th style="width: 8.5%;">
                             <span class="th-ar">كود الصنف</span>
                             <span class="th-en">Item Code</span>
                         </th>
-                        <th style="width: 25%;">
+                        <th style="width: 22%;">
                             <span class="th-ar">اسم الصنف</span>
-                            <span class="th-en">Item Descreption</span>
+                            <span class="th-en">Item Description</span>
                         </th>
-                        <th style="width: 6.5%;">
+                        <th style="width: 5%;">
                             <span class="th-ar">الكمية</span>
-                            <span class="th-en">Quantity</span>
+                            <span class="th-en">Qty</span>
                         </th>
-                        <th style="width: 13.5%;">
+                        <th style="width: 14%;">
                             <span class="th-ar">تاريخ الصلاحية / التشغيلة</span>
                             <span class="th-en">Expiry Date / Batch No.</span>
                         </th>
-                        <th style="width: 8%;">
+                        <th style="width: 7.5%;">
                             <span class="th-ar">سعر الوحدة</span>
                             <span class="th-en">Price</span>
                         </th>
-                        <th style="width: 6%;">
+                        <th style="width: 4.5%;">
                             <span class="th-ar">نسبة الخصم 1</span>
                             <span class="th-en">Disc. 1</span>
                         </th>
-                        <th style="width: 6%;">
+                        <th style="width: 4.5%;">
                             <span class="th-ar">نسبة الخصم 2</span>
                             <span class="th-en">Disc. 2</span>
                         </th>
                         <th style="width: 10%;">
                             <span class="th-ar">إجمالي بدون الضريبة</span>
-                            <span class="th-en">Totat Exc. VAT</span>
+                            <span class="th-en">Total Exc. VAT</span>
                         </th>
-                        <th style="width: 6%;">
+                        <th style="width: 8.5%;">
                             <span class="th-ar">الضريبة</span>
                             <span class="th-en">VAT</span>
                         </th>
-                        <th style="width: 6%;">
+                        <th style="width: 12.5%;">
                             <span class="th-ar">شامل الضريبة</span>
                             <span class="th-en">Total Inc.</span>
                         </th>
@@ -668,15 +723,15 @@
                         <tr>
                             <td class="text-center font-mono">{{ $rowCount }}</td>
                             <td class="text-center font-mono font-bold">{{ $sku }}</td>
-                            <td class="text-start font-bold" style="font-size: 0.7rem;">{{ $name }}</td>
-                            <td class="text-center font-mono font-bold">{{ $qty }}</td>
-                            <td class="text-center font-mono" style="font-size: 0.68rem;">{{ $batchExpiryText }}</td>
-                            <td class="text-center font-mono">{{ number_format($unitPrice, 2) }}</td>
-                            <td class="text-center font-mono">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
-                            <td class="text-center font-mono">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
-                            <td class="text-center font-mono">{{ number_format($lineExcVat, 2) }}</td>
-                            <td class="text-center font-mono">{{ number_format($lineVat, 2) }}</td>
-                            <td class="text-center font-mono font-bold">{{ number_format($lineIncVat, 2) }}</td>
+                            <td class="text-start font-bold" style="font-size: 0.7rem; line-height: 1.25;">{{ $name }}</td>
+                            <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
+                            <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
+                            <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
+                            <td class="text-center font-mono cell-num">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
+                            <td class="text-center font-mono cell-num">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
+                            <td class="text-center font-mono cell-num">{{ number_format($lineExcVat, 2) }}</td>
+                            <td class="text-center font-mono cell-num">{{ number_format($lineVat, 2) }}</td>
+                            <td class="text-center font-mono font-bold cell-num">{{ number_format($lineIncVat, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -730,7 +785,7 @@
                     <tbody>
                         <tr>
                             <td class="font-bold">{{ $tpl['totals_box']['label_subtotal_ar'] }}</td>
-                            <td class="text-center font-mono font-bold">SAR {{ number_format($finalSubtotal, 2) }}</td>
+                            <td class="text-center font-mono font-bold" style="white-space: nowrap;">SAR {{ number_format($finalSubtotal, 2) }}</td>
                         </tr>
                         <tr>
                             <td>{{ $tpl['totals_box']['label_extra_disc_pct_ar'] }}</td>
@@ -738,19 +793,19 @@
                         </tr>
                         <tr>
                             <td>{{ $tpl['totals_box']['label_extra_disc_val_ar'] }}</td>
-                            <td class="text-center font-mono">SAR {{ number_format($discount, 2) }}</td>
+                            <td class="text-center font-mono" style="white-space: nowrap;">SAR {{ number_format($discount, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="font-bold">{{ $tpl['totals_box']['label_net_before_vat_ar'] }}</td>
-                            <td class="text-center font-mono font-bold">SAR {{ number_format(max(0, $finalSubtotal - $discount), 2) }}</td>
+                            <td class="text-center font-mono font-bold" style="white-space: nowrap;">SAR {{ number_format(max(0, $finalSubtotal - $discount), 2) }}</td>
                         </tr>
                         <tr>
                             <td class="font-bold">{{ $tpl['totals_box']['label_vat_ar'] }}</td>
-                            <td class="text-center font-mono font-bold">SAR {{ number_format($finalTax, 2) }}</td>
+                            <td class="text-center font-mono font-bold" style="white-space: nowrap;">SAR {{ number_format($finalTax, 2) }}</td>
                         </tr>
                         <tr style="background-color: var(--inv-th-bg);">
                             <td class="font-bold" style="font-size: 0.82rem;">{{ $tpl['totals_box']['label_grand_total_ar'] }}</td>
-                            <td class="text-center font-mono font-bold" style="font-size: 0.88rem;">
+                            <td class="text-center font-mono font-bold" style="font-size: 0.88rem; white-space: nowrap;">
                                 SAR {{ number_format($finalTotal, 2) }}
                             </td>
                         </tr>
@@ -771,7 +826,7 @@
                         <tr>
                             <td class="font-bold">طريقة الدفع:</td>
                             <td>
-                                <div class="payment-methods-row">
+                                <div class="payment-methods-grid">
                                     <span class="chk-item">
                                         <span class="chk-box">{{ $isPartial ? '✓' : '' }}</span>
                                         <span>دفع جزئي Partial</span>
@@ -793,21 +848,21 @@
                         </tr>
                         <tr>
                             <td class="font-bold">المبلغ المدفوع:</td>
-                            <td class="font-mono font-bold">SAR {{ number_format($paidAmount, 2) }}</td>
+                            <td class="font-mono font-bold" style="white-space: nowrap;">SAR {{ number_format($paidAmount, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="font-bold">المبلغ المتبقي:</td>
-                            <td class="font-mono font-bold" style="color: {{ $finalDue > 0 ? '#b91c1c' : '#047857' }};">
+                            <td class="font-mono font-bold" style="white-space: nowrap; color: {{ $finalDue > 0 ? '#b91c1c' : '#047857' }};">
                                 SAR {{ number_format($finalDue, 2) }}
                             </td>
                         </tr>
                         <tr>
                             <td class="font-bold">تاريخ الاستحقاق:</td>
-                            <td class="font-mono">{{ $finalDue > 0 ? $dueDate : 'مسدد بالكامل' }}</td>
+                            <td class="font-mono"><bdi dir="ltr">{{ $finalDue > 0 ? $dueDate : 'مسدد بالكامل' }}</bdi></td>
                         </tr>
                         <tr>
                             <td class="font-bold">مرجع التحويل البنكي:</td>
-                            <td class="font-mono">{{ $bankRef ?: '—' }}</td>
+                            <td class="font-mono"><bdi dir="ltr">{{ $bankRef ?: '—' }}</bdi></td>
                         </tr>
                     </tbody>
                 </table>
@@ -841,7 +896,8 @@
                 </p>
             </div>
         @endif
-    </div>
+        </div><!-- /.invoice-canvas -->
+    </div><!-- /.invoice-page-viewport -->
 
 </body>
 </html>

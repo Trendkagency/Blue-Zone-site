@@ -50,7 +50,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'م',
                     'label_en' => 'N',
-                    'width' => '4%',
+                    'width' => '3%',
                     'align' => 'center',
                 ],
                 'item_code' => [
@@ -58,7 +58,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'كود الصنف',
                     'label_en' => 'Item Code',
-                    'width' => '10%',
+                    'width' => '8.5%',
                     'align' => 'center',
                 ],
                 'item_description' => [
@@ -66,7 +66,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'اسم الصنف',
                     'label_en' => 'Item Description',
-                    'width' => '24%',
+                    'width' => '22%',
                     'align' => 'start',
                 ],
                 'quantity' => [
@@ -74,7 +74,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'الكمية',
                     'label_en' => 'Quantity',
-                    'width' => '7%',
+                    'width' => '5%',
                     'align' => 'center',
                 ],
                 'batch_expiry' => [
@@ -82,7 +82,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'تاريخ الصلاحية / التشغيلة',
                     'label_en' => 'Expiry Date / Batch No.',
-                    'width' => '13%',
+                    'width' => '14%',
                     'align' => 'center',
                 ],
                 'unit_price' => [
@@ -90,7 +90,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'سعر الوحدة',
                     'label_en' => 'Price',
-                    'width' => '8%',
+                    'width' => '7.5%',
                     'align' => 'center',
                 ],
                 'disc_1' => [
@@ -98,7 +98,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'نسبة الخصم 1',
                     'label_en' => 'Disc. 1',
-                    'width' => '6%',
+                    'width' => '4.5%',
                     'align' => 'center',
                 ],
                 'disc_2' => [
@@ -106,7 +106,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'نسبة الخصم 2',
                     'label_en' => 'Disc. 2',
-                    'width' => '6%',
+                    'width' => '4.5%',
                     'align' => 'center',
                 ],
                 'total_exc_vat' => [
@@ -122,15 +122,15 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'الضريبة',
                     'label_en' => 'VAT',
-                    'width' => '6%',
+                    'width' => '8.5%',
                     'align' => 'center',
                 ],
                 'total_inc_vat' => [
                     'key' => 'total_inc_vat',
                     'visible' => true,
-                    'label_ar' => 'إجمالي الصنف شامل الضريبة',
+                    'label_ar' => 'شامل الضريبة',
                     'label_en' => 'Total Inc. VAT',
-                    'width' => '11%',
+                    'width' => '12.5%',
                     'align' => 'center',
                 ],
             ],
