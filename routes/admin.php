@@ -23,6 +23,13 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\Finance\FinanceDashboardController;
+use App\Http\Controllers\Admin\Finance\SalesInvoiceController;
+use App\Http\Controllers\Admin\Finance\PurchaseInvoiceController;
+use App\Http\Controllers\Admin\Finance\CustomerPaymentController;
+use App\Http\Controllers\Admin\Finance\SupplierPaymentController;
+use App\Http\Controllers\Admin\Finance\ExpenseController;
+use App\Http\Controllers\Admin\Finance\FinancialAccountController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\Mr\AssignmentController as MrAssignmentController;
 use App\Http\Controllers\Admin\Mr\ClassificationController as MrClassificationController;
@@ -862,6 +869,55 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/mrp-forecast', [SupplyChainReportController::class, 'mrpForecast'])->middleware('permission:supply_chain_reports.view')->name('mrp-forecast');
             Route::get('/scrap-variance', [SupplyChainReportController::class, 'scrapVariance'])->middleware('permission:supply_chain_reports.view')->name('scrap-variance');
             Route::get('/lot-traceability', [SupplyChainReportController::class, 'lotTraceability'])->middleware('permission:supply_chain_reports.view')->name('lot-traceability');
+        });
+
+        // Unified Corporate FINANCE Module
+        Route::prefix('finance')->name('finance.')->group(function () {
+            // 1. Finance Dashboard
+            Route::get('/dashboard', [FinanceDashboardController::class, 'index'])->name('dashboard');
+
+            // 2. Sales Invoices
+            Route::prefix('sales-invoices')->name('sales-invoices.')->group(function () {
+                Route::get('/', [SalesInvoiceController::class, 'index'])->name('index');
+                Route::post('/{order}/receive-payment', [SalesInvoiceController::class, 'receivePayment'])->name('receive-payment');
+            });
+
+            // 3. Purchase Invoices (Vendor Bills)
+            Route::prefix('purchase-invoices')->name('purchase-invoices.')->group(function () {
+                Route::get('/', [PurchaseInvoiceController::class, 'index'])->name('index');
+                Route::get('/create', [PurchaseInvoiceController::class, 'create'])->name('create');
+                Route::post('/', [PurchaseInvoiceController::class, 'store'])->name('store');
+                Route::get('/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('show');
+                Route::post('/{purchaseInvoice}/pay', [PurchaseInvoiceController::class, 'pay'])->name('pay');
+            });
+
+            // 4. Customer Payments
+            Route::prefix('customer-payments')->name('customer-payments.')->group(function () {
+                Route::get('/', [CustomerPaymentController::class, 'index'])->name('index');
+                Route::post('/', [CustomerPaymentController::class, 'store'])->name('store');
+                Route::get('/{transaction}/voucher', [CustomerPaymentController::class, 'voucher'])->name('voucher');
+            });
+
+            // 5. Supplier Payments
+            Route::prefix('supplier-payments')->name('supplier-payments.')->group(function () {
+                Route::get('/', [SupplierPaymentController::class, 'index'])->name('index');
+                Route::post('/', [SupplierPaymentController::class, 'store'])->name('store');
+                Route::get('/{transaction}/voucher', [SupplierPaymentController::class, 'voucher'])->name('voucher');
+            });
+
+            // 6. Expenses
+            Route::prefix('expenses')->name('expenses.')->group(function () {
+                Route::get('/', [ExpenseController::class, 'index'])->name('index');
+                Route::post('/', [ExpenseController::class, 'store'])->name('store');
+            });
+
+            // 7. Cash & Bank Accounts
+            Route::prefix('accounts')->name('accounts.')->group(function () {
+                Route::get('/', [FinancialAccountController::class, 'index'])->name('index');
+                Route::post('/', [FinancialAccountController::class, 'store'])->name('store');
+                Route::post('/transfer', [FinancialAccountController::class, 'transfer'])->name('transfer');
+                Route::get('/{financialAccount}', [FinancialAccountController::class, 'show'])->name('show');
+            });
         });
 
         // Dynamic Cascading Geo API Endpoints

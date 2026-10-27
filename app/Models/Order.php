@@ -103,4 +103,23 @@ class Order extends Model
 
         return $steps;
     }
+
+    public function financialPayments(): HasMany
+    {
+        return $this->hasMany(FinancialTransaction::class, 'order_id');
+    }
+
+    public function getPaidAmountAttribute(): float
+    {
+        $collected = (float) $this->financialPayments()->where('direction', 'credit')->sum('amount');
+        if ($collected <= 0 && strtolower($this->payment_status ?? '') === 'paid') {
+            return (float) $this->total;
+        }
+        return $collected;
+    }
+
+    public function getDueBalanceAttribute(): float
+    {
+        return max(0, (float) $this->total - $this->paid_amount);
+    }
 }

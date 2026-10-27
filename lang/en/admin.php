@@ -14,6 +14,7 @@ return array (
     'stock_transfers' => 'Stock Transfers',
     'stock_history' => 'Stock Movement History',
     'sales' => 'Commerce & Sales',
+    'finance' => 'Finance',
     'online_orders' => 'Online Orders',
     'invoices' => 'Tax Invoices',
     'customers' => 'Customer Database',

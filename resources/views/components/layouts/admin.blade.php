@@ -42,6 +42,7 @@
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
                     $isSalesActive = request()->routeIs('admin.sales.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*');
+                    $isFinanceActive = request()->routeIs('admin.finance.*');
                     $isCustomersActive = request()->routeIs('admin.customers.*') || request()->routeIs('admin.reports.*');
                     $isMrActive = request()->routeIs('admin.mr.*') || request()->is('admin/mr*');
                     $isCrmActive = request()->routeIs('admin.crm.*');
@@ -501,6 +502,71 @@
                                 class="sidebar-sublink {{ request()->routeIs('admin.sales.orders.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-receipt text-xs text-amber-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'أوامر البيع' : 'Sales Orders' }}</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Unified FINANCE Section (Based on Design Screen) -->
+                @if($u && ($u->hasPermission('finance.view') || $u->hasPermission('finance') || $u->isSuperAdmin() || $u->isAdmin()))
+                    <div class="sidebar-dropdown-group {{ $isFinanceActive ? 'is-open' : '' }}" id="group-finance">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isFinanceActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-finance')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-coins sidebar-link-icon text-emerald-400"></i>
+                                <span class="font-bold tracking-wider uppercase text-[12px]">{{ app()->getLocale() === 'ar' ? 'المالية' : 'FINANCE' }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <!-- 1. Finance Dashboard -->
+                            <a href="{{ route('admin.finance.dashboard') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.dashboard') ? 'active' : '' }}">
+                                <i class="fa-solid fa-gauge-high text-xs text-emerald-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم المالية' : 'Finance Dashboard' }}</span>
+                            </a>
+
+                            <!-- 2. Sales Invoices -->
+                            <a href="{{ route('admin.finance.sales-invoices.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.sales-invoices.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice-dollar text-xs text-sky-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'فواتير المبيعات' : 'Sales Invoices' }}</span>
+                            </a>
+
+                            <!-- 3. Purchase Invoices -->
+                            <a href="{{ route('admin.finance.purchase-invoices.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.purchase-invoices.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-lines text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'فواتير المشتريات' : 'Purchase Invoices' }}</span>
+                            </a>
+
+                            <!-- 4. Customer Payments -->
+                            <a href="{{ route('admin.finance.customer-payments.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.customer-payments.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-hand-holding-dollar text-xs text-teal-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مدفوعات العملاء' : 'Customer Payments' }}</span>
+                            </a>
+
+                            <!-- 5. Supplier Payments -->
+                            <a href="{{ route('admin.finance.supplier-payments.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.supplier-payments.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-money-bill-transfer text-xs text-rose-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مدفوعات الموردين' : 'Supplier Payments' }}</span>
+                            </a>
+
+                            <!-- 6. Expenses -->
+                            <a href="{{ route('admin.finance.expenses.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.expenses.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-receipt text-xs text-purple-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المصروفات التشغيلية' : 'Expenses' }}</span>
+                            </a>
+
+                            <!-- 7. Cash & Bank Accounts -->
+                            <a href="{{ route('admin.finance.accounts.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.accounts.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-building-columns text-xs text-indigo-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الحسابات البنكية والصناديق' : 'Cash & Bank Accounts' }}</span>
                             </a>
                         </div>
                     </div>

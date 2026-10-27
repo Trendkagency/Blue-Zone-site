@@ -82,6 +82,11 @@ class PurchaseOrder extends Model
         return $this->hasMany(GoodsReceipt::class);
     }
 
+    public function purchaseInvoices(): HasMany
+    {
+        return $this->hasMany(PurchaseInvoice::class);
+    }
+
     public function batches(): HasMany
     {
         return $this->hasMany(RawMaterialBatch::class);

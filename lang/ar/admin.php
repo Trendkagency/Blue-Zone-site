@@ -14,6 +14,7 @@ return array (
     'stock_transfers' => 'نقل وتحويل المخزون',
     'stock_history' => 'سجل حركات المخزون',
     'sales' => 'المبيعات والتجارة',
+    'finance' => 'المالية',
     'online_orders' => 'طلبات المتجر الإلكتروني',
     'invoices' => 'الفواتير الضريبية',
     'customers' => 'قاعدة بيانات العملاء',
