@@ -8,8 +8,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\GoodsReceiptRequest;
 use App\Models\GoodsReceipt;
 use App\Models\Location;
+use App\Models\Product;
+use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
+use App\Services\FinanceService;
+use App\Services\InventoryService;
 use App\Services\RawMaterial\RawMaterialManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -58,7 +62,7 @@ class GoodsReceiptController extends Controller
 
         $selectedPo = null;
         if ($poId = $request->query('po_id')) {
-            $selectedPo = PurchaseOrder::with(['items.rawMaterial', 'supplier', 'destinationLocation'])
+            $selectedPo = PurchaseOrder::with(['items.rawMaterial', 'items.product', 'supplier', 'destinationLocation'])
                 ->whereIn('status', [PurchaseOrderStatus::Confirmed, PurchaseOrderStatus::PartiallyReceived])
                 ->find($poId);
         }
@@ -67,10 +71,11 @@ class GoodsReceiptController extends Controller
             ->whereIn('status', [PurchaseOrderStatus::Confirmed, PurchaseOrderStatus::PartiallyReceived])
             ->orderBy('po_number', 'desc')
             ->get();
+        $purchaseOrders = $openOrders;
 
         $locations = Location::where('is_active', true)->get();
 
-        return view('admin.supply_chain.goods_receipts.create', compact('selectedPo', 'openOrders', 'locations'));
+        return view('admin.supply_chain.goods_receipts.create', compact('selectedPo', 'openOrders', 'purchaseOrders', 'locations'));
     }
 
     public function store(GoodsReceiptRequest $request): RedirectResponse
@@ -92,26 +97,47 @@ class GoodsReceiptController extends Controller
             $rawManager = RawMaterialManager::getInstance();
 
             foreach ($itemsData as $itemInput) {
+                $isProduct = ($itemInput['item_type'] ?? '') === 'product' || !empty($itemInput['product_id']);
+
                 $grnItem = $grn->items()->create([
                     'purchase_order_item_id' => $itemInput['purchase_order_item_id'],
-                    'raw_material_id' => $itemInput['raw_material_id'],
+                    'item_type' => $isProduct ? 'product' : 'raw_material',
+                    'product_id' => $isProduct ? $itemInput['product_id'] : null,
+                    'raw_material_id' => !$isProduct ? ($itemInput['raw_material_id'] ?? null) : null,
+                    'storage_bin' => $itemInput['storage_bin'] ?? null,
                     'ordered_qty' => $itemInput['received_qty'],
                     'received_qty' => $itemInput['received_qty'],
                     'rejected_qty' => $itemInput['rejected_qty'] ?? 0.0000,
                     'supplier_lot' => $itemInput['supplier_lot'],
                     'manufacture_date' => $itemInput['manufacture_date'],
                     'expiry_date' => $itemInput['expiry_date'],
-                    'storage_condition' => $itemInput['storage_condition'],
+                    'storage_condition' => $itemInput['storage_condition'] ?? null,
                     'notes' => $itemInput['notes'] ?? null,
                 ]);
 
-                // Create quarantine batch via RawMaterialManager
-                $rawManager->receiveBatch(
-                    $grnItem,
-                    auth()->user(),
-                    $data['location_id'],
-                    $itemInput['storage_bin'] ?? null
-                );
+                if ($isProduct) {
+                    $product = Product::find($itemInput['product_id']);
+                    if ($product) {
+                        $qty = (int) round((float) $itemInput['received_qty']);
+                        InventoryService::adjustStock(
+                            $product,
+                            $data['location_id'],
+                            $qty,
+                            'Purchase Receipt',
+                            "GRN: {$grn->grn_number} (PO: {$po->po_number}) | Lot: {$itemInput['supplier_lot']}",
+                            auth()->user()?->name,
+                            $po->supplier?->name_en ?? 'Supplier'
+                        );
+                    }
+                } else {
+                    // Create quarantine batch via RawMaterialManager
+                    $rawManager->receiveBatch(
+                        $grnItem,
+                        auth()->user(),
+                        $data['location_id'],
+                        $itemInput['storage_bin'] ?? null
+                    );
+                }
 
                 // Update PO Item received quantity
                 $poItem = $po->items->firstWhere('id', $itemInput['purchase_order_item_id']);
@@ -138,15 +164,82 @@ class GoodsReceiptController extends Controller
 
         return redirect()->route('admin.goods-receipts.show', $grn)
             ->with('success', __('goods_receipts.messages.created', [
-                'default' => 'Goods receipt created successfully. Received items have been automatically tagged and placed into laboratory quarantine.',
+                'default' => 'Goods receipt created successfully. Received items have been accurately credited to warehouse stock and laboratory quarantine.',
             ]));
     }
 
     public function show(GoodsReceipt $goodsReceipt): View
     {
         $this->authorize('view', $goodsReceipt);
-        $goodsReceipt->load(['purchaseOrder', 'supplier', 'location', 'receiver', 'items.rawMaterial', 'batches.inspections']);
+        $goodsReceipt->load([
+            'purchaseOrder.items.product',
+            'purchaseOrder.items.rawMaterial',
+            'supplier',
+            'location',
+            'receiver',
+            'items.rawMaterial',
+            'items.product',
+            'batches.inspections',
+        ]);
 
         return view('admin.supply_chain.goods_receipts.show', compact('goodsReceipt'));
+    }
+
+    public function generateBill(GoodsReceipt $goodsReceipt, FinanceService $financeService): RedirectResponse
+    {
+        $this->authorize('view', $goodsReceipt);
+        $goodsReceipt->load(['purchaseOrder.items', 'supplier', 'items.product', 'items.rawMaterial']);
+
+        // Check if an invoice already exists for this GRN reference
+        $existingInvoice = PurchaseInvoice::where('purchase_order_id', $goodsReceipt->purchase_order_id)
+            ->where('reference_number', $goodsReceipt->grn_number)
+            ->first();
+
+        if ($existingInvoice) {
+            return redirect()->route('admin.finance.purchase-invoices.show', $existingInvoice)
+                ->with('info', __('goods_receipts.messages.invoice_already_exists', [
+                    'default' => 'Supplier bill already exists for this Goods Receipt (' . $goodsReceipt->grn_number . ').',
+                ]));
+        }
+
+        // Build invoice data from received items
+        $items = [];
+        $subtotal = 0.0;
+        foreach ($goodsReceipt->items as $item) {
+            $poItem = $item->purchaseOrderItem;
+            $unitPrice = $poItem ? (float) $poItem->unit_price : 0.0;
+            $qty = (float) $item->received_qty;
+            $lineSub = round($qty * $unitPrice, 2);
+            $subtotal += $lineSub;
+
+            $items[] = [
+                'raw_material_id' => $item->raw_material_id,
+                'item_name' => $item->item_name . ($item->supplier_lot ? " (Lot: {$item->supplier_lot})" : ''),
+                'quantity' => $qty,
+                'unit_price' => $unitPrice,
+                'tax_rate' => 5.0,
+            ];
+        }
+
+        $taxAmount = round($subtotal * 0.05, 2);
+        $grandTotal = $subtotal + $taxAmount;
+
+        $invoice = $financeService->createPurchaseInvoice([
+            'supplier_id' => $goodsReceipt->supplier_id,
+            'purchase_order_id' => $goodsReceipt->purchase_order_id,
+            'reference_number' => $goodsReceipt->grn_number,
+            'invoice_date' => now()->toDateString(),
+            'due_date' => now()->addDays(30)->toDateString(),
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxAmount,
+            'grand_total' => $grandTotal,
+            'notes' => "Auto-generated 3-way match bill from GRN {$goodsReceipt->grn_number} (PO #{$goodsReceipt->purchaseOrder?->po_number})",
+            'items' => $items,
+        ], $goodsReceipt->purchaseOrder);
+
+        return redirect()->route('admin.finance.purchase-invoices.show', $invoice)
+            ->with('success', __('goods_receipts.messages.bill_generated', [
+                'default' => 'Supplier Bill successfully created and matched against GRN ' . $goodsReceipt->grn_number,
+            ]));
     }
 }

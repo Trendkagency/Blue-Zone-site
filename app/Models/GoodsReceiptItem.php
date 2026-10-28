@@ -15,7 +15,9 @@ class GoodsReceiptItem extends Model
         'goods_receipt_id',
         'purchase_order_item_id',
         'po_item_id',
+        'item_type',
         'raw_material_id',
+        'product_id',
         'ordered_qty',
         'received_qty',
         'quantity_received',
@@ -24,6 +26,7 @@ class GoodsReceiptItem extends Model
         'manufacture_date',
         'expiry_date',
         'storage_condition',
+        'storage_bin',
         'notes',
     ];
 
@@ -54,6 +57,27 @@ class GoodsReceiptItem extends Model
         return $this->belongsTo(RawMaterial::class);
     }
 
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function getItemNameAttribute(): string
+    {
+        if ($this->item_type === 'product' && $this->product) {
+            return app()->getLocale() === 'ar' ? ($this->product->name_ar ?? $this->product->name_en) : $this->product->name_en;
+        }
+        return $this->rawMaterial ? (app()->getLocale() === 'ar' ? ($this->rawMaterial->name_ar ?? $this->rawMaterial->name_en) : $this->rawMaterial->name_en) : '—';
+    }
+
+    public function getItemSkuAttribute(): string
+    {
+        if ($this->item_type === 'product' && $this->product) {
+            return $this->product->sku ?? ('PRD-' . $this->product_id);
+        }
+        return $this->rawMaterial ? ($this->rawMaterial->material_code ?? ('RM-' . $this->raw_material_id)) : '—';
+    }
+
     public function getPoItemIdAttribute(): ?int
     {
         return $this->purchase_order_item_id;
@@ -80,8 +104,12 @@ class GoodsReceiptItem extends Model
             if ($item->ordered_qty === null) {
                 $item->ordered_qty = $item->purchaseOrderItem?->ordered_qty ?? $item->received_qty ?? 0;
             }
-            if ($item->storage_condition === null && $item->rawMaterial) {
-                $item->storage_condition = $item->rawMaterial->storage_condition;
+            if ($item->storage_condition === null) {
+                if ($item->rawMaterial) {
+                    $item->storage_condition = $item->rawMaterial->storage_condition;
+                } else {
+                    $item->storage_condition = StorageCondition::Ambient;
+                }
             }
             if ($item->manufacture_date === null) {
                 $item->manufacture_date = now()->subDays(14);

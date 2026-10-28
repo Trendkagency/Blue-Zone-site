@@ -6,6 +6,7 @@ use App\Enums\PurchaseOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PurchaseOrderRequest;
 use App\Models\Location;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\RawMaterial;
 use App\Models\Supplier;
@@ -65,9 +66,10 @@ class PurchaseOrderController extends Controller
         $this->authorize('create', PurchaseOrder::class);
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
         $materials = RawMaterial::where('is_active', true)->orderBy('name_en')->get();
+        $products = Product::where('status', 'active')->orWhereNull('status')->orderBy('name_en')->get(['id', 'sku', 'name_en', 'name_ar', 'price', 'cost_price']);
         $locations = Location::where('is_active', true)->get();
 
-        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'locations'));
+        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations'));
     }
 
     public function store(PurchaseOrderRequest $request): RedirectResponse
@@ -89,8 +91,13 @@ class PurchaseOrderController extends Controller
             foreach ($itemsData as $item) {
                 $lineTotal = round((float) $item['ordered_qty'] * (float) $item['unit_price'], 2);
                 $subtotal += $lineTotal;
+
+                $isProduct = ($item['item_type'] ?? '') === 'product' || !empty($item['product_id']);
+
                 $itemsToCreate[] = [
-                    'raw_material_id' => $item['raw_material_id'],
+                    'item_type' => $isProduct ? 'product' : 'raw_material',
+                    'product_id' => $isProduct ? $item['product_id'] : null,
+                    'raw_material_id' => !$isProduct ? ($item['raw_material_id'] ?? null) : null,
                     'ordered_qty' => $item['ordered_qty'],
                     'received_qty' => 0.0000,
                     'unit_price' => $item['unit_price'],
@@ -120,7 +127,17 @@ class PurchaseOrderController extends Controller
     public function show(PurchaseOrder $purchaseOrder): View
     {
         $this->authorize('view', $purchaseOrder);
-        $purchaseOrder->load(['supplier', 'destinationLocation', 'creator', 'approver', 'items.rawMaterial', 'goodsReceipts.receiver']);
+        $purchaseOrder->load([
+            'supplier',
+            'destinationLocation',
+            'creator',
+            'approver',
+            'items.rawMaterial',
+            'items.product',
+            'goodsReceipts.receiver',
+            'goodsReceipts.items.rawMaterial',
+            'goodsReceipts.items.product',
+        ]);
 
         return view('admin.supply_chain.purchase_orders.show', compact('purchaseOrder'));
     }
@@ -168,7 +185,7 @@ class PurchaseOrderController extends Controller
     public function print(PurchaseOrder $purchaseOrder): View
     {
         $this->authorize('view', $purchaseOrder);
-        $purchaseOrder->load(['supplier.country', 'destinationLocation', 'creator', 'approver', 'items.rawMaterial']);
+        $purchaseOrder->load(['supplier.country', 'destinationLocation', 'creator', 'approver', 'items.rawMaterial', 'items.product']);
 
         return view('admin.supply_chain.purchase_orders.print', compact('purchaseOrder'));
     }

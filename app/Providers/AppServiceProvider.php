@@ -46,6 +46,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\RawMaterial\VendorEvaluationEngine::class, function () {
             return \App\Services\RawMaterial\VendorEvaluationEngine::getInstance();
         });
+
+        // Singleton pattern: PaymentService for financial disbursements
+        $this->app->singleton(\App\Services\PaymentService::class, function () {
+            return new \App\Services\PaymentService();
+        });
+
+        // Singleton pattern: CollectionService for financial revenue collections
+        $this->app->singleton(\App\Services\CollectionService::class, function () {
+            return new \App\Services\CollectionService();
+        });
     }
 
     /**

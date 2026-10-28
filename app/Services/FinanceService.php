@@ -49,6 +49,11 @@ class FinanceService
             $totalCollected = (float) $order->financialPayments()->where('direction', 'credit')->sum('amount');
             if ($totalCollected >= (float) $order->total) {
                 $order->update(['payment_status' => 'Paid']);
+                try {
+                    app(\App\Services\CollectionService::class)->syncOrder($order);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Collection auto-sync failed: ' . $e->getMessage());
+                }
             } elseif ($totalCollected > 0) {
                 $order->update(['payment_status' => 'Partially Paid']);
             }

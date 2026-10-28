@@ -141,6 +141,29 @@ class PurchaseInvoiceController extends Controller
     }
 
     /**
+     * Print vendor purchase invoice.
+     */
+    public function print(int $id): View
+    {
+        $invoice = PurchaseInvoice::with(['supplier', 'purchaseOrder', 'items.rawMaterial', 'payments.account'])
+            ->findOrFail($id);
+
+        $siteInfo = [
+            'brand_name' => 'Blue Zone Pharmaceuticals',
+            'tax_number' => '100293847500003',
+            'commercial_record' => 'CR-1010884920',
+            'phone' => '+971 4 800 2583',
+            'email' => 'procurement@bluezonepharma.com',
+            'website' => 'www.bluezonepharma.com',
+        ];
+
+        return view('admin.finance.purchase-invoices.print', [
+            'invoice' => $invoice,
+            'siteInfo' => $siteInfo,
+        ]);
+    }
+
+    /**
      * Record supplier payment against bill.
      */
     public function pay(Request $request, int $id): RedirectResponse
