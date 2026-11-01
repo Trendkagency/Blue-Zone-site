@@ -379,6 +379,102 @@
                     </div>
                 </div>
 
+                <!-- BOM Raw Material Cost Rollup & Overhead Engine Card -->
+                <div style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(6, 182, 212, 0.04)); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg, 16px); padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1rem; color: var(--color-primary); display: flex; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-calculator text-emerald-600"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'حساب تكلفة المواد الخام والمصاريف الإضافية (BOM Cost Rollup)' : 'Raw Material BOM Cost Rollup & Overheads' }}</span>
+                                <span class="badge {{ ($product['cost_calculation_mode'] ?? 'manual_locked') === 'auto_bom' ? 'badge-emerald' : 'badge-secondary' }}" id="costModeBadge">
+                                    {{ ($product['cost_calculation_mode'] ?? 'manual_locked') === 'auto_bom' ? 'Auto Dynamic Rollup' : 'Manual Cost Locked' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-muted" style="margin: 0.25rem 0 0 0;">
+                                {{ app()->getLocale() === 'ar' ? 'يتم احتساب تكلفة المواد الخام من جدول التركيبة وإضافتها لسعر المنتج تلقائياً مع إمكانية القفل أو التحكم اليدوي' : 'Calculate base costs dynamically from recipe raw materials plus packaging & labor overheads, with full user control' }}
+                            </p>
+                        </div>
+
+                        <!-- Calculation Mode Selector -->
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label class="text-xs font-bold text-muted">{{ app()->getLocale() === 'ar' ? 'وضع الاحتساب:' : 'Costing Mode:' }}</label>
+                            <select name="cost_calculation_mode" id="selectCostCalculationMode" onchange="handleCostModeChange(this.value)" class="form-select form-select-sm text-xs rounded-xl font-bold">
+                                <option value="manual_locked" {{ ($product['cost_calculation_mode'] ?? 'manual_locked') === 'manual_locked' ? 'selected' : '' }}>
+                                    🔒 {{ app()->getLocale() === 'ar' ? 'تكلفة ثابتة يدوية (Manual Locked)' : 'Manual Cost Locked' }}
+                                </option>
+                                <option value="auto_bom" {{ ($product['cost_calculation_mode'] ?? 'manual_locked') === 'auto_bom' ? 'selected' : '' }}>
+                                    ⚡ {{ app()->getLocale() === 'ar' ? 'تحديث تلقائي من المواد الخام (Auto BOM Rollup)' : 'Auto Rollup from BOM' }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Metrics -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                        <!-- Raw Material Recipe Cost -->
+                        <div class="card p-3 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl">
+                            <span class="text-xs text-muted font-bold block mb-1">
+                                🧪 {{ app()->getLocale() === 'ar' ? 'تكلفة المواد الخام المباشرة' : 'Raw Materials Cost (BOM)' }}
+                            </span>
+                            <div class="font-mono font-black text-lg text-emerald-600" id="displayBomMaterialCost">
+                                {{ number_format($product['bom_material_cost'] ?? 0, 4) }} SAR
+                            </div>
+                            <span class="text-[11px] text-muted block mt-0.5">
+                                {{ $recipeItems->count() }} {{ app()->getLocale() === 'ar' ? 'مواد خام مدخلة' : 'recipe components' }}
+                            </span>
+                        </div>
+
+                        <!-- Packaging Overhead -->
+                        <div>
+                            <label class="form-label text-xs font-bold block mb-1">
+                                📦 {{ app()->getLocale() === 'ar' ? 'تكلفة التعبئة والتغليف (لكل وحدة)' : 'Packaging Overhead (SAR)' }}
+                            </label>
+                            <input 
+                                type="number" 
+                                name="packaging_overhead_cost" 
+                                id="inputPackagingCost" 
+                                step="0.0001" 
+                                min="0" 
+                                value="{{ old('packaging_overhead_cost', $product['packaging_overhead_cost'] ?? 0) }}" 
+                                oninput="recalcTotalBomCost()"
+                                class="form-control text-xs font-mono font-bold rounded-xl"
+                            >
+                        </div>
+
+                        <!-- Labor Overhead -->
+                        <div>
+                            <label class="form-label text-xs font-bold block mb-1">
+                                ⚙️ {{ app()->getLocale() === 'ar' ? 'مصاريف التشغيل والعمالة (لكل وحدة)' : 'Labor & Overhead (SAR)' }}
+                            </label>
+                            <input 
+                                type="number" 
+                                name="labor_overhead_cost" 
+                                id="inputLaborCost" 
+                                step="0.0001" 
+                                min="0" 
+                                value="{{ old('labor_overhead_cost', $product['labor_overhead_cost'] ?? 0) }}" 
+                                oninput="recalcTotalBomCost()"
+                                class="form-control text-xs font-mono font-bold rounded-xl"
+                            >
+                        </div>
+
+                        <!-- Total Calculated BOM Cost & Apply Action -->
+                        <div class="card p-3 border border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-emerald-700 dark:text-emerald-300 font-bold block mb-0.5">
+                                    {{ app()->getLocale() === 'ar' ? 'إجمالي التكلفة المحسوبة' : 'Total Calculated Cost' }}
+                                </span>
+                                <div class="font-mono font-black text-xl text-emerald-600" id="displayTotalBomCost">
+                                    {{ number_format($product['bom_total_cost'] ?? 0, 4) }} SAR
+                                </div>
+                            </div>
+                            <button type="button" onclick="applyBomCostToCostPrice()" class="btn btn-sm btn-outline border-emerald-500 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-xl text-xs font-bold shadow-sm">
+                                <i class="fa-solid fa-arrow-up mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'تطبيق التكلفة' : 'Apply to Cost' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Dynamic Promotional Discount Module -->
                 <div style="margin-top: 1.5rem; background: var(--color-bg-subtle, #f8fafc); border: 1px solid var(--color-border); border-radius: var(--radius-lg, 16px); padding: 1.5rem; transition: all 0.3s ease;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
@@ -1016,7 +1112,7 @@
                     <input type="hidden" name="stock_online" id="stock_online" value="{{ $product['stock_online'] }}">
 
                     <!-- Threshold & Controls Section -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
                         <x-forms.input 
                             name="low_stock_threshold" 
                             type="number" 
@@ -1025,6 +1121,17 @@
                             :value="old('low_stock_threshold', $product['low_stock_threshold'])" 
                             required 
                             hint="يطلق إشعاراً عاجلاً للمدراء ومسؤولي الإمداد عند انخفاض الرصيد عن هذا الحد."
+                        />
+
+                        <x-forms.input 
+                            name="shelf_life_months" 
+                            type="number" 
+                            min="1"
+                            max="120"
+                            label="Standard Shelf Life (Months) / الصلاحية (شهور)" 
+                            :value="old('shelf_life_months', $product['shelf_life_months'] ?? 24)" 
+                            required 
+                            hint="مدة الصلاحية الافتراضية لحساب تاريخ انتهاء كل تشغيلة جديدة (تاريخ الإنتاج + الصلاحية)."
                         />
 
                         <x-forms.select 
@@ -1038,6 +1145,102 @@
                             :selected="old('status', $product['status'] ?? 'active')"
                             required 
                         />
+                    </div>
+
+                    <!-- Finished Product Batches & FIFO / FEFO Management -->
+                    <div style="border-top: 1px solid var(--color-border); padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-layer-group text-sky-500"></i>
+                                    <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات المنتج وجدولة الصرف (FIFO / FEFO Batches)' : 'Batches & FEFO Outbound Priority' }}</span>
+                                </h4>
+                                <p class="text-xs text-muted" style="margin: 0;">
+                                    {{ app()->getLocale() === 'ar' ? 'نظام الصرف الذكي يعتمد ترتيب الصلاحية (الأقرب انتهاءً يصرف أولاً) مع حظر التشغيلات المنتهية تلقائياً' : 'Automated FEFO prioritizes oldest unexpired batches for checkout & sales orders' }}
+                                </p>
+                            </div>
+                            <span class="badge badge-primary font-mono text-xs">
+                                {{ $batches->count() }} {{ app()->getLocale() === 'ar' ? 'تشغيلة مسجلة' : 'Batches Total' }}
+                            </span>
+                        </div>
+
+                        @if($batches->isNotEmpty())
+                            <div class="table-responsive overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                                <table class="table w-full text-xs">
+                                    <thead>
+                                        <tr class="bg-slate-50 dark:bg-slate-900 text-slate-500 uppercase font-bold text-[11px]">
+                                            <th class="w-12 text-center">FEFO</th>
+                                            <th>Batch Number</th>
+                                            <th>Location</th>
+                                            <th class="text-center">Manufacture</th>
+                                            <th class="text-center">Expiry Date</th>
+                                            <th class="text-center">Available / Initial</th>
+                                            <th class="text-right">Unit Cost</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                                        @foreach($batches as $bIndex => $b)
+                                            @php
+                                                $badge = $b->expiry_badge;
+                                                $isNextOut = ($bIndex === 0 && $b->available_qty > 0 && $b->status === 'approved');
+                                            @endphp
+                                            <tr class="{{ $isNextOut ? 'bg-sky-50/40 dark:bg-sky-950/20 font-bold' : '' }}">
+                                                <td class="text-center">
+                                                    @if($isNextOut)
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-sky-500 text-white">#1 OUT</span>
+                                                    @elseif($b->available_qty > 0 && $b->status === 'approved')
+                                                        <span class="text-slate-400 text-[11px]">#{{ $bIndex + 1 }}</span>
+                                                    @else
+                                                        <span class="text-slate-300 text-[10px]">—</span>
+                                                    @endif
+                                                </td>
+                                                <td class="font-bold text-slate-900 dark:text-white">
+                                                    {{ $b->batch_number }}
+                                                    @if($b->supplier_lot)
+                                                        <span class="text-[10px] text-muted block font-normal">Lot: {{ $b->supplier_lot }}</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-secondary text-[11px]">{{ $b->location_id }}</span>
+                                                </td>
+                                                <td class="text-center text-slate-500">
+                                                    {{ $b->manufacture_date?->format('Y-m-d') ?? '—' }}
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="font-bold {{ $badge['color'] === 'rose' ? 'text-rose-600' : ($badge['color'] === 'orange' ? 'text-orange-600' : ($badge['color'] === 'amber' ? 'text-amber-600' : 'text-emerald-600')) }}">
+                                                        {{ $b->expiry_date?->format('Y-m-d') }}
+                                                    </span>
+                                                    <span class="text-[10px] text-muted block">{{ $badge['label_' . (app()->getLocale() === 'ar' ? 'ar' : 'en')] }}</span>
+                                                </td>
+                                                <td class="text-center font-bold">
+                                                    <span class="{{ $b->available_qty > 0 ? 'text-emerald-600' : 'text-slate-400' }}">{{ $b->available_qty }}</span>
+                                                    <span class="text-slate-400 text-[11px]">/ {{ $b->initial_qty }}</span>
+                                                </td>
+                                                <td class="text-right text-slate-700 dark:text-slate-300">
+                                                    {{ number_format($b->unit_cost, 2) }} SAR
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-{{ $b->status === 'approved' ? 'emerald' : ($b->status === 'quarantine' ? 'amber' : 'rose') }} text-[11px]">
+                                                        {{ ucfirst($b->status) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="card p-4 text-center border border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
+                                <i class="fa-solid fa-boxes-packing text-slate-400 text-2xl mb-1 block"></i>
+                                <span class="text-xs font-bold text-slate-600 dark:text-slate-400 block">
+                                    {{ app()->getLocale() === 'ar' ? 'لا توجد تشغيلات مسجلة لهذا المنتج بعد' : 'No physical batches recorded yet for this product' }}
+                                </span>
+                                <span class="text-[11px] text-muted block mt-0.5">
+                                    {{ app()->getLocale() === 'ar' ? 'يتم توليد التشغيلات تلقائياً عند اعتماد أوامر التصنيع (Work Orders) أو فواتير الشراء وتوريد البضاعة.' : 'Batches are automatically registered upon completing manufacturing work orders or vendor goods receipts.' }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.5rem; border-top: 1px dashed var(--color-border); padding-top: 1rem;">
@@ -1517,6 +1720,54 @@
             } else {
                 if (bar) bar.style.display = 'none';
                 if (badge) badge.style.display = 'none';
+            }
+        }
+
+        const bomMaterialCostBase = {{ (float) ($product['bom_material_cost'] ?? 0) }};
+
+        function recalcTotalBomCost() {
+            const pkg = parseFloat(document.getElementById('inputPackagingCost')?.value) || 0;
+            const labor = parseFloat(document.getElementById('inputLaborCost')?.value) || 0;
+            const total = bomMaterialCostBase + pkg + labor;
+            
+            const displayEl = document.getElementById('displayTotalBomCost');
+            if (displayEl) {
+                displayEl.innerText = total.toFixed(4) + ' SAR';
+            }
+
+            const mode = document.getElementById('selectCostCalculationMode')?.value;
+            if (mode === 'auto_bom') {
+                const costInput = document.getElementById('inputCostPrice');
+                if (costInput) {
+                    costInput.value = total.toFixed(2);
+                    recalculateTaxAndMargin();
+                }
+            }
+        }
+
+        function handleCostModeChange(mode) {
+            const badge = document.getElementById('costModeBadge');
+            if (badge) {
+                if (mode === 'auto_bom') {
+                    badge.className = 'badge badge-emerald';
+                    badge.innerText = 'Auto Dynamic Rollup';
+                    recalcTotalBomCost();
+                } else {
+                    badge.className = 'badge badge-secondary';
+                    badge.innerText = 'Manual Cost Locked';
+                }
+            }
+        }
+
+        function applyBomCostToCostPrice() {
+            const pkg = parseFloat(document.getElementById('inputPackagingCost')?.value) || 0;
+            const labor = parseFloat(document.getElementById('inputLaborCost')?.value) || 0;
+            const total = bomMaterialCostBase + pkg + labor;
+            
+            const costInput = document.getElementById('inputCostPrice');
+            if (costInput) {
+                costInput.value = total.toFixed(2);
+                recalculateTaxAndMargin();
             }
         }
 

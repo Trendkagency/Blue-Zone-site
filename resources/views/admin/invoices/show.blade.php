@@ -905,8 +905,8 @@
                                                  $disc1 = (float) ($isItemObj ? ($item->disc_1 ?? ($item->discount ?? 0)) : ($item['disc_1'] ?? ($item['discount'] ?? 0)));
                                                  $disc2 = (float) ($isItemObj ? ($item->disc_2 ?? 0) : ($item['disc_2'] ?? 0));
                                                  
-                                                 $batch = $isItemObj ? ($item->batch_number ?? ($item->batch?->batch_number ?? '—')) : ($item['batch_number'] ?? '—');
-                                                 $expiry = $isItemObj ? ($item->expiry_date ?? ($item->batch?->expiry_date ?? '—')) : ($item['expiry_date'] ?? '—');
+                                                 $batch = $isItemObj ? ($item->batch_number ?? ($item->productBatch?->batch_number ?? ($item->batch?->batch_number ?? '—'))) : ($item['batch_number'] ?? '—');
+                                                 $expiry = $isItemObj ? ($item->expiry_date ?? ($item->productBatch?->expiry_date ?? ($item->batch?->expiry_date ?? '—'))) : ($item['expiry_date'] ?? '—');
                                                  if ($expiry instanceof \Carbon\Carbon) {
                                                      $expiry = $expiry->format('Y-m-d');
                                                  }

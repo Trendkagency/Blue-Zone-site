@@ -7,7 +7,7 @@
         __('finance.create_purchase_invoice') => route('admin.finance.purchase-invoices.create')
     ]"
 >
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-5xl mx-auto space-y-6">
         <form method="POST" action="{{ route('admin.finance.purchase-invoices.store') }}" class="space-y-6">
             @csrf
 
@@ -65,43 +65,75 @@
                 </div>
             </div>
 
-            <!-- Items Table Card -->
+            <!-- Items Table Card: Control between Raw Materials and Finished Products -->
             <div class="card p-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#062B49] shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2 m-0">
-                        <i class="fa-solid fa-list text-sky-500"></i>
-                        {{ __('finance.items_table') }}
-                    </h3>
-                    <button type="button" onclick="addItemRow()" class="btn btn-outline btn-sm font-bold rounded-xl">
-                        <i class="fa-solid fa-plus mr-1 ml-1 text-emerald-500"></i> Add Item Row
-                    </button>
+                <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-2 m-0">
+                            <i class="fa-solid fa-boxes-stacked text-sky-500"></i>
+                            Invoice Procurement Items (Raw Materials & Finished Products)
+                        </h3>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            Dynamically add raw materials or finished products with batch numbers and expiry dates
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="addItemRow('raw_material')" class="btn btn-sm btn-outline border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 font-bold rounded-xl">
+                            <i class="fa-solid fa-flask mr-1 ml-1"></i> + Add Raw Material
+                        </button>
+                        <button type="button" onclick="addItemRow('product')" class="btn btn-sm btn-outline border-sky-500 text-sky-600 dark:text-sky-400 hover:bg-sky-50 font-bold rounded-xl">
+                            <i class="fa-solid fa-prescription-bottle mr-1 ml-1"></i> + Add Finished Product
+                        </button>
+                    </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table" id="itemsTable">
+                <div class="table-responsive overflow-x-auto">
+                    <table class="table w-full" id="itemsTable">
                         <thead>
                             <tr class="bg-slate-50 dark:bg-slate-900 text-xs uppercase text-slate-400 font-bold">
-                                <th>{{ __('finance.item_name') }}</th>
-                                <th class="w-28 text-center">{{ __('finance.quantity') }}</th>
-                                <th class="w-36 text-right">{{ __('finance.unit_price') }}</th>
-                                <th class="w-36 text-right">{{ __('finance.tax') }} (15%)</th>
-                                <th class="w-36 text-right">{{ __('finance.amount') }}</th>
-                                <th class="w-12 text-center"></th>
+                                <th class="w-32">Type</th>
+                                <th class="min-w-[200px]">Item & Description</th>
+                                <th class="w-32">Batch #</th>
+                                <th class="w-36">Expiry Date</th>
+                                <th class="w-24 text-center">Qty</th>
+                                <th class="w-28 text-right">Unit Price</th>
+                                <th class="w-24 text-right">Tax (15%)</th>
+                                <th class="w-28 text-right">Total</th>
+                                <th class="w-10 text-center"></th>
                             </tr>
                         </thead>
                         <tbody id="itemsBody" class="divide-y divide-slate-100 dark:divide-slate-800">
                             @if($po && $po->items->isNotEmpty())
                                 @foreach($po->items as $idx => $pItem)
-                                    <tr>
+                                    <tr class="item-row" data-row="{{ $idx }}">
                                         <td>
-                                            <input type="text" name="items[{{ $idx }}][item_name]" value="{{ $pItem->rawMaterial?->name_en ?? 'Raw Material' }}" required class="form-control text-xs w-full rounded-xl">
-                                            <input type="hidden" name="items[{{ $idx }}][raw_material_id]" value="{{ $pItem->raw_material_id }}">
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
+                                                <i class="fa-solid fa-flask text-[10px]"></i> Raw Mat.
+                                            </span>
+                                            <input type="hidden" name="items[{{ $idx }}][item_type]" value="raw_material">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" name="items[{{ $idx }}][quantity]" value="{{ $pItem->quantity }}" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl">
+                                            <select name="items[{{ $idx }}][raw_material_id]" onchange="onSelectItem(this, {{ $idx }}, 'raw_material')" class="form-select text-xs w-full rounded-xl mb-1">
+                                                <option value="">-- Choose Raw Material --</option>
+                                                @foreach($rawMaterials as $rm)
+                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}" {{ $pItem->raw_material_id == $rm->id ? 'selected' : '' }}>
+                                                        {{ $rm->name_en }} ({{ $rm->material_code }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <input type="text" name="items[{{ $idx }}][item_name]" value="{{ $pItem->rawMaterial?->name_en ?? 'Raw Material' }}" required class="item-name form-control text-xs w-full rounded-xl">
                                         </td>
                                         <td>
-                                            <input type="number" step="0.01" name="items[{{ $idx }}][unit_price]" value="{{ $pItem->unit_price }}" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl">
+                                            <input type="text" name="items[{{ $idx }}][batch_number]" placeholder="LOT-RM-..." value="{{ $pItem->batch_number ?? '' }}" class="form-control text-xs rounded-xl font-mono">
+                                        </td>
+                                        <td>
+                                            <input type="date" name="items[{{ $idx }}][expiry_date]" value="{{ $pItem->expiry_date?->format('Y-m-d') ?? '' }}" class="form-control text-xs rounded-xl font-mono">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="items[{{ $idx }}][quantity]" value="{{ $pItem->quantity }}" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
+                                        </td>
+                                        <td>
+                                            <input type="number" step="0.01" name="items[{{ $idx }}][unit_price]" value="{{ $pItem->unit_price }}" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl font-mono font-bold">
                                         </td>
                                         <td class="text-right font-mono text-xs text-slate-500 item-tax">0.00</td>
                                         <td class="text-right font-mono font-bold text-xs text-slate-900 dark:text-white item-row-total">0.00</td>
@@ -113,15 +145,37 @@
                                     </tr>
                                 @endforeach
                             @else
-                                <tr>
+                                <tr class="item-row" data-row="0">
                                     <td>
-                                        <input type="text" name="items[0][item_name]" placeholder="e.g. Pharmaceutical Trans-Resveratrol 99%" required class="form-control text-xs w-full rounded-xl">
+                                        <select name="items[0][item_type]" onchange="switchRowType(this, 0)" class="form-select text-[11px] font-bold rounded-xl text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30">
+                                            <option value="raw_material" selected>🧪 Raw Material</option>
+                                            <option value="product">💊 Finished Product</option>
+                                        </select>
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" name="items[0][quantity]" value="1" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl">
+                                        <div id="selector-wrapper-0">
+                                            <select name="items[0][raw_material_id]" onchange="onSelectItem(this, 0, 'raw_material')" class="form-select text-xs w-full rounded-xl mb-1">
+                                                <option value="">-- Choose Raw Material --</option>
+                                                @foreach($rawMaterials as $rm)
+                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}">
+                                                        {{ $rm->name_en }} ({{ $rm->material_code }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <input type="text" name="items[0][item_name]" id="item-name-0" placeholder="Item description" required class="item-name form-control text-xs w-full rounded-xl">
                                     </td>
                                     <td>
-                                        <input type="number" step="0.01" name="items[0][unit_price]" value="1000.00" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl">
+                                        <input type="text" name="items[0][batch_number]" placeholder="LOT-RM-2026-001" class="form-control text-xs rounded-xl font-mono">
+                                    </td>
+                                    <td>
+                                        <input type="date" name="items[0][expiry_date]" value="{{ date('Y-m-d', strtotime('+24 months')) }}" class="form-control text-xs rounded-xl font-mono">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" name="items[0][quantity]" value="10" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
+                                    </td>
+                                    <td>
+                                        <input type="number" step="0.01" name="items[0][unit_price]" value="100.00" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl font-mono font-bold">
                                     </td>
                                     <td class="text-right font-mono text-xs text-slate-500 item-tax">150.00</td>
                                     <td class="text-right font-mono font-bold text-xs text-slate-900 dark:text-white item-row-total">1150.00</td>
@@ -171,20 +225,57 @@
     </div>
 
     <script>
+        const rawMaterialsList = @json($rawMaterials->map(fn($r) => ['id' => $r->id, 'name' => $r->name_en . ' (' . $r->material_code . ')', 'cost' => (float)$r->standard_cost]));
+        const productsList = @json($products->map(fn($p) => ['id' => $p->id, 'name' => $p->name_en . ' (' . $p->sku . ')', 'cost' => (float)$p->cost_price]));
+
         let rowCount = {{ $po && $po->items->isNotEmpty() ? $po->items->count() : 1 }};
 
-        function addItemRow() {
+        function addItemRow(defaultType = 'raw_material') {
             const tbody = document.getElementById('itemsBody');
             const tr = document.createElement('tr');
+            tr.className = 'item-row';
+            tr.setAttribute('data-row', rowCount);
+
+            const isRm = defaultType === 'raw_material';
+            const defaultDate = new Date();
+            defaultDate.setMonth(defaultDate.getMonth() + 24);
+            const dateStr = defaultDate.toISOString().split('T')[0];
+
+            let optionsHtml = isRm
+                ? rawMaterialsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('')
+                : productsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('');
+
+            const selectName = isRm ? `items[${rowCount}][raw_material_id]` : `items[${rowCount}][product_id]`;
+            const placeholder = isRm ? '-- Choose Raw Material --' : '-- Choose Finished Product --';
+            const batchPrefix = isRm ? 'LOT-RM-' : 'LOT-FG-';
+
             tr.innerHTML = `
                 <td>
-                    <input type="text" name="items[${rowCount}][item_name]" placeholder="Item Description" required class="form-control text-xs w-full rounded-xl">
+                    <select name="items[${rowCount}][item_type]" onchange="switchRowType(this, ${rowCount})" class="form-select text-[11px] font-bold rounded-xl ${isRm ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' : 'text-sky-600 bg-sky-50 dark:bg-sky-950/30'}">
+                        <option value="raw_material" ${isRm ? 'selected' : ''}>🧪 Raw Material</option>
+                        <option value="product" ${!isRm ? 'selected' : ''}>💊 Finished Product</option>
+                    </select>
                 </td>
                 <td>
-                    <input type="number" step="0.01" name="items[${rowCount}][quantity]" value="1" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl">
+                    <div id="selector-wrapper-${rowCount}">
+                        <select name="${selectName}" onchange="onSelectItem(this, ${rowCount}, '${defaultType}')" class="form-select text-xs w-full rounded-xl mb-1">
+                            <option value="">${placeholder}</option>
+                            ${optionsHtml}
+                        </select>
+                    </div>
+                    <input type="text" name="items[${rowCount}][item_name]" id="item-name-${rowCount}" placeholder="Item description" required class="item-name form-control text-xs w-full rounded-xl">
                 </td>
                 <td>
-                    <input type="number" step="0.01" name="items[${rowCount}][unit_price]" value="0.00" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl">
+                    <input type="text" name="items[${rowCount}][batch_number]" placeholder="${batchPrefix}${new Date().getFullYear()}-001" class="form-control text-xs rounded-xl font-mono">
+                </td>
+                <td>
+                    <input type="date" name="items[${rowCount}][expiry_date]" value="${dateStr}" class="form-control text-xs rounded-xl font-mono">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="items[${rowCount}][quantity]" value="1" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
+                </td>
+                <td>
+                    <input type="number" step="0.01" name="items[${rowCount}][unit_price]" value="0.00" required oninput="calculateTotals()" class="item-price form-control text-xs text-right rounded-xl font-mono font-bold">
                 </td>
                 <td class="text-right font-mono text-xs text-slate-500 item-tax">0.00</td>
                 <td class="text-right font-mono font-bold text-xs text-slate-900 dark:text-white item-row-total">0.00</td>
@@ -194,8 +285,50 @@
                     </button>
                 </td>
             `;
+
             tbody.appendChild(tr);
             rowCount++;
+            calculateTotals();
+        }
+
+        function switchRowType(selectElem, rowIdx) {
+            const type = selectElem.value;
+            const isRm = type === 'raw_material';
+            selectElem.className = `form-select text-[11px] font-bold rounded-xl ${isRm ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30' : 'text-sky-600 bg-sky-50 dark:bg-sky-950/30'}`;
+
+            const wrapper = document.getElementById(`selector-wrapper-${rowIdx}`);
+            const selectName = isRm ? `items[${rowIdx}][raw_material_id]` : `items[${rowIdx}][product_id]`;
+            const placeholder = isRm ? '-- Choose Raw Material --' : '-- Choose Finished Product --';
+            const list = isRm ? rawMaterialsList : productsList;
+
+            let optionsHtml = list.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('');
+
+            wrapper.innerHTML = `
+                <select name="${selectName}" onchange="onSelectItem(this, ${rowIdx}, '${type}')" class="form-select text-xs w-full rounded-xl mb-1">
+                    <option value="">${placeholder}</option>
+                    ${optionsHtml}
+                </select>
+            `;
+        }
+
+        function onSelectItem(selectElem, rowIdx, type) {
+            const selectedOpt = selectElem.options[selectElem.selectedIndex];
+            if (!selectedOpt || !selectedOpt.value) return;
+
+            const nameInput = document.getElementById(`item-name-${rowIdx}`);
+            if (nameInput) {
+                nameInput.value = selectedOpt.getAttribute('data-name') || selectedOpt.text;
+            }
+
+            const tr = selectElem.closest('tr');
+            const cost = parseFloat(selectedOpt.getAttribute('data-cost')) || 0;
+            if (cost > 0 && tr) {
+                const priceInput = tr.querySelector('.item-price');
+                if (priceInput) {
+                    priceInput.value = cost.toFixed(2);
+                }
+            }
+
             calculateTotals();
         }
 
@@ -213,14 +346,20 @@
 
             const rows = document.querySelectorAll('#itemsBody tr');
             rows.forEach(tr => {
-                const qty = parseFloat(tr.querySelector('.item-qty').value) || 0;
-                const price = parseFloat(tr.querySelector('.item-price').value) || 0;
+                const qtyInput = tr.querySelector('.item-qty');
+                const priceInput = tr.querySelector('.item-price');
+                if (!qtyInput || !priceInput) return;
+
+                const qty = parseFloat(qtyInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
                 const rowSub = qty * price;
                 const rowTax = Math.round(rowSub * 0.15 * 100) / 100;
                 const rowTotal = rowSub + rowTax;
 
-                tr.querySelector('.item-tax').innerText = rowTax.toFixed(2);
-                tr.querySelector('.item-row-total').innerText = rowTotal.toFixed(2);
+                const taxEl = tr.querySelector('.item-tax');
+                const totalEl = tr.querySelector('.item-row-total');
+                if (taxEl) taxEl.innerText = rowTax.toFixed(2);
+                if (totalEl) totalEl.innerText = rowTotal.toFixed(2);
 
                 subtotal += rowSub;
                 tax += rowTax;
