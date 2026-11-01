@@ -51,6 +51,9 @@ class StoreProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0.01'],
             'sale_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'cost_price' => ['required', 'numeric', 'min:0'],
+            'cost_calculation_mode' => ['nullable', 'string', 'in:manual_locked,auto_bom'],
+            'packaging_overhead_cost' => ['nullable', 'numeric', 'min:0'],
+            'labor_overhead_cost' => ['nullable', 'numeric', 'min:0'],
 
             // Step 4: Media & Imagery
             'image' => ['nullable'],
@@ -81,6 +84,11 @@ class StoreProductRequest extends FormRequest
             // Step 7: Inventory & Controls
             'stock_online' => ['required', 'integer', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:1'],
+            'shelf_life_months' => ['nullable', 'integer', 'min:1', 'max:120'],
+            'initial_batch_number' => ['nullable', 'string', 'max:100'],
+            'manufacture_date' => ['nullable', 'date'],
+            'expiry_date' => ['nullable', 'date'],
+            'batch_status' => ['nullable', 'string', Rule::in(['approved', 'quarantine'])],
             'enable_backorders' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
             'is_best_seller' => ['nullable', 'boolean'],
@@ -99,6 +107,10 @@ class StoreProductRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'initial_batch_number' => app()->getLocale() === 'ar' ? 'رقم التشغيلة / الدفعة' : 'Batch / Lot Number',
+            'manufacture_date' => app()->getLocale() === 'ar' ? 'تاريخ الإنتاج' : 'Manufacture Date',
+            'expiry_date' => app()->getLocale() === 'ar' ? 'تاريخ انتهاء الصلاحية' : 'Expiry Date',
+            'shelf_life_months' => app()->getLocale() === 'ar' ? 'مدة الصلاحية بالأشهر' : 'Shelf Life (Months)',
             'sku' => __('admin.products.fields.sku'),
             'category_id' => __('admin.products.fields.primary_system'),
             'name_en' => __('admin.products.fields.name_en'),

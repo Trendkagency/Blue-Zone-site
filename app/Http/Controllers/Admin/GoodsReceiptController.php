@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\GoodsReceiptRequest;
 use App\Models\GoodsReceipt;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
@@ -119,12 +120,36 @@ class GoodsReceiptController extends Controller
                     $product = Product::find($itemInput['product_id']);
                     if ($product) {
                         $qty = (int) round((float) $itemInput['received_qty']);
+                        
+                        // Create physical ProductBatch for received finished goods
+                        $mfgDate = $itemInput['manufacture_date'] ?: now()->subDays(14)->toDateString();
+                        $expDate = $itemInput['expiry_date'] ?: $product->calculateDefaultExpiryDate($mfgDate);
+                        $batchNumber = !empty($itemInput['supplier_lot']) ? $itemInput['supplier_lot'] : ProductBatch::generateBatchNumber();
+
+                        ProductBatch::create([
+                            'product_id' => $product->id,
+                            'batch_number' => $batchNumber,
+                            'supplier_lot' => $itemInput['supplier_lot'] ?? null,
+                            'goods_receipt_id' => $grn->id,
+                            'location_id' => $data['location_id'],
+                            'storage_bin' => $itemInput['storage_bin'] ?? null,
+                            'initial_qty' => $qty,
+                            'current_qty' => $qty,
+                            'available_qty' => $qty,
+                            'reserved_qty' => 0,
+                            'quarantine_qty' => 0,
+                            'unit_cost' => (float) ($poItem?->unit_price ?? $product->cost_price ?? 0),
+                            'manufacture_date' => $mfgDate,
+                            'expiry_date' => $expDate,
+                            'status' => 'approved',
+                        ]);
+
                         InventoryService::adjustStock(
                             $product,
                             $data['location_id'],
                             $qty,
                             'Purchase Receipt',
-                            "GRN: {$grn->grn_number} (PO: {$po->po_number}) | Lot: {$itemInput['supplier_lot']}",
+                            "GRN: {$grn->grn_number} (PO: {$po->po_number}) | Lot: {$batchNumber}",
                             auth()->user()?->name,
                             $po->supplier?->name_en ?? 'Supplier'
                         );

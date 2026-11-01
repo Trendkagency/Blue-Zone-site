@@ -12,7 +12,13 @@ class PurchaseInvoiceItem extends Model
 
     protected $fillable = [
         'purchase_invoice_id',
+        'item_type',
+        'product_id',
         'raw_material_id',
+        'product_batch_id',
+        'raw_material_batch_id',
+        'batch_number',
+        'expiry_date',
         'item_name',
         'quantity',
         'unit_price',
@@ -29,6 +35,7 @@ class PurchaseInvoiceItem extends Model
         'tax_rate' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'expiry_date' => 'date',
     ];
 
     public function purchaseInvoice(): BelongsTo
@@ -39,5 +46,20 @@ class PurchaseInvoiceItem extends Model
     public function rawMaterial(): BelongsTo
     {
         return $this->belongsTo(RawMaterial::class, 'raw_material_id');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function productBatch(): BelongsTo
+    {
+        return $this->belongsTo(ProductBatch::class, 'product_batch_id');
+    }
+
+    public function rawMaterialBatch(): BelongsTo
+    {
+        return $this->belongsTo(RawMaterialBatch::class, 'raw_material_batch_id');
     }
 }

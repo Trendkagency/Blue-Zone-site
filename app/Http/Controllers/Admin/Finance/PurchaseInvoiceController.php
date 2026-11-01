@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Finance;
 
 use App\Http\Controllers\Controller;
 use App\Models\FinancialAccount;
+use App\Models\Product;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\RawMaterial;
@@ -83,12 +84,14 @@ class PurchaseInvoiceController extends Controller
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
         $purchaseOrders = PurchaseOrder::latest('id')->limit(50)->get();
         $rawMaterials = RawMaterial::where('is_active', true)->orderBy('name_en')->get();
+        $products = Product::where('status', 'active')->orderBy('name_en')->get();
 
         return view('admin.finance.purchase-invoices.create', [
             'po' => $po,
             'suppliers' => $suppliers,
             'purchaseOrders' => $purchaseOrders,
             'rawMaterials' => $rawMaterials,
+            'products' => $products,
         ]);
     }
 
@@ -109,11 +112,15 @@ class PurchaseInvoiceController extends Controller
             'reference_number' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
             'items' => 'required|array|min:1',
+            'items.*.item_type' => 'nullable|in:product,raw_material',
             'items.*.item_name' => 'required|string',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.tax_rate' => 'nullable|numeric|min:0',
+            'items.*.product_id' => 'nullable|exists:products,id',
             'items.*.raw_material_id' => 'nullable|exists:raw_materials,id',
+            'items.*.batch_number' => 'nullable|string|max:100',
+            'items.*.expiry_date' => 'nullable|date',
         ]);
 
         $po = !empty($validated['purchase_order_id']) ? PurchaseOrder::find($validated['purchase_order_id']) : null;
@@ -129,7 +136,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function show(int $id): View
     {
-        $invoice = PurchaseInvoice::with(['supplier', 'purchaseOrder', 'items.rawMaterial', 'payments.account'])
+        $invoice = PurchaseInvoice::with(['supplier', 'purchaseOrder', 'items.rawMaterial', 'items.product', 'items.productBatch', 'items.rawMaterialBatch', 'payments.account'])
             ->findOrFail($id);
 
         $accounts = FinancialAccount::where('is_active', true)->get();
@@ -145,7 +152,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function print(int $id): View
     {
-        $invoice = PurchaseInvoice::with(['supplier', 'purchaseOrder', 'items.rawMaterial', 'payments.account'])
+        $invoice = PurchaseInvoice::with(['supplier', 'purchaseOrder', 'items.rawMaterial', 'items.product', 'items.productBatch', 'items.rawMaterialBatch', 'payments.account'])
             ->findOrFail($id);
 
         $siteInfo = [

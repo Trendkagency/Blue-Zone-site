@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Enums\WorkOrderStatus;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
+use App\Models\ProductBatch;
 use App\Models\WorkOrder;
 use App\Services\InventoryService;
 use Illuminate\Support\Facades\Cache;
@@ -59,7 +60,27 @@ class WorkOrderObserver
                     $product->save();
                     InventoryService::syncProductModelStock($product);
 
-                    // 3. Log InventoryMovement for finished good
+                    // 3. Create or update finished goods ProductBatch
+                    $mfgDate = $order->completed_at ? $order->completed_at->toDateString() : now()->toDateString();
+                    $expDate = $product->calculateDefaultExpiryDate($mfgDate);
+
+                    ProductBatch::create([
+                        'product_id' => $product->id,
+                        'batch_number' => $order->target_finished_lot,
+                        'work_order_id' => $order->id,
+                        'location_id' => $order->location_id,
+                        'initial_qty' => $order->produced_qty,
+                        'current_qty' => $order->produced_qty,
+                        'available_qty' => $order->produced_qty,
+                        'reserved_qty' => 0,
+                        'quarantine_qty' => 0,
+                        'unit_cost' => $unitCost,
+                        'manufacture_date' => $mfgDate,
+                        'expiry_date' => $expDate,
+                        'status' => 'approved',
+                    ]);
+
+                    // 4. Log InventoryMovement for finished good
                     InventoryMovement::create([
                         'product_id' => $product->id,
                         'product_name_en' => $product->name_en,

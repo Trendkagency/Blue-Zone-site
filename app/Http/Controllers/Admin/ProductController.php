@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\Setting;
 use App\Services\TaxService;
 use App\View\ViewModels\CategoryViewModel;
@@ -300,6 +301,31 @@ class ProductController extends Controller
             'note' => 'Initial formulation ingestion and catalog activation',
         ]);
 
+        // Provision initial cGMP Product Batch for FIFO / FEFO tracking
+        $initialBatchNumber = trim((string) $request->input('initial_batch_number', ''));
+        if ((int) $product->stock_online > 0 || !empty($initialBatchNumber)) {
+            $batchStatus = $request->input('batch_status', 'approved');
+            $manufactureDate = $request->input('manufacture_date') ?: now()->toDateString();
+            $expiryDate = $request->input('expiry_date') ?: $product->calculateDefaultExpiryDate($manufactureDate);
+            $batchNumber = !empty($initialBatchNumber) ? $initialBatchNumber : ProductBatch::generateBatchNumber();
+            $qty = (int) $product->stock_online;
+
+            ProductBatch::create([
+                'product_id' => $product->id,
+                'batch_number' => $batchNumber,
+                'location_id' => 'online',
+                'initial_qty' => $qty,
+                'current_qty' => $qty,
+                'available_qty' => $batchStatus === 'approved' ? $qty : 0,
+                'reserved_qty' => 0,
+                'quarantine_qty' => $batchStatus === 'quarantine' ? $qty : 0,
+                'unit_cost' => (float) ($product->cost_price ?? 0),
+                'manufacture_date' => $manufactureDate,
+                'expiry_date' => $expiryDate,
+                'status' => $batchStatus,
+            ]);
+        }
+
         return redirect()->route('admin.products.index')
             ->with('success', app()->getLocale() === 'ar'
                 ? "تم تسجيل وإدراج التركيبة الحيوية [{$product->name_ar}] في الكتالوج بنجاح!"
@@ -397,6 +423,12 @@ class ProductController extends Controller
                 'landing_order' => (int) ($dbProduct->landing_order ?? 0),
                 'landing_badge_en' => $dbProduct->landing_badge_en ?? '',
                 'landing_badge_ar' => $dbProduct->landing_badge_ar ?? '',
+                'shelf_life_months' => (int) ($dbProduct->shelf_life_months ?? 24),
+                'cost_calculation_mode' => $dbProduct->cost_calculation_mode ?? 'manual_locked',
+                'packaging_overhead_cost' => (float) ($dbProduct->packaging_overhead_cost ?? 0.0),
+                'labor_overhead_cost' => (float) ($dbProduct->labor_overhead_cost ?? 0.0),
+                'bom_material_cost' => (float) $dbProduct->calculateBomMaterialCost(),
+                'bom_total_cost' => (float) $dbProduct->calculateTotalBomCost(),
             ];
         } else {
             $product = ProductViewModel::find($id);
@@ -447,6 +479,9 @@ class ProductController extends Controller
 
         return view('admin.products.edit', [
             'product' => $product,
+            'productModel' => $dbProduct,
+            'recipeItems' => $dbProduct ? $dbProduct->recipeItems()->with('rawMaterial')->get() : collect(),
+            'batches' => $dbProduct ? $dbProduct->batches()->orderBy('expiry_date', 'asc')->get() : collect(),
             'categories' => $categories,
             'taxInfo' => $taxInfo,
             'inventoryBreakdown' => $inventoryBreakdown,
@@ -510,6 +545,11 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         $product->update($data);
+
+        // If configured for dynamic BOM cost rollup, recalculate and sync unit cost
+        if (($data['cost_calculation_mode'] ?? $product->cost_calculation_mode) === 'auto_bom') {
+            $product->syncCostFromBom();
+        }
 
         /*
         |--------------------------------------------------------------------------

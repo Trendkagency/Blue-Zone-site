@@ -99,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Supply Chain Observers
         \App\Models\RawMaterialBatch::observe(\App\Observers\RawMaterialBatchObserver::class);
+        \App\Models\RawMaterial::observe(\App\Observers\RawMaterialObserver::class);
+        \App\Models\ProductRecipeItem::observe(\App\Observers\ProductRecipeItemObserver::class);
         \App\Models\QcInspection::observe(\App\Observers\QcInspectionObserver::class);
         \App\Models\PurchaseOrder::observe(\App\Observers\PurchaseOrderObserver::class);
         \App\Models\WorkOrder::observe(\App\Observers\WorkOrderObserver::class);

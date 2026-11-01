@@ -53,6 +53,9 @@ class UpdateProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0.01'],
             'sale_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'cost_price' => ['required', 'numeric', 'min:0'],
+            'cost_calculation_mode' => ['nullable', 'string', 'in:manual_locked,auto_bom'],
+            'packaging_overhead_cost' => ['nullable', 'numeric', 'min:0'],
+            'labor_overhead_cost' => ['nullable', 'numeric', 'min:0'],
 
             // Step 4: Media & Imagery
             'image' => ['nullable'],
@@ -84,6 +87,7 @@ class UpdateProductRequest extends FormRequest
             // Step 7: Inventory & Controls (Audited via Inventory Movements)
             'stock_online' => ['nullable', 'integer', 'min:0'],
             'low_stock_threshold' => ['required', 'integer', 'min:1'],
+            'shelf_life_months' => ['nullable', 'integer', 'min:1', 'max:120'],
             'enable_backorders' => ['nullable', 'boolean'],
             'is_featured' => ['nullable', 'boolean'],
             'is_best_seller' => ['nullable', 'boolean'],
