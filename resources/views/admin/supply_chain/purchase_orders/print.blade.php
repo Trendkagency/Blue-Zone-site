@@ -177,19 +177,20 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>
-                        <strong>{{ $item->rawMaterial?->name_en }}</strong>
+                        <strong>{{ $item->item_name }}</strong>
+                        <span style="font-size: 10px; color: #0284c7; margin-left: 4px;">({{ $item->item_type === 'product' ? 'Finished Product' : 'Raw Material' }})</span>
                         @if($item->rawMaterial?->storage_condition)
-                            <br><span style="font-size: 10px; color: #0284c7;">Storage: {{ $item->rawMaterial->storage_condition->label() }}</span>
+                            <br><span style="font-size: 10px; color: #64748b;">Storage: {{ $item->rawMaterial->storage_condition->label() }}</span>
                         @endif
                     </td>
                     <td style="font-family: monospace;">
-                        {{ $item->rawMaterial?->sku }}
+                        {{ $item->item_sku }}
                         @if($item->rawMaterial?->cas_number)
                             <br><span style="font-size: 10px; color: #64748b;">CAS: {{ $item->rawMaterial->cas_number }}</span>
                         @endif
                     </td>
                     <td class="text-right" style="font-family: monospace;">
-                        {{ number_format($item->quantity_ordered, 2) }} {{ $item->rawMaterial?->uom?->value }}
+                        {{ number_format($item->ordered_qty, 2) }}
                     </td>
                     <td class="text-right" style="font-family: monospace;">
                         {{ number_format($item->unit_price, 2) }}
@@ -207,16 +208,21 @@
             <td>Subtotal:</td>
             <td class="text-right font-mono">{{ number_format($purchaseOrder->subtotal, 2) }} {{ $purchaseOrder->currency }}</td>
         </tr>
-        @if($purchaseOrder->shipping_cost > 0)
+        @php
+            $freight = $purchaseOrder->freight_cost ?? $purchaseOrder->shipping_cost ?? 0;
+            $customs = $purchaseOrder->customs_duties ?? $purchaseOrder->customs_duty ?? 0;
+            $totalVal = $purchaseOrder->grand_total ?? $purchaseOrder->total_amount ?? 0;
+        @endphp
+        @if($freight > 0)
         <tr>
             <td>Estimated Freight / Shipping:</td>
-            <td class="text-right font-mono">{{ number_format($purchaseOrder->shipping_cost, 2) }} {{ $purchaseOrder->currency }}</td>
+            <td class="text-right font-mono">{{ number_format($freight, 2) }} {{ $purchaseOrder->currency }}</td>
         </tr>
         @endif
-        @if($purchaseOrder->customs_duty > 0)
+        @if($customs > 0)
         <tr>
             <td>Customs Duty & Clearance:</td>
-            <td class="text-right font-mono">{{ number_format($purchaseOrder->customs_duty, 2) }} {{ $purchaseOrder->currency }}</td>
+            <td class="text-right font-mono">{{ number_format($customs, 2) }} {{ $purchaseOrder->currency }}</td>
         </tr>
         @endif
         @if($purchaseOrder->tax_amount > 0)
@@ -227,7 +233,7 @@
         @endif
         <tr class="grand-total">
             <td>TOTAL AMOUNT:</td>
-            <td class="text-right font-mono">{{ number_format($purchaseOrder->total_amount, 2) }} {{ $purchaseOrder->currency }}</td>
+            <td class="text-right font-mono">{{ number_format($totalVal, 2) }} {{ $purchaseOrder->currency }}</td>
         </tr>
     </table>
 

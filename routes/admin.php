@@ -30,6 +30,8 @@ use App\Http\Controllers\Admin\Finance\CustomerPaymentController;
 use App\Http\Controllers\Admin\Finance\SupplierPaymentController;
 use App\Http\Controllers\Admin\Finance\ExpenseController;
 use App\Http\Controllers\Admin\Finance\FinancialAccountController;
+use App\Http\Controllers\Admin\Finance\CollectionEntryController;
+use App\Http\Controllers\Admin\Finance\PaymentEntryController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\Mr\AssignmentController as MrAssignmentController;
 use App\Http\Controllers\Admin\Mr\ClassificationController as MrClassificationController;
@@ -586,6 +588,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/', [SettingController::class, 'update'])->middleware('permission:settings.edit')->name('update');
             Route::post('/invoice-template/reset', [SettingController::class, 'resetInvoiceTemplate'])->middleware('permission:settings.edit')->name('invoice-template.reset');
             Route::get('/invoice-template/preview', [SettingController::class, 'previewInvoiceTemplate'])->middleware('permission:settings.view')->name('invoice-template.preview');
+            Route::post('/purchase-invoice-template/reset', [SettingController::class, 'resetPurchaseInvoiceTemplate'])->middleware('permission:settings.edit')->name('purchase-invoice-template.reset');
+            Route::get('/purchase-invoice-template/preview', [SettingController::class, 'previewPurchaseInvoiceTemplate'])->middleware('permission:settings.view')->name('purchase-invoice-template.preview');
             Route::get('/geo', [CountryController::class, 'index'])->middleware('permission:settings.view')->name('geo.index');
         });
 
@@ -831,6 +835,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', [GoodsReceiptController::class, 'create'])->middleware('permission:goods_receipts.create')->name('create');
             Route::post('/', [GoodsReceiptController::class, 'store'])->middleware('permission:goods_receipts.create')->name('store');
             Route::get('/{goodsReceipt}', [GoodsReceiptController::class, 'show'])->middleware('permission:goods_receipts.view')->name('show');
+            Route::post('/{goodsReceipt}/generate-bill', [GoodsReceiptController::class, 'generateBill'])->middleware('permission:goods_receipts.create')->name('generate-bill');
         });
 
         // Raw Material Batches (FEFO Ledger)
@@ -891,22 +896,35 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/create', [PurchaseInvoiceController::class, 'create'])->name('create');
                 Route::post('/', [PurchaseInvoiceController::class, 'store'])->name('store');
                 Route::get('/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('show');
+                Route::get('/{purchaseInvoice}/print', [PurchaseInvoiceController::class, 'print'])->name('print');
                 Route::post('/{purchaseInvoice}/pay', [PurchaseInvoiceController::class, 'pay'])->name('pay');
             });
 
-            // 4. Customer Payments
+            // 4. Collection Entries (Spreadsheet Grid & System Ingestion)
+            Route::prefix('collections')->name('collections.')->group(function () {
+                Route::get('/', [CollectionEntryController::class, 'index'])->name('index');
+                Route::post('/', [CollectionEntryController::class, 'store'])->name('store');
+                Route::post('/sync-online', [CollectionEntryController::class, 'syncOnlineSales'])->name('sync-online');
+                Route::get('/export', [CollectionEntryController::class, 'export'])->name('export');
+                Route::get('/{id}/voucher', [CollectionEntryController::class, 'voucher'])->name('voucher');
+            });
+
+            // 5. Customer Payments
             Route::prefix('customer-payments')->name('customer-payments.')->group(function () {
                 Route::get('/', [CustomerPaymentController::class, 'index'])->name('index');
                 Route::post('/', [CustomerPaymentController::class, 'store'])->name('store');
                 Route::get('/{transaction}/voucher', [CustomerPaymentController::class, 'voucher'])->name('voucher');
             });
 
-            // 5. Supplier Payments
-            Route::prefix('supplier-payments')->name('supplier-payments.')->group(function () {
-                Route::get('/', [SupplierPaymentController::class, 'index'])->name('index');
-                Route::post('/', [SupplierPaymentController::class, 'store'])->name('store');
-                Route::get('/{transaction}/voucher', [SupplierPaymentController::class, 'voucher'])->name('voucher');
+            // 5. Payment Entries (Disbursement Ledger & Supplier Payments)
+            Route::prefix('payments')->name('payments.')->group(function () {
+                Route::get('/', [PaymentEntryController::class, 'index'])->name('index');
+                Route::post('/', [PaymentEntryController::class, 'store'])->name('store');
+                Route::post('/{paymentEntry}/clear-cheque', [PaymentEntryController::class, 'clearCheque'])->name('clear-cheque');
+                Route::get('/export', [PaymentEntryController::class, 'export'])->name('export');
+                Route::get('/{id}/voucher', [PaymentEntryController::class, 'voucher'])->name('voucher');
             });
+            Route::redirect('/supplier-payments', '/admin/finance/payments');
 
             // 6. Expenses
             Route::prefix('expenses')->name('expenses.')->group(function () {

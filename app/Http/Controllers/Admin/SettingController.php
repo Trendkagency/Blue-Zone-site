@@ -57,6 +57,8 @@ class SettingController extends Controller
             'landingSectionsMeta' => SettingViewModel::landingSections(),
             'invoiceTemplate' => \App\Services\InvoiceTemplateService::getTemplate(),
             'invoicePreviewOrder' => \App\Services\InvoiceTemplateService::getPreviewOrder(),
+            'purchaseInvoiceTemplate' => \App\Services\InvoiceTemplateService::getPurchaseTemplate(),
+            'purchasePreviewInvoice' => \App\Services\InvoiceTemplateService::getPreviewPurchaseInvoice(),
         ]);
     }
 
@@ -671,7 +673,7 @@ class SettingController extends Controller
             }
         }
 
-        // Invoice Template Customizer Persistence
+        // Invoice Template Customizer Persistence (Sales Tax Invoice)
         if ($request->has('invoice_template_json')) {
             $decoded = json_decode($request->input('invoice_template_json'), true);
             if (is_array($decoded)) {
@@ -681,22 +683,33 @@ class SettingController extends Controller
             \App\Services\InvoiceTemplateService::saveTemplate($request->input('invoice_template'));
         }
 
+        // Purchase Invoice Template Customizer Persistence
+        if ($request->has('purchase_invoice_template_json')) {
+            $decodedPurchase = json_decode($request->input('purchase_invoice_template_json'), true);
+            if (is_array($decodedPurchase)) {
+                \App\Services\InvoiceTemplateService::savePurchaseTemplate($decodedPurchase);
+            }
+        } elseif ($request->has('purchase_invoice_template') && is_array($request->input('purchase_invoice_template'))) {
+            \App\Services\InvoiceTemplateService::savePurchaseTemplate($request->input('purchase_invoice_template'));
+        }
+
         \Illuminate\Support\Facades\Cache::flush();
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => app()->getLocale() === 'ar'
-                    ? 'تم حفظ وتطبيق إعدادات النظام وقالب الفاتورة بنجاح!'
-                    : 'Settings and invoice template configuration saved successfully!',
+                    ? 'تم حفظ وتطبيق إعدادات النظام وقوالب الفواتير (المبيعات والمشتريات) بنجاح!'
+                    : 'Settings and invoice template configurations saved successfully!',
                 'invoiceTemplate' => \App\Services\InvoiceTemplateService::getTemplate(),
+                'purchaseInvoiceTemplate' => \App\Services\InvoiceTemplateService::getPurchaseTemplate(),
             ]);
         }
 
         return redirect()->route('admin.settings.index')
             ->with('success', app()->getLocale() === 'ar'
-                ? 'تم حفظ وتحديث إعدادات النظام ومحتوى وترتيب وتفعيل أقسام الصفحة الرئيسية وقالب الفاتورة بنجاح!'
-                : 'Platform settings, landing page sections, and official invoice template updated successfully!');
+                ? 'تم حفظ وتحديث إعدادات النظام ومحتوى وترتيب وتفعيل أقسام الصفحة الرئيسية وقوالب الفواتير بنجاح!'
+                : 'Platform settings, landing page sections, and invoice templates updated successfully!');
     }
 
     /**
@@ -719,7 +732,26 @@ class SettingController extends Controller
     }
 
     /**
-     * Render live interactive preview of the invoice template.
+     * Reset Purchase invoice template back to system default.
+     */
+    public function resetPurchaseInvoiceTemplate(Request $request)
+    {
+        \App\Services\InvoiceTemplateService::resetPurchaseToDefault();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => app()->getLocale() === 'ar' ? 'تم استعادة قالب فاتورة المشتريات الافتراضي بنجاح.' : 'Purchase invoice template reset to default successfully.',
+                'template' => \App\Services\InvoiceTemplateService::getPurchaseTemplate(),
+            ]);
+        }
+
+        return redirect()->route('admin.settings.index')
+            ->with('success', app()->getLocale() === 'ar' ? 'تم استعادة قالب فاتورة المشتريات الافتراضي بنجاح.' : 'Purchase invoice template reset to default successfully.');
+    }
+
+    /**
+     * Render live interactive preview of the sales invoice template.
      */
     public function previewInvoiceTemplate(Request $request): View
     {
@@ -735,6 +767,27 @@ class SettingController extends Controller
 
         return view('admin.invoices.print', [
             'order' => $previewOrder,
+            'siteInfo' => $siteInfo,
+        ]);
+    }
+
+    /**
+     * Render live interactive preview of the purchase invoice template.
+     */
+    public function previewPurchaseInvoiceTemplate(Request $request): View
+    {
+        $previewInvoice = \App\Services\InvoiceTemplateService::getPreviewPurchaseInvoice();
+        $siteInfo = [
+            'brand_name' => 'Blue Zone Pharmaceuticals',
+            'tax_number' => '100293847500003',
+            'commercial_record' => 'CR-1010884920',
+            'phone' => '+971 4 800 2583',
+            'email' => 'procurement@bluezonepharma.com',
+            'website' => 'www.bluezonepharma.com',
+        ];
+
+        return view('admin.finance.purchase-invoices.print', [
+            'invoice' => $previewInvoice,
             'siteInfo' => $siteInfo,
         ]);
     }

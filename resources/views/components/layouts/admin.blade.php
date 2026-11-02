@@ -38,7 +38,8 @@
 
                 @php
                     $u = auth()->user();
-                    $isSupplyChainActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
+                    $isPurchasesActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*');
+                    $isSupplyChainActive = request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
                     $isSalesActive = request()->routeIs('admin.sales.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*');
@@ -413,13 +414,13 @@
                     </div>
                 @endif
 
-                <!-- Supply Chain & cGMP Manufacturing Dropdown -->
-                @if($u && ($u->hasPermission('supply_chain.view') || $u->hasPermission('suppliers.view') || $u->hasPermission('raw_materials.view') || $u->isSuperAdmin() || $u->isAdmin()))
-                    <div class="sidebar-dropdown-group {{ $isSupplyChainActive ? 'is-open' : '' }}" id="group-supply-chain">
-                        <button type="button" class="sidebar-dropdown-btn {{ $isSupplyChainActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-supply-chain')">
+                <!-- Dedicated PURCHASES Section (Exact Match to User Design Screen) -->
+                @if($u && ($u->hasPermission('suppliers.view') || $u->hasPermission('purchase_orders.view') || $u->hasPermission('goods_receipts.view') || $u->isSuperAdmin() || $u->isAdmin()))
+                    <div class="sidebar-dropdown-group {{ $isPurchasesActive ? 'is-open' : '' }}" id="group-purchases">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isPurchasesActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-purchases')">
                             <div class="sidebar-dropdown-label">
-                                <i class="fa-solid fa-flask-vial sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'سلاسل الإمداد والتصنيع cGMP' : 'Supply Chain & cGMP' }}</span>
+                                <i class="fa-solid fa-basket-shopping sidebar-link-icon text-emerald-400"></i>
+                                <span class="font-bold tracking-wider uppercase text-[12px]">{{ app()->getLocale() === 'ar' ? 'المشتريات' : 'PURCHASES' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -429,22 +430,39 @@
                             <a href="{{ route('admin.suppliers.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-truck-field text-xs text-sky-400"></i>
-                                <span>{{ __('suppliers.title') }}</span>
-                            </a>
-                            <a href="{{ route('admin.raw-materials.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.raw-materials.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-flask text-xs text-emerald-400"></i>
-                                <span>{{ __('raw_materials.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الموردين' : 'Suppliers' }}</span>
                             </a>
                             <a href="{{ route('admin.purchase-orders.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-file-invoice text-xs text-blue-400"></i>
-                                <span>{{ __('purchase_orders.title') }}</span>
+                                <i class="fa-solid fa-file-invoice-dollar text-xs text-blue-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Purchase Orders' }}</span>
                             </a>
                             <a href="{{ route('admin.goods-receipts.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.goods-receipts.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-truck-ramp-box text-xs text-purple-400"></i>
-                                <span>{{ __('goods_receipts.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'سندات الاستلام' : 'Goods Receipts' }}</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Manufacturing & cGMP Operations Dropdown -->
+                @if($u && ($u->hasPermission('supply_chain.view') || $u->hasPermission('raw_materials.view') || $u->isSuperAdmin() || $u->isAdmin()))
+                    <div class="sidebar-dropdown-group {{ $isSupplyChainActive ? 'is-open' : '' }}" id="group-supply-chain">
+                        <button type="button" class="sidebar-dropdown-btn {{ $isSupplyChainActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-supply-chain')">
+                            <div class="sidebar-dropdown-label">
+                                <i class="fa-solid fa-flask-vial sidebar-link-icon text-cyan-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التصنيع وسلاسل الإمداد cGMP' : 'Manufacturing & cGMP' }}</span>
+                            </div>
+                            <div class="sidebar-dropdown-meta">
+                                <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                            </div>
+                        </button>
+                        <div class="sidebar-submenu">
+                            <a href="{{ route('admin.raw-materials.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.raw-materials.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-flask text-xs text-emerald-400"></i>
+                                <span>{{ __('raw_materials.title') }}</span>
                             </a>
                             <a href="{{ route('admin.batches.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.batches.*') ? 'active' : '' }}">
@@ -541,18 +559,27 @@
                                 <span>{{ app()->getLocale() === 'ar' ? 'فواتير المشتريات' : 'Purchase Invoices' }}</span>
                             </a>
 
-                            <!-- 4. Customer Payments -->
+                            <!-- 4. Collection Entry (Spreadsheet Grid & Auto Sync) -->
+                            <a href="{{ route('admin.finance.collections.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.collections.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-table-list text-xs text-cyan-400"></i>
+                                <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'سندات وقيود التحصيل' : 'Collection Entry' }}</span>
+                                <span class="badge text-[10px] py-0 px-1 font-mono rounded" style="background: rgba(6,182,212,0.15); color: #06b6d4;">Auto</span>
+                            </a>
+
+                            <!-- 5. Customer Payments -->
                             <a href="{{ route('admin.finance.customer-payments.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.finance.customer-payments.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-hand-holding-dollar text-xs text-teal-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'مدفوعات العملاء' : 'Customer Payments' }}</span>
                             </a>
 
-                            <!-- 5. Supplier Payments -->
-                            <a href="{{ route('admin.finance.supplier-payments.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.finance.supplier-payments.*') ? 'active' : '' }}">
+                            <!-- 5. Payment Entry (Disbursements & Supplier Payments) -->
+                            <a href="{{ route('admin.finance.payments.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.payments.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-money-bill-transfer text-xs text-rose-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'مدفوعات الموردين' : 'Supplier Payments' }}</span>
+                                <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'سندات وقيود الصرف' : 'Payment Entry' }}</span>
+                                <span class="badge text-[10px] py-0 px-1 font-mono rounded" style="background: rgba(244,63,94,0.15); color: #f43f5e;">Disb</span>
                             </a>
 
                             <!-- 6. Expenses -->

@@ -165,4 +165,69 @@ class InvoiceTemplateStudioTest extends TestCase
         $this->assertEquals('Realtime Updated Medical Center', $this->order->customer_name);
         $this->assertEquals(150.00, (float)$this->order->discount);
     }
+
+    public function test_admin_can_see_purchase_invoice_template_studio_tabs_and_panes(): void
+    {
+        $response = $this->actingAs($this->admin, 'web')->get(route('admin.settings.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('tab-btn-inv-sales');
+        $response->assertSee('tab-btn-inv-purchase');
+        $response->assertSee('invoice-studio-purchase-pane');
+        $response->assertSee('subtab-pur-content');
+        $response->assertSee('subtab-pur-columns');
+        $response->assertSee('subtab-pur-positions');
+        $response->assertSee('subtab-pur-preview');
+        $response->assertSee('10 Columns Active');
+    }
+
+    public function test_admin_can_render_purchase_invoice_template_preview(): void
+    {
+        $response = $this->actingAs($this->admin, 'web')->get(route('admin.settings.purchase-invoice-template.preview'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Blue Zone Pharmaceuticals');
+        $response->assertSee('فاتورة مشتريات');
+        $response->assertSee('تاريخ الصلاحية / التشغيله');
+        $response->assertSee('سعر الوحدة');
+        $response->assertSee('إجمالي بدون الضريبة');
+        $response->assertSee('إجمالي الصنف شامل الضريبة');
+        $response->assertSee('Partial Payment');
+        $response->assertSee('دفع جزئي');
+        $response->assertSee('api.qrserver.com');
+    }
+
+    public function test_admin_can_update_purchase_invoice_template_configuration(): void
+    {
+        $customConfig = InvoiceTemplateService::defaultPurchaseTemplate();
+        $customConfig['company_name_en'] = 'Blue Zone Global Inbound Procurement';
+        $customConfig['title_ar'] = 'سند وفاتورة توريد مشتريات طبية';
+
+        $response = $this->actingAs($this->admin, 'web')->post(route('admin.settings.update'), [
+            'site_name' => 'Blue Zone Platform',
+            'tax_percentage' => 15,
+            'tax_number' => '31004829100003',
+            'purchase_invoice_template_json' => json_encode($customConfig),
+        ]);
+
+        $response->assertRedirect();
+
+        $savedTemplate = InvoiceTemplateService::getPurchaseTemplate();
+        $this->assertEquals('Blue Zone Global Inbound Procurement', $savedTemplate['company_name_en']);
+        $this->assertEquals('سند وفاتورة توريد مشتريات طبية', $savedTemplate['title_ar']);
+    }
+
+    public function test_admin_can_reset_purchase_invoice_template_to_default(): void
+    {
+        $customConfig = InvoiceTemplateService::defaultPurchaseTemplate();
+        $customConfig['company_name_en'] = 'Temporary Vendor Hub';
+        InvoiceTemplateService::savePurchaseTemplate($customConfig);
+
+        $this->assertEquals('Temporary Vendor Hub', InvoiceTemplateService::getPurchaseTemplate()['company_name_en']);
+
+        $response = $this->actingAs($this->admin, 'web')->post(route('admin.settings.purchase-invoice-template.reset'));
+        $response->assertRedirect();
+
+        $this->assertEquals('Blue Zone Pharmaceuticals', InvoiceTemplateService::getPurchaseTemplate()['company_name_en']);
+    }
 }

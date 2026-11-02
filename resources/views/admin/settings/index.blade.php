@@ -3372,7 +3372,26 @@
         <!-- Tab: Invoice Template Studio -->
         <div id="tab-invoice" data-tab-content="admin-settings" style="display: none;">
             <div class="card" style="padding: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <!-- Document Type Switcher (Sales Invoice vs Purchase Invoice) -->
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; border-bottom: 2px solid var(--color-border); padding-bottom: 1.25rem; flex-wrap: wrap;">
+                    <button type="button" id="tab-btn-inv-sales" onclick="switchInvoiceStudioDocType('sales')" class="invoice-doctype-btn active"
+                            style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1.4rem; border-radius: var(--radius-md); font-weight: 800; font-size: 0.92rem; border: 2px solid var(--color-primary); background: var(--color-primary); color: #fff; cursor: pointer; transition: all 0.2s ease;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'فاتورة مبيعات ضريبية' : 'Sales Tax Invoice' }}</span>
+                        <span class="badge" style="background: rgba(255,255,255,0.25); color: #fff; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 999px;">11 {{ app()->getLocale() === 'ar' ? 'أعمدة' : 'Cols' }}</span>
+                    </button>
+
+                    <button type="button" id="tab-btn-inv-purchase" onclick="switchInvoiceStudioDocType('purchase')" class="invoice-doctype-btn"
+                            style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1.4rem; border-radius: var(--radius-md); font-weight: 800; font-size: 0.92rem; border: 2px solid var(--color-border); background: var(--color-bg-card); color: var(--color-text); cursor: pointer; transition: all 0.2s ease;">
+                        <i class="fa-solid fa-cart-flatbed text-sky-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'فاتورة مشتريات (موردين ومخازن)' : 'Purchase Invoice' }}</span>
+                        <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #0284c7; font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 999px;">10 {{ app()->getLocale() === 'ar' ? 'أعمدة' : 'Cols' }}</span>
+                    </button>
+                </div>
+
+                <!-- PANE 1: SALES TAX INVOICE TEMPLATE STUDIO -->
+                <div id="invoice-studio-sales-pane" style="display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
                             <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10B981; font-weight: 900; font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: var(--radius-sm);">
@@ -3595,7 +3614,239 @@
                     </div>
                 </div>
             </div>
+            <!-- End of Sales Invoice Studio Pane -->
+
+            <!-- ========================================== -->
+            <!-- PANE 2: PURCHASE INVOICE TEMPLATE STUDIO   -->
+            <!-- ========================================== -->
+            <div id="invoice-studio-purchase-pane" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+                            <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #0284C7; font-weight: 900; font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: var(--radius-sm);">
+                                <i class="fa-solid fa-certificate mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'تصميم معتمد ومطابق للشاشة 100%' : '100% Certified Purchase Grid' }}
+                            </span>
+                            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #6366F1; font-weight: 800; font-size: 0.75rem; padding: 0.3rem 0.75rem; border-radius: var(--radius-sm);">
+                                {{ app()->getLocale() === 'ar' ? 'الافتراضي لجميع فواتير المشتريات والتوريدات' : 'Default Inbound Procurement Grid' }}
+                            </span>
+                        </div>
+                        <h3 style="font-size: 1.35rem; font-weight: 900; color: var(--color-text); margin: 0;">
+                            <i class="fa-solid fa-cart-flatbed text-sky-500 mr-2 ml-2"></i>
+                            {{ app()->getLocale() === 'ar' ? 'استوديو وقالب فاتورة المشتريات المعتمدة' : 'Official Purchase Invoice Template Studio' }}
+                        </h3>
+                        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 0.35rem;">
+                            {{ app()->getLocale() === 'ar' ? 'تصميم فاتورة المشتريات مطابق تماماً لنموذج الشاشة والطباعة A4 المعتمد (جدول الـ 10 أعمدة، شريط طرق السداد، التوقيع والختم، وملخص الضريبة).' : 'Official Purchase Invoice layout matching certified spreadsheet specification. Customize branding, toggle 10 table columns, reorder sections, and preview in real time.' }}
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button type="button" onclick="resetPurchaseInvoiceTemplateToDefault()" class="btn btn-secondary btn-sm" style="font-weight: 800;">
+                            <i class="fa-solid fa-rotate-left mr-1.5 ml-1.5 text-amber-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'استعادة قالب المشتريات الافتراضي' : 'Reset to Default' }}</span>
+                        </button>
+                        <a href="{{ route('admin.settings.purchase-invoice-template.preview') }}" target="_blank" class="btn btn-primary btn-sm" style="font-weight: 800;">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5 ml-1.5"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'فتح طباعة تجريبية' : 'Full Test Print' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                @php
+                    $purTpl = $purchaseInvoiceTemplate ?? \App\Services\InvoiceTemplateService::getPurchaseTemplate();
+                @endphp
+
+                <!-- 4 Sub-Tabs Navigation for Purchase Invoice Studio -->
+                <div class="product-tabs-nav" data-tab-group="purchase-invoice-studio" style="margin-bottom: 1.75rem; background: rgba(0,0,0,0.03); padding: 0.35rem; border-radius: var(--radius-md);">
+                    <button type="button" class="tab-btn active" data-tab-target="subtab-pur-content" style="font-size: 0.82rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-building mr-1 ml-1 text-sky-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? '1. الهوية والبيانات' : '1. Content & Branding' }}</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-tab-target="subtab-pur-columns" style="font-size: 0.82rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-table-columns mr-1 ml-1 text-emerald-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? '2. تخصيص أعمدة الجدول (10 أعمدة)' : '2. Table Columns (10)' }}</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-tab-target="subtab-pur-positions" style="font-size: 0.82rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-up-down-left-right mr-1 ml-1 text-purple-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? '3. ترتيب الأقسام (سحب وإفلات)' : '3. Section Positions' }}</span>
+                    </button>
+                    <button type="button" class="tab-btn" data-tab-target="subtab-pur-preview" onclick="refreshPurchaseInvoiceIframePreview()" style="font-size: 0.82rem; padding: 0.5rem 1rem;">
+                        <i class="fa-solid fa-eye mr-1 ml-1 text-cyan-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? '4. المعاينة الحية الفورية' : '4. Real-Time Live Preview' }}</span>
+                    </button>
+                </div>
+
+                <!-- Sub-Tab 1: Content & Branding -->
+                <div id="subtab-pur-content" data-tab-content="purchase-invoice-studio" style="display: block;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <x-forms.input name="purchase_invoice_template[company_name_en]" label="Company Name (EN)" :value="$purTpl['company_name_en'] ?? 'Blue Zone Pharmaceuticals'" required />
+                        <x-forms.input name="purchase_invoice_template[company_name_ar]" label="اسم المنشأة والشركة (AR)" :value="$purTpl['company_name_ar'] ?? 'بلو زون للأدوية والمستحضرات الطبية'" required />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <x-forms.input name="purchase_invoice_template[title_ar]" label="عنوان الفاتورة الرئيسي (AR)" :value="$purTpl['title_ar'] ?? 'فاتورة مشتريات'" required />
+                        <x-forms.input name="purchase_invoice_template[title_en]" label="Invoice Main Title (EN)" :value="$purTpl['title_en'] ?? 'Purchase Invoice'" required />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <x-forms.input name="purchase_invoice_template[vat_number]" label="الرقم الضريبي (VAT No)" :value="$purTpl['vat_number'] ?? '100293847500003'" required />
+                        <x-forms.input name="purchase_invoice_template[cr_number]" label="السجل التجاري (Commercial Registration)" :value="$purTpl['cr_number'] ?? '1010884920'" required />
+                        <x-forms.input name="purchase_invoice_template[phone]" label="الهاتف الرسمي للمشتريات" :value="$purTpl['phone'] ?? '+971 4 800 2583'" required />
+                        <x-forms.input name="purchase_invoice_template[email]" label="البريد الإلكتروني لإدارة التوريدات" :value="$purTpl['email'] ?? 'procurement@bluezonepharma.com'" required />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <x-forms.input name="purchase_invoice_template[address_ar]" label="العنوان والفرع الرسمي (AR)" :value="$purTpl['address_ar'] ?? 'دبي - مجمع دبي للعلوم - مبنى التصنيع الدوائي'" required />
+                        <x-forms.input name="purchase_invoice_template[address_en]" label="Address & HQ Location (EN)" :value="$purTpl['address_en'] ?? 'Dubai Science Park, Clinical Manufacturing Campus, UAE'" required />
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">شروط استلام وتوريد الأدوية (AR)</label>
+                            <textarea name="purchase_invoice_template[footer][terms_ar]" rows="2" class="form-control text-xs" dir="rtl">{{ $purTpl['footer']['terms_ar'] ?? 'تخضع المواد والمنتجات الواردة لشروط الفحص المخبري وسلسلة التبريد المعتمدة لدى بلو زون للأدوية.' }}</textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-muted" style="display: block; margin-bottom: 0.35rem;">Inbound Verification & Cold-Chain Notice (EN)</label>
+                            <textarea name="purchase_invoice_template[footer][terms_en]" rows="2" class="form-control text-xs">{{ $purTpl['footer']['terms_en'] ?? 'All inbound pharmaceutical goods are subject to cold-chain integrity and cGMP laboratory release verification.' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--color-border); padding-top: 1.25rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 1rem; color: var(--color-text);">
+                            <i class="fa-solid fa-signature text-purple-500 mr-1.5 ml-1.5"></i>
+                            {{ app()->getLocale() === 'ar' ? 'مسميات المستلم والتوقيع والختم الرسمي' : 'Signatures & Stamp Labels' }}
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+                            <x-forms.input name="purchase_invoice_template[signatures][receiver_label_ar]" label="تسمية المستلم (AR)" :value="$purTpl['signatures']['receiver_label_ar'] ?? 'المستلم'" />
+                            <x-forms.input name="purchase_invoice_template[signatures][signature_label_ar]" label="تسمية التوقيع (AR)" :value="$purTpl['signatures']['signature_label_ar'] ?? 'التوقيع'" />
+                            <x-forms.input name="purchase_invoice_template[signatures][stamp_label_ar]" label="تسمية الختم (AR)" :value="$purTpl['signatures']['stamp_label_ar'] ?? 'الختم'" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 2: 10-Columns Customizer -->
+                <div id="subtab-pur-columns" data-tab-content="purchase-invoice-studio" style="display: none;">
+                    <div style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.2); padding: 1rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="font-size: 0.85rem; color: var(--color-text);">
+                            <i class="fa-solid fa-circle-info text-sky-500 mr-1.5 ml-1.5"></i>
+                            <strong>{{ app()->getLocale() === 'ar' ? 'جدول الأصناف الـ 10 أعمدة مطابق لنموذج فاتورة المشتريات المعتمد:' : 'The 10 line-item table columns match the certified purchase specification:' }}</strong>
+                            <span class="text-muted" style="margin-inline-start: 0.5rem;">(م، كود الصنف، اسم الصنف، الكمية، تاريخ الصلاحية/التشغيلة، سعر الوحدة، نسبة الخصم 1، إجمالي بدون الضريبة، الضريبة، إجمالي شامل الضريبة)</span>
+                        </div>
+                        <span class="badge font-mono text-xs" style="background: #0284C7; color: #fff; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 999px;">10 Columns Active</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        @php
+                            $purCols = $purTpl['columns'] ?? [];
+                        @endphp
+                        @foreach($purCols as $cKey => $colData)
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); gap: 1rem; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 1rem; min-width: 200px;">
+                                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;">
+                                        <input type="hidden" name="purchase_invoice_template[columns][{{ $cKey }}][visible]" value="0">
+                                        <input type="checkbox" name="purchase_invoice_template[columns][{{ $cKey }}][visible]" value="1" {{ !empty($colData['visible']) ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;">
+                                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ !empty($colData['visible']) ? '#0284C7' : '#cbd5e1' }}; transition: .3s; border-radius: 24px;"></span>
+                                    </label>
+                                    <div>
+                                        <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $colData['label_ar'] }}</strong>
+                                        <span style="font-size: 0.72rem; color: var(--color-text-muted); font-mono">{{ $cKey }} &bull; {{ $colData['label_en'] }}</span>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; gap: 0.75rem; flex: 1; max-width: 500px;">
+                                    <input type="text" name="purchase_invoice_template[columns][{{ $cKey }}][label_ar]" value="{{ $colData['label_ar'] }}" placeholder="Label (AR)" class="form-control text-xs" dir="rtl" style="font-weight: 700;">
+                                    <input type="text" name="purchase_invoice_template[columns][{{ $cKey }}][label_en]" value="{{ $colData['label_en'] }}" placeholder="Label (EN)" class="form-control text-xs font-mono">
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 3: Drag & Drop Sections Layout -->
+                <div id="subtab-pur-positions" data-tab-content="purchase-invoice-studio" style="display: none;">
+                    <div style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); padding: 1rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="font-size: 0.85rem; color: var(--color-text);">
+                            <i class="fa-solid fa-arrows-up-down text-indigo-500 mr-1.5 ml-1.5"></i>
+                            <strong>{{ app()->getLocale() === 'ar' ? 'ترتيب أقسام فاتورة المشتريات بالسحب والإفلات:' : 'Reorder Purchase Invoice Sections via Drag & Drop:' }}</strong>
+                            <span class="text-muted" style="margin-inline-start: 0.5rem;">{{ app()->getLocale() === 'ar' ? 'يمكنك تحريك الأقسام لأعلى أو لأسفل عبر الأسهم أو السحب المباشر لتغيير ترتيب الطباعة.' : 'Drag rows or use arrow buttons to arrange purchase invoice layout sections.' }}</span>
+                        </div>
+                    </div>
+
+                    @php
+                        $purSectionMeta = [
+                            'header_company' => ['title_ar' => 'ترويسة الشركة واللوجو والعناوين الرسمية للمنشأة', 'title_en' => 'Company Header, Logo & Official Coordinates', 'icon' => 'fa-building'],
+                            'vendor_and_qr' => ['title_ar' => 'بيانات المورد والمستودع وتاريخ الفاتورة ورمز QR', 'title_en' => 'Vendor Info, Warehouse, Dates & Verification QR', 'icon' => 'fa-qrcode'],
+                            'title_banner' => ['title_ar' => 'بانر عنوان الفاتورة الرئيسي "فاتورة مشتريات"', 'title_en' => 'Main Purchase Invoice Title Banner ("فاتورة مشتريات")', 'icon' => 'fa-heading'],
+                            'items_table' => ['title_ar' => 'جدول الأصناف والتشغيلة وتواريخ الصلاحية (10 أعمدة)', 'title_en' => 'Line Items & Batch/Expiry Table (10 Columns)', 'icon' => 'fa-table-cells'],
+                            'totals_and_payments' => ['title_ar' => 'طرق الدفع والتسوية ومربعات الاختيار وملخص الإجماليات والضريبة', 'title_en' => 'Payment Settlement Checks & Financial Totals Block', 'icon' => 'fa-calculator'],
+                            'signatures_stamp' => ['title_ar' => 'توقيع المستلم والاعتماد والختم الرسمي', 'title_en' => 'Receiver Signature, Authorized Sign & Seal', 'icon' => 'fa-stamp'],
+                            'footer_notes' => ['title_ar' => 'شروط الاستلام والفحص الصيدلاني بالأسفل', 'title_en' => 'Footer Regulatory & Acceptance Remarks', 'icon' => 'fa-file-contract'],
+                        ];
+                        $purSecOrder = $purTpl['sections_order'] ?? array_keys($purSectionMeta);
+                    @endphp
+
+                    <div id="purchase_invoice_sections_sortable_container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        @foreach($purSecOrder as $pIdx => $pKey)
+                            @if(isset($purSectionMeta[$pKey]))
+                                <div class="purchase-section-sort-row" data-section-key="{{ $pKey }}" draggable="true"
+                                     style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--color-bg-card); border: 1.5px solid var(--color-border); border-radius: var(--radius-md); cursor: grab; user-select: none; transition: all 0.2s ease;">
+                                    <input type="hidden" name="purchase_invoice_template[sections_order][]" value="{{ $pKey }}" class="pur-sec-order-input">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <span class="order-handle-icon text-muted" style="cursor: grab; font-size: 1.1rem; width: 24px; text-align: center;">
+                                            <i class="fa-solid fa-grip-vertical"></i>
+                                        </span>
+                                        <span class="badge font-mono pur-sec-order-num" style="background: #0284C7; color: #fff; font-weight: 800; font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: var(--radius-sm);">
+                                            {{ $pIdx + 1 }}
+                                        </span>
+                                        <i class="fa-solid {{ $purSectionMeta[$pKey]['icon'] }} text-sky-500" style="font-size: 1rem;"></i>
+                                        <div>
+                                            <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $purSectionMeta[$pKey]['title_ar'] }}</strong>
+                                            <span style="font-size: 0.72rem; color: var(--color-text-muted); font-mono">{{ $purSectionMeta[$pKey]['title_en'] }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <button type="button" onclick="movePurchaseInvoiceSectionRow(this, -1)" class="btn btn-secondary btn-xs" title="Move Up">
+                                            <i class="fa-solid fa-arrow-up"></i>
+                                        </button>
+                                        <button type="button" onclick="movePurchaseInvoiceSectionRow(this, 1)" class="btn btn-secondary btn-xs" title="Move Down">
+                                            <i class="fa-solid fa-arrow-down"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Sub-Tab 4: Real-Time Live Preview -->
+                <div id="subtab-pur-preview" data-tab-content="purchase-invoice-studio" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse"></span>
+                            <span style="font-size: 0.85rem; font-weight: 800; color: var(--color-text);">
+                                {{ app()->getLocale() === 'ar' ? 'معاينة حية ومطابقة بنسبة 100% لطباعة فاتورة المشتريات A4:' : 'Live Synchronized Purchase Print Preview:' }}
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button type="button" onclick="refreshPurchaseInvoiceIframePreview()" class="btn btn-secondary btn-xs font-bold">
+                                <i class="fa-solid fa-arrows-rotate mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'تحديث المعاينة' : 'Refresh Preview' }}
+                            </button>
+                            <a href="{{ route('admin.settings.purchase-invoice-template.preview') }}" target="_blank" class="btn btn-primary btn-xs font-bold">
+                                <i class="fa-solid fa-up-right-from-square mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'فتح بنافذة كاملة' : 'Open in New Window' }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="border: 2px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; background: #e2e8f0; padding: 1rem; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);">
+                        <iframe id="purchaseInvoiceLivePreviewIframe" src="{{ route('admin.settings.purchase-invoice-template.preview') }}" 
+                                style="width: 100%; height: 850px; border: none; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></iframe>
+                    </div>
+                </div>
+            </div>
+            <!-- End of Purchase Invoice Studio Pane -->
+
         </div>
+    </div>
 
         <div style="margin-top: 2rem; display: flex; justify-content: flex-end;">
             <button type="submit" class="btn btn-primary btn-lg">
@@ -3710,6 +3961,155 @@
                     window.toast.success(data.message || 'تم استعادة القالب الافتراضي بنجاح');
                 } else {
                     alert(data.message || 'تم استعادة القالب الافتراضي بنجاح');
+                }
+                setTimeout(() => {
+                    window.location.reload();
+                }, 700);
+            })
+            .catch(err => {
+                console.error(err);
+                alert('فشلت العملية، يرجى المحاولة مرة أخرى.');
+            });
+        };
+
+        // Switch between Sales Invoice and Purchase Invoice studio modes
+        window.switchInvoiceStudioDocType = function(mode) {
+            const btnSales = document.getElementById('tab-btn-inv-sales');
+            const btnPurchase = document.getElementById('tab-btn-inv-purchase');
+            const paneSales = document.getElementById('invoice-studio-sales-pane');
+            const panePurchase = document.getElementById('invoice-studio-purchase-pane');
+
+            if (mode === 'sales') {
+                if (btnSales) {
+                    btnSales.style.background = 'var(--color-primary)';
+                    btnSales.style.borderColor = 'var(--color-primary)';
+                    btnSales.style.color = '#fff';
+                }
+                if (btnPurchase) {
+                    btnPurchase.style.background = 'var(--color-bg-card)';
+                    btnPurchase.style.borderColor = 'var(--color-border)';
+                    btnPurchase.style.color = 'var(--color-text)';
+                }
+                if (paneSales) paneSales.style.display = 'block';
+                if (panePurchase) panePurchase.style.display = 'none';
+            } else if (mode === 'purchase') {
+                if (btnPurchase) {
+                    btnPurchase.style.background = '#0284C7';
+                    btnPurchase.style.borderColor = '#0284C7';
+                    btnPurchase.style.color = '#fff';
+                }
+                if (btnSales) {
+                    btnSales.style.background = 'var(--color-bg-card)';
+                    btnSales.style.borderColor = 'var(--color-border)';
+                    btnSales.style.color = 'var(--color-text)';
+                }
+                if (paneSales) paneSales.style.display = 'none';
+                if (panePurchase) panePurchase.style.display = 'block';
+            }
+        };
+
+        // Purchase Invoice Studio Subtabs & Drag/Drop
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sub-tabs switcher for purchase-invoice-studio
+            document.querySelectorAll('.product-tabs-nav[data-tab-group="purchase-invoice-studio"] .tab-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-tab-target');
+                    if (!targetId) return;
+
+                    // Switch active button
+                    document.querySelectorAll('.product-tabs-nav[data-tab-group="purchase-invoice-studio"] .tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Switch visible sub-tab
+                    document.querySelectorAll('[data-tab-content="purchase-invoice-studio"]').forEach(content => {
+                        content.style.display = (content.id === targetId) ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Drag and drop for purchase invoice sections
+            let draggedPurSec = null;
+            const purSecContainer = document.getElementById('purchase_invoice_sections_sortable_container');
+            if (purSecContainer) {
+                purSecContainer.addEventListener('dragstart', (e) => {
+                    const row = e.target.closest('.purchase-section-sort-row');
+                    if (!row) return;
+                    draggedPurSec = row;
+                    row.style.opacity = '0.35';
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                purSecContainer.addEventListener('dragend', (e) => {
+                    const row = e.target.closest('.purchase-section-sort-row');
+                    if (row) row.style.opacity = '1';
+                    draggedPurSec = null;
+                    updatePurchaseInvoiceSectionsNumbers();
+                });
+
+                purSecContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const targetRow = e.target.closest('.purchase-section-sort-row');
+                    if (targetRow && targetRow !== draggedPurSec) {
+                        const rect = targetRow.getBoundingClientRect();
+                        const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+                        purSecContainer.insertBefore(draggedPurSec, next ? targetRow.nextSibling : targetRow);
+                    }
+                });
+            }
+        });
+
+        window.updatePurchaseInvoiceSectionsNumbers = function() {
+            const container = document.getElementById('purchase_invoice_sections_sortable_container');
+            if (!container) return;
+            const rows = container.querySelectorAll('.purchase-section-sort-row');
+            rows.forEach((row, idx) => {
+                const badge = row.querySelector('.pur-sec-order-num');
+                if (badge) badge.textContent = (idx + 1);
+            });
+        };
+
+        window.movePurchaseInvoiceSectionRow = function(btn, direction) {
+            const row = btn.closest('.purchase-section-sort-row');
+            if (!row) return;
+            const container = row.parentElement;
+
+            if (direction === -1 && row.previousElementSibling) {
+                container.insertBefore(row, row.previousElementSibling);
+                window.updatePurchaseInvoiceSectionsNumbers();
+                row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else if (direction === 1 && row.nextElementSibling) {
+                container.insertBefore(row.nextElementSibling, row);
+                window.updatePurchaseInvoiceSectionsNumbers();
+                row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        };
+
+        window.refreshPurchaseInvoiceIframePreview = function() {
+            const iframe = document.getElementById('purchaseInvoiceLivePreviewIframe');
+            if (iframe) {
+                iframe.src = iframe.src.split('?')[0] + '?t=' + new Date().getTime();
+            }
+        };
+
+        window.resetPurchaseInvoiceTemplateToDefault = function() {
+            if (!confirm('هل أنت متأكد من استعادة تصميم وقالب فاتورة المشتريات الافتراضي للنظام؟')) return;
+
+            fetch('{{ route('admin.settings.purchase-invoice-template.reset') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (window.toast) {
+                    window.toast.success(data.message || 'تم استعادة قالب المشتريات الافتراضي بنجاح');
+                } else {
+                    alert(data.message || 'تم استعادة قالب المشتريات الافتراضي بنجاح');
                 }
                 setTimeout(() => {
                     window.location.reload();

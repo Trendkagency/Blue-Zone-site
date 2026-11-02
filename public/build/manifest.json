@@ -28,7 +28,11 @@
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
   "resources/css/app.css": {
+<<<<<<< HEAD
     "file": "assets/app-Bmavw2QI.css",
+=======
+    "file": "assets/app-Cex9oLqK.css",
+>>>>>>> chore/remove-pos
     "name": "app",
     "names": [
       "app.css"

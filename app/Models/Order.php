@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
@@ -121,5 +122,10 @@ class Order extends Model
     public function getDueBalanceAttribute(): float
     {
         return max(0, (float) $this->total - $this->paid_amount);
+    }
+
+    public function collectionEntry(): HasOne
+    {
+        return $this->hasOne(CollectionEntry::class, 'order_id');
     }
 }

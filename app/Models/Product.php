@@ -28,6 +28,7 @@ class Product extends Model implements HasMedia
         'subcategory_ar',
         'brand',
         'price',
+        'cost_price',
         'sale_price',
         'is_featured',
         'show_on_landing',
@@ -63,6 +64,10 @@ class Product extends Model implements HasMedia
         'warnings',
         'enable_backorders',
         'section_settings',
+        'shelf_life_months',
+        'cost_calculation_mode',
+        'packaging_overhead_cost',
+        'labor_overhead_cost',
     ];
 
     protected function casts(): array
@@ -78,6 +83,9 @@ class Product extends Model implements HasMedia
             'is_best_seller' => 'boolean',
             'is_new' => 'boolean',
             'enable_backorders' => 'boolean',
+            'shelf_life_months' => 'integer',
+            'packaging_overhead_cost' => 'decimal:4',
+            'labor_overhead_cost' => 'decimal:4',
             'images' => 'array',
             'benefits_en' => 'array',
             'benefits_ar' => 'array',
@@ -175,10 +183,10 @@ class Product extends Model implements HasMedia
         return $query->where(function ($q) {
             $q->where('status', 'active')->orWhere('is_active', true);
         })
-        ->where('show_on_landing', true)
-        ->orderBy('landing_order', 'asc')
-        ->orderBy('sort_order', 'asc')
-        ->orderByDesc('is_featured');
+            ->where('show_on_landing', true)
+            ->orderBy('landing_order', 'asc')
+            ->orderBy('sort_order', 'asc')
+            ->orderByDesc('is_featured');
     }
 
     public function category(): BelongsTo
@@ -204,6 +212,94 @@ class Product extends Model implements HasMedia
     public function heroSlides(): HasMany
     {
         return $this->hasMany(HeroSlide::class, 'product_id');
+    }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(ProductBatch::class);
+    }
+
+    public function activeBatches(): HasMany
+    {
+        return $this->hasMany(ProductBatch::class)
+            ->where('status', 'approved')
+            ->where('available_qty', '>', 0)
+            ->where('expiry_date', '>', now()->toDateString())
+            ->orderBy('expiry_date', 'asc');
+    }
+
+    public function recipeItems(): HasMany
+    {
+        return $this->hasMany(ProductRecipeItem::class);
+    }
+
+    public function rawMaterials(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(RawMaterial::class, 'product_recipe_items')
+            ->withPivot(['quantity_per_unit', 'loss_percentage', 'is_critical'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Calculate default expiry date using product shelf life
+     */
+    public function calculateDefaultExpiryDate(\DateTimeInterface|string|null $manufactureDate = null): string
+    {
+        $base = $manufactureDate ? \Carbon\Carbon::parse($manufactureDate) : now();
+        $shelfLifeMonths = max(1, (int) ($this->shelf_life_months ?? 24));
+
+        return $base->copy()->addMonths($shelfLifeMonths)->toDateString();
+    }
+
+    /**
+     * Calculate theoretical Raw Material base cost from BOM Recipe items
+     */
+    public function calculateBomMaterialCost(): float
+    {
+        $total = 0.0;
+        $recipeItems = $this->recipeItems()->with('rawMaterial')->get();
+
+        foreach ($recipeItems as $item) {
+            $raw = $item->rawMaterial;
+            if (!$raw)
+                continue;
+
+            $qtyPerUnit = (float) $item->quantity_per_unit;
+            $lossMultiplier = 1 + ((float) ($item->loss_percentage ?? 0) / 100);
+            $materialCost = (float) ($raw->standard_cost ?? 0);
+
+            $total += ($qtyPerUnit * $lossMultiplier * $materialCost);
+        }
+
+        return round($total, 4);
+    }
+
+    /**
+     * Calculate full theoretical unit cost (BOM materials + packaging + labor overheads)
+     */
+    public function calculateTotalBomCost(): float
+    {
+        $materialCost = $this->calculateBomMaterialCost();
+        $packaging = (float) ($this->packaging_overhead_cost ?? 0);
+        $labor = (float) ($this->labor_overhead_cost ?? 0);
+
+        return round($materialCost + $packaging + $labor, 4);
+    }
+
+    /**
+     * Sync cost_price from BOM calculation if product is in auto_bom mode
+     */
+    public function syncCostFromBom(): void
+    {
+        if ($this->cost_calculation_mode === 'manual_locked') {
+            return;
+        }
+
+        $computed = $this->calculateTotalBomCost();
+        if ($computed > 0) {
+            $this->cost_price = $computed;
+            $this->save();
+        }
     }
 
     /**
@@ -505,36 +601,36 @@ class Product extends Model implements HasMedia
         $globalEnabled = (bool) Setting::get("pdetail_{$key}_enabled", true);
 
         $enabledDesktop = array_key_exists('enabled_desktop', $productSettings)
-            ? (bool) $productSettings['enabled_desktop'] 
+            ? (bool) $productSettings['enabled_desktop']
             : $globalEnabled;
 
         $enabledMobile = array_key_exists('enabled_mobile', $productSettings)
-            ? (bool) $productSettings['enabled_mobile'] 
+            ? (bool) $productSettings['enabled_mobile']
             : $globalEnabled;
 
         $defaultOpen = array_key_exists('default_open', $productSettings)
-            ? (bool) $productSettings['default_open'] 
+            ? (bool) $productSettings['default_open']
             : ($key === 'sec1'); // Section 1 opens by default
 
-        $badgeEn = !empty($productSettings['badge_en']) 
-            ? $productSettings['badge_en'] 
+        $badgeEn = !empty($productSettings['badge_en'])
+            ? $productSettings['badge_en']
             : Setting::get("pdetail_{$key}_badge_en", $defaultLabels[$key]['badge_en'] ?? '');
-        $badgeAr = !empty($productSettings['badge_ar']) 
-            ? $productSettings['badge_ar'] 
+        $badgeAr = !empty($productSettings['badge_ar'])
+            ? $productSettings['badge_ar']
             : Setting::get("pdetail_{$key}_badge_ar", $defaultLabels[$key]['badge_ar'] ?? '');
-        $titleEn = !empty($productSettings['title_en']) 
-            ? $productSettings['title_en'] 
+        $titleEn = !empty($productSettings['title_en'])
+            ? $productSettings['title_en']
             : Setting::get("pdetail_{$key}_title_en", $defaultLabels[$key]['title_en'] ?? '');
-        $titleAr = !empty($productSettings['title_ar']) 
-            ? $productSettings['title_ar'] 
+        $titleAr = !empty($productSettings['title_ar'])
+            ? $productSettings['title_ar']
             : Setting::get("pdetail_{$key}_title_ar", $defaultLabels[$key]['title_ar'] ?? '');
 
         $badge = $isRtl && !empty($badgeAr) ? $badgeAr : ($badgeEn ?: $badgeAr);
         $title = $isRtl && !empty($titleAr) ? $titleAr : ($titleEn ?: $titleAr);
 
         $customContentEnabled = !empty($productSettings['custom_content_enabled']);
-        $customContent = $isRtl && !empty($productSettings['custom_content_ar']) 
-            ? $productSettings['custom_content_ar'] 
+        $customContent = $isRtl && !empty($productSettings['custom_content_ar'])
+            ? $productSettings['custom_content_ar']
             : ($productSettings['custom_content_en'] ?? $productSettings['custom_content_ar'] ?? null);
 
         $contentScreenMode = $productSettings['content_screen_mode'] ?? 'unified';
@@ -628,8 +724,8 @@ class Product extends Model implements HasMedia
         $savingsPercentage = $totalOriginalPrice > 0 ? round(($discountAmount / $totalOriginalPrice) * 100) : 0;
 
         $isRtl = app()->getLocale() === 'ar';
-        $badge = $isRtl && !empty($bundle['badge_ar']) 
-            ? $bundle['badge_ar'] 
+        $badge = $isRtl && !empty($bundle['badge_ar'])
+            ? $bundle['badge_ar']
             : (!empty($bundle['badge_en']) ? $bundle['badge_en'] : ($isRtl ? "وفر {$savingsPercentage}% مع البروتوكول" : "Save {$savingsPercentage}% with Protocol"));
 
         return [

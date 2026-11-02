@@ -46,6 +46,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(\App\Services\RawMaterial\VendorEvaluationEngine::class, function () {
             return \App\Services\RawMaterial\VendorEvaluationEngine::getInstance();
         });
+
+        // Singleton pattern: PaymentService for financial disbursements
+        $this->app->singleton(\App\Services\PaymentService::class, function () {
+            return new \App\Services\PaymentService();
+        });
+
+        // Singleton pattern: CollectionService for financial revenue collections
+        $this->app->singleton(\App\Services\CollectionService::class, function () {
+            return new \App\Services\CollectionService();
+        });
     }
 
     /**
@@ -89,6 +99,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Supply Chain Observers
         \App\Models\RawMaterialBatch::observe(\App\Observers\RawMaterialBatchObserver::class);
+        \App\Models\RawMaterial::observe(\App\Observers\RawMaterialObserver::class);
+        \App\Models\ProductRecipeItem::observe(\App\Observers\ProductRecipeItemObserver::class);
         \App\Models\QcInspection::observe(\App\Observers\QcInspectionObserver::class);
         \App\Models\PurchaseOrder::observe(\App\Observers\PurchaseOrderObserver::class);
         \App\Models\WorkOrder::observe(\App\Observers\WorkOrderObserver::class);

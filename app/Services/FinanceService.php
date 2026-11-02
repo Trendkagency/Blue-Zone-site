@@ -49,6 +49,11 @@ class FinanceService
             $totalCollected = (float) $order->financialPayments()->where('direction', 'credit')->sum('amount');
             if ($totalCollected >= (float) $order->total) {
                 $order->update(['payment_status' => 'Paid']);
+                try {
+                    app(\App\Services\CollectionService::class)->syncOrder($order);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Collection auto-sync failed: ' . $e->getMessage());
+                }
             } elseif ($totalCollected > 0) {
                 $order->update(['payment_status' => 'Partially Paid']);
             }
@@ -258,7 +263,11 @@ class FinanceService
 
                     PurchaseInvoiceItem::create([
                         'purchase_invoice_id' => $invoice->id,
+                        'item_type' => $item['item_type'] ?? (!empty($item['product_id']) ? 'product' : 'raw_material'),
+                        'product_id' => $item['product_id'] ?? null,
                         'raw_material_id' => $item['raw_material_id'] ?? null,
+                        'batch_number' => $item['batch_number'] ?? null,
+                        'expiry_date' => $item['expiry_date'] ?? null,
                         'item_name' => $item['item_name'] ?? 'Item',
                         'quantity' => $qty,
                         'unit_price' => $price,

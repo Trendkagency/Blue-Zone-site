@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Services\CartService;
+use App\Services\FifoAllocationEngine;
 use App\Services\InventoryService;
 use App\Services\Payment\PaymentService;
 use Illuminate\Http\RedirectResponse;
@@ -125,13 +126,38 @@ class CheckoutController extends Controller
                     'notes' => $validated['notes'] ?? null,
                 ]);
 
-                // Create Order Items & Deduct online inventory
+                // Create Order Items & Deduct inventory with strict FIFO/FEFO batch management
                 foreach ($summary['items'] as $item) {
                     $product = Product::find($item['id']);
+                    $qty = (int) ($item['quantity'] ?? 1);
+
+                    // Allocate earliest-expiring approved batch via Singleton FEFO Engine
+                    $allocations = [];
+                    $allocatedBatchId = null;
+                    $allocatedBatchNumber = null;
+                    $allocatedExpiryDate = null;
+
+                    if ($product) {
+                        try {
+                            $allocations = FifoAllocationEngine::getInstance()->allocateProduct($product, $qty, 'online');
+                            if (!empty($allocations)) {
+                                $primaryAlloc = $allocations[0];
+                                $allocatedBatchId = $primaryAlloc['batch_id'] ?? null;
+                                $allocatedBatchNumber = $primaryAlloc['batch_number'] ?? null;
+                                $allocatedExpiryDate = $primaryAlloc['expiry_date'] ?? null;
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::warning("FEFO Product Batch auto-allocation info: " . $e->getMessage());
+                        }
+                    }
 
                     OrderItem::create([
                         'order_id' => $order->id,
+                        'item_type' => 'product',
                         'product_id' => $item['id'],
+                        'product_batch_id' => $allocatedBatchId,
+                        'batch_number' => $allocatedBatchNumber,
+                        'expiry_date' => $allocatedExpiryDate,
                         'product_name_en' => $item['name_en'],
                         'product_name_ar' => $item['name_ar'] ?? $item['name_en'],
                         'variant_en' => 'Standard 30-Day Protocol',
@@ -143,11 +169,18 @@ class CheckoutController extends Controller
                         'image' => $item['image'] ?? '/assets/logo/logo-main.png',
                     ]);
 
-                    if ($product) {
+                    if (!empty($allocations)) {
+                        FifoAllocationEngine::getInstance()->commitProductDeduction(
+                            $allocations,
+                            "Online Order #{$orderNumber}",
+                            $validated['full_name'],
+                            $order
+                        );
+                    } elseif ($product) {
                         InventoryService::adjustStock(
                             $product,
                             'online',
-                            -(int)$item['quantity'],
+                            -$qty,
                             'Online Order',
                             "Online Order #{$orderNumber}",
                             $validated['full_name']

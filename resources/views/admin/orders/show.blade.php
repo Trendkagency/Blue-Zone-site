@@ -137,6 +137,8 @@
                                     $iQty = is_array($item) ? ($item['quantity'] ?? 1) : ($item->quantity ?? 1);
                                     $iTot = is_array($item) ? ($item['total'] ?? ($iPrice * $iQty)) : ($item->total ?? ($iPrice * $iQty));
                                     $iImg = is_array($item) ? ($item['image'] ?? 'image.jpg') : ($item->image ?? 'image.jpg');
+                                    $batchNum = is_array($item) ? ($item['batch_number'] ?? null) : ($item->batch_number ?? $item->productBatch?->batch_number ?? null);
+                                    $expDate = is_array($item) ? ($item['expiry_date'] ?? null) : ($item->expiry_date ?? $item->productBatch?->expiry_date ?? null);
                                 @endphp
                                 <tr class="hover:bg-sky-50/40 dark:hover:bg-slate-800/40 transition-colors">
                                     <td class="py-4 px-4">
@@ -148,6 +150,20 @@
                                                 <div class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ $iName }}</div>
                                                 @if($iVar)
                                                     <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ $iVar }}</div>
+                                                @endif
+                                                @if($batchNum || $expDate)
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        @if($batchNum)
+                                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                                                <i class="fa-solid fa-barcode text-[9px] text-sky-500"></i> {{ $batchNum }}
+                                                            </span>
+                                                        @endif
+                                                        @if($expDate)
+                                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50">
+                                                                <i class="fa-solid fa-calendar-check text-[9px]"></i> Exp: {{ is_string($expDate) ? substr($expDate, 0, 10) : $expDate->format('Y-m-d') }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
                                                 @endif
                                             </div>
                                         </div>

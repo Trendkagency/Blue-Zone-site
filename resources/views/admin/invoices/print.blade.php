@@ -354,10 +354,9 @@
         }
         .sheet-table th, .sheet-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.22rem 0.2rem;
+            padding: 0.28rem 0.25rem;
             vertical-align: middle;
             overflow: hidden;
-            word-wrap: break-word;
         }
         .sheet-table th {
             background-color: var(--inv-th-bg);
@@ -365,18 +364,25 @@
             font-weight: 900;
             text-align: center;
             line-height: 1.15;
-            padding: 0.28rem 0.15rem;
+            padding: 0.32rem 0.2rem;
         }
         .th-ar {
             display: block;
-            font-size: 0.71rem;
+            font-size: 0.70rem;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .th-en {
             display: block;
-            font-size: 0.61rem;
+            font-size: 0.58rem;
             font-weight: 700;
             color: #334155;
             direction: ltr;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .sheet-table tbody tr {
             min-height: 22px;
@@ -386,11 +392,21 @@
         .text-end { text-align: left; }
         .font-mono { font-family: monospace, monospace; }
         .font-bold { font-weight: 800; }
+        .sheet-table td.cell-code {
+            white-space: nowrap;
+            text-align: center;
+            font-family: monospace, monospace;
+            font-weight: 700;
+            font-size: 0.72rem;
+            letter-spacing: -0.01em;
+            padding: 0.28rem 0.2rem;
+        }
         .sheet-table td.cell-num {
             white-space: nowrap;
             font-variant-numeric: tabular-nums;
             text-align: center;
-            padding: 0.22rem 0.15rem;
+            font-size: 0.72rem;
+            padding: 0.28rem 0.2rem;
         }
 
         /* Bottom Section: Right (Totals) | Left (Payment & Signatures) */
@@ -410,15 +426,18 @@
             border-collapse: collapse;
             font-size: 0.74rem;
             border: 1px solid var(--inv-border);
+            table-layout: fixed;
         }
         .totals-box-table th, .totals-box-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.24rem 0.4rem;
+            padding: 0.28rem 0.45rem;
+            vertical-align: middle;
         }
         .totals-box-table th {
             background-color: var(--inv-th-bg);
             font-weight: 900;
             text-align: center;
+            padding: 0.32rem 0.45rem;
         }
 
         /* Left Side Payment Settlement Table */
@@ -427,36 +446,42 @@
             border-collapse: collapse;
             font-size: 0.74rem;
             border: 1px solid var(--inv-border);
+            table-layout: fixed;
         }
         .payment-box-table th, .payment-box-table td {
             border: 1px solid var(--inv-border);
-            padding: 0.24rem 0.4rem;
+            padding: 0.28rem 0.45rem;
+            vertical-align: middle;
         }
         .payment-box-table th {
             background-color: var(--inv-th-bg);
             font-weight: 900;
             text-align: center;
+            padding: 0.32rem 0.45rem;
         }
         .payment-methods-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.2rem 0.35rem;
+            gap: 0.3rem 0.5rem;
+            align-items: center;
             font-size: 0.68rem;
             font-weight: 800;
         }
         .chk-item {
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.35rem;
             white-space: nowrap;
+            font-size: 0.68rem;
         }
         .chk-box {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 12px;
-            height: 12px;
+            width: 13px;
+            height: 13px;
             border: 1.5px solid #0f172a;
+            border-radius: 2px;
             font-size: 9px;
             font-weight: 900;
             line-height: 1;
@@ -709,23 +734,23 @@
             <table class="sheet-table">
                 <thead>
                     <tr>
-                        <th style="width: 3%;">
+                        <th style="width: 3.5%;">
                             <span class="th-ar">م</span>
                             <span class="th-en">N</span>
                         </th>
-                        <th style="width: 8.5%;">
+                        <th style="width: 11%;">
                             <span class="th-ar">كود الصنف</span>
                             <span class="th-en">Item Code</span>
                         </th>
-                        <th style="width: 22%;">
+                        <th style="width: 23%;">
                             <span class="th-ar">اسم الصنف</span>
                             <span class="th-en">Item Description</span>
                         </th>
-                        <th style="width: 5%;">
+                        <th style="width: 6%;">
                             <span class="th-ar">الكمية</span>
                             <span class="th-en">Qty</span>
                         </th>
-                        <th style="width: 14%;">
+                        <th style="width: 13%;">
                             <span class="th-ar">تاريخ الصلاحية / التشغيلة</span>
                             <span class="th-en">Expiry Date / Batch No.</span>
                         </th>
@@ -733,23 +758,23 @@
                             <span class="th-ar">سعر الوحدة</span>
                             <span class="th-en">Price</span>
                         </th>
-                        <th style="width: 4.5%;">
-                            <span class="th-ar">نسبة الخصم 1</span>
+                        <th style="width: 5%;">
+                            <span class="th-ar">خصم 1</span>
                             <span class="th-en">Disc. 1</span>
                         </th>
-                        <th style="width: 4.5%;">
-                            <span class="th-ar">نسبة الخصم 2</span>
+                        <th style="width: 5%;">
+                            <span class="th-ar">خصم 2</span>
                             <span class="th-en">Disc. 2</span>
                         </th>
-                        <th style="width: 10%;">
-                            <span class="th-ar">إجمالي بدون الضريبة</span>
+                        <th style="width: 9.5%;">
+                            <span class="th-ar">بدون الضريبة</span>
                             <span class="th-en">Total Exc. VAT</span>
                         </th>
-                        <th style="width: 8.5%;">
+                        <th style="width: 7.5%;">
                             <span class="th-ar">الضريبة</span>
                             <span class="th-en">VAT</span>
                         </th>
-                        <th style="width: 12.5%;">
+                        <th style="width: 9%;">
                             <span class="th-ar">شامل الضريبة</span>
                             <span class="th-en">Total Inc.</span>
                         </th>
@@ -797,8 +822,8 @@
                         @endphp
                         <tr>
                             <td class="text-center font-mono">{{ $rowCount }}</td>
-                            <td class="text-center font-mono font-bold">{{ $sku }}</td>
-                            <td class="text-start font-bold" style="font-size: 0.7rem; line-height: 1.25;">{{ $name }}</td>
+                            <td class="cell-code">{{ $sku }}</td>
+                            <td class="text-start font-bold" style="font-size: 0.72rem; line-height: 1.35; padding: 0.28rem 0.35rem;">{{ $name }}</td>
                             <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
                             <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
                             <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
@@ -853,8 +878,8 @@
                 <table class="totals-box-table">
                     <thead>
                         <tr>
-                            <th style="width: 58%;">البيان</th>
-                            <th style="width: 42%;">القيمة</th>
+                            <th style="width: 55%;">البيان</th>
+                            <th style="width: 45%;">القيمة</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -893,15 +918,23 @@
                 <table class="payment-box-table">
                     <thead>
                         <tr>
-                            <th style="width: 42%;">البيان</th>
-                            <th style="width: 58%;">القيمة</th>
+                            <th style="width: 38%;">البيان</th>
+                            <th style="width: 62%;">القيمة</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="font-bold">طريقة الدفع:</td>
-                            <td>
+                            <td class="font-bold" style="vertical-align: middle;">طريقة الدفع:</td>
+                            <td style="padding: 0.35rem 0.45rem;">
                                 <div class="payment-methods-grid">
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isCash ? '✓' : '' }}</span>
+                                        <span>نقداً Cash</span>
+                                    </span>
+                                    <span class="chk-item">
+                                        <span class="chk-box">{{ $isBank ? '✓' : '' }}</span>
+                                        <span>تحويل بنكي Bank</span>
+                                    </span>
                                     <span class="chk-item">
                                         <span class="chk-box">{{ $isPartial ? '✓' : '' }}</span>
                                         <span>دفع جزئي Partial</span>
@@ -909,14 +942,6 @@
                                     <span class="chk-item">
                                         <span class="chk-box">{{ $isCheque ? '✓' : '' }}</span>
                                         <span>شيك Cheque</span>
-                                    </span>
-                                    <span class="chk-item">
-                                        <span class="chk-box">{{ $isBank ? '✓' : '' }}</span>
-                                        <span>تحويل بنكي Bank</span>
-                                    </span>
-                                    <span class="chk-item">
-                                        <span class="chk-box">{{ $isCash ? '✓' : '' }}</span>
-                                        <span>نقداً Cash</span>
                                     </span>
                                 </div>
                             </td>
@@ -936,7 +961,7 @@
                             <td class="font-mono"><bdi dir="ltr">{{ $finalDue > 0 ? $dueDate : 'مسدد بالكامل' }}</bdi></td>
                         </tr>
                         <tr>
-                            <td class="font-bold">مرجع التحويل البنكي:</td>
+                            <td class="font-bold">مرجع التحويل:</td>
                             <td class="font-mono"><bdi dir="ltr">{{ $bankRef ?: '—' }}</bdi></td>
                         </tr>
                     </tbody>

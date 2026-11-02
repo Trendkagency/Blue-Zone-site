@@ -115,7 +115,7 @@
                     <span class="badge badge-accent">{{ app()->getLocale() === 'ar' ? 'خطوة 1 / 6' : 'Step 1 / 6' }}</span>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
                     <div>
                         <x-forms.input 
                             name="sku" 
@@ -132,6 +132,30 @@
                             :placeholder="__('admin.products.placeholders.barcode')" 
                             :value="old('barcode')" 
                         />
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="step1_batch_number" class="form-label" style="margin-bottom: 0; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fa-solid fa-boxes-stacked text-primary"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'رقم التشغيلة / الدفعة (Batch #)' : 'Batch / Lot Number' }}</span>
+                            </label>
+                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="generateBatchNumberValue()" style="padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 6px; font-weight: 700;">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> {{ app()->getLocale() === 'ar' ? 'توليد تلقائي' : 'Auto-Gen' }}
+                            </button>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="step1_batch_number" 
+                            value="{{ old('initial_batch_number', 'LOT-FG-' . date('Ym') . '-0001') }}" 
+                            class="form-control font-mono font-bold" 
+                            placeholder="LOT-FG-YYYYMM-0001"
+                            style="letter-spacing: 0.05em; text-transform: uppercase;"
+                            oninput="syncBatchNumber(this.value)"
+                        >
+                        <span class="text-xs text-muted" style="margin-top: 0.35rem; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+                            {{ app()->getLocale() === 'ar' ? 'معيار cGMP / FEFO لتتبع تاريخ الصلاحية' : 'cGMP / FEFO Lot identifier for expiry tracking' }}
+                        </span>
                     </div>
                 </div>
 
@@ -950,6 +974,134 @@
                     </div>
                 </div>
 
+                <!-- Initial Opening Batch & FEFO Traceability Registration Card -->
+                <div class="card" style="padding: 2.25rem; border: 1.5px solid rgba(16, 185, 129, 0.3); background: linear-gradient(135deg, rgba(16, 185, 129, 0.03), var(--color-bg));">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 2.75rem; height: 2.75rem; border-radius: var(--radius-md); background: rgba(16, 185, 129, 0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-boxes-packing"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.15rem; font-weight: 800; margin: 0 0 0.25rem 0; color: var(--color-primary);">
+                                    {{ app()->getLocale() === 'ar' ? 'بيانات التشغيلة الافتتاحية وتتبع الصلاحية (FEFO / FIFO Batch)' : 'Initial Production Batch & FEFO Traceability' }}
+                                </h3>
+                                <p class="text-xs text-muted" style="margin: 0;">
+                                    {{ app()->getLocale() === 'ar' ? 'إسناد رصيد المخزون الأولي لتشغيلة تصنيع محددة مع تحديد تاريخ الصلاحية وقواعد الصرف الذكي' : 'Bind opening stock to an approved lot with shelf-life expiry rules and automated First-Expired, First-Out allocation' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="badge badge-success" id="expiryDaysBadge" style="display: inline-flex; font-size: 0.75rem; font-weight: 800; padding: 0.35rem 0.75rem; border-radius: 9999px;">
+                                Optimal FEFO
+                            </span>
+                            <span class="badge badge-primary text-xs font-mono font-bold">
+                                cGMP Compliant
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem;">
+                        <!-- Batch Number -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label for="step7_batch_number" class="form-label" style="margin-bottom: 0; font-weight: 700; font-size: 0.825rem;">
+                                    {{ app()->getLocale() === 'ar' ? 'رقم التشغيلة / الدفعة' : 'Batch / Lot Number' }}
+                                </label>
+                                <button type="button" class="btn btn-xs btn-outline-primary" onclick="generateBatchNumberValue()" style="padding: 0.1rem 0.45rem; font-size: 0.7rem; border-radius: 4px;">
+                                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Gen
+                                </button>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="initial_batch_number" 
+                                id="step7_batch_number" 
+                                value="{{ old('initial_batch_number', 'LOT-FG-' . date('Ym') . '-0001') }}" 
+                                class="form-control font-mono font-bold uppercase" 
+                                placeholder="LOT-FG-YYYYMM-0001"
+                                style="letter-spacing: 0.05em;"
+                                oninput="syncBatchNumber(this.value)"
+                            >
+                        </div>
+
+                        <!-- Shelf Life (Months) -->
+                        <div>
+                            <label for="inputShelfLifeMonths" class="form-label" style="font-weight: 700; font-size: 0.825rem; margin-bottom: 0.5rem; display: block;">
+                                {{ app()->getLocale() === 'ar' ? 'مدة الصلاحية (بالأشهر)' : 'Shelf Life (Months)' }}
+                            </label>
+                            <div style="position: relative;">
+                                <input 
+                                    type="number" 
+                                    name="shelf_life_months" 
+                                    id="inputShelfLifeMonths" 
+                                    min="1" 
+                                    max="120" 
+                                    value="{{ old('shelf_life_months', 24) }}" 
+                                    class="form-control font-mono font-bold" 
+                                    placeholder="24"
+                                    oninput="recalculateExpiryDate()"
+                                >
+                                <span style="position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: #94a3b8; font-weight: 700;">
+                                    {{ app()->getLocale() === 'ar' ? 'شهر' : 'mo' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Manufacture Date -->
+                        <div>
+                            <label for="inputManufactureDate" class="form-label" style="font-weight: 700; font-size: 0.825rem; margin-bottom: 0.5rem; display: block;">
+                                {{ app()->getLocale() === 'ar' ? 'تاريخ الإنتاج / البدء' : 'Manufacture Date' }}
+                            </label>
+                            <input 
+                                type="date" 
+                                name="manufacture_date" 
+                                id="inputManufactureDate" 
+                                value="{{ old('manufacture_date', date('Y-m-d')) }}" 
+                                class="form-control font-mono font-bold"
+                                onchange="recalculateExpiryDate()"
+                            >
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div>
+                            <label for="inputExpiryDate" class="form-label" style="font-weight: 700; font-size: 0.825rem; margin-bottom: 0.5rem; display: block;">
+                                {{ app()->getLocale() === 'ar' ? 'تاريخ انتهاء الصلاحية (FEFO)' : 'Expiry Date (FEFO Target)' }}
+                            </label>
+                            <input 
+                                type="date" 
+                                name="expiry_date" 
+                                id="inputExpiryDate" 
+                                value="{{ old('expiry_date', date('Y-m-d', strtotime('+24 months'))) }}" 
+                                class="form-control font-mono font-bold text-emerald-600 dark:text-emerald-400"
+                                onchange="updateExpiryBadge()"
+                            >
+                        </div>
+
+                        <!-- Batch Status -->
+                        <div>
+                            <label for="selectBatchStatus" class="form-label" style="font-weight: 700; font-size: 0.825rem; margin-bottom: 0.5rem; display: block;">
+                                {{ app()->getLocale() === 'ar' ? 'حالة التشغيلة الأولية' : 'Initial Batch Status' }}
+                            </label>
+                            <select 
+                                name="batch_status" 
+                                id="selectBatchStatus" 
+                                class="form-select font-bold"
+                                onchange="updateBatchAllocationNotice()"
+                            >
+                                <option value="approved" {{ old('batch_status', 'approved') === 'approved' ? 'selected' : '' }}>
+                                    ✅ {{ app()->getLocale() === 'ar' ? 'معتمد للصرف والبيع (Approved)' : 'Approved (Ready for Sale)' }}
+                                </option>
+                                <option value="quarantine" {{ old('batch_status') === 'quarantine' ? 'selected' : '' }}>
+                                    ⚠️ {{ app()->getLocale() === 'ar' ? 'حجر مخبري مؤقت (Quarantine)' : 'Quarantine (Lab Inspection)' }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Live Real-Time Ingestion & FIFO Allocation Status Box -->
+                    <div id="batchAllocationLiveNotice" style="margin-top: 1.25rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);">
+                    </div>
+                </div>
+
                 <!-- Landing Page Display & Showcase Configuration Card -->
                 <div class="card" style="padding: 2rem; border: 1.5px solid rgba(10, 79, 120, 0.25); background: linear-gradient(135deg, rgba(10, 79, 120, 0.03), var(--color-bg)); border-radius: var(--radius-lg); position: relative; overflow: hidden;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
@@ -1066,6 +1218,14 @@
                         <div>
                             <span class="text-muted">{{ app()->getLocale() === 'ar' ? 'إجمالي المخزون الأولي' : 'Total Initial Units' }}:</span>
                             <div class="font-bold font-mono text-success" id="reviewStock">150 Units</div>
+                        </div>
+                        <div>
+                            <span class="text-muted">{{ app()->getLocale() === 'ar' ? 'رقم التشغيلة (Batch #)' : 'Initial Batch #' }}:</span>
+                            <div class="font-bold font-mono text-primary" id="reviewBatch">LOT-FG-202611-0001</div>
+                        </div>
+                        <div>
+                            <span class="text-muted">{{ app()->getLocale() === 'ar' ? 'تاريخ الصلاحية (FEFO)' : 'Expiry Date' }}:</span>
+                            <div class="font-bold font-mono text-emerald-600 dark:text-emerald-400" id="reviewExpiry">2028-11-01 (24m)</div>
                         </div>
                     </div>
 
@@ -1459,21 +1619,153 @@
             updateLivePreviewData();
         }
 
+        function syncBatchNumber(value) {
+            const cleanVal = (value || '').toUpperCase();
+            const s1 = document.getElementById('step1_batch_number');
+            const s7 = document.getElementById('step7_batch_number');
+            if (s1 && s1.value !== cleanVal) s1.value = cleanVal;
+            if (s7 && s7.value !== cleanVal) s7.value = cleanVal;
+            const rBatch = document.getElementById('reviewBatch');
+            if (rBatch) rBatch.innerText = cleanVal || 'LOT-FG-AUTO';
+            updateBatchAllocationNotice();
+        }
+
+        function generateBatchNumberValue() {
+            const ym = '{{ date('Ym') }}';
+            const rand = Math.floor(1000 + Math.random() * 9000);
+            const lot = 'LOT-FG-' + ym + '-' + rand;
+            syncBatchNumber(lot);
+        }
+
+        function recalculateExpiryDate() {
+            const mDateInput = document.getElementById('inputManufactureDate');
+            const shelfLifeInput = document.getElementById('inputShelfLifeMonths');
+            const expDateInput = document.getElementById('inputExpiryDate');
+            
+            if (!mDateInput || !shelfLifeInput || !expDateInput) return;
+            
+            const mDateVal = mDateInput.value;
+            const shelfLife = parseInt(shelfLifeInput.value) || 24;
+            
+            if (mDateVal) {
+                const parts = mDateVal.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    d.setMonth(d.getMonth() + shelfLife);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    expDateInput.value = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+            
+            updateExpiryBadge();
+            updateBatchAllocationNotice();
+        }
+
+        function updateExpiryBadge() {
+            const expDateInput = document.getElementById('inputExpiryDate');
+            const badgeEl = document.getElementById('expiryDaysBadge');
+            if (!expDateInput || !badgeEl) return;
+            
+            const expVal = expDateInput.value;
+            if (!expVal) {
+                badgeEl.style.display = 'none';
+                return;
+            }
+            
+            const expDate = new Date(expVal);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            expDate.setHours(0,0,0,0);
+            
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            badgeEl.style.display = 'inline-flex';
+            if (diffDays <= 0) {
+                badgeEl.className = 'badge badge-danger text-xs font-mono font-bold';
+                badgeEl.innerText = 'Expired (' + diffDays + 'd)';
+            } else if (diffDays <= 90) {
+                badgeEl.className = 'badge badge-warning text-xs font-mono font-bold';
+                badgeEl.innerText = 'Near Expiry (' + diffDays + 'd)';
+            } else {
+                badgeEl.className = 'badge badge-success text-xs font-mono font-bold';
+                badgeEl.innerText = 'Optimal FEFO (' + diffDays + 'd)';
+            }
+            
+            const rExpiry = document.getElementById('reviewExpiry');
+            if (rExpiry) {
+                const shelfLife = document.getElementById('inputShelfLifeMonths')?.value || '24';
+                rExpiry.innerText = `${expVal} (${shelfLife}m)`;
+            }
+        }
+
+        function updateBatchAllocationNotice() {
+            const stock = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 0;
+            const batchNo = document.getElementById('step1_batch_number')?.value || document.getElementById('step7_batch_number')?.value || 'LOT-FG-PROVISION';
+            const expDate = document.getElementById('inputExpiryDate')?.value || 'N/A';
+            const status = document.getElementById('selectBatchStatus')?.value || 'approved';
+            const cost = parseFloat(document.getElementById('inputCostPrice')?.value) || 0;
+            
+            const noticeEl = document.getElementById('batchAllocationLiveNotice');
+            if (!noticeEl) return;
+            
+            const isAr = '{{ app()->getLocale() }}' === 'ar';
+            if (stock > 0) {
+                const statusText = status === 'approved' 
+                    ? (isAr ? 'معتمد للبيع والصرف (Approved)' : 'Approved (Saleable)') 
+                    : (isAr ? 'قيد الحجر المخبري (Quarantine)' : 'In Quarantine');
+                const statusColor = status === 'approved' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400';
+                
+                noticeEl.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                        <span>${isAr ? 'تخصيص رصيد المخزون الافتتاحي في التشغيلة:' : 'Initial Stock Batch Allocation Active:'}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; line-height: 1.6; opacity: 0.9;">
+                        ${isAr 
+                            ? `سيتم قيد <strong style="font-family: monospace;">${stock} وحدة</strong> بتكلفة تقديرية <strong style="font-family: monospace;">${cost.toFixed(2)} SAR</strong> مباشرة في التشغيلة <strong style="font-family: monospace; color: var(--color-primary);">${batchNo}</strong> بصلاحية تنتهي في <strong style="font-family: monospace;">${expDate}</strong> وحالة <strong class="${statusColor}">${statusText}</strong>، وستخضع لقواعد الصرف الذكي FEFO.`
+                            : `Opening buffer of <strong style="font-family: monospace;">${stock} units</strong> at unit cost <strong style="font-family: monospace;">${cost.toFixed(2)} SAR</strong> will be assigned to batch <strong style="font-family: monospace; color: var(--color-primary);">${batchNo}</strong> expiring on <strong style="font-family: monospace;">${expDate}</strong> (${statusText}) with First-Expired First-Out automation.`}
+                    </div>
+                `;
+            } else {
+                noticeEl.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-bottom: 0.25rem;">
+                        <i class="fa-solid fa-circle-info text-sky-500"></i>
+                        <span>${isAr ? 'تشغيلة جاهزة للاستقبال (رصيد مبدئي صفر):' : 'Batch Ready for Ingestion (Zero Initial Balance):'}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; line-height: 1.6; opacity: 0.85;">
+                        ${isAr
+                            ? `الرصيد الافتتاحي صفر. سيتم تسجيل معرّف التشغيلة <strong style="font-family: monospace; color: var(--color-primary);">${batchNo}</strong> وتاريخ الصلاحية ليكون جاهزاً فور توريد البضاعة من أوامر التصنيع أو فواتير الشراء.`
+                            : `Initial online stock is 0. Batch identifier <strong style="font-family: monospace; color: var(--color-primary);">${batchNo}</strong> will be registered and primed to receive incoming stock from Work Orders or Purchase Invoices.`}
+                    </div>
+                `;
+            }
+        }
+
         function updateReviewSummary() {
             const sku = document.querySelector('input[name="sku"]')?.value || 'N/A';
             const nameAr = document.querySelector('input[name="name_ar"]')?.value || document.querySelector('input[name="name_en"]')?.value || 'N/A';
             const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 0;
             const stockOnline = parseInt(document.querySelector('input[name="stock_online"]')?.value) || 0;
+            const batchNo = document.getElementById('step1_batch_number')?.value || document.getElementById('step7_batch_number')?.value || 'Auto-generated';
+            const expDate = document.getElementById('inputExpiryDate')?.value || 'N/A';
+            const shelfLife = document.getElementById('inputShelfLifeMonths')?.value || '24';
 
             const rSKU = document.getElementById('reviewSKU');
             const rName = document.getElementById('reviewNameAR');
             const rPrice = document.getElementById('reviewPrice');
             const rStock = document.getElementById('reviewStock');
+            const rBatch = document.getElementById('reviewBatch');
+            const rExpiry = document.getElementById('reviewExpiry');
 
             if (rSKU) rSKU.innerText = sku;
             if (rName) rName.innerText = nameAr;
             if (rPrice) rPrice.innerText = window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(price) : '$' + price.toFixed(2);
             if (rStock) rStock.innerText = stockOnline + ' Units';
+            if (rBatch) rBatch.innerText = batchNo;
+            if (rExpiry) rExpiry.innerText = `${expDate} (${shelfLife}m)`;
         }
 
         // Dynamic Active Compounds Repeater
@@ -1764,6 +2056,19 @@
                     previewPrimaryProductImage(e.target);
                 });
             }
+
+            // Sync Batch Allocation Notice on stock changes
+            const stockInput = document.querySelector('input[name="stock_online"]');
+            if (stockInput) {
+                stockInput.addEventListener('input', () => {
+                    updateBatchAllocationNotice();
+                    updateReviewSummary();
+                });
+            }
+
+            // Initial calculations for cGMP batch & FEFO expiry
+            recalculateExpiryDate();
+            updateBatchAllocationNotice();
         });
     </script>
 
