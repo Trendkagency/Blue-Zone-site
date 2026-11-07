@@ -14,7 +14,7 @@
         <div class="card p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold text-gray-500 uppercase">{{ app()->getLocale() === 'ar' ? 'متوسط تقييم الموردين' : 'Average Vendor Rating' }}</p>
-                <p class="text-2xl font-black text-slate-800 dark:text-white mt-1">{{ number_format($suppliers->avg('rating'), 1) }}%</p>
+                <p class="text-2xl font-black text-slate-800 dark:text-white mt-1">{{ number_format($suppliers->avg(fn($s) => $s->score_percentage), 1) }}%</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-star"></i>
@@ -23,7 +23,7 @@
         <div class="card p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold text-gray-500 uppercase">{{ app()->getLocale() === 'ar' ? 'موردون متفوقون (>=90%)' : 'Tier-1 Suppliers' }}</p>
-                <p class="text-2xl font-black text-emerald-600 mt-1">{{ $suppliers->filter(fn($s) => $s->rating >= 90)->count() }}</p>
+                <p class="text-2xl font-black text-emerald-600 mt-1">{{ $suppliers->filter(fn($s) => $s->score_percentage >= 90)->count() }}</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-award"></i>
@@ -32,7 +32,7 @@
         <div class="card p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold text-gray-500 uppercase">{{ app()->getLocale() === 'ar' ? 'موردون بحاجة للمراجعة' : 'Watchlist (<75%)' }}</p>
-                <p class="text-2xl font-black text-rose-500 mt-1">{{ $suppliers->filter(fn($s) => $s->rating < 75)->count() }}</p>
+                <p class="text-2xl font-black text-rose-500 mt-1">{{ $suppliers->filter(fn($s) => $s->score_percentage < 75)->count() }}</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -81,10 +81,10 @@
                             <td class="font-bold text-slate-800 dark:text-white">
                                 {{ $supplier->name }}
                             </td>
-                            <td>{{ $supplier->country }}</td>
+                            <td>{{ $supplier->country?->name ?? $supplier->country_name ?? '—' }}</td>
                             <td>
-                                <span class="font-bold font-mono text-sm {{ $supplier->rating >= 90 ? 'text-emerald-600' : ($supplier->rating >= 75 ? 'text-amber-500' : 'text-rose-600') }}">
-                                    {{ number_format($supplier->rating, 1) }}%
+                                <span class="font-bold font-mono text-sm {{ $supplier->score_percentage >= 90 ? 'text-emerald-600' : ($supplier->score_percentage >= 75 ? 'text-amber-500' : 'text-rose-600') }}">
+                                    {{ number_format($supplier->star_rating, 1) }} ({{ number_format($supplier->score_percentage, 0) }}%)
                                 </span>
                             </td>
                             <td class="font-mono font-bold text-emerald-600">

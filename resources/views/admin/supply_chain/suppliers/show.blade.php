@@ -117,11 +117,25 @@
                 {{ app()->getLocale() === 'ar' ? 'التقييم وضمان الجودة cGMP' : 'Quality Rating & Audit Window' }}
             </h4>
             <div class="text-center py-2">
-                <div class="inline-flex items-center justify-center p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 text-amber-500 mb-2">
-                    <span class="text-3xl font-black">{{ number_format($supplier->rating, 1) }}</span>
-                    <span class="text-lg font-bold">/100</span>
+                <div class="inline-flex flex-col items-center justify-center p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/30 text-amber-500 mb-2 border border-amber-200/50 dark:border-amber-900/50 w-full max-w-[220px]">
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-3xl font-black text-slate-800 dark:text-white">{{ number_format($supplier->star_rating, 1) }}</span>
+                        <span class="text-base font-bold text-gray-400">/ 5.0</span>
+                    </div>
+                    <!-- 5-Star Visual -->
+                    <div class="flex items-center gap-1 text-amber-400 text-sm mt-1">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fa-solid fa-star{{ $i <= round($supplier->star_rating) ? '' : '-half-stroke opacity-30' }}"></i>
+                        @endfor
+                    </div>
+                    <!-- cGMP Index & Grade Pill -->
+                    <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold {{ $supplier->score_percentage >= 90 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : ($supplier->score_percentage >= 75 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300') }}">
+                        <span>{{ number_format($supplier->score_percentage, 0) }} / 100</span>
+                        <span>&bull;</span>
+                        <span>{{ $supplier->score_percentage >= 90 ? (app()->getLocale() === 'ar' ? 'فئة أ (ممتاز)' : 'Grade A') : ($supplier->score_percentage >= 75 ? (app()->getLocale() === 'ar' ? 'فئة ب (معتمد)' : 'Grade B') : (app()->getLocale() === 'ar' ? 'فئة ج (مراقبة)' : 'Grade C')) }}</span>
+                    </div>
                 </div>
-                <p class="text-xs text-gray-500">
+                <p class="text-[11px] text-gray-500 leading-relaxed">
                     {{ app()->getLocale() === 'ar' ? 'مبني على نسبة نجاح فحص المواد الأولية والالتزام بمواعيد الشحن وسلامة أختام الحاويات' : 'Computed from QC lot pass rate, on-time delivery & container seal integrity' }}
                 </p>
             </div>

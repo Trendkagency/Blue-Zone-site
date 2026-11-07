@@ -62,7 +62,7 @@ class SupplyChainReportController extends Controller
                 'vendor_scorecard_report',
                 ['Code', 'Name (EN)', 'Name (AR)', 'Country', 'Rating', 'Total POs', 'Total Spend (AED)', 'Lead Time (Days)', 'QC Pass %', 'On-Time %', 'Active'],
                 $suppliers->map(fn ($s) => [
-                    $s->code, $s->name_en, $s->name_ar, $s->country?->name_en ?? 'N/A', $s->rating, $s->purchase_orders_count, $s->total_spend, $s->lead_time_days, $s->computed_qc_pass_rate.'%', $s->computed_on_time_rate.'%', $s->is_active ? 'Yes' : 'No',
+                    $s->code, $s->name_en, $s->name_ar, $s->country?->name_en ?? 'N/A', $s->star_rating . ' (' . $s->score_percentage . '%)', $s->purchase_orders_count, $s->total_spend, $s->lead_time_days, $s->computed_qc_pass_rate.'%', $s->computed_on_time_rate.'%', $s->is_active ? 'Yes' : 'No',
                 ])->toArray()
             );
         }

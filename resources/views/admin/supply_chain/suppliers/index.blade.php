@@ -127,10 +127,13 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-sm {{ $supplier->rating >= 90 ? 'text-emerald-600' : ($supplier->rating >= 75 ? 'text-amber-500' : 'text-rose-500') }}">
-                                        {{ number_format($supplier->rating, 1) }}%
+                                    <span class="font-black text-sm text-slate-800 dark:text-white">
+                                        {{ number_format($supplier->star_rating, 1) }}
                                     </span>
                                     <i class="fa-solid fa-star text-xs text-amber-400"></i>
+                                    <span class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded {{ $supplier->score_percentage >= 90 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : ($supplier->score_percentage >= 75 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300') }}">
+                                        {{ number_format($supplier->score_percentage, 0) }}%
+                                    </span>
                                 </div>
                             </td>
                             <td>

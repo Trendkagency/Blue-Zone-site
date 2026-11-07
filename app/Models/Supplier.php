@@ -184,6 +184,32 @@ class Supplier extends Model implements HasMedia
         return $this->audit_expiry;
     }
 
+    public function getScorePercentageAttribute(): float
+    {
+        $val = (float) ($this->rating ?? 5.0);
+        if ($val <= 5.0 && $val > 0) {
+            return round($val * 20, 1);
+        }
+        return round($val, 1);
+    }
+
+    public function getStarRatingAttribute(): float
+    {
+        $val = (float) ($this->rating ?? 5.0);
+        if ($val > 5.0) {
+            return round($val / 20, 1);
+        }
+        return round($val, 1);
+    }
+
+    public function getRatingGradeAttribute(): string
+    {
+        $pct = $this->score_percentage;
+        if ($pct >= 90) return 'A';
+        if ($pct >= 75) return 'B';
+        return 'C';
+    }
+
     public function setAuditValidUntilAttribute($value): void
     {
         $this->attributes['audit_expiry'] = $value;
