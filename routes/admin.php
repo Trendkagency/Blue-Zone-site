@@ -74,6 +74,7 @@ use App\Http\Controllers\Admin\Hr\TrainingController as HrTrainingController;
 use App\Http\Controllers\Admin\Hr\WorkScheduleController as HrWorkScheduleController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\SupplierQuotationController;
 use App\Http\Controllers\Admin\RawMaterialController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\GoodsReceiptController;
@@ -806,6 +807,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:suppliers.edit')->name('update');
             Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:suppliers.delete')->name('destroy');
             Route::post('/{supplier}/approve', [SupplierController::class, 'approve'])->middleware('permission:suppliers.approve')->name('approve');
+        });
+
+        // Supplier Quotations & RFQ
+        Route::prefix('supplier-quotations')->name('supplier-quotations.')->group(function () {
+            Route::get('/', [SupplierQuotationController::class, 'index'])->name('index');
+            Route::get('/create', [SupplierQuotationController::class, 'create'])->name('create');
+            Route::post('/', [SupplierQuotationController::class, 'store'])->name('store');
+            Route::get('/{supplierQuotation}', [SupplierQuotationController::class, 'show'])->name('show');
+            Route::get('/{supplierQuotation}/edit', [SupplierQuotationController::class, 'edit'])->name('edit');
+            Route::put('/{supplierQuotation}', [SupplierQuotationController::class, 'update'])->name('update');
+            Route::delete('/{supplierQuotation}', [SupplierQuotationController::class, 'destroy'])->name('destroy');
+            Route::post('/{supplierQuotation}/convert', [SupplierQuotationController::class, 'convert'])->name('convert');
+            Route::patch('/{supplierQuotation}/status', [SupplierQuotationController::class, 'updateStatus'])->name('update-status');
+            Route::get('/{supplierQuotation}/print', [SupplierQuotationController::class, 'print'])->name('print');
         });
 
         // Raw Material Catalog

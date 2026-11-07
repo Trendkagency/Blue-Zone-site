@@ -85,6 +85,11 @@ class Supplier extends Model implements HasMedia
         return $this->hasMany(PurchaseOrder::class);
     }
 
+    public function quotations(): HasMany
+    {
+        return $this->hasMany(SupplierQuotation::class);
+    }
+
     public function batches(): HasMany
     {
         return $this->hasMany(RawMaterialBatch::class);
@@ -138,6 +143,35 @@ class Supplier extends Model implements HasMedia
         $this->addMediaCollection('iso_certificates')->singleFile();
         $this->addMediaCollection('sample_coas');
         $this->addMediaCollection('audit_reports');
+    }
+
+    public static function generateNextCode(): string
+    {
+        $year = date('Y');
+        $prefix = "SUP-{$year}-";
+        $latest = static::withTrashed()
+            ->where('code', 'like', "{$prefix}%")
+            ->orderBy('id', 'desc')
+            ->value('code');
+
+        if ($latest && preg_match('/(\d+)$/', $latest, $m)) {
+            $seq = (int) $m[1] + 1;
+        } else {
+            $count = static::withTrashed()->count();
+            $seq = $count + 1;
+        }
+
+        return sprintf('%s%04d', $prefix, $seq);
+    }
+
+    public function getContactPersonAttribute(): ?string
+    {
+        return $this->contact_name;
+    }
+
+    public function setContactPersonAttribute(?string $value): void
+    {
+        $this->attributes['contact_name'] = $value;
     }
 
     public function getAuditValidUntilAttribute(): mixed

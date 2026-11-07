@@ -21,8 +21,33 @@
             </div>
         @endif
 
+        @if(!empty($selectedQuotation))
+            <div class="p-4 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center justify-between gap-3 text-sky-800 dark:text-sky-200 text-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm">
+                            {{ app()->getLocale() === 'ar' ? 'تحويل من عرض السعر:' : 'Prefilled from RFQ / Quotation:' }} 
+                            <span class="font-mono text-sky-600 dark:text-sky-400 font-black">{{ $selectedQuotation->quote_number }}</span>
+                        </h4>
+                        <p class="text-xs text-sky-600/80 dark:text-sky-300/80">
+                            {{ $selectedQuotation->supplier?->name }} &bull; {{ $selectedQuotation->currency }} &bull; {{ count($selectedQuotation->items) }} {{ app()->getLocale() === 'ar' ? 'بنود مسجلة' : 'Line Items' }}
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ route('admin.supplier-quotations.show', $selectedQuotation) }}" target="_blank" class="btn btn-secondary btn-xs font-bold text-xs">
+                    {{ app()->getLocale() === 'ar' ? 'عرض الأصل' : 'View Quote' }}
+                </a>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('admin.purchase-orders.store') }}" class="space-y-6">
             @csrf
+            @if(!empty($selectedQuotation))
+                <input type="hidden" name="supplier_quotation_id" value="{{ $selectedQuotation->id }}">
+            @endif
 
             <!-- 1. Header Information & Logistics -->
             <div class="card p-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
@@ -101,7 +126,7 @@
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
                             {{ app()->getLocale() === 'ar' ? 'رقم عرض السعر / مرجع المورد' : 'Supplier Quote / Proforma Ref' }}
                         </label>
-                        <input type="text" name="supplier_reference" value="{{ old('supplier_reference') }}" class="form-control text-sm w-full" placeholder="e.g. QTE-99214">
+                        <input type="text" name="supplier_reference" value="{{ old('supplier_reference', $selectedQuotation?->quote_number) }}" class="form-control text-sm w-full" placeholder="e.g. QTE-99214">
                         @error('supplier_reference') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                 </div>
@@ -281,19 +306,43 @@
         </form>
     </div>
 
+@php
+    $initialItems = [];
+    if (!empty($selectedQuotation) && $selectedQuotation->items->isNotEmpty()) {
+        foreach ($selectedQuotation->items as $qItem) {
+            $initialItems[] = [
+                'item_type' => $qItem->item_type,
+                'product_id' => $qItem->product_id ? (string) $qItem->product_id : '',
+                'raw_material_id' => $qItem->raw_material_id ? (string) $qItem->raw_material_id : '',
+                'ordered_qty' => (float) $qItem->quantity,
+                'unit_price' => (float) $qItem->unit_price,
+                'notes' => $qItem->notes ?? '',
+            ];
+        }
+    }
+    if (empty($initialItems)) {
+        $initialItems[] = [
+            'item_type' => 'product',
+            'product_id' => '',
+            'raw_material_id' => '',
+            'ordered_qty' => 50,
+            'unit_price' => 25,
+            'notes' => '',
+        ];
+    }
+@endphp
+
     <script>
         function purchaseOrderForm() {
             return {
-                supplierId: '{{ old("supplier_id") }}',
-                currency: 'AED',
-                freightCost: 0,
+                supplierId: '{{ old("supplier_id", $selectedQuotation?->supplier_id ?? "") }}',
+                currency: '{{ old("currency", $selectedQuotation?->currency ?? "AED") }}',
+                freightCost: {{ (float) old('freight_cost', $selectedQuotation?->estimated_freight ?? 0) }},
                 customsDuties: 0,
-                taxAmount: 0,
+                taxAmount: {{ (float) old('tax_amount', $selectedQuotation?->tax_amount ?? 0) }},
                 subtotal: 0,
                 total: 0,
-                items: [
-                    { item_type: 'product', product_id: '', raw_material_id: '', ordered_qty: 50, unit_price: 25, notes: '' }
-                ],
+                items: @json($initialItems),
                 addItem(type = 'product') {
                     this.items.push({
                         item_type: type,

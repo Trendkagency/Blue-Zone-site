@@ -1,4 +1,5 @@
 @php
+    $errors = $errors ?? new \Illuminate\Support\ViewErrorBag();
     $isAr = app()->getLocale() === 'ar';
     $fieldMap = [
         // Step 1: Core Identifiers & Biological Classification

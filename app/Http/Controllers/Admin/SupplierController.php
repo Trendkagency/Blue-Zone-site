@@ -70,20 +70,40 @@ class SupplierController extends Controller
         $this->authorize('create', Supplier::class);
         $countries = Country::where('is_active', true)->orderBy('name_en')->get();
         $types = SupplierType::cases();
+        $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP', 'EGP'];
+        $defaultCode = Supplier::generateNextCode();
 
-        return view('admin.supply_chain.suppliers.create', compact('countries', 'types'));
+        return view('admin.supply_chain.suppliers.create', compact('countries', 'types', 'currencies', 'defaultCode'));
     }
 
     public function store(SupplierRequest $request): RedirectResponse
     {
         $this->authorize('create', Supplier::class);
-        $supplier = Supplier::create($request->validated());
-
-        if ($request->hasFile('cgmp_document')) {
-            $supplier->addMediaFromRequest('cgmp_document')->toMediaCollection('cgmp_certificates');
+        $data = $request->validated();
+        if (empty($data['name_ar'])) {
+            $data['name_ar'] = $data['name_en'];
         }
-        if ($request->hasFile('iso_document')) {
-            $supplier->addMediaFromRequest('iso_document')->toMediaCollection('iso_certificates');
+
+        $supplier = Supplier::create($data);
+
+        $cgmpFile = $request->file('cgmp_document') ?? $request->file('doc_cgmp');
+        if ($cgmpFile) {
+            $supplier->addMedia($cgmpFile)->toMediaCollection('cgmp_certificates');
+        }
+
+        $isoFile = $request->file('iso_document') ?? $request->file('doc_iso');
+        if ($isoFile) {
+            $supplier->addMedia($isoFile)->toMediaCollection('iso_certificates');
+        }
+
+        $halalFile = $request->file('doc_halal');
+        if ($halalFile) {
+            $supplier->addMedia($halalFile)->toMediaCollection('audit_reports');
+        }
+
+        $allergenFile = $request->file('doc_allergen');
+        if ($allergenFile) {
+            $supplier->addMedia($allergenFile)->toMediaCollection('audit_reports');
         }
 
         return redirect()->route('admin.suppliers.show', $supplier)
@@ -103,20 +123,39 @@ class SupplierController extends Controller
         $this->authorize('update', $supplier);
         $countries = Country::where('is_active', true)->orderBy('name_en')->get();
         $types = SupplierType::cases();
+        $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP', 'EGP'];
 
-        return view('admin.supply_chain.suppliers.edit', compact('supplier', 'countries', 'types'));
+        return view('admin.supply_chain.suppliers.edit', compact('supplier', 'countries', 'types', 'currencies'));
     }
 
     public function update(SupplierRequest $request, Supplier $supplier): RedirectResponse
     {
         $this->authorize('update', $supplier);
-        $supplier->update($request->validated());
-
-        if ($request->hasFile('cgmp_document')) {
-            $supplier->addMediaFromRequest('cgmp_document')->toMediaCollection('cgmp_certificates');
+        $data = $request->validated();
+        if (empty($data['name_ar'])) {
+            $data['name_ar'] = $data['name_en'];
         }
-        if ($request->hasFile('iso_document')) {
-            $supplier->addMediaFromRequest('iso_document')->toMediaCollection('iso_certificates');
+
+        $supplier->update($data);
+
+        $cgmpFile = $request->file('cgmp_document') ?? $request->file('doc_cgmp');
+        if ($cgmpFile) {
+            $supplier->addMedia($cgmpFile)->toMediaCollection('cgmp_certificates');
+        }
+
+        $isoFile = $request->file('iso_document') ?? $request->file('doc_iso');
+        if ($isoFile) {
+            $supplier->addMedia($isoFile)->toMediaCollection('iso_certificates');
+        }
+
+        $halalFile = $request->file('doc_halal');
+        if ($halalFile) {
+            $supplier->addMedia($halalFile)->toMediaCollection('audit_reports');
+        }
+
+        $allergenFile = $request->file('doc_allergen');
+        if ($allergenFile) {
+            $supplier->addMedia($allergenFile)->toMediaCollection('audit_reports');
         }
 
         return redirect()->route('admin.suppliers.show', $supplier)

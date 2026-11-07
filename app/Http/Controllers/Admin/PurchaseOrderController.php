@@ -61,7 +61,7 @@ class PurchaseOrderController extends Controller
         return view('admin.supply_chain.purchase_orders.index', compact('orders', 'purchaseOrders', 'statuses', 'suppliers', 'kpis'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $this->authorize('create', PurchaseOrder::class);
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
@@ -69,7 +69,12 @@ class PurchaseOrderController extends Controller
         $products = Product::where('status', 'active')->orWhereNull('status')->orderBy('name_en')->get(['id', 'sku', 'name_en', 'name_ar', 'price', 'cost_price']);
         $locations = Location::where('is_active', true)->get();
 
-        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations'));
+        $selectedQuotation = null;
+        if ($request->filled('quotation_id')) {
+            $selectedQuotation = \App\Models\SupplierQuotation::with(['supplier', 'items.rawMaterial', 'items.product'])->find($request->input('quotation_id'));
+        }
+
+        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations', 'selectedQuotation'));
     }
 
     public function store(PurchaseOrderRequest $request): RedirectResponse
@@ -129,6 +134,7 @@ class PurchaseOrderController extends Controller
         $this->authorize('view', $purchaseOrder);
         $purchaseOrder->load([
             'supplier',
+            'supplierQuotation',
             'destinationLocation',
             'creator',
             'approver',

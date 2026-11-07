@@ -17,6 +17,7 @@ class PurchaseOrder extends Model
     protected $fillable = [
         'po_number',
         'supplier_id',
+        'supplier_quotation_id',
         'order_date',
         'expected_date',
         'destination_location_id',
@@ -55,6 +56,11 @@ class PurchaseOrder extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function supplierQuotation(): BelongsTo
+    {
+        return $this->belongsTo(SupplierQuotation::class, 'supplier_quotation_id');
     }
 
     public function destinationLocation(): BelongsTo

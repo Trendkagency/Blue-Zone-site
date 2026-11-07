@@ -38,7 +38,7 @@
 
                 @php
                     $u = auth()->user();
-                    $isPurchasesActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*');
+                    $isPurchasesActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.supplier-quotations.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*');
                     $isSupplyChainActive = request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
@@ -431,6 +431,11 @@
                                 class="sidebar-sublink {{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-truck-field text-xs text-sky-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'الموردين' : 'Suppliers' }}</span>
+                            </a>
+                            <a href="{{ route('admin.supplier-quotations.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.supplier-quotations.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-contract text-xs text-amber-400"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار والطلبيات (RFQ)' : 'Supplier Quotes / RFQ' }}</span>
                             </a>
                             <a href="{{ route('admin.purchase-orders.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">

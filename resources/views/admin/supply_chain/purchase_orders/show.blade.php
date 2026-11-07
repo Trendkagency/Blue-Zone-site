@@ -125,7 +125,15 @@
                 @if($purchaseOrder->supplier?->phone)
                     <div class="text-gray-500"><i class="fa-solid fa-phone mr-1 text-gray-400"></i> {{ $purchaseOrder->supplier?->phone }}</div>
                 @endif
-                @if($purchaseOrder->supplier_reference)
+                @if($purchaseOrder->supplierQuotation)
+                    <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <span class="text-gray-400 block">{{ app()->getLocale() === 'ar' ? 'عرض السعر المرتبط (RFQ)' : 'Originating RFQ / Quotation' }}:</span>
+                        <a href="{{ route('admin.supplier-quotations.show', $purchaseOrder->supplierQuotation) }}" class="inline-flex items-center gap-1.5 px-2.5 py-1 mt-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-xs font-mono font-bold hover:underline border border-sky-200 dark:border-sky-800">
+                            <i class="fa-solid fa-file-invoice-dollar text-[11px]"></i>
+                            <span>{{ $purchaseOrder->supplierQuotation->quote_number }}</span>
+                        </a>
+                    </div>
+                @elseif($purchaseOrder->supplier_reference)
                     <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
                         <span class="text-gray-400 block">{{ app()->getLocale() === 'ar' ? 'مرجع المورد / عرض السعر' : 'Supplier Quote / Ref' }}:</span>
                         <span class="font-mono font-bold text-slate-700 dark:text-slate-300">{{ $purchaseOrder->supplier_reference }}</span>
