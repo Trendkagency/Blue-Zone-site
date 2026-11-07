@@ -31,6 +31,10 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('customer.ch
 Route::post('/checkout', [CheckoutController::class, 'store'])->middleware('throttle:checkout')->name('customer.checkout.store');
 Route::get('/checkout/confirmation/{orderNumber}', [CheckoutController::class, 'confirmation'])->name('customer.checkout.confirmation');
 
+// Direct Customer Order Payment Portal
+Route::get('/pay/order/{orderNumber}', [\App\Http\Controllers\Customer\OrderPaymentController::class, 'show'])->name('customer.order-pay');
+Route::post('/pay/order/{orderNumber}/process', [\App\Http\Controllers\Customer\OrderPaymentController::class, 'process'])->middleware('throttle:10,1')->name('customer.order-pay.process');
+
 // Customer Authentication (Guest Only)
 Route::middleware('guest:customer')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('customer.auth.login');

@@ -79,6 +79,22 @@
 
         // Public verification URL encoded in QR Code
         $verificationUrl = route('orders.verify', ['order' => $ordNum]);
+
+        $sectionsOrder = $tpl['sections_order'] ?? [
+            'header_company_client',
+            'title_banner',
+            'items_table',
+            'totals_and_payments',
+            'signatures_stamp',
+            'footer_notes',
+        ];
+
+        $cols = $tpl['columns'] ?? [];
+        $isColVisible = function(string $key) use ($cols): bool {
+            if (!isset($cols[$key])) return true;
+            return !empty($cols[$key]['visible']);
+        };
+        $visibleColsCount = count(array_filter($cols, fn($c) => !empty($c['visible']))) ?: 11;
     @endphp
 
     <title>{{ $tpl['title_ar'] }} - {{ $invNum }} | {{ $tpl['company_name_en'] }}</title>
@@ -734,50 +750,72 @@
             <table class="sheet-table">
                 <thead>
                     <tr>
-                        <th style="width: 3.5%;">
-                            <span class="th-ar">م</span>
-                            <span class="th-en">N</span>
-                        </th>
-                        <th style="width: 11%;">
-                            <span class="th-ar">كود الصنف</span>
-                            <span class="th-en">Item Code</span>
-                        </th>
-                        <th style="width: 23%;">
-                            <span class="th-ar">اسم الصنف</span>
-                            <span class="th-en">Item Description</span>
-                        </th>
-                        <th style="width: 6%;">
-                            <span class="th-ar">الكمية</span>
-                            <span class="th-en">Qty</span>
-                        </th>
-                        <th style="width: 13%;">
-                            <span class="th-ar">تاريخ الصلاحية / التشغيلة</span>
-                            <span class="th-en">Expiry Date / Batch No.</span>
-                        </th>
-                        <th style="width: 7.5%;">
-                            <span class="th-ar">سعر الوحدة</span>
-                            <span class="th-en">Price</span>
-                        </th>
-                        <th style="width: 5%;">
-                            <span class="th-ar">خصم 1</span>
-                            <span class="th-en">Disc. 1</span>
-                        </th>
-                        <th style="width: 5%;">
-                            <span class="th-ar">خصم 2</span>
-                            <span class="th-en">Disc. 2</span>
-                        </th>
-                        <th style="width: 9.5%;">
-                            <span class="th-ar">بدون الضريبة</span>
-                            <span class="th-en">Total Exc. VAT</span>
-                        </th>
-                        <th style="width: 7.5%;">
-                            <span class="th-ar">الضريبة</span>
-                            <span class="th-en">VAT</span>
-                        </th>
-                        <th style="width: 9%;">
-                            <span class="th-ar">شامل الضريبة</span>
-                            <span class="th-en">Total Inc.</span>
-                        </th>
+                        @if($isColVisible('row_number'))
+                            <th style="width: {{ $cols['row_number']['width'] ?? '3.5%' }};">
+                                <span class="th-ar">{{ $cols['row_number']['label_ar'] ?? 'م' }}</span>
+                                <span class="th-en">{{ $cols['row_number']['label_en'] ?? 'N' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('item_code'))
+                            <th style="width: {{ $cols['item_code']['width'] ?? '11%' }};">
+                                <span class="th-ar">{{ $cols['item_code']['label_ar'] ?? 'كود الصنف' }}</span>
+                                <span class="th-en">{{ $cols['item_code']['label_en'] ?? 'Item Code' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('item_description'))
+                            <th style="width: {{ $cols['item_description']['width'] ?? '23%' }};">
+                                <span class="th-ar">{{ $cols['item_description']['label_ar'] ?? 'اسم الصنف' }}</span>
+                                <span class="th-en">{{ $cols['item_description']['label_en'] ?? 'Item Description' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('quantity'))
+                            <th style="width: {{ $cols['quantity']['width'] ?? '6%' }};">
+                                <span class="th-ar">{{ $cols['quantity']['label_ar'] ?? 'الكمية' }}</span>
+                                <span class="th-en">{{ $cols['quantity']['label_en'] ?? 'Qty' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('batch_expiry'))
+                            <th style="width: {{ $cols['batch_expiry']['width'] ?? '13%' }};">
+                                <span class="th-ar">{{ $cols['batch_expiry']['label_ar'] ?? 'تاريخ الصلاحية / التشغيلة' }}</span>
+                                <span class="th-en">{{ $cols['batch_expiry']['label_en'] ?? 'Expiry Date / Batch No.' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('unit_price'))
+                            <th style="width: {{ $cols['unit_price']['width'] ?? '7.5%' }};">
+                                <span class="th-ar">{{ $cols['unit_price']['label_ar'] ?? 'سعر الوحدة' }}</span>
+                                <span class="th-en">{{ $cols['unit_price']['label_en'] ?? 'Price' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('disc_1'))
+                            <th style="width: {{ $cols['disc_1']['width'] ?? '5%' }};">
+                                <span class="th-ar">{{ $cols['disc_1']['label_ar'] ?? 'خصم 1' }}</span>
+                                <span class="th-en">{{ $cols['disc_1']['label_en'] ?? 'Disc. 1' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('disc_2'))
+                            <th style="width: {{ $cols['disc_2']['width'] ?? '5%' }};">
+                                <span class="th-ar">{{ $cols['disc_2']['label_ar'] ?? 'خصم 2' }}</span>
+                                <span class="th-en">{{ $cols['disc_2']['label_en'] ?? 'Disc. 2' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('total_exc_vat'))
+                            <th style="width: {{ $cols['total_exc_vat']['width'] ?? '9.5%' }};">
+                                <span class="th-ar">{{ $cols['total_exc_vat']['label_ar'] ?? 'بدون الضريبة' }}</span>
+                                <span class="th-en">{{ $cols['total_exc_vat']['label_en'] ?? 'Total Exc. VAT' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('vat_amount'))
+                            <th style="width: {{ $cols['vat_amount']['width'] ?? '7.5%' }};">
+                                <span class="th-ar">{{ $cols['vat_amount']['label_ar'] ?? 'الضريبة' }}</span>
+                                <span class="th-en">{{ $cols['vat_amount']['label_en'] ?? 'VAT' }}</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('total_inc_vat'))
+                            <th style="width: {{ $cols['total_inc_vat']['width'] ?? '9%' }};">
+                                <span class="th-ar">{{ $cols['total_inc_vat']['label_ar'] ?? 'شامل الضريبة' }}</span>
+                                <span class="th-en">{{ $cols['total_inc_vat']['label_en'] ?? 'Total Inc.' }}</span>
+                            </th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -821,38 +859,62 @@
                             $calcTotal += $lineIncVat;
                         @endphp
                         <tr>
-                            <td class="text-center font-mono">{{ $rowCount }}</td>
-                            <td class="cell-code">{{ $sku }}</td>
-                            <td class="text-start font-bold" style="font-size: 0.72rem; line-height: 1.35; padding: 0.28rem 0.35rem;">{{ $name }}</td>
-                            <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
-                            <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
-                            <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
-                            <td class="text-center font-mono cell-num">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
-                            <td class="text-center font-mono cell-num">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
-                            <td class="text-center font-mono cell-num">{{ number_format($lineExcVat, 2) }}</td>
-                            <td class="text-center font-mono cell-num">{{ number_format($lineVat, 2) }}</td>
-                            <td class="text-center font-mono font-bold cell-num">{{ number_format($lineIncVat, 2) }}</td>
+                            @if($isColVisible('row_number'))
+                                <td class="text-center font-mono">{{ $rowCount }}</td>
+                            @endif
+                            @if($isColVisible('item_code'))
+                                <td class="cell-code">{{ $sku }}</td>
+                            @endif
+                            @if($isColVisible('item_description'))
+                                <td class="text-start font-bold" style="font-size: 0.72rem; line-height: 1.35; padding: 0.28rem 0.35rem;">{{ $name }}</td>
+                            @endif
+                            @if($isColVisible('quantity'))
+                                <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
+                            @endif
+                            @if($isColVisible('batch_expiry'))
+                                <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
+                            @endif
+                            @if($isColVisible('unit_price'))
+                                <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
+                            @endif
+                            @if($isColVisible('disc_1'))
+                                <td class="text-center font-mono cell-num">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
+                            @endif
+                            @if($isColVisible('disc_2'))
+                                <td class="text-center font-mono cell-num">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
+                            @endif
+                            @if($isColVisible('total_exc_vat'))
+                                <td class="text-center font-mono cell-num">{{ number_format($lineExcVat, 2) }}</td>
+                            @endif
+                            @if($isColVisible('vat_amount'))
+                                <td class="text-center font-mono cell-num">{{ number_format($lineVat, 2) }}</td>
+                            @endif
+                            @if($isColVisible('total_inc_vat'))
+                                <td class="text-center font-mono font-bold cell-num">{{ number_format($lineIncVat, 2) }}</td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center" style="padding: 1rem; color: #64748b;">لا توجد أصناف مدرجة في الفاتورة.</td>
+                            <td colspan="{{ $visibleColsCount }}" class="text-center" style="padding: 1rem; color: #64748b;">لا توجد أصناف مدرجة في الفاتورة.</td>
                         </tr>
                     @endforelse
 
                     <!-- Controlled empty filler rows for authentic spreadsheet look (fits within 1 page) -->
                     @for($i = $rowCount; $i < 4; $i++)
                         <tr>
-                            <td class="text-center font-mono text-slate-300">{{ $i + 1 }}</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            @if($isColVisible('row_number'))
+                                <td class="text-center font-mono text-slate-300">{{ $i + 1 }}</td>
+                            @endif
+                            @if($isColVisible('item_code')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('item_description')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('quantity')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('batch_expiry')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('unit_price')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('disc_1')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('disc_2')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('total_exc_vat')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('vat_amount')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('total_inc_vat')) <td>&nbsp;</td> @endif
                         </tr>
                     @endfor
                 </tbody>

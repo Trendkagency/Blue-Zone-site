@@ -175,6 +175,38 @@ class OrderController extends Controller
     }
 
     /**
+     * Generate / fetch customer payment link (Stripe Checkout Session or portal).
+     */
+    public function generatePaymentUrl(string $id): \Illuminate\Http\JsonResponse
+    {
+        $order = is_numeric($id) 
+            ? Order::find($id) 
+            : Order::where('order_number', $id)->first();
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' ? 'الطلب غير موجود في قاعدة البيانات.' : 'Order not found in database.',
+            ], 404);
+        }
+
+        $gateway = new \App\Services\Payment\StripeGateway();
+        $session = $gateway->createCheckoutSession($order);
+        $paymentUrl = $session['url'] ?? url('/pay/order/' . $order->order_number);
+
+        return response()->json([
+            'success' => true,
+            'payment_url' => $paymentUrl,
+            'order_number' => $order->order_number,
+            'amount' => (float) $order->total,
+            'status' => $order->payment_status,
+            'message' => app()->getLocale() === 'ar' 
+                ? 'تم إنشاء وتجهيز رابط الدفع بنجاح! يمكنك الآن إرساله للعميل.' 
+                : 'Payment URL generated and ready to share with customer!',
+        ]);
+    }
+
+    /**
      * Render specialized Avery / Thermal Shipping & Package Label.
      */
     public function averyLabel(string $id): View

@@ -137,6 +137,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{id}', [ProductController::class, 'update'])->middleware('permission:products.edit')->name('update');
             Route::match(['post', 'put'], '/auto-create-draft', [ProductController::class, 'autoCreateDraft'])->middleware('permission:products.create')->name('auto-create-draft');
             Route::match(['post', 'put'], '/{id}/auto-save-step', [ProductController::class, 'autoSaveStep'])->middleware('permission:products.edit')->name('auto-save-step');
+            Route::post('/{id}/delete-gallery-image', [ProductController::class, 'deleteGalleryImage'])->middleware('permission:products.edit')->name('delete-gallery-image');
+            Route::post('/{id}/set-primary-image', [ProductController::class, 'setPrimaryImage'])->middleware('permission:products.edit')->name('set-primary-image');
             Route::delete('/{id}', [ProductController::class, 'destroy'])->middleware('permission:products.delete')->name('destroy');
             Route::post('/{id}/restore', [ProductController::class, 'restore'])->middleware('permission:products.delete')->name('restore');
             Route::delete('/{id}/force-delete', [ProductController::class, 'forceDelete'])->middleware('permission:products.delete')->name('force-delete');
@@ -234,6 +236,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [OrderController::class, 'index'])->middleware('permission:orders.view')->name('index');
             Route::get('/{id}', [OrderController::class, 'show'])->middleware('permission:orders.view')->name('show');
             Route::get('/{id}/label', [OrderController::class, 'averyLabel'])->middleware('permission:orders.view')->name('label');
+            Route::post('/{id}/payment-url', [OrderController::class, 'generatePaymentUrl'])->middleware('permission:orders.view')->name('payment-url');
             Route::match(['post', 'patch'], '/{id}/status', [OrderController::class, 'updateStatus'])->middleware('permission:orders.edit')->name('update-status');
             Route::delete('/{id}', [OrderController::class, 'destroy'])->middleware('permission:orders.delete')->name('destroy');
             Route::post('/{id}/restore', [OrderController::class, 'restore'])->middleware('permission:orders.delete')->name('restore');

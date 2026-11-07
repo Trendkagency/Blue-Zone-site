@@ -156,10 +156,11 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $data = $request->validated();
+        try {
+            $data = $request->validated();
 
-        $sourceName = !empty($data['name_en']) ? $data['name_en'] : ($data['name_ar'] ?? 'product');
-        $data['slug'] = Product::generateUniqueSlug($sourceName);
+            $sourceName = !empty($data['name_en']) ? $data['name_en'] : ($data['name_ar'] ?? 'product');
+            $data['slug'] = Product::generateUniqueSlug($sourceName);
 
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_best_seller'] = $request->boolean('is_best_seller');
@@ -169,10 +170,18 @@ class ProductController extends Controller
         $data['landing_order'] = (int) $request->input('landing_order', 0);
         $data['landing_badge_en'] = $request->input('landing_badge_en');
         $data['landing_badge_ar'] = $request->input('landing_badge_ar');
+        $data['shelf_life_months'] = (int) ($data['shelf_life_months'] ?? 24);
         $this->formatScienceInputs($data);
         $this->formatSectionSettings($data, $request);
         $fallbackImage = $data['image'] ?? null;
-        unset($data['image'], $data['images']);
+        unset(
+            $data['image'], 
+            $data['images'], 
+            $data['initial_batch_number'], 
+            $data['manufacture_date'], 
+            $data['expiry_date'], 
+            $data['batch_status']
+        );
         $product = Product::create($data);
 
         // Attach Primary Image (Dual-Engine: Spatie Media Library + Direct Storage Fallback)
@@ -182,63 +191,34 @@ class ProductController extends Controller
         }
 
         if ($primaryFile && $primaryFile->isValid()) {
-            $savedUrl = null;
-            // 1. Try Spatie Media Library
-            try {
-                $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-                $savedUrl = Product::normalizeUrl($media->getUrl());
-            } catch (\Throwable $e) {
-                \Log::warning("Spatie addMedia primary_image failed on store, falling back to direct upload: " . $e->getMessage());
+            $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+            $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
+            $destDir = public_path('storage/products/hero');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
             }
-
-            // 2. Direct upload fallback if Spatie failed or produced empty URL
-            if (empty($savedUrl)) {
-                $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
-                $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
-                $destDir = public_path('uploads/products');
-                if (!file_exists($destDir)) {
-                    @mkdir($destDir, 0755, true);
-                }
-                $primaryFile->move($destDir, $filename);
-                $savedUrl = '/uploads/products/' . $filename;
-            }
-
-            $product->image = Product::normalizeUrl($savedUrl);
+            $primaryFile->move($destDir, $filename);
+            $product->image = Product::normalizeUrl('/storage/products/hero/' . $filename);
             $product->save();
         } elseif (!empty($fallbackImage) && is_string($fallbackImage)) {
             $product->image = Product::normalizeUrl($fallbackImage);
             $product->save();
         }
 
-        // Attach Gallery Images (Dual-Engine: Spatie + Direct Storage Fallback)
+        // Attach Gallery Images
         if ($request->hasFile('gallery')) {
             $galleryUrls = [];
-            $galleryFiles = $request->file('gallery');
-            if (!is_array($galleryFiles)) {
-                $galleryFiles = [$galleryFiles];
+            $galleryFiles = (array) $request->file('gallery');
+            $destDir = public_path('storage/products/gallery');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
             }
             foreach ($galleryFiles as $file) {
                 if ($file && $file->isValid()) {
-                    $savedUrl = null;
-                    try {
-                        $media = $product->addMedia($file)->toMediaCollection('gallery');
-                        $savedUrl = Product::normalizeUrl($media->getUrl());
-                    } catch (\Throwable $e) {
-                        \Log::warning("Spatie addMedia gallery failed on store: " . $e->getMessage());
-                    }
-
-                    if (empty($savedUrl)) {
-                        $ext = $file->getClientOriginalExtension() ?: 'webp';
-                        $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
-                        $destDir = public_path('uploads/products');
-                        if (!file_exists($destDir)) {
-                            @mkdir($destDir, 0755, true);
-                        }
-                        $file->move($destDir, $filename);
-                        $savedUrl = '/uploads/products/' . $filename;
-                    }
-
-                    $galleryUrls[] = Product::normalizeUrl($savedUrl);
+                    $ext = $file->getClientOriginalExtension() ?: 'webp';
+                    $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
+                    $file->move($destDir, $filename);
+                    $galleryUrls[] = Product::normalizeUrl('/storage/products/gallery/' . $filename);
                 }
             }
             if (!empty($galleryUrls)) {
@@ -326,10 +306,14 @@ class ProductController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', app()->getLocale() === 'ar'
-                ? "تم تسجيل وإدراج التركيبة الحيوية [{$product->name_ar}] في الكتالوج بنجاح!"
-                : "Bioceutical formulation [{$product->name_en}] successfully registered in catalog!");
+            return redirect()->route('admin.products.index')
+                ->with('success', app()->getLocale() === 'ar'
+                    ? "تم تسجيل وإدراج التركيبة الحيوية [{$product->name_ar}] في الكتالوج بنجاح!"
+                    : "Bioceutical formulation [{$product->name_en}] successfully registered in catalog!");
+        } catch (\Throwable $e) {
+            \Log::error("Product store failed: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->withInput()->with('error', $this->formatUserFriendlyErrorMessage($e));
+        }
     }
 
     public function show(int $id): View
@@ -494,7 +478,8 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, int $id): RedirectResponse
     {
-        $product = Product::findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
 
         /*
         |--------------------------------------------------------------------------
@@ -537,7 +522,23 @@ class ProductController extends Controller
         $this->formatScienceInputs($data);
         $this->formatSectionSettings($data, $request);
         $fallbackImage = $data['image'] ?? null;
-        unset($data['image'], $data['images'], $data['stock_online']);
+        
+        $submittedStock = $request->input('stock_online');
+        $hasBatches = $product->batches()->count() > 0;
+
+        unset(
+            $data['image'], 
+            $data['images'], 
+            $data['stock_online'],
+            $data['initial_batch_number'],
+            $data['manufacture_date'],
+            $data['expiry_date'],
+            $data['batch_status']
+        );
+
+        if (!$hasBatches && $submittedStock !== null) {
+            $data['stock_online'] = (int) $submittedStock;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -562,69 +563,41 @@ class ProductController extends Controller
         }
 
         if ($primaryFile && $primaryFile->isValid()) {
-            $savedUrl = null;
-            // 1. Try Spatie
-            try {
-                if (method_exists($product, 'clearMediaCollection')) {
-                    $product->clearMediaCollection('primary_image');
-                }
-                $media = $product->addMedia($primaryFile)->toMediaCollection('primary_image');
-                $savedUrl = Product::normalizeUrl($media->getUrl());
-            } catch (\Throwable $e) {
-                \Log::warning("Spatie addMedia primary_image failed on update, falling back to direct upload: " . $e->getMessage());
+            if (!empty($product->image)) {
+                $this->deletePhysicalProductFile($product->image);
             }
-
-            // 2. Direct upload fallback
-            if (empty($savedUrl)) {
-                $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
-                $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
-                $destDir = public_path('uploads/products');
-                if (!file_exists($destDir)) {
-                    @mkdir($destDir, 0755, true);
-                }
-                $primaryFile->move($destDir, $filename);
-                $savedUrl = '/uploads/products/' . $filename;
+            $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+            $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
+            $destDir = public_path('storage/products/hero');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
             }
-
-            $product->image = Product::normalizeUrl($savedUrl);
+            $primaryFile->move($destDir, $filename);
+            $product->image = Product::normalizeUrl('/storage/products/hero/' . $filename);
             $product->save();
-        } elseif (!empty($fallbackImage) && is_string($fallbackImage) && !$product->hasMedia('primary_image')) {
+        } elseif (!empty($fallbackImage) && is_string($fallbackImage)) {
             $product->image = Product::normalizeUrl($fallbackImage);
             $product->save();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Gallery Images (Dual-Engine: Spatie + Direct Storage Fallback + Removal)
+        | Gallery Images (Unified Storage & Removal)
         |--------------------------------------------------------------------------
         */
-        $existingGallery = is_array($product->images) ? $product->images : [];
-
         // Handle removals if requested
         if ($request->has('removed_gallery_images') && is_array($request->input('removed_gallery_images'))) {
-            $toRemove = array_map(fn($u) => Product::normalizeUrl($u), $request->input('removed_gallery_images'));
-            $existingGallery = array_values(array_filter($existingGallery, function($url) use ($toRemove) {
-                return !in_array(Product::normalizeUrl($url), $toRemove);
-            }));
-
-            // Also remove from Spatie Media collection if found
-            try {
-                if (method_exists($product, 'getMedia')) {
-                    foreach ($product->getMedia('gallery') as $m) {
-                        if (in_array(Product::normalizeUrl($m->getUrl()), $toRemove)) {
-                            $m->delete();
-                        }
-                    }
-                }
-            } catch (\Throwable $e) {
-                \Log::warning("Gallery media delete error: " . $e->getMessage());
+            foreach ($request->input('removed_gallery_images') as $toRemove) {
+                $this->removeGalleryImageFromProduct($product, $toRemove);
             }
         }
 
         if ($request->hasFile('gallery')) {
-            $gallery = $request->file('gallery');
-            if (!is_array($gallery)) {
-                $gallery = [$gallery];
+            $existingGallery = is_array($product->images) ? $product->images : [];
+            $gallery = (array) $request->file('gallery');
+            $destDir = public_path('storage/products/gallery');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0755, true);
             }
 
             foreach ($gallery as $index => $file) {
@@ -632,33 +605,15 @@ class ProductController extends Controller
                     continue;
                 }
 
-                $savedUrl = null;
-                // 1. Try Spatie
-                try {
-                    $media = $product->addMedia($file)->toMediaCollection('gallery');
-                    $savedUrl = Product::normalizeUrl($media->getUrl());
-                } catch (\Throwable $e) {
-                    \Log::warning("Spatie addMedia gallery failed on update: " . $e->getMessage());
-                }
-
-                // 2. Direct upload fallback
-                if (empty($savedUrl)) {
-                    $ext = $file->getClientOriginalExtension() ?: 'webp';
-                    $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
-                    $destDir = public_path('uploads/products');
-                    if (!file_exists($destDir)) {
-                        @mkdir($destDir, 0755, true);
-                    }
-                    $file->move($destDir, $filename);
-                    $savedUrl = '/uploads/products/' . $filename;
-                }
-
-                $existingGallery[] = Product::normalizeUrl($savedUrl);
+                $ext = $file->getClientOriginalExtension() ?: 'webp';
+                $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
+                $file->move($destDir, $filename);
+                $existingGallery[] = Product::normalizeUrl('/storage/products/gallery/' . $filename);
             }
-        }
 
-        $product->images = array_values(array_unique(array_filter($existingGallery)));
-        $product->save();
+            $product->images = array_values(array_unique(array_filter($existingGallery)));
+            $product->save();
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -679,27 +634,83 @@ class ProductController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Sync Inventory Threshold
+        | Sync Inventory & cGMP Batches
         |--------------------------------------------------------------------------
         */
-        InventoryItem::where('product_id', $product->id)
-            ->update([
-                'low_stock_threshold' => $product->low_stock_threshold,
+        InventoryItem::updateOrCreate(
+            ['product_id' => $product->id, 'location_id' => 'online'],
+            [
+                'location_name_en' => 'Online Store Buffer',
+                'location_name_ar' => 'مستودع المتجر الإلكتروني',
+                'current_stock' => (int) $product->stock_online,
+                'available_stock' => (int) $product->stock_online,
+                'low_stock_threshold' => (int) $product->low_stock_threshold,
+                'unit_cost' => (float) ($product->cost_price ?? 0),
+                'retail_price' => (float) ($product->price ?? 0),
+            ]
+        );
+
+        $initialBatchNumber = trim((string) $request->input('initial_batch_number', ''));
+        $batchCount = $product->batches()->count();
+
+        if ($batchCount === 0 && ((int) $product->stock_online > 0 || !empty($initialBatchNumber))) {
+            $batchStatus = $request->input('batch_status', 'approved');
+            $manufactureDate = $request->input('manufacture_date') ?: now()->toDateString();
+            $expiryDate = $request->input('expiry_date') ?: $product->calculateDefaultExpiryDate($manufactureDate);
+            $batchNumber = !empty($initialBatchNumber) ? $initialBatchNumber : ProductBatch::generateBatchNumber();
+            $qty = (int) $product->stock_online;
+
+            ProductBatch::create([
+                'product_id' => $product->id,
+                'batch_number' => $batchNumber,
+                'location_id' => 'online',
+                'initial_qty' => $qty,
+                'current_qty' => $qty,
+                'available_qty' => $batchStatus === 'approved' ? $qty : 0,
+                'reserved_qty' => 0,
+                'quarantine_qty' => $batchStatus === 'quarantine' ? $qty : 0,
+                'unit_cost' => (float) ($product->cost_price ?? 0),
+                'manufacture_date' => $manufactureDate,
+                'expiry_date' => $expiryDate,
+                'status' => $batchStatus,
             ]);
+        } elseif ($batchCount > 0 && ($request->filled('expiry_date') || $request->filled('manufacture_date') || !empty($initialBatchNumber))) {
+            $latestBatch = $product->batches()->latest('id')->first();
+            if ($latestBatch) {
+                if (!empty($initialBatchNumber)) $latestBatch->batch_number = $initialBatchNumber;
+                if ($request->filled('manufacture_date')) $latestBatch->manufacture_date = $request->input('manufacture_date');
+                if ($request->filled('expiry_date')) $latestBatch->expiry_date = $request->input('expiry_date');
+                if ($request->filled('batch_status')) {
+                    $latestBatch->status = $request->input('batch_status');
+                    if ($latestBatch->status === 'approved') {
+                        $latestBatch->available_qty = $latestBatch->current_qty;
+                        $latestBatch->quarantine_qty = 0;
+                    } elseif ($latestBatch->status === 'quarantine') {
+                        $latestBatch->available_qty = 0;
+                        $latestBatch->quarantine_qty = $latestBatch->current_qty;
+                    }
+                }
+                $latestBatch->save();
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
         | Success Response
         |--------------------------------------------------------------------------
         */
-        return redirect()
-            ->route('admin.products.index')
-            ->with(
-                'success',
-                app()->getLocale() === 'ar'
-                ? "تم تحديث بيانات التركيبة [{$product->name_ar}] بنجاح!"
-                : "Bioceutical formulation [{$product->name_en}] updated successfully!"
-            );
+            return redirect()
+                ->route('admin.products.index')
+                ->with(
+                    'success',
+                    app()->getLocale() === 'ar'
+                    ? "تم تحديث بيانات التركيبة [{$product->name_ar}] بنجاح!"
+                    : "Bioceutical formulation [{$product->name_en}] updated successfully!"
+                );
+        } catch (\Throwable $e) {
+            \Log::error("Product update failed for product {$id}: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->withInput()->with('error', $this->formatUserFriendlyErrorMessage($e));
+        }
     }
 
 
@@ -1123,14 +1134,45 @@ class ProductController extends Controller
             $product->category_id = $categoryId;
             $product->slug = \Illuminate\Support\Str::slug($nameEn) . '-' . strtolower(\Illuminate\Support\Str::random(5));
             $product->barcode = $request->input('barcode') ?: ('628' . rand(1000000, 9999999));
-            $product->brand = $request->input('brand', 'Blue Zone Bioceuticals');
-            $product->product_size = $request->input('product_size', '60 Vegetable Capsules');
-            $product->cost_price = (float) $request->input('cost_price', 20.00);
-            $product->price = (float) $request->input('price', 60.00);
+            
+            $brand = trim((string) $request->input('brand', ''));
+            $product->brand = !empty($brand) ? $brand : 'Blue Zone Bioceuticals';
+
+            $productSize = trim((string) $request->input('product_size', ''));
+            $product->product_size = !empty($productSize) ? $productSize : '60 Vegetable Capsules';
+
+            $targetGender = trim((string) $request->input('target_gender', ''));
+            $product->target_gender = !empty($targetGender) ? $targetGender : 'Unisex';
+
+            $ageGroup = trim((string) $request->input('age_group', ''));
+            $product->age_group = !empty($ageGroup) ? $ageGroup : '18+';
+
+            $costPrice = $request->input('cost_price');
+            $product->cost_price = ($costPrice !== null && $costPrice !== '') ? (float) $costPrice : 20.00;
+
+            $price = $request->input('price');
+            $product->price = ($price !== null && $price !== '') ? (float) $price : 60.00;
+
             $product->sale_price = $request->input('sale_price') ? (float) $request->input('sale_price') : null;
             $product->stock_online = 0;
+            $product->shelf_life_months = (int) $request->input('shelf_life_months', 24);
             $product->status = 'inactive';
             $product->save();
+
+            // Ensure linked InventoryItem exists for central inventory tracking
+            InventoryItem::firstOrCreate(
+                ['product_id' => $product->id, 'location_id' => 'online'],
+                [
+                    'location_name_en' => 'Online Store Buffer',
+                    'location_name_ar' => 'مستودع المتجر الإلكتروني',
+                    'current_stock' => 0,
+                    'available_stock' => 0,
+                    'reserved_stock' => 0,
+                    'low_stock_threshold' => 10,
+                    'unit_cost' => $product->cost_price,
+                    'retail_price' => $product->price,
+                ]
+            );
 
             return response()->json([
                 'success' => true,
@@ -1139,10 +1181,11 @@ class ProductController extends Controller
                 'message' => app()->getLocale() === 'ar' ? 'تم إنشاء مسودة المنتج بنجاح!' : 'Product draft initiated successfully!',
             ]);
         } catch (\Throwable $e) {
+            \Log::error('autoCreateDraft error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
-            ], 500);
+                'message' => $this->formatUserFriendlyErrorMessage($e),
+            ], 422);
         }
     }
 
@@ -1167,10 +1210,10 @@ class ProductController extends Controller
                     if (isset($data['barcode'])) $product->barcode = $data['barcode'];
                     if (!empty($data['category_id'])) $product->category_id = $data['category_id'];
                     if (isset($data['subcategory_en'])) $product->subcategory_en = $data['subcategory_en'];
-                    if (isset($data['brand'])) $product->brand = $data['brand'];
-                    if (isset($data['target_gender'])) $product->target_gender = $data['target_gender'];
-                    if (isset($data['age_group'])) $product->age_group = $data['age_group'];
-                    if (isset($data['product_size'])) $product->product_size = $data['product_size'];
+                    if (!empty($data['brand'])) $product->brand = trim($data['brand']);
+                    if (!empty($data['target_gender'])) $product->target_gender = trim($data['target_gender']);
+                    if (!empty($data['age_group'])) $product->age_group = trim($data['age_group']);
+                    if (!empty($data['product_size'])) $product->product_size = trim($data['product_size']);
                     // Slug is locked and protected against manual modification
                     if (empty($product->slug)) {
                         $source = !empty($product->name_en) ? $product->name_en : ($product->name_ar ?? 'product');
@@ -1204,38 +1247,49 @@ class ProductController extends Controller
                     break;
 
                 case 4:
-                    // Media
+                    // Media (Primary Hero & Multi-Angle Gallery)
                     if ($request->hasFile('primary_image') || $request->hasFile('image')) {
                         $file = $request->file('primary_image') ?: $request->file('image');
                         if (is_array($file)) $file = reset($file);
                         if ($file && $file->isValid()) {
+                            if (!empty($product->image)) {
+                                $this->deletePhysicalProductFile($product->image);
+                            }
                             $ext = $file->getClientOriginalExtension() ?: 'webp';
                             $filename = 'product_' . $product->id . '_' . time() . '.' . $ext;
-                            $dest = public_path('uploads/products');
+                            $dest = public_path('storage/products/hero');
                             if (!file_exists($dest)) @mkdir($dest, 0755, true);
                             $file->move($dest, $filename);
-                            $product->image = Product::normalizeUrl('/uploads/products/' . $filename);
+                            $product->image = Product::normalizeUrl('/storage/products/hero/' . $filename);
+                        }
+                    } elseif ($request->filled('image') && is_string($request->input('image'))) {
+                        $product->image = Product::normalizeUrl($request->input('image'));
+                    }
+
+                    // Process removals from gallery (database + Spatie + disk)
+                    if ($request->has('removed_gallery_images')) {
+                        $remList = (array) $request->input('removed_gallery_images');
+                        foreach ($remList as $remUrl) {
+                            $this->removeGalleryImageFromProduct($product, $remUrl);
                         }
                     }
+
+                    // Process new gallery file uploads
                     if ($request->hasFile('gallery')) {
-                        $gUrls = is_array($product->images) ? $product->images : [];
+                        $currentImages = is_array($product->images) ? $product->images : [];
                         $files = (array) $request->file('gallery');
+                        $dest = public_path('storage/products/gallery');
+                        if (!file_exists($dest)) @mkdir($dest, 0755, true);
+
                         foreach ($files as $f) {
                             if ($f && $f->isValid()) {
                                 $ext = $f->getClientOriginalExtension() ?: 'webp';
-                                $fname = 'gallery_' . $product->id . '_' . time() . '_' . \Illuminate\Support\Str::random(4) . '.' . $ext;
-                                $dest = public_path('uploads/products');
-                                if (!file_exists($dest)) @mkdir($dest, 0755, true);
+                                $fname = 'gallery_' . $product->id . '_' . time() . '_' . \Illuminate\Support\Str::random(6) . '.' . $ext;
                                 $f->move($dest, $fname);
-                                $gUrls[] = Product::normalizeUrl('/uploads/products/' . $fname);
+                                $currentImages[] = Product::normalizeUrl('/storage/products/gallery/' . $fname);
                             }
                         }
-                        $product->images = array_values(array_unique($gUrls));
-                    }
-                    if ($request->has('removed_gallery_images')) {
-                        $rem = (array) $request->input('removed_gallery_images');
-                        $existing = is_array($product->images) ? $product->images : [];
-                        $product->images = array_values(array_filter($existing, fn($img) => !in_array($img, $rem)));
+                        $product->images = array_values(array_unique(array_filter($currentImages)));
                     }
                     break;
 
@@ -1262,6 +1316,8 @@ class ProductController extends Controller
                 case 7:
                     // Inventory & Controls
                     if (isset($data['low_stock_threshold'])) $product->low_stock_threshold = (int) $data['low_stock_threshold'];
+                    if (isset($data['shelf_life_months'])) $product->shelf_life_months = (int) $data['shelf_life_months'];
+                    if (isset($data['stock_online'])) $product->stock_online = (int) $data['stock_online'];
                     $product->enable_backorders = $request->boolean('enable_backorders');
                     $product->is_featured = $request->boolean('is_featured');
                     $product->is_best_seller = $request->boolean('is_best_seller');
@@ -1271,6 +1327,48 @@ class ProductController extends Controller
                     if (isset($data['landing_badge_en'])) $product->landing_badge_en = $data['landing_badge_en'];
                     if (isset($data['landing_badge_ar'])) $product->landing_badge_ar = $data['landing_badge_ar'];
                     if (isset($data['status'])) $product->status = $data['status'];
+
+                    // Sync InventoryItem
+                    InventoryItem::updateOrCreate(
+                        ['product_id' => $product->id, 'location_id' => 'online'],
+                        [
+                            'available_stock' => (int) $product->stock_online,
+                            'low_stock_threshold' => (int) $product->low_stock_threshold,
+                            'unit_cost' => (float) ($product->cost_price ?? 0),
+                            'retail_price' => (float) ($product->price ?? 0),
+                        ]
+                    );
+
+                    // Provision or sync initial ProductBatch
+                    $initialBatchNumber = trim((string) $request->input('initial_batch_number', ''));
+                    $batchStatus = $request->input('batch_status', 'approved');
+                    $manufactureDate = $request->input('manufacture_date') ?: now()->toDateString();
+                    $expiryDate = $request->input('expiry_date') ?: $product->calculateDefaultExpiryDate($manufactureDate);
+                    $existingBatch = $product->batches()->first();
+
+                    if (!$existingBatch && ((int) $product->stock_online > 0 || !empty($initialBatchNumber))) {
+                        $qty = (int) $product->stock_online;
+                        ProductBatch::create([
+                            'product_id' => $product->id,
+                            'batch_number' => !empty($initialBatchNumber) ? $initialBatchNumber : ProductBatch::generateBatchNumber(),
+                            'location_id' => 'online',
+                            'initial_qty' => $qty,
+                            'current_qty' => $qty,
+                            'available_qty' => $batchStatus === 'approved' ? $qty : 0,
+                            'reserved_qty' => 0,
+                            'quarantine_qty' => $batchStatus === 'quarantine' ? $qty : 0,
+                            'unit_cost' => (float) ($product->cost_price ?? 0),
+                            'manufacture_date' => $manufactureDate,
+                            'expiry_date' => $expiryDate,
+                            'status' => $batchStatus,
+                        ]);
+                    } elseif ($existingBatch) {
+                        if (!empty($initialBatchNumber)) $existingBatch->batch_number = $initialBatchNumber;
+                        if ($request->filled('manufacture_date')) $existingBatch->manufacture_date = $manufactureDate;
+                        if ($request->filled('expiry_date')) $existingBatch->expiry_date = $expiryDate;
+                        if ($request->filled('batch_status')) $existingBatch->status = $batchStatus;
+                        $existingBatch->save();
+                    }
                     break;
             }
 
@@ -1292,13 +1390,191 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'product_name' => $product->name_en,
                 'taxInfo' => $taxInfo,
+                'primary_image_url' => $product->primary_image_url,
+                'gallery_urls' => $product->gallery_urls,
+                'gallery_count' => count($product->gallery_urls),
                 'saved_at' => now()->format('H:i:s'),
             ]);
         } catch (\Throwable $e) {
+            \Log::error("autoSaveStep error for product {$id}: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $this->formatUserFriendlyErrorMessage($e),
             ], 422);
         }
+    }
+
+    /**
+     * Convert low-level exceptions into professional, customer-friendly messages without exposing database internals.
+     */
+    protected function formatUserFriendlyErrorMessage(\Throwable $e): string
+    {
+        $msg = $e->getMessage();
+        $isAr = app()->getLocale() === 'ar';
+
+        // Check for SQL / Database integrity violations
+        if (str_contains($msg, 'SQLSTATE') || str_contains($msg, 'Integrity constraint') || $e instanceof \Illuminate\Database\QueryException) {
+            if (preg_match("/Column '([^']+)' cannot be null/i", $msg, $matches)) {
+                $col = $matches[1];
+                $colMap = [
+                    'brand' => $isAr ? 'العلامة التجارية' : 'Brand',
+                    'name_en' => $isAr ? 'اسم المنتج بالإنجليزي' : 'English Name',
+                    'name_ar' => $isAr ? 'اسم المنتج بالعربي' : 'Arabic Name',
+                    'sku' => $isAr ? 'رمز المنتج (SKU)' : 'SKU',
+                    'category_id' => $isAr ? 'التصنيف' : 'Category',
+                    'price' => $isAr ? 'سعر البيع' : 'Retail Price',
+                    'cost_price' => $isAr ? 'سعر التكلفة' : 'Cost Price',
+                ];
+                $colLabel = $colMap[$col] ?? $col;
+                return $isAr
+                    ? "يرجى تحديد حقل «{$colLabel}» لاستكمال حفظ البيانات بنجاح."
+                    : "Please specify the required field [{$colLabel}] to save formulation data.";
+            }
+
+            if (str_contains($msg, 'Duplicate entry') || str_contains($msg, '1062 Duplicate')) {
+                return $isAr
+                    ? 'رمز المنتج (SKU) أو الباركود مستخدم بالفعل لمنتج آخر. يرجى استخدام رمز فريد.'
+                    : 'The SKU or Barcode is already assigned to another formulation. Please use a unique value.';
+            }
+
+            return $isAr
+                ? 'تعذر حفظ بيانات المستحضر مؤقتاً بسبب عدم اكتمال بعض الحقول الأساسية. يرجى مراجعة المدخلات والمتابعة.'
+                : 'Unable to save formulation draft. Please ensure all mandatory core fields are completed.';
+        }
+
+        return $msg;
+    }
+
+    /**
+     * Safely delete an uploaded product image file from physical disk.
+     */
+    public function deletePhysicalProductFile(?string $url): void
+    {
+        if (empty($url) || !is_string($url)) {
+            return;
+        }
+
+        $norm = Product::normalizeUrl($url);
+
+        // Never delete seeded or static theme assets
+        if (str_starts_with($norm, '/assets/') || str_starts_with($norm, 'assets/')) {
+            return;
+        }
+
+        // Check storage path
+        if (str_starts_with($norm, '/storage/')) {
+            $relativePath = substr($norm, 9);
+            $diskPath = storage_path('app/public/' . $relativePath);
+            if (file_exists($diskPath) && is_file($diskPath)) {
+                @unlink($diskPath);
+            }
+            $publicPath = public_path('storage/' . $relativePath);
+            if (file_exists($publicPath) && is_file($publicPath)) {
+                @unlink($publicPath);
+            }
+        }
+
+        // Check uploads path
+        if (str_starts_with($norm, '/uploads/')) {
+            $publicPath = public_path(ltrim($norm, '/'));
+            if (file_exists($publicPath) && is_file($publicPath)) {
+                @unlink($publicPath);
+            }
+        }
+    }
+
+    /**
+     * Remove a gallery image from both database array, Spatie media collection, and physical disk.
+     */
+    public function removeGalleryImageFromProduct(Product $product, string $urlToRemove): bool
+    {
+        $normTarget = Product::normalizeUrl($urlToRemove);
+        $removed = false;
+
+        // 1. Remove from database JSON array
+        $currentImages = is_array($product->images) ? $product->images : [];
+        $filteredImages = array_values(array_filter($currentImages, function ($img) use ($normTarget) {
+            return Product::normalizeUrl($img) !== $normTarget;
+        }));
+
+        if (count($filteredImages) !== count($currentImages)) {
+            $product->images = $filteredImages;
+            $removed = true;
+        }
+
+        // 2. Remove from Spatie Media collection if found
+        try {
+            if (method_exists($product, 'getMedia')) {
+                foreach ($product->getMedia('gallery') as $m) {
+                    $mediaNorm = Product::normalizeUrl($m->getUrl());
+                    if ($mediaNorm === $normTarget || Product::normalizeUrl($m->getPath()) === $normTarget) {
+                        $m->delete();
+                        $removed = true;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning("Error deleting media from Spatie: " . $e->getMessage());
+        }
+
+        // 3. Remove physical disk file
+        $this->deletePhysicalProductFile($urlToRemove);
+
+        if ($removed) {
+            $product->save();
+        }
+
+        return $removed;
+    }
+
+    /**
+     * 1-Click Ajax endpoint to delete a specific gallery image permanently.
+     */
+    public function deleteGalleryImage(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        $imageUrl = $request->input('image_url');
+
+        if (empty($imageUrl)) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' ? 'مسار الصورة غير محدد.' : 'Image URL not specified.',
+            ], 422);
+        }
+
+        $this->removeGalleryImageFromProduct($product, $imageUrl);
+
+        return response()->json([
+            'success' => true,
+            'message' => app()->getLocale() === 'ar' ? 'تم حذف الصورة من المعرض وقرص التخزين بنجاح.' : 'Image permanently removed from gallery and storage.',
+            'remaining_images' => $product->gallery_urls,
+            'count' => count($product->gallery_urls),
+        ]);
+    }
+
+    /**
+     * 1-Click Ajax endpoint to set any gallery photo as the primary product hero image.
+     */
+    public function setPrimaryImage(Request $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $product = Product::findOrFail($id);
+        $imageUrl = $request->input('image_url');
+
+        if (empty($imageUrl)) {
+            return response()->json([
+                'success' => false,
+                'message' => app()->getLocale() === 'ar' ? 'مسار الصورة غير صالح.' : 'Invalid image URL.',
+            ], 422);
+        }
+
+        $normUrl = Product::normalizeUrl($imageUrl);
+        $product->image = $normUrl;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => app()->getLocale() === 'ar' ? 'تم تعيين الصورة كصورة رئيسية للمنتج بنجاح.' : 'Image set as primary hero image successfully.',
+            'primary_image_url' => $product->primary_image_url,
+        ]);
     }
 }

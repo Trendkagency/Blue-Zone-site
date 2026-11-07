@@ -102,6 +102,13 @@
         'signatures_stamp',
         'footer_notes',
     ];
+
+    $cols = $tpl['columns'] ?? [];
+    $isColVisible = function(string $key) use ($cols): bool {
+        if (!isset($cols[$key])) return true;
+        return !empty($cols[$key]['visible']);
+    };
+    $visibleColsCount = count(array_filter($cols, fn($c) => !empty($c['visible']))) ?: 11;
 @endphp
 
 <x-layouts.admin 
@@ -114,6 +121,12 @@
 >
     <x-slot name="actions">
         <div class="flex items-center gap-2 flex-wrap">
+            <!-- Copy Customer Payment URL -->
+            <button type="button" class="btn btn-secondary font-bold" onclick="copyInvoicePaymentUrl('{{ $orderKey }}', this)" title="{{ app()->getLocale() === 'ar' ? 'نسخ رابط الدفع المعتمد للعميل (Stripe)' : 'Generate & Copy Stripe Customer Payment URL' }}">
+                <i class="fa-solid fa-link text-indigo-500 mr-1.5 ml-1.5"></i>
+                <span class="btn-copy-label">{{ app()->getLocale() === 'ar' ? 'نسخ رابط الدفع' : 'Copy Payment Link' }}</span>
+            </button>
+
             <!-- 3D Studio Mode Toggle -->
             <button type="button" id="btn-toggle-studio" class="btn btn-secondary font-bold" onclick="toggleStudioMode()">
                 <i class="fa-solid fa-cube text-purple-500 mr-1.5 ml-1.5"></i>
@@ -837,50 +850,72 @@
                                 <table class="sheet-table">
                                     <thead>
                                         <tr>
-                                            <th style="width: 3.5%;">
-                                                <span class="th-ar">م</span>
-                                                <span class="th-en">N</span>
-                                            </th>
-                                            <th style="width: 11%;">
-                                                <span class="th-ar">كود الصنف</span>
-                                                <span class="th-en">Item Code</span>
-                                            </th>
-                                            <th style="width: 23%;">
-                                                <span class="th-ar">اسم الصنف</span>
-                                                <span class="th-en">Item Description</span>
-                                            </th>
-                                            <th style="width: 6%;">
-                                                <span class="th-ar">الكمية</span>
-                                                <span class="th-en">Qty</span>
-                                            </th>
-                                            <th style="width: 13%;">
-                                                <span class="th-ar">تاريخ الصلاحية / التشغيلة</span>
-                                                <span class="th-en">Expiry Date / Batch No.</span>
-                                            </th>
-                                            <th style="width: 7.5%;">
-                                                <span class="th-ar">سعر الوحدة</span>
-                                                <span class="th-en">Price</span>
-                                            </th>
-                                            <th style="width: 5%;">
-                                                <span class="th-ar">خصم 1</span>
-                                                <span class="th-en">Disc. 1</span>
-                                            </th>
-                                            <th style="width: 5%;">
-                                                <span class="th-ar">خصم 2</span>
-                                                <span class="th-en">Disc. 2</span>
-                                            </th>
-                                            <th style="width: 9.5%;">
-                                                <span class="th-ar">بدون الضريبة</span>
-                                                <span class="th-en">Total Exc. VAT</span>
-                                            </th>
-                                            <th style="width: 7.5%;">
-                                                <span class="th-ar">الضريبة</span>
-                                                <span class="th-en">VAT</span>
-                                            </th>
-                                            <th style="width: 9%;">
-                                                <span class="th-ar">شامل الضريبة</span>
-                                                <span class="th-en">Total Inc.</span>
-                                            </th>
+                                            @if($isColVisible('row_number'))
+                                                <th style="width: {{ $cols['row_number']['width'] ?? '3.5%' }};">
+                                                    <span class="th-ar">{{ $cols['row_number']['label_ar'] ?? 'م' }}</span>
+                                                    <span class="th-en">{{ $cols['row_number']['label_en'] ?? 'N' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('item_code'))
+                                                <th style="width: {{ $cols['item_code']['width'] ?? '11%' }};">
+                                                    <span class="th-ar">{{ $cols['item_code']['label_ar'] ?? 'كود الصنف' }}</span>
+                                                    <span class="th-en">{{ $cols['item_code']['label_en'] ?? 'Item Code' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('item_description'))
+                                                <th style="width: {{ $cols['item_description']['width'] ?? '23%' }};">
+                                                    <span class="th-ar">{{ $cols['item_description']['label_ar'] ?? 'اسم الصنف' }}</span>
+                                                    <span class="th-en">{{ $cols['item_description']['label_en'] ?? 'Item Description' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('quantity'))
+                                                <th style="width: {{ $cols['quantity']['width'] ?? '6%' }};">
+                                                    <span class="th-ar">{{ $cols['quantity']['label_ar'] ?? 'الكمية' }}</span>
+                                                    <span class="th-en">{{ $cols['quantity']['label_en'] ?? 'Qty' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('batch_expiry'))
+                                                <th style="width: {{ $cols['batch_expiry']['width'] ?? '13%' }};">
+                                                    <span class="th-ar">{{ $cols['batch_expiry']['label_ar'] ?? 'تاريخ الصلاحية / التشغيلة' }}</span>
+                                                    <span class="th-en">{{ $cols['batch_expiry']['label_en'] ?? 'Expiry Date / Batch No.' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('unit_price'))
+                                                <th style="width: {{ $cols['unit_price']['width'] ?? '7.5%' }};">
+                                                    <span class="th-ar">{{ $cols['unit_price']['label_ar'] ?? 'سعر الوحدة' }}</span>
+                                                    <span class="th-en">{{ $cols['unit_price']['label_en'] ?? 'Price' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('disc_1'))
+                                                <th style="width: {{ $cols['disc_1']['width'] ?? '5%' }};">
+                                                    <span class="th-ar">{{ $cols['disc_1']['label_ar'] ?? 'خصم 1' }}</span>
+                                                    <span class="th-en">{{ $cols['disc_1']['label_en'] ?? 'Disc. 1' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('disc_2'))
+                                                <th style="width: {{ $cols['disc_2']['width'] ?? '5%' }};">
+                                                    <span class="th-ar">{{ $cols['disc_2']['label_ar'] ?? 'خصم 2' }}</span>
+                                                    <span class="th-en">{{ $cols['disc_2']['label_en'] ?? 'Disc. 2' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('total_exc_vat'))
+                                                <th style="width: {{ $cols['total_exc_vat']['width'] ?? '9.5%' }};">
+                                                    <span class="th-ar">{{ $cols['total_exc_vat']['label_ar'] ?? 'بدون الضريبة' }}</span>
+                                                    <span class="th-en">{{ $cols['total_exc_vat']['label_en'] ?? 'Total Exc. VAT' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('vat_amount'))
+                                                <th style="width: {{ $cols['vat_amount']['width'] ?? '7.5%' }};">
+                                                    <span class="th-ar">{{ $cols['vat_amount']['label_ar'] ?? 'الضريبة' }}</span>
+                                                    <span class="th-en">{{ $cols['vat_amount']['label_en'] ?? 'VAT' }}</span>
+                                                </th>
+                                            @endif
+                                            @if($isColVisible('total_inc_vat'))
+                                                <th style="width: {{ $cols['total_inc_vat']['width'] ?? '9%' }};">
+                                                    <span class="th-ar">{{ $cols['total_inc_vat']['label_ar'] ?? 'شامل الضريبة' }}</span>
+                                                    <span class="th-en">{{ $cols['total_inc_vat']['label_en'] ?? 'Total Inc.' }}</span>
+                                                </th>
+                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -923,37 +958,61 @@
                                                  $calcTotal += $lineIncVat;
                                              @endphp
                                              <tr>
-                                                 <td class="text-center font-mono">{{ $rowCount }}</td>
-                                                 <td class="cell-code">{{ $sku }}</td>
-                                                 <td class="text-start font-bold" style="font-size: 0.72rem; line-height: 1.35; padding: 0.28rem 0.35rem;">{{ $name }}</td>
-                                                 <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
-                                                 <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
-                                                 <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
-                                                 <td class="text-center font-mono cell-num">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
-                                                 <td class="text-center font-mono cell-num">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
-                                                 <td class="text-center font-mono cell-num">{{ number_format($lineExcVat, 2) }}</td>
-                                                 <td class="text-center font-mono cell-num">{{ number_format($lineVat, 2) }}</td>
-                                                 <td class="text-center font-mono font-bold cell-num">{{ number_format($lineIncVat, 2) }}</td>
+                                                 @if($isColVisible('row_number'))
+                                                     <td class="text-center font-mono">{{ $rowCount }}</td>
+                                                 @endif
+                                                 @if($isColVisible('item_code'))
+                                                     <td class="cell-code">{{ $sku }}</td>
+                                                 @endif
+                                                 @if($isColVisible('item_description'))
+                                                     <td class="text-start font-bold" style="font-size: 0.72rem; line-height: 1.35; padding: 0.28rem 0.35rem;">{{ $name }}</td>
+                                                 @endif
+                                                 @if($isColVisible('quantity'))
+                                                     <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
+                                                 @endif
+                                                 @if($isColVisible('batch_expiry'))
+                                                     <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
+                                                 @endif
+                                                 @if($isColVisible('unit_price'))
+                                                     <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
+                                                 @endif
+                                                 @if($isColVisible('disc_1'))
+                                                     <td class="text-center font-mono cell-num">{{ $disc1 > 0 ? $disc1 . '%' : '0%' }}</td>
+                                                 @endif
+                                                 @if($isColVisible('disc_2'))
+                                                     <td class="text-center font-mono cell-num">{{ $disc2 > 0 ? $disc2 . '%' : '0%' }}</td>
+                                                 @endif
+                                                 @if($isColVisible('total_exc_vat'))
+                                                     <td class="text-center font-mono cell-num">{{ number_format($lineExcVat, 2) }}</td>
+                                                 @endif
+                                                 @if($isColVisible('vat_amount'))
+                                                     <td class="text-center font-mono cell-num">{{ number_format($lineVat, 2) }}</td>
+                                                 @endif
+                                                 @if($isColVisible('total_inc_vat'))
+                                                     <td class="text-center font-mono font-bold cell-num">{{ number_format($lineIncVat, 2) }}</td>
+                                                 @endif
                                              </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="11" class="text-center" style="padding: 1rem; color: #64748b;">لا توجد أصناف مدرجة في الفاتورة.</td>
+                                                <td colspan="{{ $visibleColsCount }}" class="text-center" style="padding: 1rem; color: #64748b;">لا توجد أصناف مدرجة في الفاتورة.</td>
                                             </tr>
                                         @endforelse
 
                                         @for($i = $rowCount; $i < 4; $i++)
                                             <tr>
-                                                <td class="text-center font-mono text-slate-300">{{ $i + 1 }}</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
-                                                <td>&nbsp;</td>
+                                                @if($isColVisible('row_number'))
+                                                    <td class="text-center font-mono text-slate-300">{{ $i + 1 }}</td>
+                                                @endif
+                                                @if($isColVisible('item_code')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('item_description')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('quantity')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('batch_expiry')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('unit_price')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('disc_1')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('disc_2')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('total_exc_vat')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('vat_amount')) <td>&nbsp;</td> @endif
+                                                @if($isColVisible('total_inc_vat')) <td>&nbsp;</td> @endif
                                             </tr>
                                         @endfor
                                     </tbody>
@@ -1040,6 +1099,19 @@
                                                             <span class="chk-box" id="chk-cheque">{{ $isCheque ? '✓' : '' }}</span>
                                                             <span>شيك Cheque</span>
                                                         </span>
+                                                        <span class="chk-item">
+                                                            <span class="chk-box" id="chk-stripe">{{ in_array($payMethod, ['stripe', 'card']) ? '✓' : '' }}</span>
+                                                            <span>بطاقة/Stripe</span>
+                                                        </span>
+                                                    </div>
+                                                    <div style="margin-top: 0.35rem; display: flex; justify-content: flex-end;">
+                                                        <button type="button" 
+                                                                onclick="copyInvoicePaymentUrl('{{ $orderKey }}', this)" 
+                                                                class="btn btn-outline btn-xs font-bold" 
+                                                                style="font-size: 0.68rem; padding: 0.15rem 0.5rem; border-color: #6366f1; color: #4338ca; background: #eef2ff; border-radius: 6px;">
+                                                            <i class="fa-solid fa-link mr-1 ml-1 text-indigo-500"></i>
+                                                            <span class="btn-copy-label">{{ app()->getLocale() === 'ar' ? 'نسخ رابط الدفع المعتمد' : 'Copy Payment URL' }}</span>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1183,7 +1255,16 @@
                         <option value="cash" {{ $payMethod === 'cash' ? 'selected' : '' }}>نقداً Cash</option>
                         <option value="cheque" {{ $payMethod === 'cheque' ? 'selected' : '' }}>شيك Cheque</option>
                         <option value="partial" {{ $isPartial ? 'selected' : '' }}>دفع جزئي Partial</option>
+                        <option value="stripe" {{ in_array($payMethod, ['stripe', 'card']) ? 'selected' : '' }}>بطاقة ائتمانية / مدى (Stripe Online)</option>
                     </select>
+                    <button type="button" 
+                            id="btnSidebarCopyPayUrl" 
+                            onclick="copyInvoicePaymentUrl('{{ $orderKey }}', this)" 
+                            class="btn btn-outline btn-xs font-bold w-full" 
+                            style="margin-top: 0.4rem; border-color: #6366f1; color: #4338ca; background: #eef2ff; border-radius: 6px; padding: 0.35rem 0.6rem;">
+                        <i class="fa-solid fa-link mr-1 ml-1 text-indigo-500"></i>
+                        <span class="btn-copy-label">{{ app()->getLocale() === 'ar' ? 'نسخ رابط الدفع المعتمد للعميل (Stripe)' : 'Copy Payment URL (Stripe)' }}</span>
+                    </button>
                 </div>
             </div>
 

@@ -10,6 +10,7 @@ use App\Models\RawMaterialBatch;
 use App\Models\RawMaterialMovement;
 use DomainException;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -77,7 +78,7 @@ class FifoAllocationEngine
                     'reserved_qty' => 0,
                     'quarantine_qty' => 0,
                     'unit_cost' => (float) ($product->cost_price ?? 0),
-                    'manufacture_date' => now()->toDateString(),
+                    'manufacture_date' => now()->startOfDay(),
                     'expiry_date' => $product->calculateDefaultExpiryDate(now()),
                     'status' => 'approved',
                 ]);
@@ -97,7 +98,7 @@ class FifoAllocationEngine
                     'batch' => $batch,
                     'batch_id' => $batch->id,
                     'batch_number' => $batch->batch_number,
-                    'expiry_date' => $batch->expiry_date->toDateString(),
+                    'expiry_date' => $batch->expiry_date ? Carbon::parse($batch->expiry_date)->toDateString() : '',
                     'allocated_qty' => $take,
                     'unit_cost' => (float) $batch->unit_cost,
                 ];
@@ -163,7 +164,7 @@ class FifoAllocationEngine
                     'batch' => $batch,
                     'batch_id' => $batch->id,
                     'batch_number' => $batch->batch_number,
-                    'expiry_date' => $batch->expiry_date->toDateString(),
+                    'expiry_date' => $batch->expiry_date ? Carbon::parse($batch->expiry_date)->toDateString() : '',
                     'allocated_qty' => $take,
                     'unit_cost' => (float) $batch->unit_cost,
                 ];
@@ -200,7 +201,7 @@ class FifoAllocationEngine
                 $batch = $alloc['batch'] ?? ProductBatch::findOrFail($alloc['batch_id']);
                 $qty = (int) $alloc['allocated_qty'];
 
-                $prevStock = $batch->current_stock;
+                $prevStock = $batch->current_qty;
                 $batch->deductQuantity($qty, $reason);
 
                 // Update location inventory items as well
@@ -208,7 +209,7 @@ class FifoAllocationEngine
                 if ($product) {
                     InventoryService::adjustStock(
                         $product,
-                        $batch->location_id,
+                        (string) ($batch->location_id ?? 'central_wh'),
                         -$qty,
                         'Sales Issue',
                         $reason ?? "Deducted via FEFO Batch {$batch->batch_number}",
@@ -236,8 +237,8 @@ class FifoAllocationEngine
                 $qty = round((float) $alloc['allocated_qty'], 4);
 
                 $prevCurrent = $batch->current_qty;
-                $batch->available_qty = max(0, round((float) $batch->available_qty - $qty, 4));
-                $batch->current_qty = max(0, round((float) $batch->current_qty - $qty, 4));
+                $batch->available_qty = (string) max(0, round((float) $batch->available_qty - $qty, 4));
+                $batch->current_qty = (string) max(0, round((float) $batch->current_qty - $qty, 4));
                 $batch->assertInvariant();
                 $batch->save();
 

@@ -49,16 +49,89 @@ class StripeGateway implements PaymentGatewayInterface
     }
 
     /**
+     * Create or retrieve a Stripe Checkout Session URL for direct customer completion.
+     */
+    public function createCheckoutSession(Order $order): array
+    {
+        $secretKey = $this->getSecretKey();
+        $isRealKey = (str_starts_with($secretKey, 'sk_live_') || str_starts_with($secretKey, 'sk_test_'))
+            && !str_contains($secretKey, 'MockStripeKey')
+            && !str_contains($secretKey, 'MockStripeSecret');
+        $currency = strtolower(Setting::get('currency', config('payment.currency', 'SAR')));
+
+        if ($isRealKey) {
+            try {
+                $response = Http::withToken($secretKey)
+                    ->asForm()
+                    ->post('https://api.stripe.com/v1/checkout/sessions', [
+                        'payment_method_types' => ['card'],
+                        'mode' => 'payment',
+                        'client_reference_id' => $order->order_number,
+                        'customer_email' => $order->customer_email,
+                        'success_url' => route('customer.order-pay', $order->order_number) . '?status=paid&session_id={CHECKOUT_SESSION_ID}',
+                        'cancel_url' => route('customer.order-pay', $order->order_number) . '?status=cancelled',
+                        'line_items' => [[
+                            'price_data' => [
+                                'currency' => $currency,
+                                'unit_amount' => (int) round($order->total * 100),
+                                'product_data' => [
+                                    'name' => "Blue Zone Order #{$order->order_number}",
+                                ],
+                            ],
+                            'quantity' => 1,
+                        ]],
+                        'metadata' => [
+                            'order_number' => $order->order_number,
+                            'order_id' => $order->id,
+                        ],
+                    ]);
+
+                if ($response->successful()) {
+                    $session = $response->json();
+                    $order->update([
+                        'payment_method' => 'card',
+                        'payment_gateway' => 'stripe',
+                        'payment_transaction_id' => $session['id'] ?? null,
+                        'payment_payload' => $session,
+                    ]);
+
+                    return [
+                        'success' => true,
+                        'url' => $session['url'],
+                        'session_id' => $session['id'] ?? null,
+                        'mode' => 'stripe_checkout',
+                    ];
+                }
+
+                Log::error('Stripe Checkout Session Creation Error', ['body' => $response->body()]);
+            } catch (\Throwable $e) {
+                Log::error('Stripe Checkout Session Exception: ' . $e->getMessage());
+            }
+        }
+
+        // Dedicated secure customer payment link fallback
+        $publicPayUrl = url('/pay/order/' . $order->order_number);
+        return [
+            'success' => true,
+            'url' => $publicPayUrl,
+            'session_id' => 'cs_portal_' . substr(md5($order->order_number . $order->id), 0, 16),
+            'mode' => 'secure_portal',
+        ];
+    }
+
+    /**
      * Process checkout payment initialization for an order.
      */
     public function processPayment(Order $order, array $payload = []): array
     {
         $secretKey = $this->getSecretKey();
-        $isLiveKey = str_starts_with($secretKey, 'sk_live_');
+        $isRealKey = (str_starts_with($secretKey, 'sk_live_') || str_starts_with($secretKey, 'sk_test_'))
+            && !str_contains($secretKey, 'MockStripeKey')
+            && !str_contains($secretKey, 'MockStripeSecret');
         $currency = strtolower(Setting::get('currency', config('payment.currency', 'USD')));
 
-        // If a real production Stripe secret is supplied, call Stripe Checkout API
-        if ($isLiveKey && !empty($secretKey)) {
+        // If a real production or test Stripe secret is supplied, call Stripe Checkout API
+        if ($isRealKey && !empty($secretKey)) {
             try {
                 $response = Http::withToken($secretKey)
                     ->asForm()

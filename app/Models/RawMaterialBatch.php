@@ -11,8 +11,33 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int $id
+ * @property int $raw_material_id
+ * @property string $batch_number
+ * @property string $supplier_lot
+ * @property int|null $purchase_order_id
+ * @property int|null $goods_receipt_id
+ * @property int $supplier_id
+ * @property string $location_id
+ * @property string|null $storage_bin
+ * @property string|float|int|null $initial_qty
+ * @property string|float|int|null $current_qty
+ * @property string|float|int|null $available_qty
+ * @property string|float|int|null $reserved_qty
+ * @property string|float|int|null $quarantine_qty
+ * @property string|float|null $unit_cost
+ * @property \Illuminate\Support\Carbon|null $manufacture_date
+ * @property \Illuminate\Support\Carbon|null $expiry_date
+ * @property \Illuminate\Support\Carbon|null $retest_date
+ * @property RawMaterialBatchStatus|string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read RawMaterial|null $rawMaterial
+ */
 class RawMaterialBatch extends Model
 {
     use HasFactory, SoftDeletes;

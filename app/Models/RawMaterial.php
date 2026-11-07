@@ -12,6 +12,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $code
+ * @property string|null $sku
+ * @property string $name_en
+ * @property string|null $name_ar
+ * @property string|null $inci_name
+ * @property string|null $cas_number
+ * @property float|string|null $standard_cost
+ * @property int|null $shelf_life_days
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class RawMaterial extends Model
 {
     use HasFactory, SoftDeletes;

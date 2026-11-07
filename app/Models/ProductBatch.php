@@ -9,8 +9,35 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int $id
+ * @property int $product_id
+ * @property string $batch_number
+ * @property string|null $supplier_lot
+ * @property int|null $work_order_id
+ * @property int|null $goods_receipt_id
+ * @property string $location_id
+ * @property string|null $storage_bin
+ * @property int|null $initial_qty
+ * @property int|null $current_qty
+ * @property int|null $available_qty
+ * @property int|null $reserved_qty
+ * @property int|null $quarantine_qty
+ * @property float|string|null $unit_cost
+ * @property \Illuminate\Support\Carbon|null $manufacture_date
+ * @property \Illuminate\Support\Carbon|null $expiry_date
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read int $days_until_expiry
+ * @property-read array $expiry_badge
+ * @property-read int $current_stock
+ * @property-read Product|null $product
+ * @property-read WorkOrder|null $workOrder
+ */
 class ProductBatch extends Model
 {
     use HasFactory, SoftDeletes;
@@ -119,7 +146,19 @@ class ProductBatch extends Model
             return 0;
         }
 
-        return (int) now()->startOfDay()->diffInDays($this->expiry_date->startOfDay(), false);
+        $expiry = $this->expiry_date instanceof Carbon
+            ? $this->expiry_date
+            : Carbon::parse($this->expiry_date);
+
+        return (int) now()->startOfDay()->diffInDays($expiry->startOfDay(), false);
+    }
+
+    /**
+     * Backward-compatible alias for current quantity.
+     */
+    public function getCurrentStockAttribute(): int
+    {
+        return (int) ($this->current_qty ?? 0);
     }
 
     /**
@@ -210,7 +249,7 @@ class ProductBatch extends Model
     /**
      * Generate unique Finished Goods Batch Number: LOT-FG-YYYYMM-XXXX
      */
-    public static function generateBatchNumber(): string
+    public static function generateBatchNumber(?Product $product = null): string
     {
         $ym = date('Ym');
         $prefix = "LOT-FG-{$ym}-";
@@ -237,24 +276,24 @@ class ProductBatch extends Model
                 $batch->batch_number = self::generateBatchNumber();
             }
 
-            if ($batch->initial_qty === null) {
+            if (is_null($batch->initial_qty)) {
                 $batch->initial_qty = $batch->current_qty ?? 0;
             }
-            if ($batch->current_qty === null) {
+            if (is_null($batch->current_qty)) {
                 $batch->current_qty = $batch->initial_qty ?? 0;
             }
-            if ($batch->available_qty === null && $batch->status === 'approved') {
+            if (is_null($batch->available_qty) && $batch->status === 'approved') {
                 $batch->available_qty = $batch->current_qty;
-            } elseif ($batch->quarantine_qty === null && $batch->status === 'quarantine') {
+            } elseif (is_null($batch->quarantine_qty) && $batch->status === 'quarantine') {
                 $batch->quarantine_qty = $batch->current_qty;
             }
 
-            if ($batch->unit_cost === null) {
+            if (is_null($batch->unit_cost)) {
                 $batch->unit_cost = $batch->product?->cost_price ?? 0.0000;
             }
 
-            if ($batch->manufacture_date === null) {
-                $batch->manufacture_date = now()->toDateString();
+            if (is_null($batch->manufacture_date)) {
+                $batch->manufacture_date = now()->startOfDay();
             }
 
             if ($batch->expiry_date === null && $batch->product) {

@@ -201,6 +201,28 @@ class InvoiceTemplateService
     }
 
     /**
+     * Merge saved configuration with defaults, strictly handling indexed sections_order and boolean column visibility.
+     */
+    public static function mergeTemplateConfig(array $default, array $saved): array
+    {
+        $merged = array_replace_recursive($default, $saved);
+
+        if (!empty($saved['sections_order']) && is_array($saved['sections_order'])) {
+            $merged['sections_order'] = array_values(array_unique($saved['sections_order']));
+        }
+
+        if (!empty($saved['columns']) && is_array($saved['columns'])) {
+            foreach ($saved['columns'] as $colKey => $colData) {
+                if (isset($colData['visible'])) {
+                    $merged['columns'][$colKey]['visible'] = filter_var($colData['visible'], FILTER_VALIDATE_BOOLEAN);
+                }
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
      * Retrieve the currently saved template configuration merged with system defaults.
      */
     public static function getTemplate(): array
@@ -215,12 +237,12 @@ class InvoiceTemplateService
         if (is_string($saved)) {
             $decoded = json_decode($saved, true);
             if (is_array($decoded)) {
-                return array_replace_recursive($default, $decoded);
+                return static::mergeTemplateConfig($default, $decoded);
             }
         }
 
         if (is_array($saved)) {
-            return array_replace_recursive($default, $saved);
+            return static::mergeTemplateConfig($default, $saved);
         }
 
         return $default;
@@ -508,12 +530,12 @@ class InvoiceTemplateService
         if (is_string($saved)) {
             $decoded = json_decode($saved, true);
             if (is_array($decoded)) {
-                return array_replace_recursive($default, $decoded);
+                return static::mergeTemplateConfig($default, $decoded);
             }
         }
 
         if (is_array($saved)) {
-            return array_replace_recursive($default, $saved);
+            return static::mergeTemplateConfig($default, $saved);
         }
 
         return $default;

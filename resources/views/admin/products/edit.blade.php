@@ -3,20 +3,8 @@
     :pageSubtitle="__('admin.products.edit_subtitle')"
     :breadcrumbs="[__('admin.menu.products') => route('admin.products.index'), ($product['name_' . app()->getLocale()] ?? $product['name_en']) => route('admin.products.edit', $product['id'])]"
 >
-    <!-- Server-Side Error Alert (if any) -->
-    @if ($errors->any())
-        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); color: var(--color-danger); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
-            <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                <span>{{ app()->getLocale() === 'ar' ? 'يرجى مراجعة الحقول المطلوبة التالية وتصحيحها:' : 'Please correct the following validation errors:' }}</span>
-            </div>
-            <ul style="margin: 0; padding-inline-start: 1.5rem; font-size: 0.875rem; line-height: 1.6;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <!-- Interactive Validation Error Inspector -->
+    @include('admin.products.partials.validation_inspector')
 
     <!-- Multi-Step Wizard Navigation Indicator -->
     <div class="product-wizard-steps" style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
@@ -667,7 +655,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                             <!-- Left: Live Visual Preview Card -->
                             <div class="lg:col-span-4 flex flex-col items-center">
-                                <div class="w-full max-w-[240px] aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] border border-white/20 shadow-xl relative flex items-center justify-center p-3 group">
+                                <div class="w-full max-w-[240px] aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] border border-white/20 shadow-xl relative flex items-center justify-center p-3 group cursor-pointer" onclick="openImageStudio(document.getElementById('primaryHeroLiveImg').src, [document.getElementById('primaryHeroLiveImg').src])" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
                                     @php
                                         $primaryPreview = !empty($product['image']) ? \App\Models\Product::normalizeUrl($product['image']) : '/assets/products/blue-mind.jpg';
                                     @endphp
@@ -676,8 +664,9 @@
                                          alt="Primary Hero Preview" 
                                          class="w-full h-full object-contain filter drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
                                          onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
-                                    <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-mono font-bold tracking-wider uppercase backdrop-blur-xs">
-                                        {{ app()->getLocale() === 'ar' ? 'معاينة حية' : 'Live Preview' }}
+                                    <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-mono font-bold tracking-wider uppercase backdrop-blur-xs flex items-center gap-1">
+                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-400"></i>
+                                        <span>{{ app()->getLocale() === 'ar' ? 'فحص عالي الدقة' : 'Studio Inspect' }}</span>
                                     </span>
                                 </div>
                                 <span class="text-[11px] text-slate-400 dark:text-slate-500 mt-2 text-center" id="primaryFileDetails">
@@ -714,23 +703,8 @@
                                     </button>
                                 </div>
 
-                                <!-- Optional Direct Asset URL / Path Fallback -->
-                                <div class="p-3.5 rounded-xl bg-slate-100/70 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                                        <span>{{ app()->getLocale() === 'ar' ? 'مسار الصورة المباشر أو الرابط الاحتياطي' : 'Direct Asset URL or Fallback Path' }}</span>
-                                        <span class="text-[10px] text-slate-400 font-mono">{{ app()->getLocale() === 'ar' ? 'اختياري' : 'Optional' }}</span>
-                                    </label>
-                                    <div class="relative">
-                                        <i class="fa-solid fa-link absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                        <input type="text" 
-                                               name="image" 
-                                               id="inputMainImage" 
-                                               value="{{ old('image', $product['image']) }}" 
-                                               placeholder="/assets/products/blue-mind.jpg" 
-                                               class="form-control text-xs ps-8 rounded-xl bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100"
-                                               oninput="syncPrimaryFromTextInput(this.value)">
-                                    </div>
-                                </div>
+                                <!-- Hidden input preserving primary image path without exposing raw URLs -->
+                                <input type="hidden" name="image" id="inputMainImage" value="{{ old('image', $product['image']) }}">
                             </div>
                         </div>
                     </div>
@@ -770,16 +744,19 @@
                                 </label>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="existingGalleryGrid">
                                     @foreach($savedGallery as $gIdx => $gUrl)
-                                        <div class="relative group rounded-xl overflow-hidden aspect-square bg-[#031827] border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm transition-all" id="saved-gallery-card-{{ $gIdx }}">
-                                            <img src="{{ $gUrl }}" alt="Gallery #{{ $gIdx + 1 }}" class="w-full h-full object-contain rounded-lg" onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
+                                        <div class="relative group rounded-xl overflow-hidden aspect-square bg-[#031827] border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm transition-all cursor-pointer" id="saved-gallery-card-{{ $gIdx }}" onclick="openImageStudio('{{ $gUrl }}', {{ json_encode($savedGallery) }})">
+                                            <img src="{{ $gUrl }}" alt="Gallery #{{ $gIdx + 1 }}" class="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
                                             
                                             <!-- Remove Action Overlay -->
-                                            <button type="button" 
-                                                    onclick="markGalleryImageForRemoval('{{ $gUrl }}', 'saved-gallery-card-{{ $gIdx }}')"
-                                                    class="absolute top-1.5 end-1.5 w-7 h-7 rounded-lg bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 cursor-pointer"
-                                                    title="{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Delete from gallery' }}">
-                                                <i class="fa-solid fa-trash-can text-[11px]"></i>
-                                            </button>
+                                            <div class="absolute top-1.5 end-1.5 flex items-center gap-1 z-10" id="card-actions-{{ $gIdx }}">
+                                                <button type="button" 
+                                                        onclick="event.stopPropagation(); markGalleryImageForRemoval('{{ $gUrl }}', 'saved-gallery-card-{{ $gIdx }}', {{ $gIdx }})"
+                                                        class="w-7 h-7 rounded-lg bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 cursor-pointer"
+                                                        title="{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Delete from gallery' }}"
+                                                        id="btn-remove-{{ $gIdx }}">
+                                                    <i class="fa-solid fa-trash-can text-[11px]"></i>
+                                                </button>
+                                            </div>
                                             
                                             <!-- Index indicator -->
                                             <span class="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white font-mono text-[9px]">
@@ -1536,6 +1513,8 @@
             const requiredInputs = pane.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
             let firstInvalid = null;
+            const clientErrors = {};
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
 
             requiredInputs.forEach(input => {
                 input.classList.remove('input-error-highlight');
@@ -1543,11 +1522,18 @@
                     isValid = false;
                     input.classList.add('input-error-highlight');
                     if (!firstInvalid) firstInvalid = input;
+
+                    const fieldKey = input.name || input.id || 'field';
+                    const cleanKey = fieldKey.replace('[]', '');
+                    const labelEl = input.closest('div')?.querySelector('label');
+                    const labelText = labelEl ? labelEl.textContent.trim().replace(/\s*\*/g, '') : cleanKey;
+                    clientErrors[cleanKey] = isAr 
+                        ? `حقل «${labelText}» مطلوب وإلزامي في هذه الخطوة.` 
+                        : `The ${labelText} field is mandatory for this step.`;
                 }
             });
 
             if (!isValid) {
-                const isAr = "{{ app()->getLocale() }}" === 'ar';
                 const msg = isAr 
                     ? 'يرجى استكمال جميع الحقول الإلزامية المطلوبة في هذه الخطوة قبل المتابعة.' 
                     : 'Please fill out all mandatory fields in this step before proceeding.';
@@ -1558,6 +1544,12 @@
                 } else {
                     alert(msg);
                 }
+
+                if (typeof window.renderValidationErrors === 'function') {
+                    window.renderValidationErrors(clientErrors);
+                }
+                const floatingBtn = document.getElementById('floatingBtnValidationErrors');
+                if (floatingBtn) floatingBtn.style.display = 'inline-flex';
 
                 if (firstInvalid) {
                     firstInvalid.focus();
@@ -2144,12 +2136,12 @@
             if (dossierImg) dossierImg.src = url;
         }
 
-        function markGalleryImageForRemoval(url, cardId) {
+        function markGalleryImageForRemoval(url, cardId, idx) {
             const container = document.getElementById('removedGalleryInputsContainer');
             const card = document.getElementById(cardId);
+            const actions = document.getElementById(`card-actions-${idx}`);
             if (!container || !card) return;
 
-            // Check if already marked
             let existingInput = container.querySelector(`input[value="${CSS.escape(url)}"]`);
             if (!existingInput) {
                 const hiddenInput = document.createElement('input');
@@ -2163,20 +2155,29 @@
                 card.style.filter = 'grayscale(100%)';
                 card.style.borderColor = '#ef4444';
 
-                // Change delete button to restore button
-                const btn = card.querySelector('button');
-                if (btn) {
-                    btn.className = 'w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow hover:bg-emerald-600 transition-all';
-                    btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i>';
-                    btn.title = "{{ app()->getLocale() === 'ar' ? 'تراجع عن الحذف' : 'Undo deletion' }}";
-                    btn.onclick = () => unmarkGalleryImageRemoval(url, cardId);
+                if (actions) {
+                    actions.innerHTML = `
+                        <button type="button" 
+                                onclick="event.stopPropagation(); unmarkGalleryImageRemoval('${url}', '${cardId}', ${idx})" 
+                                class="w-6 h-6 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-[10px] shadow cursor-pointer" 
+                                title="{{ app()->getLocale() === 'ar' ? 'تراجع عن الحذف' : 'Undo deletion' }}">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button type="button" 
+                                onclick="event.stopPropagation(); deleteGalleryImageImmediately('${url}', '${cardId}')" 
+                                class="w-6 h-6 rounded-lg bg-rose-700 hover:bg-rose-800 text-white flex items-center justify-center text-[10px] shadow cursor-pointer" 
+                                title="{{ app()->getLocale() === 'ar' ? 'حذف فوري نهائي الآن من القرص' : 'Delete permanently now from disk' }}">
+                            <i class="fa-solid fa-trash-arrow-up"></i>
+                        </button>
+                    `;
                 }
             }
         }
 
-        function unmarkGalleryImageRemoval(url, cardId) {
+        function unmarkGalleryImageRemoval(url, cardId, idx) {
             const container = document.getElementById('removedGalleryInputsContainer');
             const card = document.getElementById(cardId);
+            const actions = document.getElementById(`card-actions-${idx}`);
             if (container) {
                 const input = container.querySelector(`input[value="${CSS.escape(url)}"]`);
                 if (input) input.remove();
@@ -2185,19 +2186,120 @@
                 card.style.opacity = '1';
                 card.style.filter = 'none';
                 card.style.borderColor = '';
-
-                const btn = card.querySelector('button');
-                if (btn) {
-                    btn.className = 'w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center text-xs shadow hover:bg-rose-600 transition-all';
-                    btn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-                    btn.title = "{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Remove from gallery' }}";
-                    btn.onclick = () => markGalleryImageForRemoval(url, cardId);
+                if (actions) {
+                    actions.innerHTML = `
+                        <button type="button" 
+                                onclick="event.stopPropagation(); markGalleryImageForRemoval('${url}', '${cardId}', ${idx})" 
+                                class="w-7 h-7 rounded-lg bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center text-xs shadow-md transition-transform hover:scale-110 cursor-pointer"
+                                title="{{ app()->getLocale() === 'ar' ? 'حذف من المعرض' : 'Delete from gallery' }}"
+                                id="btn-remove-${idx}">
+                            <i class="fa-solid fa-trash-can text-[11px]"></i>
+                        </button>
+                    `;
                 }
             }
         }
 
+        async function deleteGalleryImageImmediately(url, cardId) {
+            const isAr = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
+            if (!confirm(isAr ? 'هل أنت متأكد من رغبتك في حذف هذه الصورة نهائياً من المعرض وقرص التخزين؟' : 'Are you sure you want to permanently delete this photo from gallery and storage?')) {
+                return;
+            }
+
+            const card = document.getElementById(cardId);
+            const prodId = {{ (int) $product['id'] }};
+
+            try {
+                const response = await fetch(`/admin/products/${prodId}/delete-gallery-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ image_url: url }),
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (card) {
+                        card.style.transition = 'all 0.35s ease';
+                        card.style.transform = 'scale(0.8)';
+                        card.style.opacity = '0';
+                        setTimeout(() => card.remove(), 350);
+                    }
+                    const countBadge = document.getElementById('galleryCountBadge');
+                    if (countBadge && data.count !== undefined) {
+                        countBadge.textContent = `${data.count} ${isAr ? 'صور مسجلة' : 'Saved Photos'}`;
+                    }
+                    if (typeof showFloatingToast === 'function') {
+                        showFloatingToast(
+                            isAr ? 'تم حذف الصورة نهائياً' : 'Photo Deleted',
+                            data.message || (isAr ? 'تم حذف الصورة من المعرض وقرص التخزين.' : 'Image deleted.')
+                        );
+                    }
+                } else {
+                    alert(data.message || 'Error deleting gallery image.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error while deleting image.');
+            }
+        }
+
+        let bzEditGalleryDT = new DataTransfer();
+        let bzEditGalleryDataUrls = [];
+
         function previewNewGalleryFiles(input) {
-            const files = input.files;
+            if (input && input.files) {
+                Array.from(input.files).forEach(file => {
+                    const exists = Array.from(bzEditGalleryDT.files).some(f => f.name === file.name && f.size === file.size);
+                    if (!exists) {
+                        bzEditGalleryDT.items.add(file);
+                    }
+                });
+            }
+            syncEditGalleryUI();
+        }
+
+        function handleGalleryDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            if (zone) zone.classList.remove('border-purple-500');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                Array.from(files).forEach(file => {
+                    const exists = Array.from(bzEditGalleryDT.files).some(f => f.name === file.name && f.size === file.size);
+                    if (!exists) {
+                        bzEditGalleryDT.items.add(file);
+                    }
+                });
+                syncEditGalleryUI();
+            }
+        }
+
+        function removeIndividualGalleryFile(fileIdx) {
+            const nextDT = new DataTransfer();
+            const files = bzEditGalleryDT.files;
+            for (let i = 0; i < files.length; i++) {
+                if (i !== fileIdx) {
+                    nextDT.items.add(files[i]);
+                }
+            }
+            bzEditGalleryDT = nextDT;
+            syncEditGalleryUI();
+        }
+
+        function clearNewGalleryFiles() {
+            bzEditGalleryDT = new DataTransfer();
+            syncEditGalleryUI();
+        }
+
+        function syncEditGalleryUI() {
+            const input = document.getElementById('gallery_files_input');
+            if (input) input.files = bzEditGalleryDT.files;
+
+            const files = bzEditGalleryDT.files;
             const previewSection = document.getElementById('newGalleryPreviewSection');
             const grid = document.getElementById('newGalleryPreviewsGrid');
             const countText = document.getElementById('newGalleryCountText');
@@ -2205,6 +2307,7 @@
             if (!files || files.length === 0) {
                 if (previewSection) previewSection.classList.add('hidden');
                 if (grid) grid.innerHTML = '';
+                bzEditGalleryDataUrls = [];
                 return;
             }
 
@@ -2218,19 +2321,32 @@
 
             if (grid) {
                 grid.innerHTML = '';
+                bzEditGalleryDataUrls = [];
+
                 Array.from(files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        const dataUrl = e.target.result;
+                        bzEditGalleryDataUrls[index] = dataUrl;
+
                         const col = document.createElement('div');
-                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square';
+                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square cursor-pointer transition-transform hover:scale-[1.02]';
                         col.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" onclick="openImageStudio('${dataUrl}', bzEditGalleryDataUrls)">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                 <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
                                 <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
                             </div>
-                            <span class="absolute top-1 right-1 w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
-                                ${index + 1}
+                            <!-- 1-Click Remove (X) Button -->
+                            <button type="button" 
+                                    onclick="event.stopPropagation(); removeIndividualGalleryFile(${index})" 
+                                    class="absolute top-1.5 end-1.5 w-6 h-6 rounded-lg bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-[10px] shadow transition-transform hover:scale-110 cursor-pointer"
+                                    title="{{ app()->getLocale() === 'ar' ? 'إلغاء هذه الصورة' : 'Remove this photo' }}">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <!-- Index Badge -->
+                            <span class="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white font-mono text-[9px]">
+                                #${index + 1}
                             </span>
                         `;
                         grid.appendChild(col);
@@ -2238,24 +2354,6 @@
                     reader.readAsDataURL(file);
                 });
             }
-        }
-
-        function handleGalleryDrop(e) {
-            e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                const input = document.getElementById('gallery_files_input');
-                if (input) {
-                    input.files = files;
-                    previewNewGalleryFiles(input);
-                }
-            }
-        }
-
-        function clearNewGalleryFiles() {
-            const input = document.getElementById('gallery_files_input');
-            if (input) input.value = '';
-            previewNewGalleryFiles({ files: [] });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -2491,4 +2589,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Product Image Specification Studio / Lightbox -->
+    <x-products.image-lightbox />
 </x-layouts.admin>

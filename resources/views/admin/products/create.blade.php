@@ -3,20 +3,8 @@
     :pageSubtitle="__('admin.products.create_subtitle')"
     :breadcrumbs="[__('admin.menu.products') => route('admin.products.index'), __('app.actions.create') => route('admin.products.create')]"
 >
-    <!-- Server-Side Error Alert (if any) -->
-    @if ($errors->any())
-        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); color: var(--color-danger); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
-            <div style="font-weight: 800; font-size: 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-                <span>{{ app()->getLocale() === 'ar' ? 'يرجى مراجعة الحقول المطلوبة التالية وتصحيحها:' : 'Please correct the following validation errors:' }}</span>
-            </div>
-            <ul style="margin: 0; padding-inline-start: 1.5rem; font-size: 0.875rem; line-height: 1.6;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <!-- Interactive Validation Error Inspector -->
+    @include('admin.products.partials.validation_inspector')
 
     <!-- Multi-Step Wizard Navigation Indicator -->
     <div class="product-wizard-steps" style="display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border);">
@@ -117,21 +105,43 @@
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem;">
                     <div>
-                        <x-forms.input 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="sku" class="form-label" style="margin-bottom: 0; font-weight: 700; font-size: 0.875rem;">
+                                {{ __('admin.products.fields.sku') }} <span class="required-mark" style="color: #ef4444; font-weight: 800;">*</span>
+                            </label>
+                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="generateSkuValue()" style="padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 6px; font-weight: 700;">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> {{ app()->getLocale() === 'ar' ? 'توليد تلقائي' : 'Auto-Gen' }}
+                            </button>
+                        </div>
+                        <input 
+                            type="text" 
                             name="sku" 
-                            :label="__('admin.products.fields.sku')" 
-                            :placeholder="__('admin.products.placeholders.sku')" 
-                            :value="old('sku')" 
+                            id="sku" 
+                            value="{{ old('sku') }}" 
+                            placeholder="{{ __('admin.products.placeholders.sku') }}" 
+                            class="form-control font-mono font-bold" 
                             required 
-                        />
+                            style="letter-spacing: 0.05em;"
+                        >
                     </div>
                     <div>
-                        <x-forms.input 
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="barcode" class="form-label" style="margin-bottom: 0; font-weight: 700; font-size: 0.875rem;">
+                                {{ __('admin.products.fields.barcode') }}
+                            </label>
+                            <button type="button" class="btn btn-xs btn-outline-primary" onclick="generateBarcodeValue()" style="padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 6px; font-weight: 700;">
+                                <i class="fa-solid fa-barcode mr-1"></i> {{ app()->getLocale() === 'ar' ? 'توليد باركود' : 'Auto-Gen' }}
+                            </button>
+                        </div>
+                        <input 
+                            type="text" 
                             name="barcode" 
-                            :label="__('admin.products.fields.barcode')" 
-                            :placeholder="__('admin.products.placeholders.barcode')" 
-                            :value="old('barcode')" 
-                        />
+                            id="barcode" 
+                            value="{{ old('barcode') }}" 
+                            placeholder="{{ __('admin.products.placeholders.barcode') }}" 
+                            class="form-control font-mono font-bold"
+                            data-type="numeric"
+                        >
                     </div>
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
@@ -167,7 +177,7 @@
                             :options="collect($categories)->mapWithKeys(function($c) {
                                 return [$c['id'] => (app()->getLocale() === 'ar' && !empty($c['name_ar']) ? $c['name_ar'] : $c['name_en'])];
                             })->toArray()" 
-                            :selected="old('category_id')"
+                            :selected="old('category_id', $categories[0]['id'] ?? null)"
                             required 
                         />
                     </div>
@@ -176,14 +186,14 @@
                             name="subcategory_en" 
                             :label="__('admin.products.fields.subcategory') . ' (EN)'" 
                             placeholder="e.g. Nootropics" 
-                            :value="old('subcategory_en')" 
+                            :value="old('subcategory_en', 'Cellular Health')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="brand" 
                             :label="__('admin.products.fields.brand')" 
-                            :value="old('brand')" 
+                            :value="old('brand', 'Blue Zone Bioceuticals')" 
                             required 
                         />
                     </div>
@@ -194,21 +204,21 @@
                         <x-forms.input 
                             name="target_gender" 
                             :label="__('admin.products.fields.target_demographic')" 
-                            :value="old('target_gender')" 
+                            :value="old('target_gender', 'Unisex')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="age_group" 
                             :label="__('admin.products.fields.age_cohort')" 
-                            :value="old('age_group')" 
+                            :value="old('age_group', '18+')" 
                         />
                     </div>
                     <div>
                         <x-forms.input 
                             name="product_size" 
                             :label="__('admin.products.fields.dosage_form')" 
-                            :value="old('product_size')" 
+                            :value="old('product_size', '60 Vegetable Capsules')" 
                         />
                     </div>
                 </div>
@@ -601,15 +611,16 @@
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                             <!-- Hero Preview Card -->
                             <div class="md:col-span-4 flex flex-col items-center">
-                                <div class="relative w-48 h-48 rounded-2xl border-2 border-dashed border-sky-400/40 bg-white dark:bg-slate-950 p-2 shadow-sm overflow-hidden flex items-center justify-center group">
+                                <div class="relative w-48 h-48 rounded-2xl border-2 border-dashed border-sky-400/40 bg-white dark:bg-slate-950 p-2 shadow-sm overflow-hidden flex items-center justify-center group cursor-pointer" onclick="openImageStudio(document.getElementById('primaryHeroLiveImg').src, [document.getElementById('primaryHeroLiveImg').src])" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
                                     <img id="primaryHeroLiveImg" 
                                          src="{{ asset(old('image', 'assets/products/blue-mind.webp')) }}" 
                                          alt="Product Hero Preview" 
                                          class="w-full h-full object-contain rounded-xl transition-all duration-300 group-hover:scale-105"
                                          onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
                                     <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl pointer-events-none">
-                                        <span class="px-2.5 py-1 bg-white/90 dark:bg-slate-900/90 rounded-lg text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow">
-                                            {{ app()->getLocale() === 'ar' ? 'معاينة حية' : 'Live Preview' }}
+                                        <span class="px-2.5 py-1 bg-white/90 dark:bg-slate-900/90 rounded-lg text-[11px] font-bold text-slate-800 dark:text-slate-200 shadow flex items-center gap-1.5">
+                                            <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i>
+                                            {{ app()->getLocale() === 'ar' ? 'فحص عالي الدقة' : 'Studio Inspect' }}
                                         </span>
                                     </div>
                                 </div>
@@ -653,24 +664,8 @@
                                     <span id="primaryFileName" class="font-mono font-bold"></span>
                                 </div>
 
-                                <!-- Direct Path / Fallback URL Input -->
-                                <div class="pt-2">
-                                    <label class="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-1">
-                                        {{ app()->getLocale() === 'ar' ? 'أو أدخل مسار الصورة / الرابط المباشر:' : 'Or direct asset path / URL:' }}
-                                    </label>
-                                    <div class="flex gap-2">
-                                        <input type="text" 
-                                               name="image" 
-                                               id="primary_image_url_input"
-                                               value="{{ old('image', 'assets/products/blue-mind.webp') }}" 
-                                               placeholder="e.g. assets/products/blue-mind.webp" 
-                                               class="w-full text-xs font-mono rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900 px-3 py-2 text-slate-800 dark:text-slate-200"
-                                               oninput="syncPrimaryFromTextInput(this.value)">
-                                    </div>
-                                    <span class="text-[11px] text-slate-400 block mt-1">
-                                        {{ app()->getLocale() === 'ar' ? 'يتم استخدامه كمسار افتراضي للمنتج في حالة عدم رفع ملف جديد.' : 'Serves as fallback path if no file is uploaded.' }}
-                                    </span>
-                                </div>
+                                <!-- Hidden input preserving default/fallback path without exposing raw URLs -->
+                                <input type="hidden" name="image" id="primary_image_url_input" value="{{ old('image', 'assets/products/blue-mind.webp') }}">
                             </div>
                         </div>
                     </div>
@@ -1382,6 +1377,8 @@
             const requiredInputs = pane.querySelectorAll('input[required], select[required], textarea[required]');
             let isValid = true;
             let firstInvalid = null;
+            const clientErrors = {};
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
 
             requiredInputs.forEach(input => {
                 input.classList.remove('input-error-highlight');
@@ -1389,11 +1386,18 @@
                     isValid = false;
                     input.classList.add('input-error-highlight');
                     if (!firstInvalid) firstInvalid = input;
+
+                    const fieldKey = input.name || input.id || 'field';
+                    const cleanKey = fieldKey.replace('[]', '');
+                    const labelEl = input.closest('div')?.querySelector('label');
+                    const labelText = labelEl ? labelEl.textContent.trim().replace(/\s*\*/g, '') : cleanKey;
+                    clientErrors[cleanKey] = isAr 
+                        ? `حقل «${labelText}» مطلوب وإلزامي في هذه الخطوة.` 
+                        : `The ${labelText} field is mandatory for this step.`;
                 }
             });
 
             if (!isValid) {
-                const isAr = "{{ app()->getLocale() }}" === 'ar';
                 const msg = isAr 
                     ? 'يرجى استكمال جميع الحقول الإلزامية المطلوبة في هذه الخطوة قبل المتابعة.' 
                     : 'Please fill out all mandatory fields in this step before proceeding.';
@@ -1404,6 +1408,12 @@
                 } else {
                     alert(msg);
                 }
+
+                if (typeof window.renderValidationErrors === 'function') {
+                    window.renderValidationErrors(clientErrors);
+                }
+                const floatingBtn = document.getElementById('floatingBtnValidationErrors');
+                if (floatingBtn) floatingBtn.style.display = 'inline-flex';
 
                 if (firstInvalid) {
                     firstInvalid.focus();
@@ -1635,6 +1645,23 @@
             const rand = Math.floor(1000 + Math.random() * 9000);
             const lot = 'LOT-FG-' + ym + '-' + rand;
             syncBatchNumber(lot);
+        }
+
+        function generateSkuValue() {
+            const skuEl = document.getElementById('sku');
+            if (!skuEl) return;
+            const rnd = Math.floor(1000 + Math.random() * 9000);
+            const yr = new Date().getFullYear();
+            skuEl.value = `BZ-${yr}-${rnd}`;
+            skuEl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function generateBarcodeValue() {
+            const barEl = document.getElementById('barcode');
+            if (!barEl) return;
+            const rnd = Math.floor(100000000 + Math.random() * 900000000);
+            barEl.value = `628${rnd}`;
+            barEl.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
         function recalculateExpiryDate() {
@@ -1919,8 +1946,59 @@
             if (dossierImg) dossierImg.src = url;
         }
 
+        let bzCreateGalleryDT = new DataTransfer();
+        let bzCreateGalleryDataUrls = [];
+
         function previewNewGalleryFiles(input) {
-            const files = input.files;
+            if (input && input.files) {
+                Array.from(input.files).forEach(file => {
+                    const exists = Array.from(bzCreateGalleryDT.files).some(f => f.name === file.name && f.size === file.size);
+                    if (!exists) {
+                        bzCreateGalleryDT.items.add(file);
+                    }
+                });
+            }
+            syncCreateGalleryUI();
+        }
+
+        function handleGalleryDrop(e) {
+            e.preventDefault();
+            const zone = e.currentTarget;
+            if (zone) zone.classList.remove('border-purple-500');
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                Array.from(files).forEach(file => {
+                    const exists = Array.from(bzCreateGalleryDT.files).some(f => f.name === file.name && f.size === file.size);
+                    if (!exists) {
+                        bzCreateGalleryDT.items.add(file);
+                    }
+                });
+                syncCreateGalleryUI();
+            }
+        }
+
+        function removeIndividualGalleryFile(fileIdx) {
+            const nextDT = new DataTransfer();
+            const files = bzCreateGalleryDT.files;
+            for (let i = 0; i < files.length; i++) {
+                if (i !== fileIdx) {
+                    nextDT.items.add(files[i]);
+                }
+            }
+            bzCreateGalleryDT = nextDT;
+            syncCreateGalleryUI();
+        }
+
+        function clearNewGalleryFiles() {
+            bzCreateGalleryDT = new DataTransfer();
+            syncCreateGalleryUI();
+        }
+
+        function syncCreateGalleryUI() {
+            const input = document.getElementById('gallery_files_input');
+            if (input) input.files = bzCreateGalleryDT.files;
+
+            const files = bzCreateGalleryDT.files;
             const previewSection = document.getElementById('newGalleryPreviewSection');
             const grid = document.getElementById('newGalleryPreviewsGrid');
             const countText = document.getElementById('newGalleryCountText');
@@ -1928,6 +2006,7 @@
             if (!files || files.length === 0) {
                 if (previewSection) previewSection.classList.add('hidden');
                 if (grid) grid.innerHTML = '';
+                bzCreateGalleryDataUrls = [];
                 return;
             }
 
@@ -1935,25 +2014,38 @@
             if (countText) {
                 const isAr = "{{ app()->getLocale() }}" === 'ar';
                 countText.innerText = isAr 
-                    ? `${files.length} صور جديدة محددة وجاهزة للرفع` 
-                    : `${files.length} new photos ready to upload`;
+                    ? `${files.length} صور محددة وجاهزة للرفع` 
+                    : `${files.length} photos staged for upload`;
             }
 
             if (grid) {
                 grid.innerHTML = '';
+                bzCreateGalleryDataUrls = [];
+
                 Array.from(files).forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        const dataUrl = e.target.result;
+                        bzCreateGalleryDataUrls[index] = dataUrl;
+
                         const col = document.createElement('div');
-                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square';
+                        col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square cursor-pointer transition-transform hover:scale-[1.02]';
                         col.innerHTML = `
-                            <img src="${e.target.result}" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" onclick="openImageStudio('${dataUrl}', bzCreateGalleryDataUrls)">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                 <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
                                 <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
                             </div>
-                            <span class="absolute top-1 right-1 w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
-                                ${index + 1}
+                            <!-- 1-Click Remove (X) Button -->
+                            <button type="button" 
+                                    onclick="event.stopPropagation(); removeIndividualGalleryFile(${index})" 
+                                    class="absolute top-1.5 end-1.5 w-6 h-6 rounded-lg bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-[10px] shadow transition-transform hover:scale-110 cursor-pointer"
+                                    title="{{ app()->getLocale() === 'ar' ? 'إلغاء هذه الصورة' : 'Remove this photo' }}">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <!-- Index Badge -->
+                            <span class="absolute bottom-1.5 start-1.5 px-1.5 py-0.5 rounded bg-black/60 text-white font-mono text-[9px]">
+                                #${index + 1}
                             </span>
                         `;
                         grid.appendChild(col);
@@ -1961,24 +2053,6 @@
                     reader.readAsDataURL(file);
                 });
             }
-        }
-
-        function handleGalleryDrop(e) {
-            e.preventDefault();
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                const input = document.getElementById('gallery_files_input');
-                if (input) {
-                    input.files = files;
-                    previewNewGalleryFiles(input);
-                }
-            }
-        }
-
-        function clearNewGalleryFiles() {
-            const input = document.getElementById('gallery_files_input');
-            if (input) input.value = '';
-            previewNewGalleryFiles({ files: [] });
         }
 
         function slugifyText(text) {
@@ -2154,4 +2228,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Product Image Specification Studio / Lightbox -->
+    <x-products.image-lightbox />
 </x-layouts.admin>

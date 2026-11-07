@@ -17,7 +17,7 @@ Route::get('lang/{locale}', function ($locale) {
 Route::get('/captcha/refresh', [CaptchaController::class, 'refresh'])->middleware('throttle:polling')->name('captcha.refresh');
 
 // Payment Gateway Webhooks (Excluded from CSRF)
-Route::post('/webhooks/payment/{gateway}', [PaymentWebhookController::class, 'handle'])->name('payment.webhook');
+Route::match(['GET', 'POST'], '/webhooks/payment/{gateway}', [PaymentWebhookController::class, 'handle'])->name('payment.webhook');
 Route::post('/webhooks/simulate', [PaymentWebhookController::class, 'simulate'])->name('payment.webhook.simulate');
 
 // FCM Device Token Registration Endpoint

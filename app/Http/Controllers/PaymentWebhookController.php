@@ -10,10 +10,41 @@ use Illuminate\Support\Facades\Log;
 class PaymentWebhookController extends Controller
 {
     /**
-     * Handle incoming gateway webhook notification.
+     * Handle incoming gateway webhook notification or connectivity check.
      */
-    public function handle(Request $request, string $gateway): JsonResponse
+    public function handle(Request $request, string $gateway)
     {
+        // Handle GET requests (Health check / browser connectivity check)
+        if ($request->isMethod('GET')) {
+            $supportedGateways = ['stripe', 'tamara', 'tabby', 'hyperpay', 'geidea', 'myfatoorah', 'cod'];
+            $gatewayKey = strtolower(trim($gateway));
+            $isSupported = in_array($gatewayKey, $supportedGateways, true);
+
+            $payload = [
+                'status' => $isSupported ? 'active' : 'unsupported_gateway',
+                'gateway' => $gatewayKey,
+                'message' => $isSupported
+                    ? "Payment webhook listener for [{$gatewayKey}] is active and operational. Webhook event payloads must be transmitted via HTTP POST with valid cryptographic signatures."
+                    : "Gateway [{$gateway}] is not registered in the system.",
+                'accepted_methods' => ['POST'],
+                'endpoint' => $request->url(),
+                'timestamp' => now()->toIso8601String(),
+                'system' => 'Blue Zone BZ-OS Payment Subsystem',
+            ];
+
+            if ($request->expectsJson() || !$request->acceptsHtml()) {
+                return response()->json($payload, $isSupported ? 200 : 404);
+            }
+
+            return response()->view('payment.webhook_status', [
+                'gateway' => $gatewayKey,
+                'isSupported' => $isSupported,
+                'status' => $isSupported ? 'active' : 'unsupported',
+                'endpoint' => $request->url(),
+                'timestamp' => now(),
+            ], $isSupported ? 200 : 404);
+        }
+
         try {
             $driver = PaymentService::gateway($gateway);
         } catch (\Throwable $e) {

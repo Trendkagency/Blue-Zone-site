@@ -66,6 +66,13 @@
             : ($invoice['bank_reference'] ?? '—');
 
         $verificationUrl = url("/admin/finance/purchase-invoices/{$invNum}");
+
+        $cols = $tpl['columns'] ?? [];
+        $isColVisible = function(string $key) use ($cols): bool {
+            if (!isset($cols[$key])) return true;
+            return !empty($cols[$key]['visible']);
+        };
+        $visibleColsCount = count(array_filter($cols, fn($c) => !empty($c['visible']))) ?: 10;
     @endphp
 
     <title>{{ $tpl['title_ar'] }} - {{ $invNum }} | {{ $tpl['company_name_en'] }}</title>
@@ -601,46 +608,66 @@
             <table class="sheet-table">
                 <thead>
                     <tr>
-                        <th style="width: 3.5%;">
-                            م
-                            <span class="en-sub">N</span>
-                        </th>
-                        <th style="width: 11%;">
-                            كود الصنف
-                            <span class="en-sub">Item Code</span>
-                        </th>
-                        <th style="width: 25%;">
-                            اسم الصنف
-                            <span class="en-sub">Item Description</span>
-                        </th>
-                        <th style="width: 6%;">
-                            الكمية
-                            <span class="en-sub">Quantity</span>
-                        </th>
-                        <th style="width: 14%;">
-                            تاريخ الصلاحية / التشغيله
-                            <span class="en-sub">Expiry Date / Batch No.</span>
-                        </th>
-                        <th style="width: 8%;">
-                            سعر الوحدة
-                            <span class="en-sub">Price</span>
-                        </th>
-                        <th style="width: 5.5%;">
-                            نسبة الخصم 1
-                            <span class="en-sub">Disc. 1</span>
-                        </th>
-                        <th style="width: 11%;">
-                            إجمالي بدون الضريبة
-                            <span class="en-sub">Total Exc. VAT</span>
-                        </th>
-                        <th style="width: 8%;">
-                            الضريبة
-                            <span class="en-sub">VAT</span>
-                        </th>
-                        <th style="width: 12%;">
-                            إجمالي الصنف شامل الضريبة
-                            <span class="en-sub">Total Inc. VAT</span>
-                        </th>
+                        @if($isColVisible('row_number'))
+                            <th style="width: {{ $cols['row_number']['width'] ?? '3.5%' }};">
+                                م
+                                <span class="en-sub">N</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('item_code'))
+                            <th style="width: {{ $cols['item_code']['width'] ?? '11%' }};">
+                                كود الصنف
+                                <span class="en-sub">Item Code</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('item_description'))
+                            <th style="width: {{ $cols['item_description']['width'] ?? '25%' }};">
+                                اسم الصنف
+                                <span class="en-sub">Item Description</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('quantity'))
+                            <th style="width: {{ $cols['quantity']['width'] ?? '6%' }};">
+                                الكمية
+                                <span class="en-sub">Quantity</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('batch_expiry'))
+                            <th style="width: {{ $cols['batch_expiry']['width'] ?? '14%' }};">
+                                تاريخ الصلاحية / التشغيله
+                                <span class="en-sub">Expiry Date / Batch No.</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('unit_price'))
+                            <th style="width: {{ $cols['unit_price']['width'] ?? '8%' }};">
+                                سعر الوحدة
+                                <span class="en-sub">Price</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('disc_1'))
+                            <th style="width: {{ $cols['disc_1']['width'] ?? '5.5%' }};">
+                                نسبة الخصم 1
+                                <span class="en-sub">Disc. 1</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('total_exc_vat'))
+                            <th style="width: {{ $cols['total_exc_vat']['width'] ?? '11%' }};">
+                                إجمالي بدون الضريبة
+                                <span class="en-sub">Total Exc. VAT</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('vat_amount'))
+                            <th style="width: {{ $cols['vat_amount']['width'] ?? '8%' }};">
+                                الضريبة
+                                <span class="en-sub">VAT</span>
+                            </th>
+                        @endif
+                        @if($isColVisible('total_inc_vat'))
+                            <th style="width: {{ $cols['total_inc_vat']['width'] ?? '12%' }};">
+                                إجمالي الصنف شامل الضريبة
+                                <span class="en-sub">Total Inc. VAT</span>
+                            </th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -668,32 +695,52 @@
                                 : ($item['batch_number'] ?? 'LOT-2026 / 2028-12');
                         @endphp
                         <tr>
-                            <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ $index + 1 }}</td>
-                            <td style="text-align: center; font-family: monospace; font-size: 0.68rem;">{{ $itCode }}</td>
-                            <td style="text-align: right; font-weight: bold;">{{ $itName }}</td>
-                            <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itQty, 2) }}</td>
-                            <td style="text-align: center; font-family: monospace; font-size: 0.68rem;">{{ $batchExp }}</td>
-                            <td style="text-align: center; font-family: monospace;">{{ number_format($itPrice, 2) }}</td>
-                            <td style="text-align: center; font-family: monospace;">{{ $itDisc > 0 ? $itDisc . '%' : '0%' }}</td>
-                            <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itSubtotal, 2) }}</td>
-                            <td style="text-align: center; font-family: monospace;">{{ number_format($itTax, 2) }}</td>
-                            <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itTotal, 2) }}</td>
+                            @if($isColVisible('row_number'))
+                                <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ $index + 1 }}</td>
+                            @endif
+                            @if($isColVisible('item_code'))
+                                <td style="text-align: center; font-family: monospace; font-size: 0.68rem;">{{ $itCode }}</td>
+                            @endif
+                            @if($isColVisible('item_description'))
+                                <td style="text-align: right; font-weight: bold;">{{ $itName }}</td>
+                            @endif
+                            @if($isColVisible('quantity'))
+                                <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itQty, 2) }}</td>
+                            @endif
+                            @if($isColVisible('batch_expiry'))
+                                <td style="text-align: center; font-family: monospace; font-size: 0.68rem;">{{ $batchExp }}</td>
+                            @endif
+                            @if($isColVisible('unit_price'))
+                                <td style="text-align: center; font-family: monospace;">{{ number_format($itPrice, 2) }}</td>
+                            @endif
+                            @if($isColVisible('disc_1'))
+                                <td style="text-align: center; font-family: monospace;">{{ $itDisc > 0 ? $itDisc . '%' : '0%' }}</td>
+                            @endif
+                            @if($isColVisible('total_exc_vat'))
+                                <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itSubtotal, 2) }}</td>
+                            @endif
+                            @if($isColVisible('vat_amount'))
+                                <td style="text-align: center; font-family: monospace;">{{ number_format($itTax, 2) }}</td>
+                            @endif
+                            @if($isColVisible('total_inc_vat'))
+                                <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itTotal, 2) }}</td>
+                            @endif
                         </tr>
                     @endforeach
 
                     <!-- Filler Spreadsheet Grid Lines for authentic invoice look -->
                     @for($i = $rowCount; $i < 6; $i++)
                         <tr class="empty-row">
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            @if($isColVisible('row_number')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('item_code')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('item_description')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('quantity')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('batch_expiry')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('unit_price')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('disc_1')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('total_exc_vat')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('vat_amount')) <td>&nbsp;</td> @endif
+                            @if($isColVisible('total_inc_vat')) <td>&nbsp;</td> @endif
                         </tr>
                     @endfor
                 </tbody>

@@ -8,6 +8,31 @@
     ]"
 >
     <div class="max-w-5xl mx-auto space-y-6">
+        @if ($errors->any())
+            <div id="bzInvoiceValidationCard" class="card p-5 border border-rose-400 bg-rose-50/50 dark:bg-rose-950/20 rounded-2xl shadow-sm">
+                <div class="flex items-center justify-between flex-wrap gap-3 mb-3 border-b border-rose-200 dark:border-rose-900/40 pb-3">
+                    <div class="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-black text-sm">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'أخطاء التحقق في بيانات فاتورة المشتريات' : 'Validation Errors in Purchase Invoice' }}</span>
+                        <span class="badge bg-rose-500 text-white font-mono text-xs px-2 py-0.5 rounded-full">{{ $errors->count() }}</span>
+                    </div>
+                    <span class="text-xs text-rose-500 font-semibold">
+                        {{ app()->getLocale() === 'ar' ? 'اضغط على أي حقل للتصحيح المباشر' : 'Click any item to jump directly to the field' }}
+                    </span>
+                </div>
+                <div class="space-y-2">
+                    @foreach ($errors->all() as $error)
+                        <div class="flex items-center justify-between gap-3 p-2.5 bg-white dark:bg-[#062B49] border border-rose-200 dark:border-rose-900/30 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-300">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-circle-xmark text-rose-500"></i>
+                                {{ $error }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('admin.finance.purchase-invoices.store') }}" class="space-y-6">
             @csrf
 

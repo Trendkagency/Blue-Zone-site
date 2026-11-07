@@ -3511,14 +3511,27 @@
                         @endphp
                         @foreach($cols as $cKey => $colData)
                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); gap: 1rem; flex-wrap: wrap;">
-                                <div style="display: flex; align-items: center; gap: 1rem; min-width: 200px;">
-                                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;">
-                                        <input type="hidden" name="invoice_template[columns][{{ $cKey }}][visible]" value="0">
-                                        <input type="checkbox" name="invoice_template[columns][{{ $cKey }}][visible]" value="1" {{ !empty($colData['visible']) ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;">
-                                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ !empty($colData['visible']) ? '#10B981' : '#cbd5e1' }}; transition: .3s; border-radius: 24px;"></span>
+                                <div style="display: flex; align-items: center; gap: 0.85rem; min-width: 230px;">
+                                    <input type="hidden" name="invoice_template[columns][{{ $cKey }}][visible]" value="0">
+                                    <label class="switch-toggle" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; cursor: pointer; flex-shrink: 0;">
+                                        <input type="checkbox" 
+                                               name="invoice_template[columns][{{ $cKey }}][visible]" 
+                                               value="1" 
+                                               class="inv-col-toggle-input" 
+                                               onchange="window.handleColumnToggleState(this)"
+                                               {{ !empty($colData['visible']) ? 'checked' : '' }} 
+                                               style="opacity: 0; width: 0; height: 0; position: absolute;">
+                                        <span class="slider-round" style="position: absolute; cursor: pointer; inset: 0; background-color: {{ !empty($colData['visible']) ? '#10B981' : '#cbd5e1' }}; transition: all .25s ease; border-radius: 9999px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);">
+                                            <span class="slider-dot" style="position: absolute; height: 18px; width: 18px; left: {{ !empty($colData['visible']) ? '23px' : '3px' }}; bottom: 3px; background-color: #ffffff; transition: all .25s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></span>
+                                        </span>
                                     </label>
                                     <div>
-                                        <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $colData['label_ar'] }}</strong>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $colData['label_ar'] }}</strong>
+                                            <span class="col-status-pill text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style="background: {{ !empty($colData['visible']) ? 'rgba(16,185,129,0.15)' : 'rgba(148,163,184,0.15)' }}; color: {{ !empty($colData['visible']) ? '#10B981' : '#64748b' }};">
+                                                {{ !empty($colData['visible']) ? (app()->getLocale() == 'ar' ? 'مفعّل' : 'VISIBLE') : (app()->getLocale() == 'ar' ? 'معطّل' : 'HIDDEN') }}
+                                            </span>
+                                        </div>
                                         <span style="font-size: 0.72rem; color: var(--color-text-muted); font-mono">{{ $cKey }} &bull; {{ $colData['label_en'] }}</span>
                                     </div>
                                 </div>
@@ -3740,14 +3753,27 @@
                         @endphp
                         @foreach($purCols as $cKey => $colData)
                             <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-md); gap: 1rem; flex-wrap: wrap;">
-                                <div style="display: flex; align-items: center; gap: 1rem; min-width: 200px;">
-                                    <label class="toggle-switch" style="position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;">
-                                        <input type="hidden" name="purchase_invoice_template[columns][{{ $cKey }}][visible]" value="0">
-                                        <input type="checkbox" name="purchase_invoice_template[columns][{{ $cKey }}][visible]" value="1" {{ !empty($colData['visible']) ? 'checked' : '' }} style="opacity: 0; width: 0; height: 0;">
-                                        <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: {{ !empty($colData['visible']) ? '#0284C7' : '#cbd5e1' }}; transition: .3s; border-radius: 24px;"></span>
+                                <div style="display: flex; align-items: center; gap: 0.85rem; min-width: 230px;">
+                                    <input type="hidden" name="purchase_invoice_template[columns][{{ $cKey }}][visible]" value="0">
+                                    <label class="switch-toggle" style="position: relative; display: inline-block; width: 44px; height: 24px; margin: 0; cursor: pointer; flex-shrink: 0;">
+                                        <input type="checkbox" 
+                                               name="purchase_invoice_template[columns][{{ $cKey }}][visible]" 
+                                               value="1" 
+                                               class="pur-col-toggle-input" 
+                                               onchange="window.handleColumnToggleState(this)"
+                                               {{ !empty($colData['visible']) ? 'checked' : '' }} 
+                                               style="opacity: 0; width: 0; height: 0; position: absolute;">
+                                        <span class="slider-round" style="position: absolute; cursor: pointer; inset: 0; background-color: {{ !empty($colData['visible']) ? '#0284C7' : '#cbd5e1' }}; transition: all .25s ease; border-radius: 9999px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);">
+                                            <span class="slider-dot" style="position: absolute; height: 18px; width: 18px; left: {{ !empty($colData['visible']) ? '23px' : '3px' }}; bottom: 3px; background-color: #ffffff; transition: all .25s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.25);"></span>
+                                        </span>
                                     </label>
                                     <div>
-                                        <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $colData['label_ar'] }}</strong>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <strong style="font-size: 0.85rem; color: var(--color-text); display: block;">{{ $colData['label_ar'] }}</strong>
+                                            <span class="col-status-pill text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style="background: {{ !empty($colData['visible']) ? 'rgba(2,132,199,0.15)' : 'rgba(148,163,184,0.15)' }}; color: {{ !empty($colData['visible']) ? '#0284C7' : '#64748b' }};">
+                                                {{ !empty($colData['visible']) ? (app()->getLocale() == 'ar' ? 'مفعّل' : 'VISIBLE') : (app()->getLocale() == 'ar' ? 'معطّل' : 'HIDDEN') }}
+                                            </span>
+                                        </div>
                                         <span style="font-size: 0.72rem; color: var(--color-text-muted); font-mono">{{ $cKey }} &bull; {{ $colData['label_en'] }}</span>
                                     </div>
                                 </div>
@@ -4182,6 +4208,28 @@
                 container.insertBefore(row.nextElementSibling, row);
                 window.updateLandingSectionsOrderInput();
                 row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        };
+
+        window.handleColumnToggleState = function(input) {
+            const isChecked = input.checked;
+            const isPurchase = input.name.includes('purchase');
+            const activeColor = isPurchase ? '#0284C7' : '#10B981';
+            const activeBg = isPurchase ? 'rgba(2,132,199,0.15)' : 'rgba(16,185,129,0.15)';
+            const labelEl = input.closest('.switch-toggle');
+            if (labelEl) {
+                const slider = labelEl.querySelector('.slider-round');
+                const dot = labelEl.querySelector('.slider-dot');
+                if (slider) slider.style.backgroundColor = isChecked ? activeColor : '#cbd5e1';
+                if (dot) dot.style.left = isChecked ? '23px' : '3px';
+            }
+            const wrapper = input.closest('div');
+            const pill = wrapper ? wrapper.querySelector('.col-status-pill') : null;
+            if (pill) {
+                const isAr = document.documentElement.lang === 'ar' || document.dir === 'rtl';
+                pill.textContent = isChecked ? (isAr ? 'مفعّل' : 'VISIBLE') : (isAr ? 'معطّل' : 'HIDDEN');
+                pill.style.color = isChecked ? activeColor : '#64748b';
+                pill.style.background = isChecked ? activeBg : 'rgba(148,163,184,0.15)';
             }
         };
 

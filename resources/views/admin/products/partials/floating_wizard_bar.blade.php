@@ -9,6 +9,9 @@
 <div style="height: 5.5rem;"></div>
 
 <style>
+    .wizard-step-pane {
+        padding-bottom: 7.5rem !important;
+    }
     @media (max-width: 640px) {
         #bzWizardFloatingBar {
             padding: 0.5rem 0.75rem !important;
@@ -53,8 +56,10 @@
                 </span>
             </div>
 
-            <!-- Real-Time Auto-Save Status Badge -->
+            <!-- Real-Time Auto-Save Status Badge (Clickable when errors occur) -->
             <div id="floatingAutosaveStatus" 
+                 onclick="openValidationErrorsInspector()"
+                 title="{{ $isAr ? 'حالة الحفظ الفوري (اضغط لعرض الأخطاء إن وجدت)' : 'Autosave Status (Click to view errors if any)' }}"
                  style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.75rem; font-family: monospace; font-weight: 700; color: #94a3b8; background: rgba(255, 255, 255, 0.05); padding: 0.35rem 0.8rem; border-radius: 9999px; border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.25s ease;">
                 <i class="fa-solid fa-cloud-check text-emerald-400" id="floatingAutosaveIcon"></i>
                 <span id="floatingAutosaveText">{{ $isAr ? 'جميع التعديلات محفوظة' : 'All changes saved' }}</span>
@@ -64,6 +69,18 @@
 
         <!-- Right: Step-by-Step Action Controls -->
         <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            
+            <!-- Validation Errors Button (Visible when errors exist) -->
+            <button type="button" 
+                    id="floatingBtnValidationErrors" 
+                    onclick="openValidationErrorsInspector()" 
+                    class="btn btn-sm" 
+                    style="border-radius: 12px; font-weight: 800; padding: 0.45rem 1rem; background: rgba(239, 68, 68, 0.2); border: 1.5px solid rgba(239, 68, 68, 0.6); color: #EF4444; display: none; box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);"
+                    title="{{ $isAr ? 'عرض وتصحيح أخطاء الإدخال' : 'Review & Correct Validation Errors' }}">
+                <i class="fa-solid fa-triangle-exclamation mr-1 ml-1 text-rose-500"></i>
+                <span id="floatingValidationBtnLabel">{{ $isAr ? 'أخطاء التحقق' : 'Validation Errors' }}</span>
+                <span id="floatingValidationCountBadge" style="background: #EF4444; color: #fff; font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 9999px; margin-inline-start: 0.35rem; font-family: monospace;">0</span>
+            </button>
             
             <!-- Previous Step Button -->
             <button type="button" 
@@ -173,33 +190,127 @@
         if (btnFinal) btnFinal.style.display = (step === 7) ? 'inline-flex' : 'none';
     }
 
+    // Clean & Sanitize Error Messages (Zero Raw SQL / System Internals shown to Customer)
+    function sanitizeErrorMessage(msg) {
+        if (!msg || typeof msg !== 'string') {
+            return bzIsAr ? 'يرجى مراجعة وتصحيح الحقول المطلوبة للمستحضر.' : 'Please review and correct required formulation fields.';
+        }
+
+        // Intercept any SQL, PDO, Query, or stack trace leaks
+        if (/SQLSTATE|Integrity constraint|cannot be null|PDOException|QueryException|Connection:|select \*|insert into/i.test(msg)) {
+            const colMatch = msg.match(/Column '([^']+)' cannot be null/i);
+            if (colMatch && colMatch[1]) {
+                const colName = colMatch[1];
+                const friendlyLabel = (window.bzFieldMap && window.bzFieldMap[colName]?.label) || colName;
+                return bzIsAr 
+                    ? `يرجى تحديد حقل «${friendlyLabel}» لإتمام حفظ بيانات المستحضر.`
+                    : `Please select the required field [${friendlyLabel}] to save formulation.`;
+            }
+            if (/Duplicate entry/i.test(msg)) {
+                return bzIsAr
+                    ? 'رمز المنتج (SKU) أو الباركود مستخدم مسبقاً. يرجى اختيار رمز فريد.'
+                    : 'The SKU or Barcode is already in use. Please provide a unique value.';
+            }
+            return bzIsAr 
+                ? 'يرجى استكمال الحقول الإلزامية الأساسية للمستحضر قبل المتابعة.'
+                : 'Please complete all required fields before proceeding.';
+        }
+
+        return msg;
+    }
+    window.sanitizeErrorMessage = sanitizeErrorMessage;
+
+    // Strict Numeric Input Filter (Blocks letters, allows only digits & single decimal)
+    window.bzEnforceNumberKey = function(e, input, allowDecimal = true) {
+        const allowedKeys = ['Backspace', 'Tab', 'Enter', 'Escape', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+        if (allowedKeys.includes(e.key) || (e.ctrlKey || e.metaKey)) {
+            return true;
+        }
+
+        if (allowDecimal && (e.key === '.' || e.key === ',')) {
+            if (!input.value.includes('.')) {
+                return true;
+            }
+            e.preventDefault();
+            return false;
+        }
+
+        if (/^[0-9]$/.test(e.key)) {
+            return true;
+        }
+
+        e.preventDefault();
+        return false;
+    };
+
+    // Immediate Sanitization on Input and Paste
+    window.bzSanitizeNumberField = function(input, allowDecimal = true) {
+        if (!input) return;
+        let val = input.value;
+        if (allowDecimal) {
+            val = val.replace(/[^0-9.]/g, '');
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts.slice(1).join('');
+            }
+        } else {
+            val = val.replace(/[^0-9]/g, '');
+        }
+        if (val !== input.value) {
+            input.value = val;
+        }
+    };
+
     // Update Auto-save badge
     function updateFloatingStatusBadge(state, text = '') {
         const badge = document.getElementById('floatingAutosaveStatus');
         const icon = document.getElementById('floatingAutosaveIcon');
         const textEl = document.getElementById('floatingAutosaveText');
+        const errBtn = document.getElementById('floatingBtnValidationErrors');
         if (!badge || !icon || !textEl) return;
 
         if (state === 'saved') {
             badge.style.borderColor = 'rgba(103, 179, 74, 0.4)';
             badge.style.color = '#B8D98A';
+            badge.style.cursor = 'default';
             icon.className = 'fa-solid fa-cloud-check text-emerald-400';
             textEl.textContent = text || (bzIsAr ? 'تم الحفظ في قاعدة البيانات' : 'Saved to database');
+            if (errBtn) errBtn.style.display = 'none';
         } else if (state === 'saving') {
             badge.style.borderColor = 'rgba(42, 143, 194, 0.4)';
             badge.style.color = '#38bdf8';
+            badge.style.cursor = 'default';
             icon.className = 'fa-solid fa-spinner fa-spin text-sky-400';
             textEl.textContent = text || (bzIsAr ? 'جاري الحفظ الفوري...' : 'Saving in real-time...');
         } else if (state === 'unsaved') {
             badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
             badge.style.color = '#fbbf24';
+            badge.style.cursor = 'default';
             icon.className = 'fa-solid fa-circle-dot text-amber-400';
             textEl.textContent = text || (bzIsAr ? 'تعديلات غير محفوظة' : 'Unsaved changes');
         } else if (state === 'error') {
-            badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            badge.style.borderColor = 'rgba(239, 68, 68, 0.55)';
             badge.style.color = '#f87171';
+            badge.style.cursor = 'pointer';
             icon.className = 'fa-solid fa-triangle-exclamation text-rose-400';
-            textEl.textContent = text || (bzIsAr ? 'تعذر الحفظ' : 'Save error');
+            const cleanText = sanitizeErrorMessage(text);
+            textEl.textContent = cleanText || (bzIsAr ? 'تعذر الحفظ (اضغط للمراجعة)' : 'Save error (Click to Review)');
+            if (errBtn) errBtn.style.display = 'inline-flex';
+        }
+    }
+
+    // Open & reveal the Validation Errors Inspector section
+    function openValidationErrorsInspector() {
+        const card = document.getElementById('bzValidationInspectorCard');
+        const content = document.getElementById('bzValidationErrorsContent');
+        const icon = document.getElementById('bzValidationToggleIcon');
+        const label = document.getElementById('bzValidationToggleLabel');
+        if (card) {
+            card.style.display = 'block';
+            if (content) content.style.display = 'block';
+            if (icon) icon.className = 'fa-solid fa-chevron-up';
+            if (label) label.textContent = bzIsAr ? 'طي / إخفاء القائمة' : 'Collapse List';
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
@@ -273,7 +384,17 @@
             const data = await response.json();
 
             if (!response.ok || !data.success) {
-                throw new Error(data.message || (bzIsAr ? 'حدث خطأ أثناء حفظ الخطوة.' : 'Failed to save step.'));
+                if (data.errors && typeof window.renderValidationErrors === 'function') {
+                    window.renderValidationErrors(data.errors);
+                    const errCount = Object.keys(data.errors).length;
+                    const errBtn = document.getElementById('floatingBtnValidationErrors');
+                    const errCountEl = document.getElementById('floatingValidationCountBadge');
+                    if (errBtn) errBtn.style.display = 'inline-flex';
+                    if (errCountEl) errCountEl.textContent = errCount;
+                }
+                const firstErr = data.errors ? Object.values(data.errors)[0] : null;
+                const errDetail = Array.isArray(firstErr) ? firstErr[0] : (typeof firstErr === 'string' ? firstErr : '');
+                throw new Error(errDetail || data.message || (bzIsAr ? 'حدث خطأ أثناء فحص وحفظ بيانات الخطوة.' : 'Validation error while saving step.'));
             }
 
             // If draft was just created, upgrade wizard context to edit mode
@@ -299,6 +420,17 @@
                 updatePricingDisplayFromTaxInfo(data.taxInfo);
             }
 
+            // If Step 4 and image info returned, update gallery count badge and reset staged inputs
+            if (currentStep === 4 && data.gallery_count !== undefined) {
+                const countBadge = document.getElementById('galleryCountBadge');
+                if (countBadge) countBadge.textContent = `${data.gallery_count} ${bzIsAr ? 'صور مسجلة' : 'Saved Photos'}`;
+                if (typeof clearNewGalleryFiles === 'function') {
+                    clearNewGalleryFiles();
+                }
+                const remContainer = document.getElementById('removedGalleryInputsContainer');
+                if (remContainer) remContainer.innerHTML = '';
+            }
+
             // Mark wizard indicator completed
             const stepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
             if (stepEl) stepEl.classList.add('completed');
@@ -319,11 +451,12 @@
 
         } catch (err) {
             console.error('Step Auto-Save Error:', err);
-            updateFloatingStatusBadge('error', err.message);
+            const cleanErr = sanitizeErrorMessage(err.message);
+            updateFloatingStatusBadge('error', cleanErr);
             if (!isSilent) {
                 showFloatingToast(
-                    bzIsAr ? 'خطأ في الحفظ' : 'Save Error',
-                    err.message,
+                    bzIsAr ? 'تنبيه في حفظ البيانات' : 'Save Notice',
+                    cleanErr,
                     false
                 );
             }
@@ -332,6 +465,31 @@
             if (quickIcon) quickIcon.className = 'fa-solid fa-floppy-disk mr-1 ml-1';
         }
     }
+
+    // Auto-bind numeric validation guards to all numeric inputs on page
+    function bindAllNumberInputs() {
+        document.querySelectorAll('input[type="number"], input[data-type="numeric"]').forEach(input => {
+            const step = input.getAttribute('step') || '1';
+            const allowDecimal = (step !== '1' && step !== 1);
+
+            input.setAttribute('inputmode', allowDecimal ? 'decimal' : 'numeric');
+
+            input.addEventListener('keydown', (e) => {
+                window.bzEnforceNumberKey(e, input, allowDecimal);
+            });
+
+            input.addEventListener('input', () => {
+                window.bzSanitizeNumberField(input, allowDecimal);
+            });
+
+            input.addEventListener('paste', () => {
+                setTimeout(() => {
+                    window.bzSanitizeNumberField(input, allowDecimal);
+                }, 10);
+            });
+        });
+    }
+    window.bindAllNumberInputs = bindAllNumberInputs;
 
     // Submit final form (Step 7)
     function submitFinalProductForm() {
@@ -380,12 +538,14 @@
     // Hook into existing setStep to sync floating bar
     document.addEventListener('DOMContentLoaded', () => {
         setupRealTimeAutosave();
+        bindAllNumberInputs();
 
         const originalSetStep = window.setStep;
         if (typeof originalSetStep === 'function') {
             window.setStep = function(step) {
                 originalSetStep(step);
                 syncFloatingBarUI(step);
+                setTimeout(bindAllNumberInputs, 100);
             };
         }
 

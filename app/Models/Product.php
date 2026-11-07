@@ -10,6 +10,27 @@ use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+
+/**
+ * @property int $id
+ * @property string $sku
+ * @property string|null $barcode
+ * @property string $name_en
+ * @property string $name_ar
+ * @property string|null $tagline_en
+ * @property string|null $tagline_ar
+ * @property int|null $category_id
+ * @property string|null $type
+ * @property string|null $brand
+ * @property float|string $price
+ * @property float|string|null $cost_price
+ * @property float|string|null $sale_price
+ * @property int|null $stock_online
+ * @property int|null $shelf_life_months
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class Product extends Model implements HasMedia
 {
     use SoftDeletes;

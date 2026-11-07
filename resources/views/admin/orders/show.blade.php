@@ -30,6 +30,15 @@
         <div class="flex items-center gap-2 flex-wrap">
             <x-status-badge :status="$status" />
 
+            <button type="button" 
+                    class="btn btn-outline font-bold shadow-sm" 
+                    id="btnCopyPayUrlTop"
+                    onclick="copyOrderPaymentUrl('{{ $orderKey }}', this)" 
+                    title="{{ app()->getLocale() == 'ar' ? 'نسخ رابط الدفع المعتمد للعميل (Stripe)' : 'Copy Payment URL for Customer (Stripe)' }}">
+                <i class="fa-solid fa-link text-indigo-500 mr-1.5 ml-1.5"></i>
+                <span class="btn-copy-label">{{ app()->getLocale() == 'ar' ? 'نسخ رابط الدفع' : 'Copy Payment URL' }}</span>
+            </button>
+
             <a href="{{ route('admin.invoices.show', $orderKey) }}" class="btn btn-outline font-bold shadow-sm" title="{{ app()->getLocale() == 'ar' ? 'عرض الفاتورة الضريبية الرسمية' : 'View Official Tax Invoice' }}">
                 <i class="fa-solid fa-file-invoice-dollar mr-1.5 ml-1.5 text-sky-500"></i> {{ __('admin.invoices.tax_invoice') }}
             </a>
@@ -356,17 +365,84 @@
                     </div>
                 </div>
 
-                <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex gap-2">
-                    <a href="{{ route('admin.invoices.show', $orderKey) }}" class="btn btn-outline btn-sm flex-1 font-bold">
-                        <i class="fa-solid fa-file-invoice mr-1 ml-1"></i>
-                        {{ __('admin.invoices.tax_invoice') }}
-                    </a>
-                    <a href="{{ route('admin.invoices.print', $orderKey) }}" target="_blank" class="btn btn-primary btn-sm flex-1 font-bold">
-                        <i class="fa-solid fa-print mr-1 ml-1"></i>
-                        {{ __('admin.invoices.print_action') }}
-                    </a>
+                <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+                    <button type="button" 
+                            class="btn btn-outline btn-sm w-full font-bold border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100" 
+                            onclick="copyOrderPaymentUrl('{{ $orderKey }}', this)">
+                        <i class="fa-solid fa-link mr-1 ml-1 text-indigo-500"></i>
+                        <span class="btn-copy-label">{{ app()->getLocale() == 'ar' ? 'نسخ رابط الدفع المعتمد (Stripe URL)' : 'Copy Payment URL (Stripe)' }}</span>
+                    </button>
+                    <div class="flex gap-2">
+                        <a href="{{ route('admin.invoices.show', $orderKey) }}" class="btn btn-outline btn-sm flex-1 font-bold">
+                            <i class="fa-solid fa-file-invoice mr-1 ml-1"></i>
+                            {{ __('admin.invoices.tax_invoice') }}
+                        </a>
+                        <a href="{{ route('admin.invoices.print', $orderKey) }}" target="_blank" class="btn btn-primary btn-sm flex-1 font-bold">
+                            <i class="fa-solid fa-print mr-1 ml-1"></i>
+                            {{ __('admin.invoices.print_action') }}
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        async function copyOrderPaymentUrl(orderKey, btnEl) {
+            const labelEl = btnEl ? btnEl.querySelector('.btn-copy-label') : null;
+            const originalText = labelEl ? labelEl.textContent : '';
+            if (labelEl) labelEl.textContent = '{{ app()->getLocale() == "ar" ? "جارِ التوليد..." : "Generating..." }}';
+
+            try {
+                const response = await fetch(`/admin/orders/${orderKey}/payment-url`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                    }
+                });
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to generate payment URL.');
+                }
+
+                const url = data.payment_url;
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(url);
+                } else {
+                    const tempInput = document.createElement('input');
+                    tempInput.value = url;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                }
+
+                if (window.toast) {
+                    window.toast.success(
+                        '{{ app()->getLocale() == "ar" ? "تم نسخ رابط الدفع المعتمد بنجاح!" : "Payment URL copied to clipboard!" }}',
+                        '{{ app()->getLocale() == "ar" ? "جاهز للمشاركة مع العميل" : "Ready to share with customer" }}'
+                    );
+                } else {
+                    alert('{{ app()->getLocale() == "ar" ? "تم نسخ رابط الدفع بنجاح: " : "Payment URL copied: " }}' + url);
+                }
+
+                if (labelEl) labelEl.textContent = '{{ app()->getLocale() == "ar" ? "✓ تم النسخ!" : "✓ Copied!" }}';
+                setTimeout(() => {
+                    if (labelEl) labelEl.textContent = originalText;
+                }, 2500);
+
+            } catch (err) {
+                console.error('Payment URL copy error:', err);
+                if (window.toast) {
+                    window.toast.error(err.message || '{{ app()->getLocale() == "ar" ? "تعذر نسخ الرابط" : "Failed to copy URL" }}');
+                } else {
+                    alert(err.message);
+                }
+                if (labelEl) labelEl.textContent = originalText;
+            }
+        }
+    </script>
 </x-layouts.admin>
