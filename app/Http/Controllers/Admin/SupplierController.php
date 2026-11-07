@@ -212,6 +212,29 @@ class SupplierController extends Controller
         ]));
     }
 
+    public function approveQa(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $request->merge(['approval_role' => 'qa']);
+        return $this->approve($request, $supplier);
+    }
+
+    public function approveProcurement(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $request->merge(['approval_role' => 'procurement']);
+        return $this->approve($request, $supplier);
+    }
+
+    public function deactivate(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $this->authorize('update', $supplier);
+        $supplier->is_active = false;
+        $supplier->save();
+
+        return back()->with('success', app()->getLocale() === 'ar' 
+            ? 'تم تجميد المورد بنجاح.' 
+            : 'Supplier has been successfully deactivated.');
+    }
+
     public function export(Request $request): StreamedResponse
     {
         $this->authorize('viewAny', Supplier::class);

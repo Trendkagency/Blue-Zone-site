@@ -807,6 +807,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::put('/{supplier}', [SupplierController::class, 'update'])->middleware('permission:suppliers.edit')->name('update');
             Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->middleware('permission:suppliers.delete')->name('destroy');
             Route::post('/{supplier}/approve', [SupplierController::class, 'approve'])->middleware('permission:suppliers.approve')->name('approve');
+            Route::post('/{supplier}/qa-approve', [SupplierController::class, 'approveQa'])->middleware('permission:suppliers.approve')->name('qa-approve');
+            Route::post('/{supplier}/procurement-approve', [SupplierController::class, 'approveProcurement'])->middleware('permission:suppliers.approve')->name('procurement-approve');
+            Route::post('/{supplier}/deactivate', [SupplierController::class, 'deactivate'])->middleware('permission:suppliers.edit')->name('deactivate');
         });
 
         // Supplier Quotations & RFQ
