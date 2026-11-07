@@ -86,7 +86,7 @@
             <div class="space-y-2 text-xs">
                 <div class="flex justify-between">
                     <span class="text-gray-500">{{ __('suppliers.country') }}:</span>
-                    <span class="font-bold text-slate-800 dark:text-white">{{ $supplier->country }}</span>
+                    <span class="font-bold text-slate-800 dark:text-white">{{ $supplier->country?->name ?? $supplier->country_name ?? '—' }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-500">{{ __('suppliers.email') }}:</span>

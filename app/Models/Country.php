@@ -72,4 +72,9 @@ class Country extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function __toString(): string
+    {
+        return $this->name;
+    }
 }

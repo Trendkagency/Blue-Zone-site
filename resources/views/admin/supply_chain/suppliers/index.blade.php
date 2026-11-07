@@ -122,8 +122,8 @@
                                     {{ $supplier->type?->label() ?? 'Supplier' }}
                                 </span>
                             </td>
-                            <td class="text-sm">
-                                {{ $supplier->country ?? 'N/A' }}
+                            <td class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                {{ $supplier->country?->name ?? $supplier->country_name ?? '—' }}
                             </td>
                             <td>
                                 <div class="flex items-center gap-1.5">

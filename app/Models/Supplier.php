@@ -169,6 +169,11 @@ class Supplier extends Model implements HasMedia
         return $this->contact_name;
     }
 
+    public function getCountryNameAttribute(): string
+    {
+        return $this->country?->name ?? '—';
+    }
+
     public function setContactPersonAttribute(?string $value): void
     {
         $this->attributes['contact_name'] = $value;
