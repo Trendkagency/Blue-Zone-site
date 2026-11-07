@@ -2378,6 +2378,8 @@
             `;
         }
     }
+
+    function syncAllSimulatorCards() {
         document.querySelectorAll('.sim-section-card').forEach(simCard => {
             const secKey = simCard.id.replace('sim-sec-', '');
             syncSimulatorCard(secKey);
@@ -2387,7 +2389,7 @@
 
     // Initialize HUD on load
     document.addEventListener('DOMContentLoaded', () => {
-        recalculateBundleHUD();
+        syncAllSimulatorCards();
         triggerStickyPreviewSync();
     });
 </script>

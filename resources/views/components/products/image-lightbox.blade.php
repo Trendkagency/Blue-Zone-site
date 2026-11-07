@@ -170,6 +170,7 @@
         modal.classList.add('flex');
         document.body.style.overflow = 'hidden';
     };
+    var openImageStudio = window.openImageStudio;
 
     window.closeImageStudioModal = function() {
         const modal = document.getElementById('bzImageStudioModal');
@@ -178,6 +179,7 @@
         modal.classList.remove('flex');
         document.body.style.overflow = '';
     };
+    var closeImageStudioModal = window.closeImageStudioModal;
 
     function updateStudioDisplay() {
         const url = studioGalleryItems[studioCurrentIndex] || '';

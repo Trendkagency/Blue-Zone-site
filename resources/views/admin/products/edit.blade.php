@@ -655,7 +655,7 @@
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                             <!-- Left: Live Visual Preview Card -->
                             <div class="lg:col-span-4 flex flex-col items-center">
-                                <div class="w-full max-w-[240px] aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] border border-white/20 shadow-xl relative flex items-center justify-center p-3 group cursor-pointer" onclick="openImageStudio(document.getElementById('primaryHeroLiveImg').src, [document.getElementById('primaryHeroLiveImg').src])" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
+                                <div class="w-full max-w-[240px] aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#031827] via-[#062B49] to-[#0A4F78] border border-white/20 shadow-xl relative flex items-center justify-center p-3 group cursor-pointer" onclick="openHeroImageInStudio()" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
                                     @php
                                         $primaryPreview = !empty($product['image']) ? \App\Models\Product::normalizeUrl($product['image']) : '/assets/products/blue-mind.jpg';
                                     @endphp
@@ -744,7 +744,7 @@
                                 </label>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3" id="existingGalleryGrid">
                                     @foreach($savedGallery as $gIdx => $gUrl)
-                                        <div class="relative group rounded-xl overflow-hidden aspect-square bg-[#031827] border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm transition-all cursor-pointer" id="saved-gallery-card-{{ $gIdx }}" onclick="openImageStudio('{{ $gUrl }}', {{ json_encode($savedGallery) }})">
+                                        <div class="relative group rounded-xl overflow-hidden aspect-square bg-[#031827] border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm transition-all cursor-pointer" id="saved-gallery-card-{{ $gIdx }}" onclick="openSavedGalleryImage('{{ $gUrl }}')">
                                             <img src="{{ $gUrl }}" alt="Gallery #{{ $gIdx + 1 }}" class="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null; this.src='/assets/products/blue-mind.jpg';">
                                             
                                             <!-- Remove Action Overlay -->
@@ -2232,6 +2232,9 @@
                     if (countBadge && data.count !== undefined) {
                         countBadge.textContent = `${data.count} ${isAr ? 'صور مسجلة' : 'Saved Photos'}`;
                     }
+                    if (typeof bzSavedGalleryList !== 'undefined') {
+                        bzSavedGalleryList = bzSavedGalleryList.filter(u => u !== url);
+                    }
                     if (typeof showFloatingToast === 'function') {
                         showFloatingToast(
                             isAr ? 'تم حذف الصورة نهائياً' : 'Photo Deleted',
@@ -2246,6 +2249,24 @@
                 alert('Network error while deleting image.');
             }
         }
+
+        let bzSavedGalleryList = @json($savedGallery);
+
+        window.openSavedGalleryImage = function(url) {
+            if (typeof window.openImageStudio === 'function') {
+                window.openImageStudio(url, bzSavedGalleryList);
+            }
+        };
+        var openSavedGalleryImage = window.openSavedGalleryImage;
+
+        window.openHeroImageInStudio = function() {
+            const heroImg = document.getElementById('primaryHeroLiveImg');
+            const heroUrl = heroImg ? heroImg.src : '';
+            if (heroUrl && typeof window.openImageStudio === 'function') {
+                window.openImageStudio(heroUrl, [heroUrl]);
+            }
+        };
+        var openHeroImageInStudio = window.openHeroImageInStudio;
 
         let bzEditGalleryDT = new DataTransfer();
         let bzEditGalleryDataUrls = [];
@@ -2332,7 +2353,7 @@
                         const col = document.createElement('div');
                         col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square cursor-pointer transition-transform hover:scale-[1.02]';
                         col.innerHTML = `
-                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" onclick="openImageStudio('${dataUrl}', bzEditGalleryDataUrls)">
+                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" alt="${file.name}">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                 <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
                                 <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
@@ -2349,6 +2370,14 @@
                                 #${index + 1}
                             </span>
                         `;
+                        const img = col.querySelector('img');
+                        if (img) {
+                            img.addEventListener('click', () => {
+                                if (typeof window.openImageStudio === 'function') {
+                                    window.openImageStudio(dataUrl, bzEditGalleryDataUrls);
+                                }
+                            });
+                        }
                         grid.appendChild(col);
                     };
                     reader.readAsDataURL(file);

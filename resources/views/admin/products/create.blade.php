@@ -611,7 +611,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                             <!-- Hero Preview Card -->
                             <div class="md:col-span-4 flex flex-col items-center">
-                                <div class="relative w-48 h-48 rounded-2xl border-2 border-dashed border-sky-400/40 bg-white dark:bg-slate-950 p-2 shadow-sm overflow-hidden flex items-center justify-center group cursor-pointer" onclick="openImageStudio(document.getElementById('primaryHeroLiveImg').src, [document.getElementById('primaryHeroLiveImg').src])" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
+                                <div class="relative w-48 h-48 rounded-2xl border-2 border-dashed border-sky-400/40 bg-white dark:bg-slate-950 p-2 shadow-sm overflow-hidden flex items-center justify-center group cursor-pointer" onclick="openHeroImageInStudio()" title="{{ app()->getLocale() === 'ar' ? 'انقر لفحص الصورة بدقة عالية' : 'Click to inspect in high resolution' }}">
                                     <img id="primaryHeroLiveImg" 
                                          src="{{ asset(old('image', 'assets/products/blue-mind.webp')) }}" 
                                          alt="Product Hero Preview" 
@@ -1946,6 +1946,15 @@
             if (dossierImg) dossierImg.src = url;
         }
 
+        window.openHeroImageInStudio = function() {
+            const heroImg = document.getElementById('primaryHeroLiveImg');
+            const heroUrl = heroImg ? heroImg.src : '';
+            if (heroUrl && typeof window.openImageStudio === 'function') {
+                window.openImageStudio(heroUrl, [heroUrl]);
+            }
+        };
+        var openHeroImageInStudio = window.openHeroImageInStudio;
+
         let bzCreateGalleryDT = new DataTransfer();
         let bzCreateGalleryDataUrls = [];
 
@@ -2031,7 +2040,7 @@
                         const col = document.createElement('div');
                         col.className = 'relative group rounded-xl overflow-hidden border border-purple-500/30 bg-white dark:bg-slate-900 shadow-sm aspect-square cursor-pointer transition-transform hover:scale-[1.02]';
                         col.innerHTML = `
-                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" onclick="openImageStudio('${dataUrl}', bzCreateGalleryDataUrls)">
+                            <img src="${dataUrl}" class="w-full h-full object-cover rounded-xl" alt="${file.name}">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                                 <span class="text-[10px] text-white font-mono truncate">${file.name}</span>
                                 <span class="text-[9px] text-purple-300">${(file.size / 1024).toFixed(0)} KB</span>
@@ -2048,6 +2057,14 @@
                                 #${index + 1}
                             </span>
                         `;
+                        const img = col.querySelector('img');
+                        if (img) {
+                            img.addEventListener('click', () => {
+                                if (typeof window.openImageStudio === 'function') {
+                                    window.openImageStudio(dataUrl, bzCreateGalleryDataUrls);
+                                }
+                            });
+                        }
                         grid.appendChild(col);
                     };
                     reader.readAsDataURL(file);
