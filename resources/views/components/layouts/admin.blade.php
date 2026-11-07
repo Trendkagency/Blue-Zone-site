@@ -61,7 +61,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isMrActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-mr-crm')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-user-doctor sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المناديب والزيارات' : 'MR & Field CRM' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'الزيارات الميدانية (MR)' : 'Field CRM' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -160,7 +160,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isCrmActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-sales-crm')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-briefcase sidebar-link-icon text-amber-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات والعملاء' : 'Commercial Sales CRM' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'إدارة المبيعات (CRM)' : 'Sales CRM' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
