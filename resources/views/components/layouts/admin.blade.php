@@ -435,7 +435,7 @@
                             <a href="{{ route('admin.supplier-quotations.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.supplier-quotations.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-file-contract text-xs text-amber-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار والطلبيات (RFQ)' : 'Supplier Quotes / RFQ' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار (RFQ)' : 'Supplier RFQs' }}</span>
                             </a>
                             <a href="{{ route('admin.purchase-orders.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
@@ -457,7 +457,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isSupplyChainActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-supply-chain')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-flask-vial sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'التصنيع وسلاسل الإمداد cGMP' : 'Manufacturing & cGMP' }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التصنيع وسلاسل الإمداد' : 'Manufacturing & Quality' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -467,27 +467,27 @@
                             <a href="{{ route('admin.raw-materials.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.raw-materials.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-flask text-xs text-emerald-400"></i>
-                                <span>{{ __('raw_materials.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المواد الأولية' : 'Raw Materials' }}</span>
                             </a>
                             <a href="{{ route('admin.batches.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.batches.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-boxes-stacked text-xs text-amber-400"></i>
-                                <span>{{ __('batches.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التشغيلات والصلاحية (FEFO)' : 'Batches & FEFO' }}</span>
                             </a>
                             <a href="{{ route('admin.qc.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.qc.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-microscope text-xs text-pink-400"></i>
-                                <span>{{ __('qc.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'مراقبة الجودة (QC)' : 'Quality Control (QC)' }}</span>
                             </a>
                             <a href="{{ route('admin.work-orders.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.work-orders.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-industry text-xs text-indigo-400"></i>
-                                <span>{{ __('production.title') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'أوامر الإنتاج' : 'Work Orders' }}</span>
                             </a>
                             <a href="{{ route('admin.supply-chain-reports.lot-traceability') }}"
                                 class="sidebar-sublink text-cyan-300 font-bold bg-cyan-950/20 rounded-lg {{ request()->routeIs('admin.supply-chain-reports.*') ? 'active' : '' }}">
                                 <i class="fa-solid fa-route text-xs text-cyan-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'محرك التتبع والاسترجاع' : 'Recall & Reports (7)' }} ↗</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'التتبع والاستدعاء' : 'Traceability & Recall' }} ↗</span>
                             </a>
                         </div>
                     </div>
@@ -610,7 +610,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isCustomersActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-customers')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-users-gear sidebar-link-icon text-cyan-400"></i>
-                                <span>{{ __('admin.menu.customers') }} & {{ __('admin.menu.reports') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'العملاء والتقارير' : 'Customers & Reports' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
@@ -648,7 +648,7 @@
                         <button type="button" class="sidebar-dropdown-btn {{ $isContentAccessActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-access')">
                             <div class="sidebar-dropdown-label">
                                 <i class="fa-solid fa-user-shield sidebar-link-icon text-rose-400"></i>
-                                <span>{{ __('admin.menu.content') }} & {{ __('admin.menu.access_control') }}</span>
+                                <span>{{ app()->getLocale() === 'ar' ? 'المحتوى والأمان' : 'Content & Security' }}</span>
                             </div>
                             <div class="sidebar-dropdown-meta">
                                 <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
