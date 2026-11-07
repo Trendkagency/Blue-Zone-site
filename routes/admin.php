@@ -945,7 +945,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/export', [PaymentEntryController::class, 'export'])->name('export');
                 Route::get('/{id}/voucher', [PaymentEntryController::class, 'voucher'])->name('voucher');
             });
-            Route::redirect('/supplier-payments', '/admin/finance/payments');
+
+            // Supplier Payments (Dedicated Disbursement Workflow & Voucher)
+            Route::prefix('supplier-payments')->name('supplier-payments.')->group(function () {
+                Route::get('/', [SupplierPaymentController::class, 'index'])->name('index');
+                Route::post('/', [SupplierPaymentController::class, 'store'])->name('store');
+                Route::get('/{id}/voucher', [SupplierPaymentController::class, 'voucher'])->name('voucher');
+            });
 
             // 6. Expenses
             Route::prefix('expenses')->name('expenses.')->group(function () {
