@@ -136,11 +136,9 @@
                         </label>
                         <div class="grid grid-cols-2 gap-2">
                             <select name="currency" required class="form-select text-sm font-bold" x-model="currency">
-                                <option value="AED">AED</option>
-                                <option value="SAR">SAR</option>
-                                <option value="USD">USD</option>
-                                <option value="EUR">EUR</option>
-                                <option value="GBP">GBP</option>
+                                @foreach(($currencies ?? ['USD', 'SAR', 'AED', 'EUR', 'GBP']) as $curr)
+                                    <option value="{{ $curr }}">{{ $curr }}</option>
+                                @endforeach
                             </select>
                             <input type="number" step="0.0001" min="0.0001" name="exchange_rate" value="{{ old('exchange_rate', 1.0000) }}" required class="form-control text-sm font-mono font-bold" placeholder="FX Rate" title="Exchange rate to base currency">
                         </div>
@@ -369,7 +367,7 @@
         function purchaseOrderForm() {
             return {
                 supplierId: '{{ old("supplier_id", $selectedQuotation?->supplier_id ?? "") }}',
-                currency: '{{ old("currency", $selectedQuotation?->currency ?? "AED") }}',
+                currency: '{{ old("currency", $selectedQuotation?->currency ?? ($baseCurrency ?? "USD")) }}',
                 freightCost: {{ (float) old('freight_cost', $selectedQuotation?->estimated_freight ?? 0) }},
                 customsDuties: 0,
                 taxAmount: {{ (float) old('tax_amount', $selectedQuotation?->tax_amount ?? 0) }},

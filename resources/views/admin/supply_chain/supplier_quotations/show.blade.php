@@ -273,6 +273,19 @@
                         {{ number_format($supplierQuotation->grand_total, 2) }} {{ $supplierQuotation->currency }}
                     </span>
                 </div>
+
+                @php
+                    $baseCode = \App\Services\CurrencyService::code();
+                    $baseSym = \App\Services\CurrencyService::symbol($baseCode);
+                @endphp
+                @if($supplierQuotation->currency !== $baseCode)
+                    <div class="flex justify-between items-center pt-2 text-[11px] text-sky-700 dark:text-sky-300 border-t border-dashed border-gray-200 dark:border-gray-700">
+                        <span>{{ __('supplier_quotations.base_currency_equivalent') }}:</span>
+                        <span class="font-mono font-bold">
+                            {{ $baseSym }} {{ number_format($supplierQuotation->grand_total * ($supplierQuotation->exchange_rate ?: 1.0), 2) }} {{ $baseCode }}
+                        </span>
+                    </div>
+                @endif
             </div>
 
             <!-- Status Quick Controls (if not converted) -->

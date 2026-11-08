@@ -57,18 +57,33 @@ class SupplierQuotationController extends Controller
 
     public function create(Request $request): View
     {
-        $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
+        $suppliers = Supplier::where('is_active', true)->with('country')->orderBy('name_en')->get();
         $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
-        $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP'];
+        $supportedCurrencies = \App\Services\CurrencyService::supportedCurrencies();
+        $currencies = array_keys($supportedCurrencies);
+        $baseCurrency = \App\Services\CurrencyService::code();
+        $baseCurrencySymbol = \App\Services\CurrencyService::symbol($baseCurrency);
         $defaultQuoteNumber = SupplierQuotation::generateQuoteNumber();
         $selectedSupplierId = $request->query('supplier_id');
+
+        $defaultCurrency = $baseCurrency;
+        if ($selectedSupplierId) {
+            $selectedSupplier = $suppliers->firstWhere('id', (int) $selectedSupplierId);
+            if ($selectedSupplier && !empty($selectedSupplier->currency)) {
+                $defaultCurrency = $selectedSupplier->currency;
+            }
+        }
 
         return view('admin.supply_chain.supplier_quotations.create', compact(
             'suppliers',
             'rawMaterials',
             'products',
             'currencies',
+            'supportedCurrencies',
+            'baseCurrency',
+            'baseCurrencySymbol',
+            'defaultCurrency',
             'defaultQuoteNumber',
             'selectedSupplierId'
         ));
@@ -153,25 +168,33 @@ class SupplierQuotationController extends Controller
         return view('admin.supply_chain.supplier_quotations.show', compact('supplierQuotation'));
     }
 
-    public function edit(SupplierQuotation $supplierQuotation): View
+    public function edit(SupplierQuotation $supplierQuotation): View|RedirectResponse
     {
         if ($supplierQuotation->status === 'converted') {
             return redirect()->route('admin.supplier-quotations.show', $supplierQuotation)
                 ->with('error', __('supplier_quotations.messages.already_converted', ['po_number' => $supplierQuotation->convertedPurchaseOrder?->po_number ?? 'PO']));
         }
 
-        $supplierQuotation->load(['items.rawMaterial', 'items.product']);
-        $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
+        $supplierQuotation->load(['items.rawMaterial', 'items.product', 'supplier.country']);
+        $suppliers = Supplier::where('is_active', true)->with('country')->orderBy('name_en')->get();
         $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
-        $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP'];
+        $supportedCurrencies = \App\Services\CurrencyService::supportedCurrencies();
+        $currencies = array_keys($supportedCurrencies);
+        $baseCurrency = \App\Services\CurrencyService::code();
+        $baseCurrencySymbol = \App\Services\CurrencyService::symbol($baseCurrency);
+        $defaultCurrency = $supplierQuotation->currency ?: $baseCurrency;
 
         return view('admin.supply_chain.supplier_quotations.edit', compact(
             'supplierQuotation',
             'suppliers',
             'rawMaterials',
             'products',
-            'currencies'
+            'currencies',
+            'supportedCurrencies',
+            'baseCurrency',
+            'baseCurrencySymbol',
+            'defaultCurrency'
         ));
     }
 

@@ -64,17 +64,20 @@ class PurchaseOrderController extends Controller
     public function create(Request $request): View
     {
         $this->authorize('create', PurchaseOrder::class);
-        $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
+        $suppliers = Supplier::where('is_active', true)->with('country')->orderBy('name_en')->get();
         $materials = RawMaterial::where('is_active', true)->orderBy('name_en')->get();
         $products = Product::where('status', 'active')->orWhereNull('status')->orderBy('name_en')->get(['id', 'sku', 'name_en', 'name_ar', 'price', 'cost_price']);
         $locations = Location::where('is_active', true)->get();
+        $baseCurrency = \App\Services\CurrencyService::code();
+        $supportedCurrencies = \App\Services\CurrencyService::supportedCurrencies();
+        $currencies = array_keys($supportedCurrencies);
 
         $selectedQuotation = null;
         if ($request->filled('quotation_id')) {
             $selectedQuotation = \App\Models\SupplierQuotation::with(['supplier', 'items.rawMaterial', 'items.product'])->find($request->input('quotation_id'));
         }
 
-        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations', 'selectedQuotation'));
+        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations', 'selectedQuotation', 'baseCurrency', 'currencies'));
     }
 
     public function store(PurchaseOrderRequest $request): RedirectResponse
