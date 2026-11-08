@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table-modern text-xs">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>#</th>

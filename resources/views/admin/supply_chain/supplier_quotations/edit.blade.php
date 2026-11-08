@@ -126,7 +126,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table-modern text-xs" id="itemsTable">
+                    <table class="table" id="itemsTable">
                         <thead>
                             <tr>
                                 <th style="width: 25%;">{{ __('supplier_quotations.item_type') }} &amp; Material</th>
