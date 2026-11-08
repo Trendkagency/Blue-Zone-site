@@ -16,14 +16,15 @@ enum WorkOrderStatus: string
 
     public function label(string $locale = 'en'): string
     {
+        $loc = app()->getLocale();
         return match ($this) {
-            self::Draft => $locale === 'ar' ? 'مسودة أمر إنتاج' : 'Draft',
-            self::Scheduled => $locale === 'ar' ? 'مجدول ومعتمد للتنفيذ' : 'Scheduled',
-            self::Dispensing => $locale === 'ar' ? 'قيد وزن وصرف المواد' : 'Dispensing & Staging',
-            self::InProduction => $locale === 'ar' ? 'قيد التصنيع والمزج' : 'In Production / Compounding',
-            self::QcReview => $locale === 'ar' ? 'مراجعة وفحص المنتج التام' : 'Finished Good QC Review',
-            self::Completed => $locale === 'ar' ? 'مكتمل ومودع في المستودع' : 'Completed & Stocked',
-            self::Cancelled => $locale === 'ar' ? 'ملغي' : 'Cancelled',
+            self::Draft => $loc === 'ar' ? 'مسودة أمر إنتاج' : 'Draft',
+            self::Scheduled => $loc === 'ar' ? 'مجدول ومحجوز المواد' : 'Scheduled & Reserved',
+            self::Dispensing => $loc === 'ar' ? 'قيد وزن وصرف المواد' : 'Dispensing & Staging',
+            self::InProduction => $loc === 'ar' ? 'قيد التصنيع والمزج' : 'In Production / Compounding',
+            self::QcReview => $loc === 'ar' ? 'مراجعة وفحص المنتج التام' : 'Finished Good QC Review',
+            self::Completed => $loc === 'ar' ? 'مكتمل ومودع في المستودع' : 'Completed & Stocked',
+            self::Cancelled => $loc === 'ar' ? 'ملغي' : 'Cancelled',
         };
     }
 
@@ -44,9 +45,9 @@ enum WorkOrderStatus: string
     {
         $allowed = match ($this) {
             self::Draft => [self::Scheduled, self::Cancelled],
-            self::Scheduled => [self::Dispensing, self::Cancelled],
-            self::Dispensing => [self::InProduction, self::Cancelled],
-            self::InProduction => [self::QcReview, self::Cancelled],
+            self::Scheduled => [self::Dispensing, self::InProduction, self::Cancelled],
+            self::Dispensing => [self::InProduction, self::QcReview, self::Completed, self::Cancelled],
+            self::InProduction => [self::QcReview, self::Completed, self::Cancelled],
             self::QcReview => [self::Completed, self::Cancelled],
             self::Completed => [],
             self::Cancelled => [],

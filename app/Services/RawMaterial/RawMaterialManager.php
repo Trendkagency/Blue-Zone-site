@@ -182,7 +182,7 @@ class RawMaterialManager
     public function reserveForWorkOrder(WorkOrder $workOrder): array
     {
         return DB::transaction(function () use ($workOrder) {
-            $recipeItems = ProductRecipeItem::where('product_id', $workOrder->product_id)->get();
+            $recipeItems = ProductRecipeItem::with('rawMaterial')->where('product_id', $workOrder->product_id)->get();
             $reservations = [];
 
             foreach ($recipeItems as $recipeItem) {

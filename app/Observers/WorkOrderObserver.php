@@ -29,6 +29,9 @@ class WorkOrderObserver
         // When transitioning to Completed, credit finished goods into inventory_items
         if ($order->isDirty('status') && $order->status === WorkOrderStatus::Completed) {
             DB::transaction(function () use ($order) {
+                // Ensure required relations are loaded to prevent lazy-loading exceptions
+                $order->loadMissing(['consumptions.batch', 'product']);
+
                 // 1. Calculate actual raw material cost
                 $totalCost = 0.0;
                 foreach ($order->consumptions as $consumption) {

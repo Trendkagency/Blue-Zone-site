@@ -885,8 +885,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{workOrder}', [WorkOrderController::class, 'show'])->middleware('permission:work_orders.view')->name('show');
             Route::post('/{workOrder}/schedule', [WorkOrderController::class, 'schedule'])->middleware('permission:work_orders.create')->name('schedule');
             Route::post('/{workOrder}/dispensing', [WorkOrderController::class, 'startDispensing'])->middleware('permission:work_orders.dispense')->name('dispensing');
+            Route::post('/{workOrder}/start', [WorkOrderController::class, 'startDispensing'])->middleware('permission:work_orders.dispense')->name('start');
+            Route::post('/{workOrder}/start-production', [WorkOrderController::class, 'startProduction'])->middleware('permission:work_orders.create')->name('start-production');
+            Route::post('/{workOrder}/qc-review', [WorkOrderController::class, 'submitToQcReview'])->middleware('permission:work_orders.create')->name('qc-review');
             Route::post('/{workOrder}/dispense', [WorkOrderController::class, 'dispense'])->middleware('permission:work_orders.dispense')->name('dispense');
             Route::post('/{workOrder}/complete', [WorkOrderController::class, 'complete'])->middleware('permission:work_orders.complete')->name('complete');
+            Route::post('/{workOrder}/cancel', [WorkOrderController::class, 'cancel'])->middleware('permission:work_orders.create')->name('cancel');
         });
 
         // The 7 Mission-Critical Supply Chain Reports
