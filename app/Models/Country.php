@@ -29,6 +29,14 @@ class Country extends Model
         'sort_order' => 'integer',
     ];
 
+    /**
+     * Backward-compatible alias for country code (ISO-2).
+     */
+    public function getCodeAttribute(): ?string
+    {
+        return $this->iso2;
+    }
+
     public function cities(): HasMany
     {
         return $this->hasMany(City::class)->orderBy('sort_order')->orderBy('name_en');

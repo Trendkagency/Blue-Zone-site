@@ -80,7 +80,7 @@
                             <option value="">-- {{ __('suppliers.select_country') }} --</option>
                             @foreach($countries as $country)
                                 <option value="{{ $country->id }}" {{ old('country_id', 1) == $country->id ? 'selected' : '' }}>
-                                    {{ app()->getLocale() === 'ar' ? ($country->name_ar ?? $country->name_en) : $country->name_en }} ({{ $country->code }})
+                                    {{ app()->getLocale() === 'ar' ? ($country->name_ar ?? $country->name_en) : $country->name_en }}{{ !empty($country->iso2) ? ' (' . $country->iso2 . ')' : '' }}
                                 </option>
                             @endforeach
                         </select>
