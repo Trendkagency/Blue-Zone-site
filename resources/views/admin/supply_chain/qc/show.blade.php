@@ -3,6 +3,20 @@
     :pageSubtitle="__('batches.batch_number') . ': ' . $qcInspection->batch?->batch_number . ' | ' . $qcInspection->batch?->rawMaterial?->name"
     :breadcrumbs="[__('qc.title') => route('admin.qc.index'), $qcInspection->inspection_number => '#']"
 >
+    <x-slot name="actions">
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.qc.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة الفحوصات' : 'Back to QC' }}</span>
+            </a>
+            @if($qcInspection->batch_id)
+                <a href="{{ route('admin.batches.show', $qcInspection->batch_id) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                    <i class="fa-solid fa-boxes-stacked text-sky-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'عرض تشغيلة المادة' : 'View Batch' }}</span>
+                </a>
+            @endif
+        </div>
+    </x-slot>
     <!-- Dual Sign-off & Disposition Ribbon -->
     <div class="card p-5 mb-6 border shadow-sm {{ $qcInspection->verified_at ? 'border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-950/20' : 'border-amber-200 dark:border-amber-900/40 bg-amber-50/40 dark:bg-amber-950/20' }}">
         <div class="flex items-center justify-between flex-wrap gap-4">

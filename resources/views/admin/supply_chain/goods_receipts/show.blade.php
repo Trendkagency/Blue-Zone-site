@@ -8,24 +8,34 @@
 >
     <x-slot name="actions">
         <div class="flex items-center gap-2.5 flex-wrap">
+            <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل الاستلام' : 'Back to Receipts' }}</span>
+            </a>
+
             @if($goodsReceipt->purchaseOrder)
-                <a href="{{ route('admin.purchase-orders.show', $goodsReceipt->purchaseOrder) }}" class="btn btn-secondary font-bold text-sm shadow-sm inline-flex items-center gap-1.5">
+                <a href="{{ route('admin.purchase-orders.show', $goodsReceipt->purchaseOrder) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
                     <i class="fa-solid fa-file-invoice text-sky-600"></i>
                     <span>{{ __('goods_receipts.view_origin_po') }}</span>
                 </a>
             @endif
 
+            <button type="button" onclick="window.print()" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-print"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'طباعة إذن الاستلام' : 'Print GRN' }}</span>
+            </button>
+
             <!-- 3-Way Match Supplier Bill Status / Action -->
             @if(!empty($existingInvoice))
-                <a href="{{ route('admin.finance.purchase-invoices.show', $existingInvoice) }}" class="btn btn-primary font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm inline-flex items-center gap-2">
+                <a href="{{ route('admin.finance.purchase-invoices.show', $existingInvoice) }}" class="btn btn-primary font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm inline-flex items-center gap-2 px-3.5 py-2">
                     <i class="fa-solid fa-file-invoice-dollar"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'عرض فاتورة المورد (3-Way Match)' : 'View Matched Supplier Bill' }}</span>
-                    <span class="badge bg-white/20 text-white text-[11px] font-mono">{{ $existingInvoice->invoice_number }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? 'فاتورة المورد (3-Way Match)' : 'Matched Supplier Bill' }}</span>
+                    <span class="badge bg-white/20 text-white text-[10px] font-mono">{{ $existingInvoice->invoice_number }}</span>
                 </a>
             @else
-                <form method="POST" action="{{ route('admin.goods-receipts.generate-bill', $goodsReceipt) }}">
+                <form method="POST" action="{{ route('admin.goods-receipts.generate-bill', $goodsReceipt) }}" class="m-0">
                     @csrf
-                    <button type="submit" class="btn btn-primary font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm inline-flex items-center gap-1.5">
+                    <button type="submit" class="btn btn-primary font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm inline-flex items-center gap-1.5 px-3.5 py-2">
                         <i class="fa-solid fa-file-invoice-dollar"></i>
                         <span>{{ __('goods_receipts.generate_supplier_bill') }}</span>
                     </button>

@@ -6,6 +6,16 @@
         __('goods_receipts.new_grn') => '#'
     ]"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-indigo-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Purchase Orders' }}</span>
+        </a>
+        <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل الاستلام' : 'Back to Receipts' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-6xl mx-auto space-y-6">
         @if ($errors->any())
             <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm">

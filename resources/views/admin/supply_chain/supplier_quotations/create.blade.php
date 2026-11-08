@@ -3,6 +3,12 @@
     :pageSubtitle="__('supplier_quotations.subtitle')"
     :breadcrumbs="[__('supplier_quotations.title') => route('admin.supplier-quotations.index'), __('supplier_quotations.create_quote') => '#']"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.supplier-quotations.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة العروض' : 'Back to Quotes' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-7xl mx-auto pb-12">
         <form method="POST" action="{{ route('admin.supplier-quotations.store') }}" id="quotationForm" class="space-y-6">
             @csrf

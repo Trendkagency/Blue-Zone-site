@@ -6,6 +6,16 @@
         __('purchase_orders.new_po') => '#'
     ]"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.supplier-quotations.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-amber-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار المتاحة' : 'Supplier Quotes' }}</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة الأوامر' : 'Back to Orders' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-6xl mx-auto space-y-6" x-data="purchaseOrderForm()">
         @if ($errors->any())
             <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm">

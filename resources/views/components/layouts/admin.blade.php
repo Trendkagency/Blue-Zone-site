@@ -1097,15 +1097,25 @@
             <div class="admin-content-body">
                 @if($pageTitle)
                     <div class="page-header">
-                        <div>
-                            <h1 class="page-title">{{ $pageTitle }}</h1>
+                        <div class="page-header-title-group">
+                            @if(!empty($breadcrumbs) && count($breadcrumbs) > 0)
+                                <div class="page-header-top-meta">
+                                    <span class="page-header-badge">
+                                        <i class="fa-solid fa-layer-group text-[10px]"></i>
+                                        <span>{{ array_key_first($breadcrumbs) }}</span>
+                                    </span>
+                                </div>
+                            @endif
+                            <h1 class="page-title">
+                                <span>{{ $pageTitle }}</span>
+                            </h1>
                             @if($pageSubtitle)
                                 <p class="page-subtitle">{{ $pageSubtitle }}</p>
                             @endif
                         </div>
 
                         @isset($actions)
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="page-header-actions">
                                 {{ $actions }}
                             </div>
                         @endisset

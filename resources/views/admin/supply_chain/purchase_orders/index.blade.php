@@ -4,8 +4,17 @@
     :breadcrumbs="[__('purchase_orders.title') => route('admin.purchase-orders.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('purchase_orders.new_po') }}
+        <a href="{{ route('admin.supplier-quotations.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-amber-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار (RFQ)' : 'Supplier RFQs' }}</span>
+        </a>
+        <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-truck-ramp-box text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'استلام الرصيف (GRN)' : 'Goods Receipts' }}</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{ __('purchase_orders.new_po') }}</span>
         </a>
     </x-slot>
 

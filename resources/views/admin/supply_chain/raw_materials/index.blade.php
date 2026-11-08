@@ -4,8 +4,17 @@
     :breadcrumbs="[__('raw_materials.title') => route('admin.raw-materials.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.raw-materials.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('raw_materials.new_material') }}
+        <a href="{{ route('admin.batches.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-boxes-stacked text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات المواد (FEFO)' : 'Batches & FEFO' }}</span>
+        </a>
+        <a href="{{ route('admin.qc.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-microscope text-purple-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'فحوصات الجودة (QC)' : 'QC Inspections' }}</span>
+        </a>
+        <a href="{{ route('admin.raw-materials.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{ __('raw_materials.new_material') }}</span>
         </a>
     </x-slot>
 

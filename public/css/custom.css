@@ -2221,3 +2221,127 @@ html.dark .table td {
   background: linear-gradient(135deg, #78CB56 0%, #67B34A 100%) !important;
   color: #FFFFFF !important;
 }
+
+/* =========================================================================
+   Executive Page Header & Quick Actions Bar (BZ-OS Design System)
+   ========================================================================= */
+.page-header {
+  margin-bottom: 1.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 1.25rem !important;
+  padding: 1.25rem 1.5rem !important;
+  background: #ffffff !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+}
+
+.dark .page-header {
+  background: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -2px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.page-header-title-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.3rem !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.page-header-top-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 0.15rem !important;
+}
+
+.page-header-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.18rem 0.6rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.6875rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  background: rgba(10, 79, 120, 0.08) !important;
+  color: #0A4F78 !important;
+  border: 1px solid rgba(10, 79, 120, 0.18) !important;
+}
+
+.dark .page-header-badge {
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: #38BDF8 !important;
+  border-color: rgba(56, 189, 248, 0.25) !important;
+}
+
+.page-title {
+  font-size: 1.55rem !important;
+  font-weight: 900 !important;
+  color: #0F172A !important;
+  margin: 0 !important;
+  letter-spacing: -0.025em !important;
+  line-height: 1.25 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.625rem !important;
+  flex-wrap: wrap !important;
+}
+
+.dark .page-title {
+  color: #F8FAFC !important;
+}
+
+.page-subtitle {
+  font-size: 0.85rem !important;
+  color: #64748B !important;
+  margin: 0 !important;
+  line-height: 1.45 !important;
+  max-width: 850px !important;
+}
+
+.dark .page-subtitle {
+  color: #94A3B8 !important;
+}
+
+.page-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.625rem !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+}
+
+.quick-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  padding: 0.5rem 0.875rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  border-radius: 0.625rem !important;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-1px) !important;
+}
+
+.quick-action-btn:active {
+  transform: translateY(0) !important;
+}

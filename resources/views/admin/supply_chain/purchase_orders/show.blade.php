@@ -8,8 +8,14 @@
 >
     <x-slot name="actions">
         <div class="flex items-center gap-2 flex-wrap">
-            <a href="{{ route('admin.purchase-orders.print', $purchaseOrder) }}" target="_blank" class="btn btn-secondary font-bold text-sm shadow-sm">
-                <i class="fa-solid fa-print mr-1 ml-1"></i> {{ __('purchase_orders.print_po') }}
+            <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة الأوامر' : 'Back to Orders' }}</span>
+            </a>
+
+            <a href="{{ route('admin.purchase-orders.print', $purchaseOrder) }}" target="_blank" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-print"></i>
+                <span>{{ __('purchase_orders.print_po') }}</span>
             </a>
 
             <!-- Status Transition Buttons based on state machine -->

@@ -4,7 +4,15 @@
     :breadcrumbs="[__('goods_receipts.title') => route('admin.goods-receipts.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.goods-receipts.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2">
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-indigo-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء المؤكدة' : 'Purchase Orders' }}</span>
+        </a>
+        <a href="{{ route('admin.batches.index', ['status' => 'quarantine']) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-shield-halved text-purple-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات الحجر المخبري' : 'Quarantine Batches' }}</span>
+        </a>
+        <a href="{{ route('admin.goods-receipts.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
             <i class="fa-solid fa-plus"></i>
             <span>{{ __('goods_receipts.new_grn') }}</span>
         </a>

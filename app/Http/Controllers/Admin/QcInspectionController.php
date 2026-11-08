@@ -65,10 +65,11 @@ class QcInspectionController extends Controller
             ->whereIn('status', [RawMaterialBatchStatus::Quarantine, RawMaterialBatchStatus::RetestRequired])
             ->orderBy('created_at', 'desc')
             ->get();
+        $batches = $pendingBatches;
 
         $verdicts = QcVerdict::cases();
 
-        return view('admin.supply_chain.qc.create', compact('selectedBatch', 'pendingBatches', 'verdicts'));
+        return view('admin.supply_chain.qc.create', compact('selectedBatch', 'pendingBatches', 'batches', 'verdicts'));
     }
 
     public function store(QcInspectionRequest $request): RedirectResponse

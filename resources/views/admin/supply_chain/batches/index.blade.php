@@ -3,6 +3,20 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'سجل تشغيلات المواد الأولية، أسبقية الصرف حسب انتهاء الصلاحية FEFO، وتتبع الحجر الصحي والضمان' : 'Raw Material Batch Ledger, FEFO Pick Queue, Quarantine Tracking & Expiry Alerts'"
     :breadcrumbs="[__('batches.title') => route('admin.batches.index')]"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.raw-materials.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-flask text-emerald-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'كتالوج المواد الخام' : 'Raw Materials' }}</span>
+        </a>
+        <a href="{{ route('admin.qc.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-microscope text-purple-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'فحوصات الجودة (QC)' : 'QC Inspections' }}</span>
+        </a>
+        <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-truck-ramp-box text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'استلام الرصيف (GRN)' : 'Goods Receipts' }}</span>
+        </a>
+    </x-slot>
     <!-- Top KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="card p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">

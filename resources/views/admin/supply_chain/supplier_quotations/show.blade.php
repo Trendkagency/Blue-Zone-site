@@ -4,9 +4,14 @@
     :breadcrumbs="[__('supplier_quotations.title') => route('admin.supplier-quotations.index'), $supplierQuotation->quote_number => '#']"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.supplier-quotations.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة العروض' : 'Back to Quotes' }}</span>
+            </a>
+
             <!-- Print Official RFQ / Quote -->
-            <a href="{{ route('admin.supplier-quotations.print', $supplierQuotation) }}" target="_blank" class="btn btn-secondary text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <a href="{{ route('admin.supplier-quotations.print', $supplierQuotation) }}" target="_blank" class="btn btn-secondary text-xs font-bold inline-flex items-center gap-1.5 shadow-sm px-3 py-2">
                 <i class="fa-solid fa-print"></i>
                 <span>{{ __('supplier_quotations.actions.print') }}</span>
             </a>

@@ -4,8 +4,16 @@
     :breadcrumbs="[__('supplier_quotations.title') => route('admin.supplier-quotations.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.supplier-quotations.create') }}" class="btn btn-primary font-bold shadow-sm flex items-center gap-1.5">
-            <i class="fa-solid fa-plus mr-1 ml-1"></i>
+        <a href="{{ route('admin.suppliers.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-truck-field text-blue-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'سجل الموردين' : 'Suppliers' }}</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-indigo-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Purchase Orders' }}</span>
+        </a>
+        <a href="{{ route('admin.supplier-quotations.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
+            <i class="fa-solid fa-plus"></i>
             <span>{{ __('supplier_quotations.create_quote') }}</span>
         </a>
     </x-slot>

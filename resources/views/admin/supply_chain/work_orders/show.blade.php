@@ -5,6 +5,11 @@
 >
     <x-slot name="actions">
         <div class="flex items-center gap-2 flex-wrap" x-data="{ dispenseOpen: false, completeOpen: false, cancelOpen: false }">
+            <a href="{{ route('admin.work-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لأوامر الإنتاج' : 'Back to Work Orders' }}</span>
+            </a>
+
             <!-- Stage: Draft -> Schedule & Reserve -->
             @if($workOrder->status === \App\Enums\WorkOrderStatus::Draft)
                 <form method="POST" action="{{ route('admin.work-orders.schedule', $workOrder) }}">

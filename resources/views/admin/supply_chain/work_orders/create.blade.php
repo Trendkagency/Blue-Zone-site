@@ -3,6 +3,16 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'إطلاق أمر تشغيل تصنيعي جديد وحجز المواد الأولية بنظام FEFO حسب قائمة المكونات (BOM)' : 'Initiate Manufacturing Work Order & Auto-reserve Raw Material Batches (FEFO)'"
     :breadcrumbs="[__('production.title') => route('admin.work-orders.index'), __('production.new_work_order') => '#']"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.batches.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-boxes-stacked text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أرصدة التشغيلات FEFO' : 'FEFO Batches' }}</span>
+        </a>
+        <a href="{{ route('admin.work-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لأوامر الإنتاج' : 'Back to Work Orders' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-5xl mx-auto" x-data="{
         selectedProduct: '{{ old('product_id', '') }}',
         targetQty: {{ old('planned_qty', old('target_quantity', 1000)) }},

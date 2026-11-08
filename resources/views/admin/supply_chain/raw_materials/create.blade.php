@@ -3,6 +3,16 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'تعريف مادة أولية جديدة، ومواصفات التخزين، والمورد الافتراضي وحدود إعادة الطلب' : 'Register a new clinical raw material with chemical specifications, storage norms and safety stock'"
     :breadcrumbs="[__('raw_materials.title') => route('admin.raw-materials.index'), __('raw_materials.new_material') => '#']"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.batches.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-boxes-stacked text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أرصدة التشغيلات FEFO' : 'FEFO Batches' }}</span>
+        </a>
+        <a href="{{ route('admin.raw-materials.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لكتالوج المواد' : 'Back to Catalog' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-4xl mx-auto pb-12">
         <form method="POST" action="{{ route('admin.raw-materials.store') }}" class="space-y-6">
             @csrf

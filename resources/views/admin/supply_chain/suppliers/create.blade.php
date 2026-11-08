@@ -3,6 +3,12 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'إضافة مورد جديد إلى سجل cGMP وتحديد الشهادات والاعتمادات الأولية' : 'Register a new cGMP raw material supplier and configure audit credentials'"
     :breadcrumbs="[__('suppliers.title') => route('admin.suppliers.index'), __('suppliers.new_supplier') => '#']"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.suppliers.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل الموردين' : 'Back to Suppliers' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-5xl mx-auto pb-12">
         <form method="POST" action="{{ route('admin.suppliers.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf

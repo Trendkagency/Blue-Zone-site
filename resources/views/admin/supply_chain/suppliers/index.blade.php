@@ -4,8 +4,17 @@
     :breadcrumbs="[__('suppliers.title') => route('admin.suppliers.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.suppliers.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('suppliers.new_supplier') }}
+        <a href="{{ route('admin.supplier-quotations.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-file-invoice text-amber-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار (RFQ)' : 'Supplier RFQs' }}</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-cart-shopping text-indigo-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Purchase Orders' }}</span>
+        </a>
+        <a href="{{ route('admin.suppliers.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{ __('suppliers.new_supplier') }}</span>
         </a>
     </x-slot>
 

@@ -4,10 +4,16 @@
     :breadcrumbs="[__('batches.title') => route('admin.batches.index'), $batch->batch_number => '#']"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2" x-data="{ transferOpen: false, adjustOpen: false }">
+        <div class="flex items-center gap-2 flex-wrap" x-data="{ transferOpen: false, adjustOpen: false }">
+            <a href="{{ route('admin.batches.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل التشغيلات' : 'Back to Batches' }}</span>
+            </a>
+
             @if($batch->status === \App\Enums\RawMaterialBatchStatus::Quarantine)
-                <a href="{{ route('admin.qc.create', ['batch_id' => $batch->id]) }}" class="btn btn-primary font-bold text-sm bg-purple-600 hover:bg-purple-700 text-white">
-                    <i class="fa-solid fa-microscope mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'فحص الجودة وتسجيل COA' : 'Perform QC & Release' }}
+                <a href="{{ route('admin.qc.create', ['batch_id' => $batch->id]) }}" class="btn btn-primary font-bold text-xs bg-purple-600 hover:bg-purple-700 text-white shadow-sm inline-flex items-center gap-1.5 px-3.5 py-2">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'فحص الجودة وتسجيل COA' : 'Perform QC & Release' }}</span>
                 </a>
             @endif
 

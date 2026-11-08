@@ -267,13 +267,16 @@ select.bz-hidden-select {
 .bz-select-options::-webkit-scrollbar {
   width: 5px;
 }
+
 .bz-select-options::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .bz-select-options::-webkit-scrollbar-thumb {
   background: #CBD5E1;
   border-radius: 9999px;
 }
+
 .bz-select-options::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
@@ -487,4 +490,3 @@ html[dir="rtl"] .bz-select-chevron,
 [dir="rtl"] .bz-select-chevron {
   margin-inline-start: auto;
 }
-

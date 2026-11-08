@@ -4,9 +4,14 @@
     :breadcrumbs="[__('suppliers.title') => route('admin.suppliers.index'), $supplier->name => '#']"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="btn btn-secondary font-bold text-sm">
-                <i class="fa-solid fa-pen-to-square mr-1 ml-1"></i> {{ __('suppliers.edit_supplier') }}
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.suppliers.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل الموردين' : 'Back to Suppliers' }}</span>
+            </a>
+            <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>{{ __('suppliers.edit_supplier') }}</span>
             </a>
             @if($supplier->is_active)
                 <form method="POST" action="{{ route('admin.suppliers.deactivate', $supplier) }}" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من تجميد هذا المورد؟ لن يسمح بإنشاء طلبات شراء جديدة له.' : 'Are you sure you want to deactivate this supplier? No new POs can be drafted.' }}')">

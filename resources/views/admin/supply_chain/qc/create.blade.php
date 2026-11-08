@@ -3,6 +3,16 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'تسجيل نتائج الفحص المخبري، مطابقة مواصفات دستور الأدوية، ورفع وثيقة COA الرسمية' : 'Log Analytical Parameters, Verify Pharmacopeia Specs & Ingest Manufacturer COA'"
     :breadcrumbs="[__('qc.title') => route('admin.qc.index'), __('qc.new_inspection') => '#']"
 >
+    <x-slot name="actions">
+        <a href="{{ route('admin.batches.index', ['status' => 'quarantine']) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-shield-halved text-purple-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات الحجر الصحي' : 'Quarantine Batches' }}</span>
+        </a>
+        <a href="{{ route('admin.qc.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'العودة لقائمة الفحوصات' : 'Back to QC' }}</span>
+        </a>
+    </x-slot>
     <div class="max-w-5xl mx-auto">
         <form method="POST" action="{{ route('admin.qc.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
@@ -19,7 +29,10 @@
                         <label class="form-label font-bold text-xs">{{ __('batches.batch_number') }} <span class="text-rose-500">*</span></label>
                         <select name="raw_material_batch_id" required class="form-select text-sm font-mono">
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر التشغيلة المحجورة --' : '-- Select Quarantine Batch --' }}</option>
-                            @foreach($batches as $b)
+                            @php
+                                $batchList = $batches ?? $pendingBatches ?? collect();
+                            @endphp
+                            @foreach($batchList as $b)
                                 <option value="{{ $b->id }}" {{ (old('raw_material_batch_id', request('batch_id')) == $b->id) ? 'selected' : '' }}>
                                     {{ $b->batch_number }} - {{ $b->rawMaterial?->name }} (Lot: {{ $b->supplier_lot }})
                                 </option>

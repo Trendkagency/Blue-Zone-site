@@ -4,12 +4,18 @@
     :breadcrumbs="[__('raw_materials.title') => route('admin.raw-materials.index'), $rawMaterial->name => '#']"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('admin.raw-materials.edit', $rawMaterial) }}" class="btn btn-secondary font-bold text-sm">
-                <i class="fa-solid fa-pen-to-square mr-1 ml-1"></i> {{ __('raw_materials.edit_material') }}
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.raw-materials.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-arrow-left rtl:rotate-180"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'العودة لكتالوج المواد' : 'Back to Catalog' }}</span>
             </a>
-            <a href="{{ route('admin.purchase-orders.create', ['material_id' => $rawMaterial->id]) }}" class="btn btn-primary font-bold text-sm">
-                <i class="fa-solid fa-cart-plus mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'طلب شراء جديد' : 'Draft PO' }}
+            <a href="{{ route('admin.raw-materials.edit', $rawMaterial) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>{{ __('raw_materials.edit_material') }}</span>
+            </a>
+            <a href="{{ route('admin.purchase-orders.create', ['material_id' => $rawMaterial->id]) }}" class="btn btn-primary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3.5 py-2">
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>{{ app()->getLocale() === 'ar' ? 'طلب توريد جديد' : 'Draft PO' }}</span>
             </a>
         </div>
     </x-slot>

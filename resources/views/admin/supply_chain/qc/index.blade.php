@@ -4,8 +4,17 @@
     :breadcrumbs="[__('qc.title') => route('admin.qc.index')]"
 >
     <x-slot name="actions">
-        <a href="{{ route('admin.qc.create') }}" class="btn btn-primary font-bold shadow-sm">
-            <i class="fa-solid fa-plus mr-1.5 ml-1.5"></i> {{ __('qc.new_inspection') }}
+        <a href="{{ route('admin.batches.index', ['status' => 'quarantine']) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-shield-halved text-purple-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات الحجر الصحي' : 'Quarantine Batches' }}</span>
+        </a>
+        <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-truck-ramp-box text-sky-500"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'استلام الرصيف (GRN)' : 'Goods Receipts' }}</span>
+        </a>
+        <a href="{{ route('admin.qc.create') }}" class="btn btn-primary font-bold shadow-sm inline-flex items-center gap-2 px-4 py-2 text-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>{{ __('qc.new_inspection') }}</span>
         </a>
     </x-slot>
 
