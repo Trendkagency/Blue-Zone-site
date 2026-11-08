@@ -17,6 +17,9 @@
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- Enterprise Searchable Select Component (BZ-Select) -->
+    <link rel="stylesheet" href="{{ asset('css/bz-select.css') }}?v={{ file_exists(public_path('css/bz-select.css')) ? filemtime(public_path('css/bz-select.css')) : time() }}">
+
     <!-- Script to prevent flash of wrong theme (Default: Light) -->
     <script>
         (function() {
@@ -33,6 +36,9 @@
 </head>
 <body class="{{ $bodyClass ?? '' }}">
     {{ $slot }}
+
+    <!-- Enterprise Searchable Select Component (BZ-Select) -->
+    <script src="{{ asset('js/bz-select.js') }}?v={{ file_exists(public_path('js/bz-select.js')) ? filemtime(public_path('js/bz-select.js')) : time() }}"></script>
 
     @stack('scripts')
 </body>

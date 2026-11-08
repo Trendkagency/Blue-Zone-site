@@ -73,6 +73,7 @@
     <!-- Custom CSS & Map Loader CSS from lazy_html (Cache-Busted) -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ file_exists(public_path('css/custom.css')) ? filemtime(public_path('css/custom.css')) : time() }}">
     <link rel="stylesheet" href="{{ asset('css/map-loader.css') }}?v={{ file_exists(public_path('css/map-loader.css')) ? filemtime(public_path('css/map-loader.css')) : time() }}">
+    <link rel="stylesheet" href="{{ asset('css/bz-select.css') }}?v={{ file_exists(public_path('css/bz-select.css')) ? filemtime(public_path('css/bz-select.css')) : time() }}">
 
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -143,6 +144,9 @@
 
     <!-- Swiper JS -->
     <script src="{{ asset('vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+    <!-- Enterprise Searchable Select Component (BZ-Select) -->
+    <script src="{{ asset('js/bz-select.js') }}?v={{ file_exists(public_path('js/bz-select.js')) ? filemtime(public_path('js/bz-select.js')) : time() }}"></script>
 
     @stack('scripts')
 </body>
