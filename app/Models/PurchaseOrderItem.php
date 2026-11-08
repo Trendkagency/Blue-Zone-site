@@ -51,18 +51,22 @@ class PurchaseOrderItem extends Model
 
     public function getItemNameAttribute(): string
     {
-        if ($this->item_type === 'product' && $this->product) {
-            return app()->getLocale() === 'ar' ? ($this->product->name_ar ?? $this->product->name_en) : $this->product->name_en;
+        if ($this->item_type === 'product') {
+            $this->loadMissing('product');
+            return app()->getLocale() === 'ar' ? ($this->product?->name_ar ?? $this->product?->name_en ?? '—') : ($this->product?->name_en ?? '—');
         }
-        return $this->rawMaterial ? (app()->getLocale() === 'ar' ? ($this->rawMaterial->name_ar ?? $this->rawMaterial->name_en) : $this->rawMaterial->name_en) : '—';
+        $this->loadMissing('rawMaterial');
+        return $this->rawMaterial ? (app()->getLocale() === 'ar' ? ($this->rawMaterial->name_ar ?? $this->rawMaterial->name_en ?? '—') : ($this->rawMaterial->name_en ?? '—')) : '—';
     }
 
     public function getItemSkuAttribute(): string
     {
-        if ($this->item_type === 'product' && $this->product) {
-            return $this->product->sku ?? ('PRD-' . $this->product_id);
+        if ($this->item_type === 'product') {
+            $this->loadMissing('product');
+            return $this->product?->sku ?? ('PRD-' . $this->product_id);
         }
-        return $this->rawMaterial ? ($this->rawMaterial->material_code ?? ('RM-' . $this->raw_material_id)) : '—';
+        $this->loadMissing('rawMaterial');
+        return $this->rawMaterial ? ($this->rawMaterial->material_code ?? $this->rawMaterial->code ?? $this->rawMaterial->sku ?? ('RM-' . $this->raw_material_id)) : '—';
     }
 
     public function getPendingQtyAttribute(): float

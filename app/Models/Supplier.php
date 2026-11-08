@@ -164,6 +164,14 @@ class Supplier extends Model implements HasMedia
         return sprintf('%s%04d', $prefix, $seq);
     }
 
+    public function getNameAttribute(): string
+    {
+        if (app()->getLocale() === 'ar' && !empty($this->name_ar)) {
+            return $this->name_ar;
+        }
+        return $this->name_en ?? $this->name_ar ?? '—';
+    }
+
     public function getContactPersonAttribute(): ?string
     {
         return $this->contact_name;

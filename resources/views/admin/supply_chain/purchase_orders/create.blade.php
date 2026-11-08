@@ -10,7 +10,7 @@
         @if ($errors->any())
             <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-sm">
                 <div class="font-bold flex items-center gap-2 mb-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
                     {{ app()->getLocale() === 'ar' ? 'يرجى تصحيح الأخطاء التالية:' : 'Please correct the following errors:' }}
                 </div>
                 <ul class="list-disc list-inside space-y-1 text-xs">
@@ -56,78 +56,103 @@
                         <span class="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-950/50 text-sky-600 flex items-center justify-center text-sm font-bold">1</span>
                         <span>{{ app()->getLocale() === 'ar' ? 'بيانات المورد وأمر الشراء' : 'Purchase Order & Supplier Details' }}</span>
                     </h3>
-                    <span class="badge badge-sky text-xs font-mono">DRAFT ORDER</span>
+                    <span class="badge badge-sky text-xs font-mono font-bold">DRAFT ORDER</span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
+                    <!-- Supplier Selector with Name and Number -->
+                    <div class="md:col-span-1">
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
                             {{ __('purchase_orders.supplier') }} <span class="text-rose-500">*</span>
                         </label>
-                        <select name="supplier_id" required class="form-select text-sm w-full" x-model="supplierId">
+                        <select 
+                            name="supplier_id" 
+                            required 
+                            class="form-select text-sm w-full font-semibold @error('supplier_id') border-rose-500 @enderror" 
+                            x-model="supplierId"
+                            @change="onSupplierChange()"
+                        >
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المورد المعتمد --' : '-- Select Qualified Supplier --' }}</option>
                             @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
-                                    {{ $supplier->name }} ({{ $supplier->code ?? 'VND-'.$supplier->id }})
+                                <option 
+                                    value="{{ $supplier->id }}" 
+                                    {{ old('supplier_id', $selectedQuotation?->supplier_id) == $supplier->id ? 'selected' : '' }}
+                                    data-currency="{{ $supplier->currency ?? 'AED' }}"
+                                    data-phone="{{ $supplier->phone ?? '' }}"
+                                    data-code="{{ $supplier->code ?? 'VND-'.$supplier->id }}"
+                                    data-rating="{{ $supplier->rating ?? 5.0 }}"
+                                >
+                                    {{ $supplier->name }} — [{{ $supplier->code ?? 'VND-'.$supplier->id }}@if($supplier->phone) | {{ $supplier->phone }}@endif]
                                 </option>
                             @endforeach
                         </select>
-                        @error('supplier_id') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('supplier_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+
+                        <!-- Selected Supplier Preview Pill -->
+                        <template x-if="getSelectedSupplierInfo()">
+                            <div class="mt-2 p-2 rounded-lg bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/40 text-[11px] text-sky-900 dark:text-sky-300 flex items-center justify-between">
+                                <span class="font-bold flex items-center gap-1.5">
+                                    <i class="fa-solid fa-building-circle-check text-sky-600"></i>
+                                    <span x-text="getSelectedSupplierInfo().name"></span>
+                                </span>
+                                <span class="font-mono text-[10px] text-gray-500" x-text="getSelectedSupplierInfo().code"></span>
+                            </div>
+                        </template>
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
                             {{ __('purchase_orders.order_date') }} <span class="text-rose-500">*</span>
                         </label>
-                        <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}" required class="form-control text-sm w-full">
-                        @error('order_date') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}" required class="form-control text-sm w-full font-mono @error('order_date') border-rose-500 @enderror">
+                        @error('order_date') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
                             {{ __('purchase_orders.expected_delivery_date') }}
                         </label>
-                        <input type="date" name="expected_date" value="{{ old('expected_date', date('Y-m-d', strtotime('+14 days'))) }}" class="form-control text-sm w-full">
-                        @error('expected_date') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input type="date" name="expected_date" value="{{ old('expected_date', date('Y-m-d', strtotime('+14 days'))) }}" class="form-control text-sm w-full font-mono @error('expected_date') border-rose-500 @enderror">
+                        @error('expected_date') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ app()->getLocale() === 'ar' ? 'مستودع الاستلام والوجهة' : 'Destination Warehouse Hub' }} <span class="text-rose-500">*</span>
+                            {{ __('purchase_orders.destination') }} <span class="text-rose-500">*</span>
                         </label>
-                        <select name="destination_location_id" required class="form-select text-sm w-full">
+                        <select name="destination_location_id" required class="form-select text-sm w-full @error('destination_location_id') border-rose-500 @enderror">
                             @foreach($locations as $location)
                                 <option value="{{ $location->id }}" {{ old('destination_location_id') == $location->id || $location->id === 'central_wh' ? 'selected' : '' }}>
-                                    {{ $location->name_en ?? $location->name ?? $location->id }}
+                                    {{ app()->getLocale() === 'ar' && !empty($location->name_ar) ? $location->name_ar : ($location->name_en ?? $location->name ?? $location->id) }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('destination_location_id') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('destination_location_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.currency') }} <span class="text-rose-500">*</span>
+                            {{ __('purchase_orders.currency') }} &amp; FX Rate <span class="text-rose-500">*</span>
                         </label>
                         <div class="grid grid-cols-2 gap-2">
-                            <select name="currency" required class="form-select text-sm" x-model="currency">
+                            <select name="currency" required class="form-select text-sm font-bold" x-model="currency">
                                 <option value="AED">AED</option>
+                                <option value="SAR">SAR</option>
                                 <option value="USD">USD</option>
                                 <option value="EUR">EUR</option>
                                 <option value="GBP">GBP</option>
-                                <option value="SAR">SAR</option>
                             </select>
-                            <input type="number" step="0.0001" name="exchange_rate" value="{{ old('exchange_rate', 1.0000) }}" required class="form-control text-sm font-mono" placeholder="FX Rate" title="Exchange rate to AED">
+                            <input type="number" step="0.0001" min="0.0001" name="exchange_rate" value="{{ old('exchange_rate', 1.0000) }}" required class="form-control text-sm font-mono font-bold" placeholder="FX Rate" title="Exchange rate to base currency">
                         </div>
-                        @error('currency') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('currency') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
                             {{ app()->getLocale() === 'ar' ? 'رقم عرض السعر / مرجع المورد' : 'Supplier Quote / Proforma Ref' }}
                         </label>
-                        <input type="text" name="supplier_reference" value="{{ old('supplier_reference', $selectedQuotation?->quote_number) }}" class="form-control text-sm w-full" placeholder="e.g. QTE-99214">
-                        @error('supplier_reference') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input type="text" name="supplier_reference" value="{{ old('supplier_reference', $selectedQuotation?->quote_number) }}" class="form-control text-sm w-full font-mono" placeholder="e.g. QTE-99214">
+                        @error('supplier_reference') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
@@ -153,11 +178,11 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button type="button" class="btn btn-secondary btn-sm font-bold flex items-center gap-1.5" @click="addItem('product')">
+                        <button type="button" class="btn btn-secondary btn-sm font-bold flex items-center gap-1.5 shadow-sm" @click="addItem('product')">
                             <i class="fa-solid fa-box text-sky-600"></i>
                             <span>{{ app()->getLocale() === 'ar' ? '+ إضافة منتج تجاري' : '+ Add Product' }}</span>
                         </button>
-                        <button type="button" class="btn btn-secondary btn-sm font-bold flex items-center gap-1.5" @click="addItem('raw_material')">
+                        <button type="button" class="btn btn-secondary btn-sm font-bold flex items-center gap-1.5 shadow-sm" @click="addItem('raw_material')">
                             <i class="fa-solid fa-flask text-emerald-600"></i>
                             <span>{{ app()->getLocale() === 'ar' ? '+ إضافة مادة خام' : '+ Add Raw Material' }}</span>
                         </button>
@@ -170,9 +195,9 @@
                             <tr class="bg-gray-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300">
                                 <th style="width: 14%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
                                 <th style="width: 36%;">{{ app()->getLocale() === 'ar' ? 'البند المطلوب' : 'Item Selection' }}</th>
-                                <th style="width: 14%;">{{ __('purchase_orders.quantity') }}</th>
-                                <th style="width: 16%;">{{ __('purchase_orders.unit_price') }}</th>
-                                <th style="width: 15%;">{{ __('purchase_orders.line_total') }}</th>
+                                <th style="width: 14%; text-align: right;">{{ __('purchase_orders.quantity') }}</th>
+                                <th style="width: 16%; text-align: right;">{{ __('purchase_orders.unit_price') }}</th>
+                                <th style="width: 15%; text-align: right;">{{ __('purchase_orders.line_total') }}</th>
                                 <th style="width: 5%; text-align: center;"></th>
                             </tr>
                         </thead>
@@ -195,7 +220,7 @@
                                                 <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المنتج التجاري --' : '-- Select Finished Product --' }}</option>
                                                 @foreach($products as $prod)
                                                     <option value="{{ $prod->id }}" data-cost="{{ $prod->cost_price ?? $prod->price * 0.5 }}">
-                                                        {{ $prod->name_en }} ({{ $prod->sku ?? 'PRD-'.$prod->id }}) - Cost: {{ number_format($prod->cost_price ?? 0, 2) }}
+                                                        {{ app()->getLocale() === 'ar' && !empty($prod->name_ar) ? $prod->name_ar : $prod->name_en }} ({{ $prod->sku ?? 'PRD-'.$prod->id }}) - Cost: {{ number_format($prod->cost_price ?? 0, 2) }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -207,7 +232,7 @@
                                                 <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المادة الخام --' : '-- Select Raw Material --' }}</option>
                                                 @foreach($materials as $material)
                                                     <option value="{{ $material->id }}">
-                                                        {{ $material->name_en ?? $material->name }} ({{ $material->sku ?? 'RM-'.$material->id }}) - {{ $material->uom?->value ?? 'Units' }}
+                                                        {{ app()->getLocale() === 'ar' && !empty($material->name_ar) ? $material->name_ar : ($material->name_en ?? $material->name) }} ({{ $material->code ?? $material->sku ?? 'RM-'.$material->id }}) - {{ $material->uom?->value ?? 'Units' }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -218,19 +243,19 @@
 
                                     <!-- Ordered Qty -->
                                     <td>
-                                        <input type="number" step="0.0001" min="0.0001" :name="`items[${index}][ordered_qty]`" required class="form-control text-xs font-mono py-1" x-model.number="item.ordered_qty" @input="calculateTotal()">
+                                        <input type="number" step="0.0001" min="0.0001" :name="`items[${index}][ordered_qty]`" required class="form-control text-xs font-mono font-bold py-1 text-right" x-model.number="item.ordered_qty" @input="calculateTotal()">
                                     </td>
 
                                     <!-- Unit Price -->
                                     <td>
                                         <div class="relative">
-                                            <input type="number" step="0.0001" min="0" :name="`items[${index}][unit_price]`" required class="form-control text-xs font-mono py-1" x-model.number="item.unit_price" @input="calculateTotal()">
+                                            <input type="number" step="0.0001" min="0" :name="`items[${index}][unit_price]`" required class="form-control text-xs font-mono font-bold py-1 text-right pr-10" x-model.number="item.unit_price" @input="calculateTotal()">
                                             <span class="absolute right-2 top-1.5 text-[10px] text-gray-400 font-bold" x-text="currency"></span>
                                         </div>
                                     </td>
 
                                     <!-- Line Subtotal -->
-                                    <td class="font-mono font-bold text-slate-800 dark:text-white">
+                                    <td class="font-mono font-bold text-slate-800 dark:text-white text-right">
                                         <span x-text="((Number(item.ordered_qty) || 0) * (Number(item.unit_price) || 0)).toFixed(2)"></span>
                                         <span class="text-[10px] text-gray-400" x-text="currency"></span>
                                     </td>
@@ -252,21 +277,21 @@
                     <div class="space-y-3 p-4 rounded-xl bg-gray-50/70 dark:bg-slate-800/40 border border-gray-100 dark:border-gray-800">
                         <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-calculator text-sky-600"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'رسوم الوصول والتخليص Landed Costs' : 'Landed Costs & Duties' }}</span>
+                            <span>{{ app()->getLocale() === 'ar' ? 'رسوم الوصول والتخليص (Landed Costs)' : 'Landed Costs & Duties' }}</span>
                         </h4>
 
                         <div class="grid grid-cols-3 gap-3">
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.shipping_cost') }}</label>
-                                <input type="number" step="0.01" name="freight_cost" value="0.00" class="form-control text-xs font-mono" x-model.number="freightCost" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="freight_cost" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="freightCost" @input="calculateTotal()">
                             </div>
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.customs_duty') }}</label>
-                                <input type="number" step="0.01" name="customs_duties" value="0.00" class="form-control text-xs font-mono" x-model.number="customsDuties" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="customs_duties" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="customsDuties" @input="calculateTotal()">
                             </div>
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.tax_amount') }} (VAT)</label>
-                                <input type="number" step="0.01" name="tax_amount" value="0.00" class="form-control text-xs font-mono" x-model.number="taxAmount" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="tax_amount" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="taxAmount" @input="calculateTotal()">
                             </div>
                         </div>
                     </div>
@@ -330,6 +355,14 @@
             'notes' => '',
         ];
     }
+
+    $suppliersData = $suppliers->map(fn($s) => [
+        'id' => $s->id,
+        'name' => $s->name,
+        'code' => $s->code ?? 'VND-'.$s->id,
+        'phone' => $s->phone ?? '',
+        'currency' => $s->currency ?? 'AED',
+    ]);
 @endphp
 
     <script>
@@ -343,6 +376,17 @@
                 subtotal: 0,
                 total: 0,
                 items: @json($initialItems),
+                suppliers: @json($suppliersData),
+                getSelectedSupplierInfo() {
+                    if (!this.supplierId) return null;
+                    return this.suppliers.find(s => s.id == this.supplierId) || null;
+                },
+                onSupplierChange() {
+                    const sup = this.getSelectedSupplierInfo();
+                    if (sup && sup.currency) {
+                        this.currency = sup.currency;
+                    }
+                },
                 addItem(type = 'product') {
                     this.items.push({
                         item_type: type,

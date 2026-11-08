@@ -99,6 +99,7 @@ class GoodsReceiptController extends Controller
 
             foreach ($itemsData as $itemInput) {
                 $isProduct = ($itemInput['item_type'] ?? '') === 'product' || !empty($itemInput['product_id']);
+                $poItem = $po->items->firstWhere('id', $itemInput['purchase_order_item_id']);
 
                 $grnItem = $grn->items()->create([
                     'purchase_order_item_id' => $itemInput['purchase_order_item_id'],
@@ -165,7 +166,6 @@ class GoodsReceiptController extends Controller
                 }
 
                 // Update PO Item received quantity
-                $poItem = $po->items->firstWhere('id', $itemInput['purchase_order_item_id']);
                 if ($poItem) {
                     $poItem->received_qty = round((float) $poItem->received_qty + (float) $itemInput['received_qty'], 4);
                     $poItem->save();

@@ -143,6 +143,7 @@ class PurchaseOrderController extends Controller
             'goodsReceipts.receiver',
             'goodsReceipts.items.rawMaterial',
             'goodsReceipts.items.product',
+            'purchaseInvoices',
         ]);
 
         return view('admin.supply_chain.purchase_orders.show', compact('purchaseOrder'));

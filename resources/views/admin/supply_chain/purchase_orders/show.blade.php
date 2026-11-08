@@ -38,6 +38,13 @@
                 </a>
             @endif
 
+            @if(in_array($purchaseOrder->status, [\App\Enums\PurchaseOrderStatus::Confirmed, \App\Enums\PurchaseOrderStatus::PartiallyReceived, \App\Enums\PurchaseOrderStatus::Received]))
+                <a href="{{ route('admin.finance.purchase-invoices.create', ['purchase_order_id' => $purchaseOrder->id]) }}" class="btn btn-secondary font-bold text-sm shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'إنشاء فاتورة مشتريات' : 'Create Vendor Bill' }}</span>
+                </a>
+            @endif
+
             @if(in_array($purchaseOrder->status, [\App\Enums\PurchaseOrderStatus::Draft, \App\Enums\PurchaseOrderStatus::Submitted]))
                 <form method="POST" action="{{ route('admin.purchase-orders.cancel', $purchaseOrder) }}" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'هل أنت متأكد من إلغاء أمر الشراء هذا؟' : 'Are you sure you want to cancel this PO?' }}')">
                     @csrf
@@ -361,6 +368,58 @@
                                 <td style="text-align: center;">
                                     <a href="{{ route('admin.goods-receipts.show', $grn) }}" class="btn btn-ghost btn-xs text-sky-600">
                                         <i class="fa-solid fa-eye mr-1"></i> {{ app()->getLocale() === 'ar' ? 'عرض السند' : 'View GRN' }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
+    <!-- 5. Linked Purchase Invoices / Vendor Bills -->
+    @if($purchaseOrder->purchaseInvoices->isNotEmpty())
+        <div class="card p-5 mb-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-600"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'فواتير المشتريات المرتبطة (مطالبات المورد)' : 'Linked Vendor Bills & Invoices' }}</span>
+                </span>
+                <span class="badge badge-emerald text-xs font-mono">{{ $purchaseOrder->purchaseInvoices->count() }} Bills</span>
+            </h4>
+
+            <div class="table-responsive">
+                <table class="table text-xs w-full">
+                    <thead>
+                        <tr class="bg-gray-50/70 dark:bg-slate-800/50">
+                            <th>{{ app()->getLocale() === 'ar' ? 'رقم الفاتورة' : 'Invoice #' }}</th>
+                            <th>{{ app()->getLocale() === 'ar' ? 'تاريخ الفاتورة' : 'Invoice Date' }}</th>
+                            <th style="text-align: right;">{{ app()->getLocale() === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount' }}</th>
+                            <th style="text-align: right;">{{ app()->getLocale() === 'ar' ? 'المسدد' : 'Paid' }}</th>
+                            <th style="text-align: right;">{{ app()->getLocale() === 'ar' ? 'المتبقي' : 'Balance' }}</th>
+                            <th>{{ app()->getLocale() === 'ar' ? 'حالة السداد' : 'Payment Status' }}</th>
+                            <th style="text-align: center;">{{ app()->getLocale() === 'ar' ? 'الإجراء' : 'Action' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($purchaseOrder->purchaseInvoices as $inv)
+                            <tr>
+                                <td class="font-mono font-bold text-sky-600">
+                                    {{ $inv->invoice_number }}
+                                </td>
+                                <td class="font-mono">{{ $inv->invoice_date?->format('Y-m-d') }}</td>
+                                <td class="font-mono font-bold text-right">{{ number_format($inv->grand_total, 2) }} {{ $purchaseOrder->currency }}</td>
+                                <td class="font-mono text-emerald-600 font-bold text-right">{{ number_format($inv->paid_amount ?? 0, 2) }} {{ $purchaseOrder->currency }}</td>
+                                <td class="font-mono text-rose-600 font-bold text-right">{{ number_format(max(0, $inv->grand_total - ($inv->paid_amount ?? 0)), 2) }} {{ $purchaseOrder->currency }}</td>
+                                <td>
+                                    <span class="badge {{ $inv->payment_status === 'paid' ? 'badge-success' : ($inv->payment_status === 'partial' ? 'badge-warning' : 'badge-danger') }} text-[11px]">
+                                        {{ ucfirst($inv->payment_status ?? 'unpaid') }}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{{ route('admin.finance.purchase-invoices.index', ['search' => $inv->invoice_number]) }}" class="btn btn-ghost btn-xs text-sky-600">
+                                        <i class="fa-solid fa-eye mr-1"></i> {{ app()->getLocale() === 'ar' ? 'عرض الفاتورة' : 'View Bill' }}
                                     </a>
                                 </td>
                             </tr>

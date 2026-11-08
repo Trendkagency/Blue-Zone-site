@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
 <head>
+    @php
+        $purchaseOrder->loadMissing(['items.rawMaterial', 'items.product', 'supplier.country', 'destinationLocation', 'creator', 'approver']);
+    @endphp
     <meta charset="UTF-8">
     <title>PO_{{ $purchaseOrder->po_number }} - Blue Zone Bioceuticals</title>
     <style>
@@ -145,7 +148,7 @@
             <strong>{{ $purchaseOrder->supplier?->name }}</strong><br>
             Vendor Code: {{ $purchaseOrder->supplier?->code }}<br>
             {{ $purchaseOrder->supplier?->address }}<br>
-            {{ $purchaseOrder->supplier?->country }}<br>
+            {{ $purchaseOrder->supplier?->country_name ?? $purchaseOrder->supplier?->country?->name ?? '—' }}<br>
             Attn: {{ $purchaseOrder->supplier?->contact_person }} | {{ $purchaseOrder->supplier?->email }}
         </div>
         <div class="box">
