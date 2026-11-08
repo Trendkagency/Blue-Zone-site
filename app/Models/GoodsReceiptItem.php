@@ -62,6 +62,12 @@ class GoodsReceiptItem extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function batch(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(RawMaterialBatch::class, 'goods_receipt_id', 'goods_receipt_id')
+            ->whereColumn('raw_material_batches.raw_material_id', 'goods_receipt_items.raw_material_id');
+    }
+
     public function getItemNameAttribute(): string
     {
         if ($this->item_type === 'product' && $this->product) {
@@ -75,7 +81,7 @@ class GoodsReceiptItem extends Model
         if ($this->item_type === 'product' && $this->product) {
             return $this->product->sku ?? ('PRD-' . $this->product_id);
         }
-        return $this->rawMaterial ? ($this->rawMaterial->material_code ?? ('RM-' . $this->raw_material_id)) : '—';
+        return $this->rawMaterial ? ($this->rawMaterial->code ?? $this->rawMaterial->material_code ?? ('RM-' . $this->raw_material_id)) : '—';
     }
 
     public function getPoItemIdAttribute(): ?int

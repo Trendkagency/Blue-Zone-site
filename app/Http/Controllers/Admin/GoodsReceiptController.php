@@ -40,15 +40,25 @@ class GoodsReceiptController extends Controller
             });
         }
 
+        if ($status = $request->query('status')) {
+            $query->where('status', $status);
+        }
+
+        if ($supplierId = $request->query('supplier_id')) {
+            $query->where('supplier_id', $supplierId);
+        }
+
         $perPage = min(100, max(10, (int) $request->query('per_page', 15)));
         $receipts = $query->orderBy('received_date', 'desc')->paginate($perPage)->withQueryString();
         $goodsReceipts = $receipts;
 
         $kpis = [
-            'total_grns' => $receipts->total(),
+            'total_grns' => GoodsReceipt::count(),
             'received' => GoodsReceipt::where('status', GoodsReceiptStatus::Received)->count(),
             'drafts' => GoodsReceipt::where('status', GoodsReceiptStatus::Draft)->count(),
-            'broken_seals' => GoodsReceipt::where('seal_verified', false)->count(),
+            'broken_seals' => GoodsReceipt::where(function ($q) {
+                $q->where('seal_verified', false)->orWhere('seal_intact', false);
+            })->count(),
         ];
 
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
@@ -62,13 +72,14 @@ class GoodsReceiptController extends Controller
         $this->authorize('create', GoodsReceipt::class);
 
         $selectedPo = null;
-        if ($poId = $request->query('po_id')) {
+        $poId = $request->query('po_id') ?? old('purchase_order_id');
+        if ($poId) {
             $selectedPo = PurchaseOrder::with(['items.rawMaterial', 'items.product', 'supplier', 'destinationLocation'])
                 ->whereIn('status', [PurchaseOrderStatus::Confirmed, PurchaseOrderStatus::PartiallyReceived])
                 ->find($poId);
         }
 
-        $openOrders = PurchaseOrder::with('supplier')
+        $openOrders = PurchaseOrder::with(['supplier', 'items'])
             ->whereIn('status', [PurchaseOrderStatus::Confirmed, PurchaseOrderStatus::PartiallyReceived])
             ->orderBy('po_number', 'desc')
             ->get();
@@ -204,10 +215,15 @@ class GoodsReceiptController extends Controller
             'receiver',
             'items.rawMaterial',
             'items.product',
+            'items.batch',
             'batches.inspections',
         ]);
 
-        return view('admin.supply_chain.goods_receipts.show', compact('goodsReceipt'));
+        $existingInvoice = PurchaseInvoice::where('purchase_order_id', $goodsReceipt->purchase_order_id)
+            ->where('reference_number', $goodsReceipt->grn_number)
+            ->first();
+
+        return view('admin.supply_chain.goods_receipts.show', compact('goodsReceipt', 'existingInvoice'));
     }
 
     public function generateBill(GoodsReceipt $goodsReceipt, FinanceService $financeService): RedirectResponse

@@ -15,6 +15,8 @@ return [
     'quarantine_qty' => 'In Quarantine',
     'unit_cost' => 'Landed Cost (AED)',
     'expiry_date' => 'Expiry Date',
+    'manufacture_date' => 'Manufacture Date',
+    'mfg_date' => 'Manufacture Date',
     'retest_date' => 'Retest Date',
     'status' => 'Batch Status',
     'actions' => [
