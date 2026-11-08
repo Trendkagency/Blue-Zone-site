@@ -71,7 +71,7 @@
                                         data-gmp="{{ $sup->gmp_certified ? '1' : '0' }}"
                                         data-country="{{ $sup->country?->name_en ?: '' }}"
                                         {{ (old('supplier_id', $supplierQuotation->supplier_id) == $sup->id) ? 'selected' : '' }}>
-                                    {{ $sup->name }} — [{{ $sup->code }}@if($sup->phone) | Tel: {{ $sup->phone }}@endif @if($sup->currency) | {{ $sup->currency }}@endif]
+                                    {{ $sup->name }} — [{{ $sup->code }}@if(!$sup->is_active) | ({{ app()->getLocale() === 'ar' ? 'قيد التأهيل' : 'Pending Qualification' }})@endif @if($sup->phone) | Tel: {{ $sup->phone }}@endif @if($sup->currency) | {{ $sup->currency }}@endif]
                                 </option>
                             @endforeach
                         </select>

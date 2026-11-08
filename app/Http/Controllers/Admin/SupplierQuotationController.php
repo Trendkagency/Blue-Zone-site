@@ -50,14 +50,14 @@ class SupplierQuotationController extends Controller
             'converted' => SupplierQuotation::where('status', 'converted')->count(),
         ];
 
-        $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
+        $suppliers = Supplier::orderByDesc('is_active')->orderBy('name_en')->get();
 
         return view('admin.supply_chain.supplier_quotations.index', compact('quotations', 'kpis', 'suppliers'));
     }
 
     public function create(Request $request): View
     {
-        $suppliers = Supplier::where('is_active', true)->with('country')->orderBy('name_en')->get();
+        $suppliers = Supplier::with('country')->orderByDesc('is_active')->orderBy('name_en')->get();
         $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
         $supportedCurrencies = \App\Services\CurrencyService::supportedCurrencies();
@@ -176,7 +176,7 @@ class SupplierQuotationController extends Controller
         }
 
         $supplierQuotation->load(['items.rawMaterial', 'items.product', 'supplier.country']);
-        $suppliers = Supplier::where('is_active', true)->with('country')->orderBy('name_en')->get();
+        $suppliers = Supplier::with('country')->orderByDesc('is_active')->orderBy('name_en')->get();
         $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
         $supportedCurrencies = \App\Services\CurrencyService::supportedCurrencies();
