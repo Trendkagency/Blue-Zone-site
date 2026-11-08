@@ -58,7 +58,7 @@ class SupplierQuotationController extends Controller
     public function create(Request $request): View
     {
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
-        $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'material_code', 'standard_cost', 'unit_of_measure']);
+        $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
         $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP'];
         $defaultQuoteNumber = SupplierQuotation::generateQuoteNumber();
@@ -162,7 +162,7 @@ class SupplierQuotationController extends Controller
 
         $supplierQuotation->load(['items.rawMaterial', 'items.product']);
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
-        $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'material_code', 'standard_cost', 'unit_of_measure']);
+        $rawMaterials = RawMaterial::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'code', 'standard_cost', 'unit_of_measure']);
         $products = Product::orderBy('name_en')->get(['id', 'name_en', 'name_ar', 'sku', 'cost_price']);
         $currencies = ['SAR', 'AED', 'USD', 'EUR', 'GBP'];
 

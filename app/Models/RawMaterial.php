@@ -30,6 +30,8 @@ class RawMaterial extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $appends = ['material_code'];
+
     protected $fillable = [
         'code',
         'sku',
@@ -162,6 +164,16 @@ class RawMaterial extends Model
     }
 
     public function setSkuAttribute(?string $value): void
+    {
+        $this->attributes['code'] = $value;
+    }
+
+    public function getMaterialCodeAttribute(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setMaterialCodeAttribute(?string $value): void
     {
         $this->attributes['code'] = $value;
     }
