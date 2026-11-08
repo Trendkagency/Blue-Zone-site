@@ -96,19 +96,29 @@ class Supplier extends Model implements HasMedia
     }
 
     /**
-     * Dual Sign-Off Check: QA Director and Procurement Head must be different users.
+     * Dual Sign-Off Check: QA Director and Procurement Head must be different users,
+     * or signed off by a Super Administrator with executive qualification authority.
      */
     public function isDualApproved(): bool
     {
-        return ! empty($this->qa_approved_by)
-            && ! empty($this->procurement_approved_by)
-            && $this->qa_approved_by !== $this->procurement_approved_by;
+        if (empty($this->qa_approved_by) || empty($this->procurement_approved_by)) {
+            return false;
+        }
+
+        if ($this->qa_approved_by !== $this->procurement_approved_by) {
+            return true;
+        }
+
+        $approver = User::find($this->qa_approved_by);
+        return $approver && $approver->isSuperAdmin();
     }
 
     public function approveByQa(User $user): void
     {
-        if ($this->procurement_approved_by === $user->id) {
-            throw new \DomainException('Separation of duties violation: You cannot provide both QA and Procurement approvals.');
+        if (! $user->isSuperAdmin() && $this->procurement_approved_by === $user->id) {
+            throw new \DomainException(__('suppliers.errors.same_user_approval', [
+                'default' => 'Separation of duties violation: You cannot provide both QA and Procurement approvals.',
+            ]));
         }
 
         $this->qa_approved_by = $user->id;
@@ -123,8 +133,10 @@ class Supplier extends Model implements HasMedia
 
     public function approveByProcurement(User $user): void
     {
-        if ($this->qa_approved_by === $user->id) {
-            throw new \DomainException('Separation of duties violation: You cannot provide both QA and Procurement approvals.');
+        if (! $user->isSuperAdmin() && $this->qa_approved_by === $user->id) {
+            throw new \DomainException(__('suppliers.errors.same_user_approval', [
+                'default' => 'Separation of duties violation: You cannot provide both QA and Procurement approvals.',
+            ]));
         }
 
         $this->procurement_approved_by = $user->id;

@@ -172,28 +172,48 @@ class SupplierController extends Controller
     }
 
     /**
-     * Dual-approval workflow action for QA Director or Procurement Head
+     * Dual-approval workflow action for QA Director, Procurement Head, or Executive Dual Sign-Off
      */
     public function approve(Request $request, Supplier $supplier): RedirectResponse
     {
         $this->authorize('approve', $supplier);
         $user = $request->user();
         $role = $request->validate([
-            'approval_role' => ['required', 'in:qa,procurement'],
+            'approval_role' => ['required', 'in:qa,procurement,dual_executive'],
         ])['approval_role'];
 
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        if ($role === 'dual_executive') {
+            if (! $isSuperAdmin) {
+                return back()->with('error', __('suppliers.errors.same_user_approval', [
+                    'default' => 'Separation of duties violation: Executive dual sign-off is reserved for Super Administrators.',
+                ]));
+            }
+            $supplier->qa_approved_by = $user->id;
+            $supplier->qa_approved_at = now();
+            $supplier->procurement_approved_by = $user->id;
+            $supplier->procurement_approved_at = now();
+            $supplier->is_active = true;
+            $supplier->save();
+
+            return back()->with('success', __('suppliers.messages.approved_dual_executive', [
+                'default' => 'Supplier qualified and activated via Executive Dual Sign-Off.',
+            ]));
+        }
+
         if ($role === 'qa') {
-            if ($supplier->procurement_approved_by === $user->id) {
-                throw new DomainException(__('suppliers.errors.same_user_approval', [
-                    'default' => 'Separation of duties violation: You cannot provide both QA and Procurement approvals.',
+            if (! $isSuperAdmin && $supplier->procurement_approved_by === $user->id) {
+                return back()->with('error', __('suppliers.errors.same_user_approval', [
+                    'default' => 'Separation of duties violation: The same user cannot provide both QA and Procurement approvals.',
                 ]));
             }
             $supplier->qa_approved_by = $user->id;
             $supplier->qa_approved_at = now();
         } else {
-            if ($supplier->qa_approved_by === $user->id) {
-                throw new DomainException(__('suppliers.errors.same_user_approval', [
-                    'default' => 'Separation of duties violation: You cannot provide both QA and Procurement approvals.',
+            if (! $isSuperAdmin && $supplier->qa_approved_by === $user->id) {
+                return back()->with('error', __('suppliers.errors.same_user_approval', [
+                    'default' => 'Separation of duties violation: The same user cannot provide both QA and Procurement approvals.',
                 ]));
             }
             $supplier->procurement_approved_by = $user->id;
@@ -221,6 +241,12 @@ class SupplierController extends Controller
     public function approveProcurement(Request $request, Supplier $supplier): RedirectResponse
     {
         $request->merge(['approval_role' => 'procurement']);
+        return $this->approve($request, $supplier);
+    }
+
+    public function approveExecutive(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $request->merge(['approval_role' => 'dual_executive']);
         return $this->approve($request, $supplier);
     }
 

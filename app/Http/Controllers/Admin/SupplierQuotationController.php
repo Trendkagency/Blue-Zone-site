@@ -303,6 +303,12 @@ class SupplierQuotationController extends Controller
             return back()->with('error', 'Cannot convert an empty quotation with no line items.');
         }
 
+        if (! $supplierQuotation->supplier?->is_active) {
+            return back()->with('error', app()->getLocale() === 'ar'
+                ? 'لا يمكن تحويل العرض إلى أمر شراء رسمي لأن المورد ما زال بانتظار الاعتماد المزدوج وتأهيل cGMP.'
+                : 'Cannot convert quotation to Purchase Order because the vendor is pending dual-approval qualification.');
+        }
+
         $po = $supplierQuotation->convertToPurchaseOrder(auth()->user());
 
         return redirect()->route('admin.purchase-orders.show', $po)

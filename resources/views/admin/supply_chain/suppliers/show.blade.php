@@ -36,7 +36,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
                 <!-- QA Approval Box -->
                 <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-gray-800 rounded-lg p-2.5 text-xs text-center min-w-[150px]">
                     <span class="text-gray-500 block mb-1 font-bold">{{ __('suppliers.qa_director') }}</span>
@@ -46,12 +46,21 @@
                         </span>
                         <span class="text-[10px] text-gray-400 block">{{ $supplier->qa_approved_at->format('Y-m-d H:i') }}</span>
                     @else
-                        <form method="POST" action="{{ route('admin.suppliers.qa-approve', $supplier) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-primary btn-xs w-full font-bold">
-                                <i class="fa-solid fa-stamp mr-1 ml-1"></i> {{ __('suppliers.approve_qa') }}
+                        @php
+                            $cannotApproveQa = ($supplier->procurement_approved_by === auth()->id() && !auth()->user()->isSuperAdmin());
+                        @endphp
+                        @if($cannotApproveQa)
+                            <button type="button" disabled class="btn btn-secondary btn-xs w-full font-bold opacity-60 cursor-not-allowed" title="{{ __('suppliers.separate_officer_required') }}">
+                                <i class="fa-solid fa-lock mr-1 ml-1"></i> {{ __('suppliers.approve_qa') }}
                             </button>
-                        </form>
+                        @else
+                            <form method="POST" action="{{ route('admin.suppliers.qa-approve', $supplier) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-primary btn-xs w-full font-bold cursor-pointer">
+                                    <i class="fa-solid fa-stamp mr-1 ml-1"></i> {{ __('suppliers.approve_qa') }}
+                                </button>
+                            </form>
+                        @endif
                     @endif
                 </div>
 
@@ -64,14 +73,36 @@
                         </span>
                         <span class="text-[10px] text-gray-400 block">{{ $supplier->procurement_approved_at->format('Y-m-d H:i') }}</span>
                     @else
-                        <form method="POST" action="{{ route('admin.suppliers.procurement-approve', $supplier) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary btn-xs w-full font-bold">
-                                <i class="fa-solid fa-stamp mr-1 ml-1"></i> {{ __('suppliers.approve_procurement') }}
+                        @php
+                            $cannotApproveProcurement = ($supplier->qa_approved_by === auth()->id() && !auth()->user()->isSuperAdmin());
+                        @endphp
+                        @if($cannotApproveProcurement)
+                            <button type="button" disabled class="btn btn-secondary btn-xs w-full font-bold opacity-60 cursor-not-allowed" title="{{ __('suppliers.separate_officer_required') }}">
+                                <i class="fa-solid fa-lock mr-1 ml-1"></i> {{ __('suppliers.approve_procurement') }}
                             </button>
-                        </form>
+                        @else
+                            <form method="POST" action="{{ route('admin.suppliers.procurement-approve', $supplier) }}">
+                                @csrf
+                                <button type="submit" class="btn btn-secondary btn-xs w-full font-bold cursor-pointer">
+                                    <i class="fa-solid fa-stamp mr-1 ml-1"></i> {{ __('suppliers.approve_procurement') }}
+                                </button>
+                            </form>
+                        @endif
                     @endif
                 </div>
+
+                <!-- Super Admin 1-Click Executive Dual Sign-Off -->
+                @if(auth()->user()->isSuperAdmin() && ! $supplier->is_active)
+                    <div class="border-l border-gray-200 dark:border-gray-800 pl-3">
+                        <form method="POST" action="{{ route('admin.suppliers.executive-approve', $supplier) }}" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'تأكيد تفعيل وتأهيل المورد عبر الاعتماد المزدوج التنفيذي للإدارة العليا؟' : 'Confirm qualification and activation via Executive Dual Sign-Off?' }}')">
+                            @csrf
+                            <button type="submit" class="btn btn-emerald btn-xs font-bold text-white shadow-sm flex items-center gap-1.5 px-3 py-2 cursor-pointer whitespace-nowrap bg-emerald-600 hover:bg-emerald-700">
+                                <i class="fa-solid fa-shield-halved text-amber-300"></i>
+                                <span>{{ __('suppliers.approve_executive') }}</span>
+                            </button>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

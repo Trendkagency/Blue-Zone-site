@@ -61,13 +61,18 @@ return [
     'procurement_approved' => 'Procurement Head Sign-Off',
     'sign_as_qa' => 'Sign as QA Director',
     'sign_as_procurement' => 'Sign as Procurement Head',
+    'executive_approval' => 'Executive Dual Sign-Off (Super Admin)',
+    'approve_executive' => 'Executive Dual Sign-Off & Activate',
+    'separate_officer_required' => 'Requires sign-off from a different authorized officer (Separation of duties)',
     'messages' => [
         'created' => 'Supplier partner created and submitted for onboarding review.',
         'updated' => 'Supplier details updated successfully.',
         'deleted' => 'Supplier profile deleted successfully.',
         'approved' => 'Onboarding sign-off successfully recorded.',
+        'approved_dual_executive' => 'Supplier successfully qualified and activated via Executive Dual Sign-Off.',
     ],
     'errors' => [
         'same_user_approval' => 'Separation of duties violation: The same user cannot provide both QA and Procurement approvals.',
+        'executive_only' => 'Executive dual sign-off is reserved for Super Administrators.',
     ],
 ];
