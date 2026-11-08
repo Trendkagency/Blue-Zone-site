@@ -810,6 +810,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/{supplier}/qa-approve', [SupplierController::class, 'approveQa'])->middleware('permission:suppliers.approve')->name('qa-approve');
             Route::post('/{supplier}/procurement-approve', [SupplierController::class, 'approveProcurement'])->middleware('permission:suppliers.approve')->name('procurement-approve');
             Route::post('/{supplier}/executive-approve', [SupplierController::class, 'approveExecutive'])->middleware('permission:suppliers.approve')->name('executive-approve');
+            Route::post('/{supplier}/renew-audit', [SupplierController::class, 'renewAudit'])->middleware('permission:suppliers.approve')->name('renew-audit');
             Route::post('/{supplier}/deactivate', [SupplierController::class, 'deactivate'])->middleware('permission:suppliers.edit')->name('deactivate');
         });
 

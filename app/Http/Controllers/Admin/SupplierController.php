@@ -195,6 +195,9 @@ class SupplierController extends Controller
             $supplier->procurement_approved_by = $user->id;
             $supplier->procurement_approved_at = now();
             $supplier->is_active = true;
+            if (empty($supplier->audit_expiry) || $supplier->audit_expiry->isPast()) {
+                $supplier->audit_expiry = now()->addYear();
+            }
             $supplier->save();
 
             return back()->with('success', __('suppliers.messages.approved_dual_executive', [
@@ -223,6 +226,9 @@ class SupplierController extends Controller
         // Activate if dual approval is satisfied
         if ($supplier->isDualApproved()) {
             $supplier->is_active = true;
+            if (empty($supplier->audit_expiry) || $supplier->audit_expiry->isPast()) {
+                $supplier->audit_expiry = now()->addYear();
+            }
         }
 
         $supplier->save();
@@ -230,6 +236,17 @@ class SupplierController extends Controller
         return back()->with('success', __('suppliers.messages.approved', [
             'default' => 'Supplier onboarding sign-off recorded successfully.',
         ]));
+    }
+
+    public function renewAudit(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $this->authorize('approve', $supplier);
+        $supplier->audit_expiry = now()->addYear();
+        $supplier->save();
+
+        return back()->with('success', app()->getLocale() === 'ar'
+            ? 'تم تجديد صلاحية تدقيق الجودة للمورد لسنة كاملة بنجاح.'
+            : 'Supplier quality audit qualification has been successfully renewed for 1 year.');
     }
 
     public function approveQa(Request $request, Supplier $supplier): RedirectResponse

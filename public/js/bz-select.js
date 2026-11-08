@@ -4,10 +4,9 @@
  * - Real-time instantaneous search with Arabic letter normalization (tashkeel, alef, teh marbuta)
  * - Pure fixed portal architecture: popover floats over cards, modals, and scrolling tables
  * - Intelligent collision detection: auto-flips upward if near screen bottom
- * - Automatic dynamic observation (MutationObserver) for AJAX / dynamic table rows & node deletion
+ * - Automatic dynamic observation (MutationObserver) for AJAX / dynamic table rows
  * - Full 2-way reactivity with native selects, Alpine.js (x-model), and Livewire
- * - HTML5 validation & error highlight support (redirects focus to trigger without form blocking)
- * - Property hooks on .value, .selectedIndex, and .disabled for instantaneous script synchronization
+ * - HTML5 validation & error highlight support
  * - Dark Mode & Light Mode reactive transitions
  * - RTL & LTR full orientation support
  */
@@ -33,8 +32,6 @@
       .replace(/ى/g, 'ي')
       .replace(/ؤ/g, 'و')
       .replace(/ئ/g, 'ي')
-      // Normalize punctuation / symbols
-      .replace(/[-_.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
       // Normalize extra spaces
       .replace(/\s+/g, ' ');
   }
@@ -77,9 +74,7 @@
     if (activeDropdown) {
       if (e.key === 'Escape') {
         e.preventDefault();
-        const trigger = activeDropdown.trigger;
         closeActiveDropdown();
-        if (trigger) trigger.focus();
       }
     }
   });
@@ -102,60 +97,43 @@
     }
 
     init() {
-      // Hide native select visually while keeping it fully layout-active for HTML5 validation
+      // Hide native select
       this.selectEl.classList.add('bz-hidden-select');
+      this.selectEl.setAttribute('tabindex', '-1');
       this.selectEl.setAttribute('aria-hidden', 'true');
 
       // Create wrapper
       this.wrapper = document.createElement('div');
       this.wrapper.className = 'bz-select-wrapper';
 
-      // Copy layout, sizing, and grid/flex classes from native select to wrapper
-      Array.from(this.selectEl.classList).forEach(c => {
-        if (
-          c.startsWith('w-') ||
-          c.startsWith('min-w-') ||
-          c.startsWith('max-w-') ||
-          c.startsWith('flex-') ||
-          c.startsWith('col-span-')
-        ) {
-          this.wrapper.classList.add(c);
-        }
-      });
-
       // Preserve original inline width if set
       if (this.selectEl.style.width) {
         this.wrapper.style.width = this.selectEl.style.width;
       }
 
+      // Inherit grid column / flex grow if present
+      if (this.selectEl.classList.contains('w-full') || this.selectEl.classList.contains('form-select')) {
+        this.wrapper.style.width = '100%';
+      }
+
       // Detect size from classes
       let sizeClass = '';
-      if (
-        this.selectEl.classList.contains('text-xs') ||
-        this.selectEl.classList.contains('form-select-sm') ||
-        this.selectEl.classList.contains('btn-xs')
-      ) {
+      if (this.selectEl.classList.contains('text-xs') || this.selectEl.classList.contains('form-select-sm') || this.selectEl.classList.contains('btn-xs')) {
         sizeClass = 'bz-size-xs';
       } else if (this.selectEl.classList.contains('text-sm')) {
         sizeClass = 'bz-size-sm';
-      } else if (
-        this.selectEl.classList.contains('text-lg') ||
-        this.selectEl.classList.contains('form-select-lg')
-      ) {
+      } else if (this.selectEl.classList.contains('text-lg') || this.selectEl.classList.contains('form-select-lg')) {
         sizeClass = 'bz-size-lg';
       }
 
       // Error state inheritance
-      const hasError =
-        this.selectEl.classList.contains('border-rose-500') ||
+      const hasError = this.selectEl.classList.contains('border-rose-500') ||
         this.selectEl.classList.contains('is-invalid') ||
         this.selectEl.classList.contains('border-danger');
 
       // Create trigger
       this.trigger = document.createElement('div');
-      this.trigger.className = `bz-select-trigger ${sizeClass} ${hasError ? 'has-error' : ''} ${
-        this.selectEl.disabled ? 'disabled' : ''
-      }`;
+      this.trigger.className = `bz-select-trigger ${sizeClass} ${hasError ? 'has-error' : ''} ${this.selectEl.disabled ? 'disabled' : ''}`;
       this.trigger.setAttribute('tabindex', this.selectEl.disabled ? '-1' : '0');
       this.trigger.setAttribute('role', 'combobox');
       this.trigger.setAttribute('aria-expanded', 'false');
@@ -180,9 +158,7 @@
       this.trigger.appendChild(this.actionsWrap);
 
       // Insert wrapper in DOM next to native select
-      if (this.selectEl.parentNode) {
-        this.selectEl.parentNode.insertBefore(this.wrapper, this.selectEl);
-      }
+      this.selectEl.parentNode.insertBefore(this.wrapper, this.selectEl);
       this.wrapper.appendChild(this.selectEl);
       this.wrapper.appendChild(this.trigger);
 
@@ -191,8 +167,7 @@
       this.dropdownEl.className = 'bz-select-dropdown';
 
       // Search Wrap
-      const isArabic =
-        document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
+      const isArabic = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
       this.searchWrap = document.createElement('div');
       this.searchWrap.className = 'bz-select-search-wrap';
 
@@ -222,81 +197,16 @@
       this.dropdownEl.appendChild(this.optionsList);
 
       // Attach to body for floating portal
-      if (document.body) {
-        document.body.appendChild(this.dropdownEl);
-      } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          document.body.appendChild(this.dropdownEl);
-        });
-      }
+      document.body.appendChild(this.dropdownEl);
 
-      // Bind Events & Hooks
+      // Bind Events
       this.bindEvents();
-      this.hookProperties();
 
       // Initial Sync
       this.syncFromNative();
 
       // Expose reference on DOM element
       this.selectEl.bzSelect = this;
-    }
-
-    hookProperties() {
-      const self = this;
-
-      // Hook .value property for instantaneous script synchronization (Alpine, jQuery, plain JS)
-      const valDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
-      if (valDesc && valDesc.set) {
-        const origValSet = valDesc.set;
-        const origValGet = valDesc.get;
-        Object.defineProperty(this.selectEl, 'value', {
-          get() {
-            return origValGet.call(this);
-          },
-          set(val) {
-            origValSet.call(this, val);
-            self.syncFromNative();
-          },
-          configurable: true
-        });
-      }
-
-      // Hook .selectedIndex property
-      const selIdxDesc = Object.getOwnPropertyDescriptor(
-        HTMLSelectElement.prototype,
-        'selectedIndex'
-      );
-      if (selIdxDesc && selIdxDesc.set) {
-        const origSetIdx = selIdxDesc.set;
-        const origGetIdx = selIdxDesc.get;
-        Object.defineProperty(this.selectEl, 'selectedIndex', {
-          get() {
-            return origGetIdx.call(this);
-          },
-          set(val) {
-            origSetIdx.call(this, val);
-            self.syncFromNative();
-          },
-          configurable: true
-        });
-      }
-
-      // Hook .disabled property
-      const disDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'disabled');
-      if (disDesc && disDesc.set) {
-        const origSetDis = disDesc.set;
-        const origGetDis = disDesc.get;
-        Object.defineProperty(this.selectEl, 'disabled', {
-          get() {
-            return origGetDis.call(this);
-          },
-          set(val) {
-            origSetDis.call(this, val);
-            self.syncFromNative();
-          },
-          configurable: true
-        });
-      }
     }
 
     bindEvents() {
@@ -358,17 +268,13 @@
           if (this.highlightedIndex >= 0) {
             this.selectItemByIndex(this.highlightedIndex);
           } else {
-            const firstVisible = this.items.find(
-              i => !i.element.classList.contains('hidden') && !i.disabled
-            );
+            const firstVisible = this.items.find(i => !i.element.classList.contains('hidden') && !i.disabled);
             if (firstVisible) this.selectItem(firstVisible);
           }
         } else if (e.key === 'Escape') {
           e.preventDefault();
           this.close();
           this.trigger.focus();
-        } else if (e.key === 'Tab') {
-          this.close();
         }
       });
 
@@ -377,25 +283,16 @@
         this.syncFromNative();
       });
 
-      // HTML5 Validation: focus redirect and error styling
-      this.selectEl.addEventListener('focus', () => {
-        this.trigger.focus();
-      });
-
+      // Listen for HTML5 validation invalid event
       this.selectEl.addEventListener('invalid', () => {
         this.trigger.classList.add('has-error');
-        this.trigger.focus();
       });
 
-      // Observe dynamic changes in <option> tags & attributes
+      // Observe dynamic changes in <option> tags
       this.mutationObserver = new MutationObserver(() => {
         this.syncFromNative();
       });
-      this.mutationObserver.observe(this.selectEl, {
-        childList: true,
-        subtree: true,
-        attributes: true
-      });
+      this.mutationObserver.observe(this.selectEl, { childList: true, subtree: true, attributes: true });
     }
 
     renderOptions() {
@@ -403,8 +300,7 @@
       this.items = [];
 
       const options = Array.from(this.selectEl.children);
-      const isArabic =
-        document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
+      const isArabic = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl';
 
       options.forEach((child) => {
         if (child.tagName === 'OPTGROUP') {
@@ -426,9 +322,7 @@
       // Show search bar if options >= 4 or explicitly requested via data-search
       const totalOptions = this.items.length;
       const forceSearch = this.selectEl.dataset.search === 'true';
-      const noSearch =
-        this.selectEl.dataset.noSearch === 'true' ||
-        this.selectEl.classList.contains('no-search-select');
+      const noSearch = this.selectEl.dataset.noSearch === 'true' || this.selectEl.classList.contains('no-search-select');
 
       if (noSearch || (totalOptions < 4 && !forceSearch)) {
         this.searchWrap.style.display = 'none';
@@ -440,9 +334,7 @@
       if (!this.emptyEl) {
         this.emptyEl = document.createElement('div');
         this.emptyEl.className = 'bz-select-empty hidden';
-        this.emptyEl.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs mr-1 ml-1 opacity-50"></i> ${
-          isArabic ? 'لا توجد نتائج مطابقة' : 'No matching options found'
-        }`;
+        this.emptyEl.innerHTML = `<i class="fa-solid fa-magnifying-glass text-xs mr-1 ml-1 opacity-50"></i> ${isArabic ? 'لا توجد نتائج مطابقة' : 'No matching options found'}`;
       }
       this.optionsList.appendChild(this.emptyEl);
     }
@@ -454,9 +346,7 @@
       const value = optionEl.value;
 
       const itemDiv = document.createElement('div');
-      itemDiv.className = `bz-select-option ${isSelected ? 'is-selected' : ''} ${
-        isDisabled ? 'is-disabled' : ''
-      }`;
+      itemDiv.className = `bz-select-option ${isSelected ? 'is-selected' : ''} ${isDisabled ? 'is-disabled' : ''}`;
       itemDiv.setAttribute('role', 'option');
       itemDiv.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       itemDiv.dataset.value = value;
@@ -473,24 +363,12 @@
         itemDiv.appendChild(checkSpan);
       }
 
-      // Comprehensive search corpus: text + value + data attributes (name, code, sku, symbol)
-      const searchCorpus = [
-        text,
-        value,
-        optionEl.getAttribute('data-name'),
-        optionEl.getAttribute('data-code'),
-        optionEl.getAttribute('data-sku'),
-        optionEl.getAttribute('data-symbol')
-      ]
-        .filter(Boolean)
-        .join(' ');
-
       const itemObj = {
         element: itemDiv,
         optionEl: optionEl,
         text: text,
         value: value,
-        normalized: normalizeText(searchCorpus),
+        normalized: normalizeText(text),
         disabled: isDisabled,
         groupHeader: parentGroupHeader
       };
@@ -509,8 +387,8 @@
       this.selectEl.value = itemObj.value;
 
       // Update native option selected properties
-      Array.from(this.selectEl.options).forEach((opt) => {
-        opt.selected = opt === itemObj.optionEl;
+      Array.from(this.selectEl.options).forEach(opt => {
+        opt.selected = (opt === itemObj.optionEl);
       });
 
       // Clear any invalid error styling on select
@@ -552,15 +430,6 @@
         this.labelEl.classList.add('is-placeholder');
       }
 
-      // Sync disabled state
-      if (this.selectEl.disabled) {
-        this.trigger.classList.add('disabled');
-        this.trigger.setAttribute('tabindex', '-1');
-      } else {
-        this.trigger.classList.remove('disabled');
-        this.trigger.setAttribute('tabindex', '0');
-      }
-
       // Re-render items in list
       this.renderOptions();
     }
@@ -570,7 +439,7 @@
       let visibleCount = 0;
       const groupVisibility = new Map();
 
-      this.items.forEach((item) => {
+      this.items.forEach(item => {
         const matches = !q || item.normalized.includes(q);
         if (matches) {
           item.element.classList.remove('hidden');
@@ -585,7 +454,7 @@
       });
 
       // Update optgroup headers visibility
-      this.optionsList.querySelectorAll('.bz-select-optgroup-label').forEach((header) => {
+      this.optionsList.querySelectorAll('.bz-select-optgroup-label').forEach(header => {
         if (groupVisibility.get(header) || !q) {
           header.style.display = 'block';
         } else {
@@ -604,14 +473,10 @@
     }
 
     moveHighlight(delta) {
-      const visibleItems = this.items.filter(
-        (i) => !i.element.classList.contains('hidden') && !i.disabled
-      );
+      const visibleItems = this.items.filter(i => !i.element.classList.contains('hidden') && !i.disabled);
       if (visibleItems.length === 0) return;
 
-      let currentIdx = visibleItems.findIndex((i) =>
-        i.element.classList.contains('is-highlighted')
-      );
+      let currentIdx = visibleItems.findIndex(i => i.element.classList.contains('is-highlighted'));
       if (currentIdx === -1) {
         currentIdx = delta > 0 ? -1 : 0;
       }
@@ -682,13 +547,6 @@
       if (!this.isOpen) return;
 
       const triggerRect = this.trigger.getBoundingClientRect();
-
-      // If trigger is hidden (e.g. modal closed or tab changed), close dropdown
-      if (triggerRect.width === 0 && triggerRect.height === 0) {
-        this.close();
-        return;
-      }
-
       const dropdownRect = this.dropdownEl.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
@@ -739,10 +597,10 @@
     init: function (root = document) {
       if (!root) return;
       const selects = root.querySelectorAll(
-        'select:not([multiple]):not([data-bz-ignore="true"]):not(.bz-ignore):not(.bz-hidden-select):not([data-bz-initialized="true"])'
+        'select:not([data-bz-ignore="true"]):not(.bz-ignore):not(.bz-hidden-select):not([data-bz-initialized="true"])'
       );
 
-      selects.forEach((select) => {
+      selects.forEach(select => {
         // Skip Filament internal elements
         if (select.closest('.fi-ta-content') || select.closest('.fi-input-wrp')) {
           return;
@@ -758,25 +616,31 @@
     },
 
     syncAll: function () {
-      document.querySelectorAll('select.bz-hidden-select').forEach((sel) => {
+      document.querySelectorAll('select.bz-hidden-select').forEach(sel => {
         if (sel.bzSelect) sel.bzSelect.syncFromNative();
       });
     }
   };
 
-  // Dynamic MutationObserver to catch dynamically added select elements (like new rows, modals, ajax)
-  // and clean up destroyed elements when rows are removed
-  function observeDynamicSelects() {
-    if (!document.body) return;
+  // Auto-init on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      window.BZSelect.init();
+      observeDynamicSelects();
+    });
+  } else {
+    window.BZSelect.init();
+    observeDynamicSelects();
+  }
 
+  // Dynamic MutationObserver to catch dynamically added select elements (like new rows, modals, ajax)
+  function observeDynamicSelects() {
     const observer = new MutationObserver((mutations) => {
       let shouldScan = false;
-
       for (const m of mutations) {
-        // Handle added nodes
         if (m.addedNodes && m.addedNodes.length > 0) {
           for (const node of m.addedNodes) {
-            if (node.nodeType === 1) {
+            if (node.nodeType === 1) { // ELEMENT_NODE
               if (node.tagName === 'SELECT' || node.querySelector('select')) {
                 shouldScan = true;
                 break;
@@ -784,22 +648,6 @@
             }
           }
         }
-
-        // Handle removed nodes to prevent detached portal leaks
-        if (m.removedNodes && m.removedNodes.length > 0) {
-          for (const node of m.removedNodes) {
-            if (node.nodeType === 1) {
-              const removedSelects =
-                node.tagName === 'SELECT' ? [node] : Array.from(node.querySelectorAll('select'));
-              removedSelects.forEach((s) => {
-                if (s.bzSelect) {
-                  s.bzSelect.destroy();
-                }
-              });
-            }
-          }
-        }
-
         if (shouldScan) break;
       }
 
@@ -812,16 +660,5 @@
       childList: true,
       subtree: true
     });
-  }
-
-  // Auto-init on DOMContentLoaded or immediately if DOM is already ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      window.BZSelect.init();
-      observeDynamicSelects();
-    });
-  } else {
-    window.BZSelect.init();
-    observeDynamicSelects();
   }
 })();

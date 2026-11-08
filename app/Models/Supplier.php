@@ -113,6 +113,50 @@ class Supplier extends Model implements HasMedia
         return $approver && $approver->isSuperAdmin();
     }
 
+    public function isAuditExpired(): bool
+    {
+        return $this->audit_expiry !== null && $this->audit_expiry->isPast();
+    }
+
+    public function isAuditExpiringSoon(int $days = 60): bool
+    {
+        return $this->audit_expiry !== null && ! $this->isAuditExpired() && $this->audit_expiry->diffInDays(now()) <= $days;
+    }
+
+    public function isFullyQualified(): bool
+    {
+        return $this->is_active && $this->isDualApproved() && ! $this->isAuditExpired();
+    }
+
+    public function getAuditStatusTextAttribute(): string
+    {
+        $isAr = app()->getLocale() === 'ar';
+        if (! $this->is_active) {
+            return $isAr ? 'غير نشط (قيد التأهيل)' : 'Inactive (Pending Qualification)';
+        }
+        if ($this->isAuditExpired()) {
+            return $isAr ? 'منتهي صلاحية التدقيق' : 'Audit Expired';
+        }
+        if ($this->isAuditExpiringSoon()) {
+            return $isAr ? 'تدقيق الجودة ينتهي قريباً' : 'Audit Expiring Soon';
+        }
+        return $isAr ? 'معتمد ومؤهل' : 'Active & Qualified';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeQualified($query)
+    {
+        return $query->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('audit_expiry')
+                    ->orWhere('audit_expiry', '>=', now()->toDateString());
+            });
+    }
+
     public function approveByQa(User $user): void
     {
         if (! $user->isSuperAdmin() && $this->procurement_approved_by === $user->id) {
@@ -126,6 +170,9 @@ class Supplier extends Model implements HasMedia
 
         if ($this->isDualApproved()) {
             $this->is_active = true;
+            if (empty($this->audit_expiry) || $this->audit_expiry->isPast()) {
+                $this->audit_expiry = now()->addYear();
+            }
         }
 
         $this->save();
@@ -144,6 +191,9 @@ class Supplier extends Model implements HasMedia
 
         if ($this->isDualApproved()) {
             $this->is_active = true;
+            if (empty($this->audit_expiry) || $this->audit_expiry->isPast()) {
+                $this->audit_expiry = now()->addYear();
+            }
         }
 
         $this->save();

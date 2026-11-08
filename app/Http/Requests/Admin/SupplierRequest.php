@@ -28,9 +28,12 @@ class SupplierRequest extends FormRequest
             $merge['contact_name'] = $this->input('contact_person');
         }
 
-        // Handle audit valid date aliases
+        // Handle audit valid date aliases and default to 1-year GMP lifecycle if empty
         if ($this->has('audit_valid_until') && !$this->has('audit_expiry')) {
             $merge['audit_expiry'] = $this->input('audit_valid_until');
+        }
+        if (!$this->has('audit_expiry') || empty(trim((string) $this->input('audit_expiry')))) {
+            $merge['audit_expiry'] = now()->addYear()->format('Y-m-d');
         }
 
         // Default currency to SAR if missing or empty

@@ -164,6 +164,14 @@
                             </td>
                             <td style="text-align: center;">
                                 <div class="flex items-center justify-center gap-1.5">
+                                    @if($supplier->isAuditExpired())
+                                        <form method="POST" action="{{ route('admin.suppliers.renew-audit', $supplier) }}" class="inline" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'تجديد اعتماد تدقيق الجودة للمورد لسنة كاملة؟' : 'Renew audit for 1 year?' }}')">
+                                            @csrf
+                                            <button type="submit" class="btn btn-ghost btn-sm text-amber-600 hover:text-amber-700" title="{{ app()->getLocale() === 'ar' ? 'تجديد التدقيق المنتهي' : 'Renew Expired Audit' }}">
+                                                <i class="fa-solid fa-arrows-rotate"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('admin.suppliers.show', $supplier) }}" class="btn btn-ghost btn-sm text-sky-600" title="{{ app()->getLocale() === 'ar' ? 'عرض التفاصيل' : 'View Details' }}">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>

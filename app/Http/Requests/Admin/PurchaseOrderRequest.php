@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PurchaseOrderRequest extends FormRequest
 {
@@ -14,7 +15,12 @@ class PurchaseOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'supplier_id' => ['required', 'exists:suppliers,id'],
+            'supplier_id' => [
+                'required',
+                Rule::exists('suppliers', 'id')->where(function ($query) {
+                    $query->where('is_active', true)->whereNull('deleted_at');
+                }),
+            ],
             'order_date' => ['required', 'date'],
             'expected_date' => ['nullable', 'date', 'after_or_equal:order_date'],
             'destination_location_id' => ['required', 'string', 'exists:locations,id'],
@@ -33,5 +39,22 @@ class PurchaseOrderRequest extends FormRequest
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string', 'max:255'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($this->filled('supplier_id')) {
+                $supplier = \App\Models\Supplier::find($this->input('supplier_id'));
+                if ($supplier && $supplier->isAuditExpired()) {
+                    $validator->errors()->add(
+                        'supplier_id',
+                        app()->getLocale() === 'ar'
+                            ? 'لا يمكن إصدار أمر شراء رسمي لمورد انتهت صلاحية تدقيق الجودة الخاص به (منتهي الصلاحية). يرجى تجديد التدقيق أولاً.'
+                            : 'Cannot issue an official Purchase Order to an audit-expired supplier. Please renew qualification audit first.'
+                    );
+                }
+            }
+        });
     }
 }

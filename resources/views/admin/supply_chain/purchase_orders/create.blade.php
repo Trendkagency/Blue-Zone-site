@@ -74,6 +74,10 @@
                         >
                             <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المورد المعتمد --' : '-- Select Qualified Supplier --' }}</option>
                             @foreach($suppliers as $supplier)
+                                @php
+                                    $isAuditExpired = $supplier->isAuditExpired();
+                                    $isAuditExpiring = $supplier->isAuditExpiringSoon();
+                                @endphp
                                 <option 
                                     value="{{ $supplier->id }}" 
                                     {{ old('supplier_id', $selectedQuotation?->supplier_id) == $supplier->id ? 'selected' : '' }}
@@ -81,8 +85,12 @@
                                     data-phone="{{ $supplier->phone ?? '' }}"
                                     data-code="{{ $supplier->code ?? 'VND-'.$supplier->id }}"
                                     data-rating="{{ $supplier->rating ?? 5.0 }}"
+                                    data-expired="{{ $isAuditExpired ? '1' : '0' }}"
+                                    data-expiring="{{ $isAuditExpiring ? '1' : '0' }}"
+                                    data-audit-date="{{ $supplier->audit_valid_until?->format('Y-m-d') ?? '' }}"
+                                    @if($isAuditExpired) disabled @endif
                                 >
-                                    {{ $supplier->name }} — [{{ $supplier->code ?? 'VND-'.$supplier->id }}@if($supplier->phone) | {{ $supplier->phone }}@endif]
+                                    {{ $supplier->name }} — [{{ $supplier->code ?? 'VND-'.$supplier->id }}@if($supplier->phone) | {{ $supplier->phone }}@endif]@if($isAuditExpired) — ({{ app()->getLocale() === 'ar' ? 'منتهي تدقيق الجودة' : 'Audit Expired' }})@elseif($isAuditExpiring) — ({{ app()->getLocale() === 'ar' ? 'قريب الانتهاء' : 'Expiring Soon' }})@endif
                                 </option>
                             @endforeach
                         </select>
@@ -90,12 +98,30 @@
 
                         <!-- Selected Supplier Preview Pill -->
                         <template x-if="getSelectedSupplierInfo()">
-                            <div class="mt-2 p-2 rounded-lg bg-sky-50/60 dark:bg-sky-950/30 border border-sky-100 dark:border-sky-900/40 text-[11px] text-sky-900 dark:text-sky-300 flex items-center justify-between">
-                                <span class="font-bold flex items-center gap-1.5">
-                                    <i class="fa-solid fa-building-circle-check text-sky-600"></i>
-                                    <span x-text="getSelectedSupplierInfo().name"></span>
-                                </span>
-                                <span class="font-mono text-[10px] text-gray-500" x-text="getSelectedSupplierInfo().code"></span>
+                            <div class="mt-2.5 p-2.5 rounded-xl border text-xs flex flex-wrap items-center justify-between gap-2 shadow-xs transition-all"
+                                 :class="getSelectedSupplierInfo().is_expired ? 'bg-rose-50/80 dark:bg-rose-950/30 border-rose-200 dark:border-rose-900/50 text-rose-900 dark:text-rose-200' : (getSelectedSupplierInfo().is_expiring ? 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200' : 'bg-sky-50/60 dark:bg-sky-950/30 border-sky-100 dark:border-sky-900/40 text-sky-900 dark:text-sky-300')">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid" :class="getSelectedSupplierInfo().is_expired ? 'fa-triangle-exclamation text-rose-600' : (getSelectedSupplierInfo().is_expiring ? 'fa-clock text-amber-600' : 'fa-building-circle-check text-sky-600')"></i>
+                                    <span class="font-bold" x-text="getSelectedSupplierInfo().name"></span>
+                                    <span class="font-mono text-[11px] opacity-75" x-text="'(' + getSelectedSupplierInfo().code + ')'"></span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <template x-if="getSelectedSupplierInfo().is_expired">
+                                        <span class="badge badge-rose text-[10px] font-bold">
+                                            <i class="fa-solid fa-ban mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'منتهي تدقيق الجودة (لا يمكن الشراء)' : 'Audit Expired (Order Blocked)' }}
+                                        </span>
+                                    </template>
+                                    <template x-if="getSelectedSupplierInfo().is_expiring && !getSelectedSupplierInfo().is_expired">
+                                        <span class="badge badge-amber text-[10px] font-bold">
+                                            <i class="fa-solid fa-clock mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'تدقيق الجودة ينتهي قريباً' : 'Audit Expiring Soon' }}
+                                        </span>
+                                    </template>
+                                    <template x-if="!getSelectedSupplierInfo().is_expired && !getSelectedSupplierInfo().is_expiring">
+                                        <span class="badge badge-emerald text-[10px] font-bold">
+                                            <i class="fa-solid fa-check mr-1 ml-1"></i> {{ app()->getLocale() === 'ar' ? 'معتمد ومؤهل بالكامل' : 'cGMP Qualified' }}
+                                        </span>
+                                    </template>
+                                </div>
                             </div>
                         </template>
                     </div>
@@ -360,6 +386,9 @@
         'code' => $s->code ?? 'VND-'.$s->id,
         'phone' => $s->phone ?? '',
         'currency' => $s->currency ?? 'AED',
+        'is_expired' => $s->isAuditExpired(),
+        'is_expiring' => $s->isAuditExpiringSoon(),
+        'audit_date' => $s->audit_valid_until?->format('Y-m-d') ?? '',
     ]);
 @endphp
 

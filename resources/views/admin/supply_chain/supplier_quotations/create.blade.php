@@ -57,22 +57,52 @@
                         </label>
                         <select name="supplier_id" id="supplierSelect" required class="form-select text-sm font-semibold @error('supplier_id') border-rose-500 @enderror" onchange="onSupplierChanged(this)">
                             <option value="">-- {{ __('supplier_quotations.select_supplier') }} --</option>
-                            @foreach($suppliers as $sup)
-                                <option value="{{ $sup->id }}" 
-                                        data-currency="{{ $sup->currency ?: $baseCurrency }}"
-                                        data-terms="{{ $sup->payment_terms ?: 'Net 30' }}"
-                                        data-lead="{{ $sup->lead_time_days ?: 14 }}"
-                                        data-name="{{ $sup->name }}"
-                                        data-code="{{ $sup->code }}"
-                                        data-phone="{{ $sup->phone ?: '' }}"
-                                        data-email="{{ $sup->email ?: '' }}"
-                                        data-rating="{{ $sup->rating ?: '5.0' }}"
-                                        data-gmp="{{ $sup->gmp_certified ? '1' : '0' }}"
-                                        data-country="{{ $sup->country?->name_en ?: '' }}"
-                                        {{ (old('supplier_id', $selectedSupplierId) == $sup->id) ? 'selected' : '' }}>
-                                    {{ $sup->name }} — [{{ $sup->code }}@if(!$sup->is_active) | ({{ app()->getLocale() === 'ar' ? 'قيد التأهيل' : 'Pending Qualification' }})@endif @if($sup->phone) | Tel: {{ $sup->phone }}@endif @if($sup->currency) | {{ $sup->currency }}@endif]
-                                </option>
-                            @endforeach
+                            @php
+                                $qualifiedSups = $suppliers->where('is_active', true);
+                                $onboardingSups = $suppliers->where('is_active', false);
+                            @endphp
+
+                            @if($qualifiedSups->count() > 0)
+                                <optgroup label="{{ app()->getLocale() === 'ar' ? 'الموردون المعتمدون المؤهلون' : 'Active Qualified Vendors' }}">
+                                    @foreach($qualifiedSups as $sup)
+                                        <option value="{{ $sup->id }}" 
+                                                data-currency="{{ $sup->currency ?: $baseCurrency }}"
+                                                data-terms="{{ $sup->payment_terms ?: 'Net 30' }}"
+                                                data-lead="{{ $sup->lead_time_days ?: 14 }}"
+                                                data-name="{{ $sup->name }}"
+                                                data-code="{{ $sup->code }}"
+                                                data-phone="{{ $sup->phone ?: '' }}"
+                                                data-email="{{ $sup->email ?: '' }}"
+                                                data-rating="{{ $sup->rating ?: '5.0' }}"
+                                                data-gmp="{{ $sup->gmp_certified ? '1' : '0' }}"
+                                                data-country="{{ $sup->country?->name_en ?: '' }}"
+                                                {{ (old('supplier_id', $selectedSupplierId) == $sup->id) ? 'selected' : '' }}>
+                                            {{ $sup->name }} — [{{ $sup->code }}@if($sup->phone) | Tel: {{ $sup->phone }}@endif @if($sup->currency) | {{ $sup->currency }}@endif]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if($onboardingSups->count() > 0)
+                                <optgroup label="{{ app()->getLocale() === 'ar' ? 'موردون قيد التأهيل والاستدراج' : 'Onboarding / Prospective Vendors' }}">
+                                    @foreach($onboardingSups as $sup)
+                                        <option value="{{ $sup->id }}" 
+                                                data-currency="{{ $sup->currency ?: $baseCurrency }}"
+                                                data-terms="{{ $sup->payment_terms ?: 'Net 30' }}"
+                                                data-lead="{{ $sup->lead_time_days ?: 14 }}"
+                                                data-name="{{ $sup->name }}"
+                                                data-code="{{ $sup->code }}"
+                                                data-phone="{{ $sup->phone ?: '' }}"
+                                                data-email="{{ $sup->email ?: '' }}"
+                                                data-rating="{{ $sup->rating ?: '5.0' }}"
+                                                data-gmp="{{ $sup->gmp_certified ? '1' : '0' }}"
+                                                data-country="{{ $sup->country?->name_en ?: '' }}"
+                                                {{ (old('supplier_id', $selectedSupplierId) == $sup->id) ? 'selected' : '' }}>
+                                            {{ $sup->name }} — [{{ $sup->code }} | ({{ app()->getLocale() === 'ar' ? 'قيد التأهيل' : 'Pending Qualification' }})]
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                         @error('supplier_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>

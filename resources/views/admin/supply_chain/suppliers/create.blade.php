@@ -130,7 +130,8 @@
                     <!-- Audit Expiry / Valid Until Date -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('suppliers.audit_valid_until') }}</label>
-                        <input type="date" name="audit_expiry" value="{{ old('audit_expiry', old('audit_valid_until')) }}" class="form-control text-sm">
+                        <input type="date" name="audit_expiry" value="{{ old('audit_expiry', old('audit_valid_until', date('Y-m-d', strtotime('+1 year')))) }}" class="form-control text-sm font-mono">
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 block">{{ app()->getLocale() === 'ar' ? 'الصلاحية الافتراضية لتدقيق الجودة cGMP محددة بسنة كاملة.' : 'Default cGMP audit validity is set to 1 year.' }}</span>
                         @error('audit_expiry') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>

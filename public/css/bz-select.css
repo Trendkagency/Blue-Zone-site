@@ -7,16 +7,16 @@
 /* Hidden native select, kept fully accessible for forms & validation */
 select.bz-hidden-select {
   position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  z-index: -1 !important;
-  width: 100% !important;
-  height: 100% !important;
-  top: 0 !important;
-  left: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
 }
 
 /* Wrapper */
@@ -92,12 +92,11 @@ select.bz-hidden-select {
 /* Error state inherited from original select */
 .bz-select-trigger.has-error {
   border-color: #EF4444 !important;
-  box-shadow: 0 0 0 1px #EF4444 !important;
 }
 
 .bz-select-trigger.has-error:focus-visible,
 .bz-select-wrapper.is-open .bz-select-trigger.has-error {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
 /* Disabled */
@@ -106,7 +105,6 @@ select.bz-hidden-select {
   cursor: not-allowed;
   background-color: #F1F5F9 !important;
   border-color: #E2E8F0 !important;
-  color: #94A3B8 !important;
 }
 
 /* Content & Chevron */
@@ -177,7 +175,7 @@ select.bz-hidden-select {
   flex-direction: column;
   box-sizing: border-box;
   background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
+  border: 1px solid #E2E8F0;
   border-radius: 0.875rem;
   box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
   overflow: hidden;
@@ -227,15 +225,11 @@ select.bz-hidden-select {
   font-size: 0.8125rem;
   line-height: 1.4;
   border-radius: 0.5rem;
-  border: 1px solid #CBD5E1;
+  border: 1px solid #E2E8F0;
   background-color: #F8FAFC;
   color: #0F172A;
   outline: none;
   transition: all 0.15s ease;
-}
-
-.bz-select-search-input::placeholder {
-  color: #94A3B8;
 }
 
 .bz-select-search-input:focus {
@@ -404,7 +398,7 @@ html.dark .bz-select-trigger.disabled,
 .dark .bz-select-trigger.disabled {
   background-color: #0B132B !important;
   border-color: #1E293B !important;
-  color: #64748B !important;
+  color: #64748B;
 }
 
 /* Dark Mode Dropdown */
@@ -428,11 +422,6 @@ html.dark .bz-select-search-input,
   color: #F8FAFC;
 }
 
-html.dark .bz-select-search-input::placeholder,
-.dark .bz-select-search-input::placeholder {
-  color: #64748B;
-}
-
 html.dark .bz-select-search-input:focus,
 .dark .bz-select-search-input:focus {
   border-color: #38BDF8;
@@ -450,11 +439,6 @@ html.dark .bz-select-search-clear,
 html.dark .bz-select-options::-webkit-scrollbar-thumb,
 .dark .bz-select-options::-webkit-scrollbar-thumb {
   background: #334155;
-}
-
-html.dark .bz-select-options::-webkit-scrollbar-thumb:hover,
-.dark .bz-select-options::-webkit-scrollbar-thumb:hover {
-  background: #475569;
 }
 
 html.dark .bz-select-optgroup-label,
@@ -503,3 +487,4 @@ html[dir="rtl"] .bz-select-chevron,
 [dir="rtl"] .bz-select-chevron {
   margin-inline-start: auto;
 }
+

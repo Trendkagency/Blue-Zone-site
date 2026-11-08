@@ -120,10 +120,17 @@
                 <span>{{ __('purchase_orders.supplier') }}</span>
             </h4>
             <div class="space-y-1.5 text-xs">
-                <div class="text-sm font-bold text-slate-800 dark:text-white">
+                <div class="text-sm font-bold text-slate-800 dark:text-white flex items-center justify-between">
                     <a href="{{ route('admin.suppliers.show', $purchaseOrder->supplier) }}" class="text-sky-600 hover:underline">
                         {{ $purchaseOrder->supplier?->name }}
                     </a>
+                    @if($purchaseOrder->supplier?->isAuditExpired())
+                        <span class="badge badge-rose text-[10px]">{{ app()->getLocale() === 'ar' ? 'منتهي التدقيق' : 'Audit Expired' }}</span>
+                    @elseif($purchaseOrder->supplier?->is_active)
+                        <span class="badge badge-emerald text-[10px]">{{ app()->getLocale() === 'ar' ? 'معتمد' : 'Qualified' }}</span>
+                    @else
+                        <span class="badge badge-amber text-[10px]">{{ app()->getLocale() === 'ar' ? 'قيد التأهيل' : 'Pending' }}</span>
+                    @endif
                 </div>
                 <div class="text-gray-500 font-mono">Code: {{ $purchaseOrder->supplier?->code }}</div>
                 @if($purchaseOrder->supplier?->email)

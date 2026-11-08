@@ -174,8 +174,24 @@
                 <span class="text-gray-500">{{ __('suppliers.audit_valid_until') }}:</span>
                 <span class="font-mono font-bold {{ $supplier->audit_valid_until?->isPast() ? 'text-rose-600' : 'text-slate-800 dark:text-white' }}">
                     {{ $supplier->audit_valid_until?->format('Y-m-d') ?? 'N/A' }}
+                    @if($supplier->audit_valid_until?->isPast())
+                        <span class="text-rose-500 text-[10px] font-bold">({{ app()->getLocale() === 'ar' ? 'منتهي الصلاحية' : 'Expired' }})</span>
+                    @elseif($supplier->isAuditExpiringSoon())
+                        <span class="text-amber-500 text-[10px] font-bold">({{ app()->getLocale() === 'ar' ? 'قريب الانتهاء' : 'Expiring Soon' }})</span>
+                    @endif
                 </span>
             </div>
+            @can('approve', $supplier)
+                <div class="pt-2">
+                    <form method="POST" action="{{ route('admin.suppliers.renew-audit', $supplier) }}" onsubmit="return confirm('{{ app()->getLocale() === 'ar' ? 'تجديد اعتماد تدقيق الجودة للمورد لسنة كاملة؟' : 'Renew supplier quality audit qualification for 1 full year?' }}')">
+                        @csrf
+                        <button type="submit" class="btn btn-xs btn-outline-primary text-[11px] font-bold w-full flex items-center justify-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-arrows-rotate text-sky-500"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'تجديد التدقيق لسنة إضافية' : 'Renew 1-Year Audit' }}</span>
+                        </button>
+                    </form>
+                </div>
+            @endcan
         </div>
 
         <!-- Certifications on File -->
