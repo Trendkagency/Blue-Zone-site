@@ -107,7 +107,8 @@ class PurchaseOrder extends Model
         $prefix = "PO-{$year}-";
 
         return DB::transaction(function () use ($prefix) {
-            $latest = self::where('po_number', 'like', "{$prefix}%")
+            $latest = self::withTrashed()
+                ->where('po_number', 'like', "{$prefix}%")
                 ->lockForUpdate()
                 ->orderBy('id', 'desc')
                 ->first();

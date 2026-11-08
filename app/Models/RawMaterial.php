@@ -48,6 +48,7 @@ class RawMaterial extends Model
         'shelf_life_days',
         'requires_coa',
         'default_supplier_id',
+        'notes',
         'is_active',
     ];
 
@@ -113,6 +114,46 @@ class RawMaterial extends Model
     public function getIsLowStockAttribute(): bool
     {
         return $this->total_available_stock <= (float) $this->min_reorder_qty;
+    }
+
+    public function getNameAttribute(): string
+    {
+        if (app()->getLocale() === 'ar' && !empty($this->name_ar)) {
+            return $this->name_ar;
+        }
+
+        return $this->name_en ?? '';
+    }
+
+    public function getShelfLifeMonthsAttribute(): int
+    {
+        return (int) round(($this->shelf_life_days ?? 730) / 30);
+    }
+
+    public function setShelfLifeMonthsAttribute(int|float|null $value): void
+    {
+        if ($value !== null) {
+            $this->attributes['shelf_life_days'] = max(1, (int) $value) * 30;
+        }
+    }
+
+    public static function generateNextCode(): string
+    {
+        $year = date('Y');
+        $prefix = "RM-{$year}-";
+        $latest = static::withTrashed()
+            ->where('code', 'like', "{$prefix}%")
+            ->orderBy('id', 'desc')
+            ->value('code');
+
+        if ($latest && preg_match('/(\d+)$/', $latest, $m)) {
+            $seq = (int) $m[1] + 1;
+        } else {
+            $count = static::withTrashed()->count();
+            $seq = $count + 1;
+        }
+
+        return sprintf('%s%04d', $prefix, $seq);
     }
 
     public function getSkuAttribute(): ?string

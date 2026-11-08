@@ -103,6 +103,12 @@
                     <span class="text-gray-500">{{ __('raw_materials.safety_stock') }}:</span>
                     <span class="font-mono font-bold text-rose-600">{{ number_format($rawMaterial->safety_stock, 2) }} {{ $rawMaterial->uom?->value }}</span>
                 </div>
+                @if($rawMaterial->notes)
+                <div class="border-t border-gray-100 dark:border-gray-800 pt-2 mt-2">
+                    <span class="text-gray-500 block mb-1 font-bold">{{ __('raw_materials.notes') }}:</span>
+                    <p class="text-slate-700 dark:text-slate-300 text-[11px] leading-relaxed italic bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-slate-100 dark:border-slate-800">{{ $rawMaterial->notes }}</p>
+                </div>
+                @endif
             </div>
         </div>
 

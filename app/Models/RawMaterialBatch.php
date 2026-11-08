@@ -161,7 +161,8 @@ class RawMaterialBatch extends Model
         $prefix = "LOT-RM-{$ym}-";
 
         return DB::transaction(function () use ($prefix) {
-            $latest = self::where('batch_number', 'like', "{$prefix}%")
+            $latest = self::withTrashed()
+                ->where('batch_number', 'like', "{$prefix}%")
                 ->lockForUpdate()
                 ->orderBy('id', 'desc')
                 ->first();

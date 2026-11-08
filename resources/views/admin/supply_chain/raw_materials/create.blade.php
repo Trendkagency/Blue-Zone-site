@@ -3,110 +3,178 @@
     :pageSubtitle="app()->getLocale() === 'ar' ? 'تعريف مادة أولية جديدة، ومواصفات التخزين، والمورد الافتراضي وحدود إعادة الطلب' : 'Register a new clinical raw material with chemical specifications, storage norms and safety stock'"
     :breadcrumbs="[__('raw_materials.title') => route('admin.raw-materials.index'), __('raw_materials.new_material') => '#']"
 >
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto pb-12">
         <form method="POST" action="{{ route('admin.raw-materials.store') }}" class="space-y-6">
             @csrf
 
+            <!-- Section 1: Chemical & Identification Details -->
             <div class="card p-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                    <i class="fa-solid fa-flask text-sky-600"></i>
-                    {{ app()->getLocale() === 'ar' ? 'المعلومات التعريفية والكيميائية' : 'Identity & Chemical Specifications' }}
-                </h3>
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-flask text-sky-600"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'المعلومات التعريفية والكيميائية' : 'Identity & Chemical Specifications' }}</span>
+                    </h3>
+                    <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
+                        cGMP Specification
+                    </span>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Material Code (Auto-Gen with Manual Override) -->
                     <div>
-                        <label class="form-label font-bold text-xs">{{ __('raw_materials.sku') }} <span class="text-rose-500">*</span></label>
-                        <input type="text" name="sku" value="{{ old('sku') }}" required class="form-control text-sm font-mono" placeholder="e.g. RM-NMN-001">
-                        @error('sku') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="form-label font-bold text-xs">{{ __('raw_materials.code') }} <span class="text-rose-500">*</span></label>
+                            <span class="text-[10px] text-sky-600 dark:text-sky-400 font-bold cursor-pointer hover:underline" onclick="document.getElementById('rawMaterialCodeInput').value = '{{ $defaultCode }}'">
+                                <i class="fa-solid fa-arrows-rotate mr-0.5 ml-0.5"></i> {{ __('raw_materials.auto_generate') }}
+                            </span>
+                        </div>
+                        <input type="text" 
+                               name="code" 
+                               id="rawMaterialCodeInput" 
+                               value="{{ old('code', old('sku', $defaultCode)) }}" 
+                               required 
+                               class="form-control text-sm font-mono tracking-wider @error('code') border-rose-500 @enderror" 
+                               placeholder="e.g. RM-2026-0001">
+                        @error('code') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Category -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.category') }} <span class="text-rose-500">*</span></label>
-                        <select name="category" required class="form-select text-sm">
-                            @foreach(\App\Enums\RawMaterialCategory::cases() as $category)
+                        <select name="category" required class="form-select text-sm @error('category') border-rose-500 @enderror">
+                            @foreach($categories as $category)
                                 <option value="{{ $category->value }}" {{ old('category') === $category->value ? 'selected' : '' }}>
                                     {{ $category->label() }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('category') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('category') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Name (English) -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.name_en') }} <span class="text-rose-500">*</span></label>
-                        <input type="text" name="name_en" value="{{ old('name_en') }}" required class="form-control text-sm" placeholder="e.g. Nicotinamide Mononucleotide (NMN)">
-                        @error('name_en') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input type="text" 
+                               name="name_en" 
+                               value="{{ old('name_en') }}" 
+                               required 
+                               class="form-control text-sm @error('name_en') border-rose-500 @enderror" 
+                               placeholder="e.g. Nicotinamide Mononucleotide (NMN)">
+                        @error('name_en') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Name (Arabic) -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.name_ar') }}</label>
-                        <input type="text" name="name_ar" value="{{ old('name_ar') }}" class="form-control text-sm" placeholder="مثال: نيوكليوتيد أحادي النيكوتيناميد (NMN)">
-                        @error('name_ar') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        <input type="text" 
+                               name="name_ar" 
+                               value="{{ old('name_ar') }}" 
+                               class="form-control text-sm font-tajawal @error('name_ar') border-rose-500 @enderror" 
+                               placeholder="مثال: نيوكليوتيد أحادي النيكوتيناميد (NMN)">
+                        @error('name_ar') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- INCI Name -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.inci_name') }}</label>
-                        <input type="text" name="inci_name" value="{{ old('inci_name') }}" class="form-control text-sm font-mono" placeholder="INCI Standard Name">
+                        <input type="text" 
+                               name="inci_name" 
+                               value="{{ old('inci_name') }}" 
+                               class="form-control text-sm font-mono" 
+                               placeholder="INCI Standard Chemical Name">
                     </div>
 
+                    <!-- CAS Number -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.cas_number') }}</label>
-                        <input type="text" name="cas_number" value="{{ old('cas_number') }}" class="form-control text-sm font-mono" placeholder="e.g. 1094-61-7">
+                        <input type="text" 
+                               name="cas_number" 
+                               value="{{ old('cas_number') }}" 
+                               class="form-control text-sm font-mono" 
+                               placeholder="e.g. 1094-61-7">
                     </div>
 
+                    <!-- Unit of Measure (UOM) -->
                     <div>
-                        <label class="form-label font-bold text-xs">{{ __('raw_materials.uom') }} <span class="text-rose-500">*</span></label>
-                        <select name="uom" required class="form-select text-sm">
-                            @foreach(\App\Enums\UnitOfMeasure::cases() as $uom)
-                                <option value="{{ $uom->value }}" {{ old('uom') === $uom->value ? 'selected' : '' }}>
-                                    {{ $uom->label() }}
+                        <label class="form-label font-bold text-xs">{{ __('raw_materials.unit_of_measure') }} <span class="text-rose-500">*</span></label>
+                        <select name="unit_of_measure" required class="form-select text-sm font-bold @error('unit_of_measure') border-rose-500 @enderror">
+                            @foreach($units as $uom)
+                                <option value="{{ $uom->value }}" {{ old('unit_of_measure', old('uom', 'kg')) === $uom->value ? 'selected' : '' }}>
+                                    {{ $uom->label() }} ({{ $uom->value }})
                                 </option>
                             @endforeach
                         </select>
-                        @error('uom') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('unit_of_measure') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Storage Condition -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.storage_condition') }} <span class="text-rose-500">*</span></label>
-                        <select name="storage_condition" required class="form-select text-sm">
-                            @foreach(\App\Enums\StorageCondition::cases() as $sc)
+                        <select name="storage_condition" required class="form-select text-sm @error('storage_condition') border-rose-500 @enderror">
+                            @foreach($storageConditions as $sc)
                                 <option value="{{ $sc->value }}" {{ old('storage_condition') === $sc->value ? 'selected' : '' }}>
                                     {{ $sc->label() }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('storage_condition') <span class="text-rose-500 text-xs">{{ $message }}</span> @enderror
+                        @error('storage_condition') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Inventory Planning & Sourcing -->
+            <!-- Section 2: Inventory Planning, Safety Stock & Sourcing -->
             <div class="card p-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
-                <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                    <i class="fa-solid fa-boxes-packing text-emerald-600"></i>
-                    {{ app()->getLocale() === 'ar' ? 'التخطيط وإدارة المخزون والتوريد' : 'Inventory Planning & Sourcing' }}
-                </h3>
+                <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-packing text-emerald-600"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'التخطيط وإدارة المخزون والتوريد' : 'Inventory Planning & Sourcing' }}</span>
+                    </h3>
+                    <span class="text-xs text-gray-500">
+                        {{ app()->getLocale() === 'ar' ? 'حسابات إعادة الطلب وسياسة FEFO' : 'MRP & FEFO Parameters' }}
+                    </span>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Min Reorder Level (ROP) -->
                     <div>
-                        <label class="form-label font-bold text-xs">{{ __('raw_materials.reorder_level') }} <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.0001" name="reorder_level" value="{{ old('reorder_level', 10.0000) }}" required class="form-control text-sm font-mono">
+                        <label class="form-label font-bold text-xs">{{ __('raw_materials.min_reorder_qty') }} <span class="text-rose-500">*</span></label>
+                        <input type="number" 
+                               step="0.0001" 
+                               name="min_reorder_qty" 
+                               value="{{ old('min_reorder_qty', old('reorder_level', 10.0000)) }}" 
+                               required 
+                               class="form-control text-sm font-mono @error('min_reorder_qty') border-rose-500 @enderror">
+                        @error('min_reorder_qty') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Safety Stock Buffer -->
                     <div>
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.safety_stock') }} <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.0001" name="safety_stock" value="{{ old('safety_stock', 5.0000) }}" required class="form-control text-sm font-mono">
+                        <input type="number" 
+                               step="0.0001" 
+                               name="safety_stock" 
+                               value="{{ old('safety_stock', 5.0000) }}" 
+                               required 
+                               class="form-control text-sm font-mono @error('safety_stock') border-rose-500 @enderror">
+                        @error('safety_stock') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Standard Cost -->
                     <div>
-                        <label class="form-label font-bold text-xs">{{ __('raw_materials.standard_cost') }} (AED)</label>
-                        <input type="number" step="0.01" name="standard_cost" value="{{ old('standard_cost', 0.00) }}" class="form-control text-sm font-mono">
+                        <label class="form-label font-bold text-xs">{{ __('raw_materials.standard_cost') }}</label>
+                        <input type="number" 
+                               step="0.01" 
+                               name="standard_cost" 
+                               value="{{ old('standard_cost', 0.00) }}" 
+                               class="form-control text-sm font-mono @error('standard_cost') border-rose-500 @enderror">
+                        @error('standard_cost') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
+                    <!-- Primary Sourcing Partner -->
                     <div class="md:col-span-2">
                         <label class="form-label font-bold text-xs">{{ __('raw_materials.default_supplier') }}</label>
                         <select name="default_supplier_id" class="form-select text-sm">
-                            <option value="">{{ app()->getLocale() === 'ar' ? 'بدون مورد افتراضي' : 'None (Select when creating PO)' }}</option>
+                            <option value="">{{ __('raw_materials.select_supplier') }}</option>
                             @foreach($suppliers as $supplier)
                                 <option value="{{ $supplier->id }}" {{ old('default_supplier_id') == $supplier->id ? 'selected' : '' }}>
                                     {{ $supplier->name }} ({{ $supplier->code }})
@@ -115,26 +183,75 @@
                         </select>
                     </div>
 
+                    <!-- Shelf Life (Days) -->
                     <div>
-                        <label class="form-label font-bold text-xs">{{ app()->getLocale() === 'ar' ? 'فترة الصلاحية الافتراضية (بالأشهر)' : 'Shelf Life (Months)' }}</label>
-                        <input type="number" name="shelf_life_months" value="{{ old('shelf_life_months', 24) }}" class="form-control text-sm font-mono">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="form-label font-bold text-xs">{{ __('raw_materials.shelf_life_days') }} <span class="text-rose-500">*</span></label>
+                            <span class="text-[10px] text-gray-400 font-mono" id="shelfLifeMonthsHint">
+                                (24 {{ app()->getLocale() === 'ar' ? 'شهراً' : 'months' }})
+                            </span>
+                        </div>
+                        <input type="number" 
+                               name="shelf_life_days" 
+                               id="shelfLifeDaysInput"
+                               value="{{ old('shelf_life_days', 730) }}" 
+                               min="30" 
+                               max="3650"
+                               required 
+                               class="form-control text-sm font-mono @error('shelf_life_days') border-rose-500 @enderror"
+                               oninput="updateShelfLifeHint(this.value)">
+                        @error('shelf_life_days') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
+                <!-- COA Requirement Checkbox -->
+                <div class="pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" 
+                               name="requires_coa" 
+                               value="1" 
+                               {{ old('requires_coa', '1') ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-sky-600 shadow-sm focus:ring-sky-500">
+                        <span class="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            {{ __('raw_materials.requires_coa') }}
+                        </span>
+                        <span class="text-[11px] text-gray-400">
+                            ({{ app()->getLocale() === 'ar' ? 'يمنع صرف أي تشغيلة دون فحص مخبري ومطابقة شهادة التحليل' : 'Enforces QC quarantine lock until COA is verified' }})
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Notes & Special Storage Handling -->
                 <div>
                     <label class="form-label font-bold text-xs">{{ __('raw_materials.notes') }}</label>
-                    <textarea name="notes" rows="2" class="form-control text-sm" placeholder="Handling precautions, light sensitivity, hygroscopic notes...">{{ old('notes') }}</textarea>
+                    <textarea name="notes" 
+                              rows="3" 
+                              class="form-control text-sm" 
+                              placeholder="{{ app()->getLocale() === 'ar' ? 'تعليمات التخزين، الحساسية للضوء أو الرطوبة، اشتراطات الغاز الخامل أو متطلبات cGMP...' : 'Handling precautions, light sensitivity, hygroscopic notes, inert nitrogen flush requirements...' }}">{{ old('notes') }}</textarea>
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3">
+            <!-- Submit Button Bar -->
+            <div class="flex items-center justify-end gap-3 pt-2">
                 <a href="{{ route('admin.raw-materials.index') }}" class="btn btn-secondary text-sm">
                     {{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}
                 </a>
-                <button type="submit" class="btn btn-primary text-sm font-bold shadow-sm">
-                    <i class="fa-solid fa-save mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'حفظ المادة الأولية' : 'Save Material' }}
+                <button type="submit" class="btn btn-primary text-sm font-bold shadow-sm px-5">
+                    <i class="fa-solid fa-save mr-1.5 ml-1.5"></i> {{ app()->getLocale() === 'ar' ? 'حفظ المادة الأولية' : 'Save Raw Material' }}
                 </button>
             </div>
         </form>
     </div>
+
+    <script>
+        function updateShelfLifeHint(days) {
+            const num = parseInt(days) || 0;
+            const months = Math.round(num / 30);
+            const isAr = "{{ app()->getLocale() }}" === 'ar';
+            const hint = document.getElementById('shelfLifeMonthsHint');
+            if (hint) {
+                hint.textContent = `(${months} ${isAr ? 'شهراً' : 'months'})`;
+            }
+        }
+    </script>
 </x-layouts.admin>

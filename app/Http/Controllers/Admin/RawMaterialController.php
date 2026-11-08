@@ -79,8 +79,9 @@ class RawMaterialController extends Controller
         $categories = RawMaterialCategory::cases();
         $storageConditions = StorageCondition::cases();
         $units = UnitOfMeasure::cases();
+        $defaultCode = RawMaterial::generateNextCode();
 
-        return view('admin.supply_chain.raw_materials.create', compact('suppliers', 'categories', 'storageConditions', 'units'));
+        return view('admin.supply_chain.raw_materials.create', compact('suppliers', 'categories', 'storageConditions', 'units', 'defaultCode'));
     }
 
     public function store(RawMaterialRequest $request): RedirectResponse
