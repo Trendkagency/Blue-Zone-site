@@ -56,9 +56,7 @@ class GoodsReceiptController extends Controller
             'total_grns' => GoodsReceipt::count(),
             'received' => GoodsReceipt::where('status', GoodsReceiptStatus::Received)->count(),
             'drafts' => GoodsReceipt::where('status', GoodsReceiptStatus::Draft)->count(),
-            'broken_seals' => GoodsReceipt::where(function ($q) {
-                $q->where('seal_verified', false)->orWhere('seal_intact', false);
-            })->count(),
+            'broken_seals' => GoodsReceipt::where('seal_verified', false)->count(),
         ];
 
         $suppliers = Supplier::where('is_active', true)->orderBy('name_en')->get();
@@ -215,7 +213,6 @@ class GoodsReceiptController extends Controller
             'receiver',
             'items.rawMaterial',
             'items.product',
-            'items.batch',
             'batches.inspections',
         ]);
 

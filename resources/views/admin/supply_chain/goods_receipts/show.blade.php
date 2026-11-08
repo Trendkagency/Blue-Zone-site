@@ -150,7 +150,7 @@
                     @foreach($goodsReceipt->items as $item)
                         @php
                             $isProduct = $item->item_type === 'product';
-                            $batch = $item->batch;
+                            $batch = $goodsReceipt->batches->firstWhere('raw_material_id', $item->raw_material_id);
                         @endphp
                         <tr class="hover:bg-purple-50/20 dark:hover:bg-slate-800/30 transition">
                             <td class="whitespace-nowrap px-3.5 py-3">

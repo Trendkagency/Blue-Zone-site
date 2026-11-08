@@ -62,12 +62,6 @@ class GoodsReceiptItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function batch(): \Illuminate\Database\Eloquent\Relations\HasOne
-    {
-        return $this->hasOne(RawMaterialBatch::class, 'goods_receipt_id', 'goods_receipt_id')
-            ->whereColumn('raw_material_batches.raw_material_id', 'goods_receipt_items.raw_material_id');
-    }
-
     public function getItemNameAttribute(): string
     {
         if ($this->item_type === 'product' && $this->product) {
