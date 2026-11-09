@@ -982,5 +982,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Support & Full System Knowledge Guide Hub
         Route::get('/guide', [GuideController::class, 'index'])->name('guide.index');
+
+        // Defensive Route Aliases for Compatibility
+        Route::get('/financial-accounts', fn() => redirect()->route('admin.finance.accounts.index'))->name('financial-accounts.index');
+        Route::get('/hero-slider-redirect', fn() => redirect()->route('admin.hero-slides.index'))->name('hero-slider.index');
     });
 });
