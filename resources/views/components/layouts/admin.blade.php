@@ -50,6 +50,7 @@
                     $isHrActive = request()->routeIs('admin.hr.*') || request()->is('admin/hr*');
                     $isContentAccessActive = request()->routeIs('admin.content.*') || request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*');
                     $isSettingsActive = request()->routeIs('admin.settings.*') || request()->routeIs('admin.countries.*') || request()->routeIs('admin.profile.*') || request()->routeIs('admin.hero-slides.*');
+                    $isGuideActive = request()->routeIs('admin.guide.*');
                 @endphp
 
                 @php
@@ -735,6 +736,40 @@
                         <span>{{ __('admin.profile.title') }}</span>
                     </a>
                 @endif
+
+                <!-- 7. Support & Guide Hub (Latest Section in Sidebar) -->
+                <div class="sidebar-dropdown-group {{ $isGuideActive ? 'is-open' : '' }}" id="group-guide">
+                    <button type="button" class="sidebar-dropdown-btn {{ $isGuideActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-guide')" style="border-top: 1px solid rgba(42, 143, 194, 0.25); margin-top: 0.75rem; padding-top: 0.75rem;">
+                        <div class="sidebar-dropdown-label">
+                            <i class="fa-solid fa-compass-drafting sidebar-link-icon text-cyan-400"></i>
+                            <span class="font-bold tracking-wider uppercase text-[12px] text-cyan-400">{{ app()->getLocale() === 'ar' ? 'الدعم والدليل' : 'SUPPORT & GUIDE' }}</span>
+                            <span class="badge text-[9px] py-0 px-1.5 font-bold rounded-full uppercase tracking-wider" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(14,165,233,0.3)); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4);">Hub</span>
+                        </div>
+                        <div class="sidebar-dropdown-meta">
+                            <i class="fa-solid fa-chevron-down sidebar-dropdown-chevron"></i>
+                        </div>
+                    </button>
+                    <div class="sidebar-submenu">
+                        <a href="{{ route('admin.guide.index') }}"
+                            class="sidebar-sublink {{ request()->routeIs('admin.guide.index') && !request()->has('section') ? 'active' : '' }}"
+                            title="{{ app()->getLocale() === 'ar' ? 'الدليل التشغيلي والمعماري الشامل' : 'Comprehensive System Knowledge Hub' }}">
+                            <i class="fa-solid fa-book-open-reader text-xs text-cyan-400"></i>
+                            <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'المركز التفاعلي للدليل' : 'Interactive Guide Hub' }}</span>
+                        </a>
+                        <a href="{{ route('admin.guide.index') }}#logic-cycles"
+                            class="sidebar-sublink"
+                            title="{{ app()->getLocale() === 'ar' ? 'مخططات دورات العمل المحاسبية والتشغيلية' : 'End-to-End Logic Cycles & Flowcharts' }}">
+                            <i class="fa-solid fa-diagram-project text-xs text-emerald-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'دورات ومخططات العمل' : 'Logic Cycles' }}</span>
+                        </a>
+                        <a href="{{ route('admin.guide.index') }}#system-catalog"
+                            class="sidebar-sublink"
+                            title="{{ app()->getLocale() === 'ar' ? 'فهرس الشاشات والعناصر والحقول' : 'Screens, Elements & Actions Catalog' }}">
+                            <i class="fa-solid fa-table-cells text-xs text-amber-400"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'فهرس الشاشات والعناصر' : 'Elements Catalog' }}</span>
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 

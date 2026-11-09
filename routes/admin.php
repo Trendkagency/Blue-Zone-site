@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\CrmSalesExcelController;
 use App\Http\Controllers\Admin\CrmSegmentController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\InvoiceController;
@@ -978,5 +979,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/countries/{id}/cities', [CityController::class, 'getCitiesByCountry'])->name('api.countries.cities');
         Route::get('/api/cities/{id}/areas', [AreaController::class, 'getAreasByCity'])->name('api.cities.areas');
         Route::get('/api/areas/{id}/breaks', [BreakController::class, 'getBreaksByArea'])->name('api.areas.breaks');
+
+        // Support & Full System Knowledge Guide Hub
+        Route::get('/guide', [GuideController::class, 'index'])->name('guide.index');
     });
 });
