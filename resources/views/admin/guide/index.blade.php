@@ -1,22 +1,21 @@
 <x-layouts.admin 
-    :pageTitle="app()->getLocale() === 'ar' ? 'مركز الدعم والدليل الشامل للنظام' : 'System Knowledge Hub & Support Guide'" 
-    :pageSubtitle="app()->getLocale() === 'ar' ? 'المرجع المعماري والتشغيلي المكتمل لكافة دورات العمل، الشاشات، والمنطق المحاسبي والمخزني في منصة Bluezone' : 'Comprehensive Architectural & Operational Knowledge Base for Bluezone Bioceuticals OS'"
+    :pageTitle="app()->getLocale() === 'ar' ? 'مركز الدعم ودليل دورات عمل النظام الشامل' : 'Comprehensive System Support & Logic Cycles Guide'" 
+    :pageSubtitle="app()->getLocale() === 'ar' ? 'المرجع المعماري والتشغيلي المكتمل لكافة أقسام ودورات عمل (Logic Cycles) منصة Bluezone OS' : 'Full Architectural & Operational Cycles for all Bluezone Bioceuticals Enterprise Sections'"
     :breadcrumbs="[
         (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
-        (app()->getLocale() === 'ar' ? 'الدعم والدليل' : 'Support & Guide') => route('admin.guide.index')
+        (app()->getLocale() === 'ar' ? 'الدعم والدليل الشامل' : 'Support & Guide') => route('admin.guide.index')
     ]"
 >
     <!-- ========================================================================= -->
-    <!-- EXECUTIVE DUAL-THEME STYLES (WCAG AAA DARK & LIGHT COMPLIANT) -->
+    <!-- DUAL-THEME STYLES (WCAG AAA DARK & LIGHT COMPLIANT) -->
     <!-- ========================================================================= -->
     <style>
-        /* Base Container */
         .bz-guide-shell {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Cairo", sans-serif;
             transition: all 0.25s ease;
         }
 
-        /* Executive Header Banner */
+        /* Hero Banner */
         .bz-guide-hero {
             background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 50%, #e0f2fe 100%);
             border: 1px solid #bae6fd;
@@ -28,90 +27,89 @@
             box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
         }
 
-        /* Interactive Navigation Tab Button */
-        .bz-guide-tab-btn {
+        /* Tab / Section Button */
+        .bz-tab-pill {
             display: inline-flex;
             align-items: center;
-            gap: 0.65rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
+            gap: 0.6rem;
+            padding: 0.65rem 1.15rem;
+            border-radius: 9999px;
+            font-size: 0.825rem;
             font-weight: 700;
             color: #334155;
             background: #ffffff;
             border: 1.5px solid #cbd5e1;
             white-space: nowrap;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         }
-        .dark .bz-guide-tab-btn {
+        .dark .bz-tab-pill {
             color: #cbd5e1;
             background: #081d2f;
             border-color: #1e3a52;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
-        .bz-guide-tab-btn:hover {
-            color: #0369a1;
+        .bz-tab-pill:hover {
+            color: #0284c7;
             border-color: #0284c7;
             background: #f8fafc;
             transform: translateY(-2px);
         }
-        .dark .bz-guide-tab-btn:hover {
+        .dark .bz-tab-pill:hover {
             color: #ffffff;
             border-color: #38bdf8;
             background: #0c273e;
             transform: translateY(-2px);
         }
-        .bz-guide-tab-btn.active-tab {
+        .bz-tab-pill.active {
             background: linear-gradient(135deg, #0A4F78 0%, #0284c7 100%) !important;
             color: #ffffff !important;
             border-color: #0A4F78 !important;
-            box-shadow: 0 6px 20px -2px rgba(2, 132, 199, 0.4) !important;
-        }
-        .bz-guide-tab-btn.active-tab i {
-            color: #7dd3fc !important;
+            box-shadow: 0 4px 16px -2px rgba(2, 132, 199, 0.4) !important;
         }
 
-        /* Modular Section Cards */
-        .bz-guide-panel {
+        /* Section Container Panel */
+        .bz-section-panel {
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
             border-radius: 1.5rem;
             box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
         }
-        .dark .bz-guide-panel {
+        .dark .bz-section-panel {
             background: #081d2f;
             border-color: #1e3a52;
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Flowchart Node Cards with Zero Text Overlaps */
-        .bz-flow-node {
+        /* Flow Node Card (Cycle Step) */
+        .bz-cycle-step {
             background: #f8fafc;
             border: 1.5px solid #e2e8f0;
-            border-radius: 1.15rem;
-            padding: 1.15rem;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            position: relative;
             transition: all 0.25s ease;
         }
-        .dark .bz-flow-node {
+        .dark .bz-cycle-step {
             background: #061a2b;
             border-color: #15395b;
         }
-        .bz-flow-node:hover {
+        .bz-cycle-step:hover {
             border-color: #0284c7;
             background: #ffffff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15);
         }
-        .dark .bz-flow-node:hover {
+        .dark .bz-cycle-step:hover {
             border-color: #38bdf8;
             background: #0a253d;
-            box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6);
         }
 
-        /* Gallery Screen Card with Apple-Style Zoom Action */
+        /* Screen Card Thumbnail */
         .bz-screen-card {
             position: relative;
             border-radius: 1.25rem;
@@ -142,16 +140,16 @@
         .bz-screen-zoom-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(8, 29, 47, 0.65);
+            background: rgba(8, 29, 47, 0.7);
             backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: all 0.25s ease;
+            transition: opacity 0.25s ease;
         }
 
-        /* Fullscreen Smooth Lightbox Modal */
+        /* Fullscreen Lightbox Modal */
         #guideLightbox {
             position: fixed;
             inset: 0;
@@ -159,7 +157,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(2, 18, 30, 0.88);
+            background: rgba(2, 18, 30, 0.9);
             backdrop-filter: blur(24px);
             opacity: 0;
             transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -191,95 +189,143 @@
         }
     </style>
 
-    <div class="bz-guide-shell space-y-8 pb-20">
+    <div class="bz-guide-shell space-y-8 pb-24">
         
         <!-- ========================================================================= -->
-        <!-- 1. EXECUTIVE HERO COMMAND BANNER -->
+        <!-- 1. EXECUTIVE HERO COMMAND BANNER WITH REAL-TIME METRICS -->
         <!-- ========================================================================= -->
         <div class="bz-guide-hero relative overflow-hidden rounded-3xl p-6 sm:p-8 transition-colors">
-            <!-- Decorative Accent Elements -->
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-sky-400/15 dark:bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-emerald-400/15 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div class="space-y-3 max-w-3xl">
                     <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30">
-                        <i class="fa-solid fa-compass-drafting"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'المرجع التشغيلي والمعماري المعتمد لـ Bluezone' : 'Official Bluezone OS Architecture & Operations' }}</span>
+                        <i class="fa-solid fa-compass-drafting text-sky-600 dark:text-sky-400"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'المرجع التشغيلي والمعماري الشامل لكافة دورات النظام (End-to-End Logic Cycles)' : 'Bluezone OS Complete Architecture & Logic Cycles Knowledge Hub' }}</span>
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     </div>
 
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                        {{ app()->getLocale() === 'ar' ? 'دليل النظام والتوثيق التشغيلي الشامل' : 'System Knowledge Hub & Support Guide' }}
+                        {{ app()->getLocale() === 'ar' ? 'دليل أقسام ودورات عمل النظام بالكامل' : 'Complete System Sections & Workflow Logic Cycles' }}
                     </h1>
 
                     <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
                         {{ app()->getLocale() === 'ar' 
-                            ? 'شرح معماري وتطبيقي دقيق بدون أي فجوات يشمل كافة دورات العمل (Logic Cycles)، الشاشات، عناصر التحكم، والقيود المحاسبية والمخزنية مع لقطات حية وتكبير سلس متوافق كلياً مع الوضعين الداكن والفاتح.' 
-                            : 'Exhaustive zero-gap enterprise documentation covering all business cycles, screens, inputs, accounting directives, and inventory movements with live smooth visual lightbox in Dark and Light modes.' }}
+                            ? 'توثيق معماري وميداني تفصيلي مقسم إلى أقسام متخصصة، حيث يحتوي كل قسم على دورة العمل (Cycle) الخاصة به بدون أي فجوات، متضمناً الجداول، عناصر التحكم، واللقطات الحية المكبرة مع دعم الوضعين الفاتح والداكن.' 
+                            : 'Zero-gap modular documentation partitioned into dedicated enterprise sections, each holding its complete end-to-end business cycle, schema mapping, UI actions and zoomable live screenshots.' }}
                     </p>
                 </div>
 
-                <!-- Live Metrics Summary Pills -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
-                    <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
-                        <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'المنتجات' : 'Products' }}</div>
-                        <div class="text-xl font-black text-slate-900 dark:text-sky-400 font-mono">{{ $systemMetrics['products_count'] }}</div>
+                <!-- Live Metrics Summary Grid (Reflecting All System Modules) -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 w-full lg:w-auto">
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'المنتجات' : 'Products' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-sky-400 font-mono">{{ $systemMetrics['products_count'] }}</div>
                     </div>
-                    <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
-                        <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'الموردين' : 'Suppliers' }}</div>
-                        <div class="text-xl font-black text-slate-900 dark:text-emerald-400 font-mono">{{ $systemMetrics['suppliers_count'] }}</div>
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'الموردين' : 'Suppliers' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-emerald-400 font-mono">{{ $systemMetrics['suppliers_count'] }}</div>
                     </div>
-                    <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
-                        <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Orders' }}</div>
-                        <div class="text-xl font-black text-slate-900 dark:text-amber-400 font-mono">{{ $systemMetrics['purchase_orders_count'] }}</div>
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'POs' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-amber-400 font-mono">{{ $systemMetrics['purchase_orders_count'] }}</div>
                     </div>
-                    <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
-                        <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'المستودعات' : 'Depots' }}</div>
-                        <div class="text-xl font-black text-slate-900 dark:text-purple-400 font-mono">{{ $systemMetrics['warehouses_count'] }}</div>
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'التصنيع' : 'Production' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-purple-400 font-mono">{{ $systemMetrics['work_orders_count'] }}</div>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'الموظفين' : 'HR Staff' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-teal-400 font-mono">{{ $systemMetrics['employees_count'] }}</div>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-white/80 dark:bg-[#061a2b]/80 border border-slate-200 dark:border-[#1e3a52] text-center shadow-xs">
+                        <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-0.5">{{ app()->getLocale() === 'ar' ? 'القيود المالية' : 'Transactions' }}</div>
+                        <div class="text-lg font-black text-slate-900 dark:text-indigo-400 font-mono">{{ $systemMetrics['financial_transactions_count'] }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 2. INTERACTIVE MODULE NAVIGATION TABS BAR -->
+        <!-- 2. QUICK SEARCH & SECTION FILTER PILLS (FULL SYSTEM NAVIGATOR) -->
         <!-- ========================================================================= -->
-        <div class="bz-guide-panel p-4">
-            <div class="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-none">
-                <button type="button" class="bz-guide-tab-btn active-tab" onclick="switchGuideModule('products', this)">
+        <div class="bz-section-panel p-4 space-y-4">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <!-- Search Filter Input -->
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="guideSearchInput" oninput="filterGuideSections(this.value)" 
+                           placeholder="{{ app()->getLocale() === 'ar' ? 'ابحث عن أي قسم أو دورة عمل (مثال: حجر صحي، أمر شراء، باقات تآزر، راتب، شجرة حسابات)...' : 'Filter sections and logic cycles (e.g. quarantine, PO, bundles, payroll, ledger)...' }}"
+                           class="w-full pl-4 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-[#061a2b] border border-slate-200 dark:border-[#1e3a52] text-slate-800 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#0284c7]">
+                </div>
+
+                <div class="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 self-center">
+                    <i class="fa-solid fa-layer-group text-[#0284c7]"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '11 قسم معماري متكامل' : '11 Enterprise Core Sections' }}</span>
+                </div>
+            </div>
+
+            <!-- Dynamic Pill Selectors -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none">
+                <button type="button" class="bz-tab-pill active" onclick="filterBySectionTag('all', this)">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? 'كافة الأقسام' : 'All Sections' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('products', this)">
                     <i class="fa-solid fa-box-open text-sky-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'المنتجات وتخصيص الواجهة' : 'Products & Customizer' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? '1. الكتالوج والمنتجات' : '1. Catalog & Products' }}</span>
                 </button>
-                <button type="button" class="bz-guide-tab-btn" onclick="switchGuideModule('purchases', this)">
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('purchasing', this)">
                     <i class="fa-solid fa-cart-shopping text-emerald-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'المشتريات وسندات الاستلام' : 'Purchasing & GRN' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? '2. المشتريات والموردين' : '2. Purchasing & Vendors' }}</span>
                 </button>
-                <button type="button" class="bz-guide-tab-btn" onclick="switchGuideModule('inventory', this)">
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('qc', this)">
+                    <i class="fa-solid fa-snowflake text-cyan-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '3. الحجر وضبط الجودة' : '3. Cold-Chain & QC' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('inventory', this)">
                     <i class="fa-solid fa-warehouse text-amber-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'المخزون والتوزيع المزدوج' : 'Inventory & Batches' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? '4. المخزون والتشغيلات' : '4. Inventory & Batches' }}</span>
                 </button>
-                <button type="button" class="bz-guide-tab-btn" onclick="switchGuideModule('slider', this)">
-                    <i class="fa-solid fa-images text-indigo-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة والمحاكاة' : 'Hero Slider Studio' }}</span>
-                </button>
-                <button type="button" class="bz-guide-tab-btn" onclick="switchGuideModule('manufacturing', this)">
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('manufacturing', this)">
                     <i class="fa-solid fa-industry text-purple-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'التصنيع وفحص الجودة cGMP' : 'Manufacturing & QC' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? '5. التصنيع cGMP' : '5. Manufacturing' }}</span>
                 </button>
-                <button type="button" class="bz-guide-tab-btn" onclick="switchGuideModule('finance', this)">
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('sales', this)">
+                    <i class="fa-solid fa-truck-fast text-rose-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '6. الطلبات والشحن' : '6. Orders & Shipping' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('finance', this)">
                     <i class="fa-solid fa-coins text-teal-500"></i>
-                    <span>{{ app()->getLocale() === 'ar' ? 'المالية وسندات التحصيل' : 'Finance & Ledger' }}</span>
+                    <span>{{ app()->getLocale() === 'ar' ? '7. المالية والحسابات' : '7. Finance & Ledger' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('field-crm', this)">
+                    <i class="fa-solid fa-user-doctor text-blue-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '8. المندوبون والعيادات' : '8. Field MR & Clinics' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('sales-crm', this)">
+                    <i class="fa-solid fa-handshake text-orange-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '9. علاقات العملاء CRM' : '9. Sales Deals CRM' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('hr', this)">
+                    <i class="fa-solid fa-users text-green-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '10. الموارد والرواتب' : '10. HR & Payroll' }}</span>
+                </button>
+                <button type="button" class="bz-tab-pill" onclick="filterBySectionTag('security', this)">
+                    <i class="fa-solid fa-shield-halved text-indigo-500"></i>
+                    <span>{{ app()->getLocale() === 'ar' ? '11. السلايدر والأمان' : '11. Slider & Security' }}</span>
                 </button>
             </div>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 3. TAB 1: PRODUCTS & SECTION CUSTOMIZER -->
+        <!-- SECTION 1: CATALOG, PRODUCTS & CUSTOMIZER -->
         <!-- ========================================================================= -->
-        <div id="module-products" class="bz-guide-module-view space-y-6">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
-                <!-- Section Header -->
+        <div class="bz-system-section space-y-6" data-section="products" data-keywords="products catalog customizer bundles pricing sku clinical ingredients مخصص أقسام باقات تآزر تسعير">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
                     <div class="flex items-center gap-4">
                         <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#0A4F78] to-[#0284c7] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#0A4F78]/25 flex-shrink-0">
@@ -287,212 +333,110 @@
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30 px-2 py-0.5 rounded-full">CORE CATALOG</span>
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30 px-2 py-0.5 rounded-full">SECTION 01</span>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                                     {{ app()->getLocale() === 'ar' ? 'إدارة المنتجات، تخصيص الأقسام وباقات التآزر' : 'Product Lifecycle, Section Customizer & Bundles' }}
                                 </h2>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/products/create — معالج الخطوات السبع، الأقسام الثمانية، الحفظ التلقائي للمسودات، وباقات التآزر' : 'Path: /admin/products/create — 7-Step Floating Wizard, 8 Monograph Sections, Auto-Drafting & Synergistic Bundles' }}
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/products — معالج الخطوات السبع، الأقسام الثمانية، الحفظ التلقائي للمسودات، وباقات التآزر الموحدة' : 'Route: /admin/products — 7-Step Floating Wizard, 8 Monograph Sections, Auto-Drafting & Synergistic Bundles' }}
                             </p>
                         </div>
                     </div>
-                    <a href="{{ route('admin.products.create') }}" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-plus text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'إنشاء منتج جديد' : 'New Product' }}</span>
-                    </a>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-list text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الكتالوج' : 'Catalog' }}</span>
+                        </a>
+                        <a href="{{ route('admin.products.create') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'معالج منتج جديد' : 'New Product Wizard' }}</span>
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Clean Responsive Flowchart -->
+                <!-- Complete Product Cycle (Step-by-Step Flow) -->
                 <div class="space-y-4">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
                         <i class="fa-solid fa-diagram-project text-[#0284c7]"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'مخطط دورة حياة إنشاء وتخصيص المنتج (7-Step Wizard Flow)' : 'Product Wizard Flowchart' }}</span>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة حياة المنتج ومعالج الخطوات السبع (Product Lifecycle & Wizard Cycle)' : 'Complete Product Logic Cycle' }}</span>
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bz-flow-node">
+                        <div class="bz-cycle-step">
                             <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
                                 <span>PHASE 01</span>
                                 <i class="fa-solid fa-barcode"></i>
                             </div>
                             <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الرمز والبيانات الأساسية</div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                توليد رمز SKU المعياري، مسار الـ SEO (الرابط الدائم)، التصنيف العلاجي، وحفظ المسودة تلقائياً عبر AJAX.
+                                توليد رمز SKU المعياري، مسار الـ SEO (الرابط الدائم)، التصنيف العلاجي، وحفظ المسودة تلقائياً عبر AJAX بمجرد كتابة أول حقل.
                             </p>
                         </div>
 
-                        <div class="bz-flow-node">
+                        <div class="bz-cycle-step">
                             <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
                                 <span>PHASE 02</span>
                                 <i class="fa-solid fa-coins"></i>
                             </div>
                             <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">السياسة السعرية والضرائب</div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                تحديد سعر البيع الأساسي والتخفيض، احتساب ضريبة القيمة المضافة ديناميكياً، وتكلفة الاستيراد لحساب هامش الربح.
+                                تحديد سعر البيع والتخفيض، احتساب ضريبة القيمة المضافة ديناميكياً، وتكلفة الاستيراد لحساب هامش الربح المحقق في كل عبوة.
                             </p>
                         </div>
 
-                        <div class="bz-flow-node">
+                        <div class="bz-cycle-step">
                             <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
                                 <span>PHASE 03</span>
                                 <i class="fa-solid fa-sliders"></i>
                             </div>
                             <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">مخصص الأقسام والشاشات</div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                مفاتيح تحكم مستقلة للكمبيوتر والهاتف (Desktop vs Mobile)، تحديد حالة فتح الأكورديون، وتخصيص المحتوى.
+                                مفاتيح تحكم مستقلة للكمبيوتر والهاتف (Desktop vs Mobile)، تحديد حالة فتح الأكورديون، وتخصيص الأقسام الثمانية بالمتجر.
                             </p>
                         </div>
 
-                        <div class="bz-flow-node">
+                        <div class="bz-cycle-step">
                             <div class="flex items-center justify-between text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-2">
                                 <span>PHASE 04</span>
-                                <i class="fa-solid fa-warehouse"></i>
+                                <i class="fa-solid fa-cubes-stacked"></i>
                             </div>
-                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">المستودعات والتشغيلات</div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">باقات التآزر والمخزون</div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                                التوزيع المزدوج الفوري لمستودع المتجر والمستودع المركزي، وتسجيل التشغيلة وتاريخ الانتهاء لتتبع الجودة.
+                                ربط المكملات التكميلية في باقة Synergistic موحدة بزر شراء جماعي، وربط الباركود وتعيين حدود إعادة الطلب بالمستودعات.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Clean Screenshots Grid (Distinct Steps with Zero Blocking Modals) -->
-                <div class="space-y-4 pt-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-camera-retro text-[#059669]"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية الحقيقية لخطوات المعالج (انقر على أي شاشة للتكبير السلس)' : 'Actual Real Step Screenshots (Click to Zoom Smoothly)' }}</span>
-                        </h3>
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">8 Distinct Views</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Step 1 -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot1_step1_core.png') }}', 'الخطوة 1: الرمز والتصنيف الأساسي', 'تحديد رمز SKU، الرابط الدائم، التصنيف العلاجي، وحالة المنتج الأولية.', 1)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 01</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الرمز والتصنيف</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot1_step1_core.png') }}" alt="Step 1 Core SKU" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
+                <!-- Screenshots Gallery for Section 1 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-sky-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لمعالج المنتج وباقات التآزر (انقر للتكبير السلس)' : 'Live Product Wizard Screenshots' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot1_step1_core.png') }}', 'الخطوة 1: الرمز والتصنيف الأساسي', 'تحديد رمز SKU، الرابط الدائم، التصنيف العلاجي، وحفظ المسودة التلقائي.', 1)">
+                            <img src="{{ asset('images/guide/shot1_step1_core.png') }}" alt="Step 1 SKU" class="w-full h-40 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">الخطوة 1: SKU والمسودة</div>
                         </div>
 
-                        <!-- Step 2 -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot2_step2_content.png') }}', 'الخطوة 2: المحتوى والوصف ثنائي اللغة', 'كتابة الاسم التجاري والعلمي والملخص التسويقي والوصف الدوائي باللغتين.', 2)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 02</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">المحتوى ثنائي اللغة</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot2_step2_content.png') }}" alt="Step 2 Content" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot2_step2_content.png') }}', 'الخطوة 2: المحتوى ثنائي اللغة', 'كتابة الاسم التجاري والعلمي والملخص التسويقي باللغتين العربية والإنجليزية.', 2)">
+                            <img src="{{ asset('images/guide/shot2_step2_content.png') }}" alt="Step 2 Content" class="w-full h-40 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">الخطوة 2: المحتوى والوصف</div>
                         </div>
 
-                        <!-- Step 3 -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot3_step3_pricing.png') }}', 'الخطوة 3: السياسة السعرية والضرائب', 'تحديد أسعار البيع والتخفيض، حساب ضريبة القيمة المضافة، وتكلفة الاستيراد لحساب هامش الربح.', 3)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 03</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الأسعار والضرائب</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot3_step3_pricing.png') }}" alt="Step 3 Pricing" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot3_step3_pricing.png') }}', 'الخطوة 3: السياسة السعرية والضرائب', 'تحديد أسعار البيع والتخفيض واحتساب الضريبة وهامش الربح.', 3)">
+                            <img src="{{ asset('images/guide/shot3_step3_pricing.png') }}" alt="Step 3 Pricing" class="w-full h-40 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">الخطوة 3: التسعير والضريبة</div>
                         </div>
 
-                        <!-- Step 4 -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot4_step4_media.png') }}', 'الخطوة 4: الأصول ومعرض الوسائط', 'رفع صورة العبوة المفرغة (Master Packshot) وتوليد الصور المصغرة ومعرض الزوايا.', 4)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 04</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الصور والوسائط</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot4_step4_media.png') }}" alt="Step 4 Media" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 5 -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot5_step5_clinical.png') }}', 'الخطوة 5: الملف الطبي والجرعات', 'جدول المكونات الفعالة والعيارات المعيارية والمؤشرات الفسيولوجية المستهدفة.', 5)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 05</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">الملف الطبي</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot5_step5_clinical.png') }}" alt="Step 5 Clinical" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 6 Customizer -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot6_step6_customizer.png') }}', 'الخطوة 6: مخصص أقسام صفحة المنتج', 'التحكم المنفصل لظهور الأقسام على الكمبيوتر والموبايل وحالة الفتح الافتراضية للأكورديون.', 6)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 06</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">مخصص الأقسام</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot6_step6_customizer.png') }}" alt="Step 6 Customizer" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 6 Bundles -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot7_step6_bundle.png') }}', 'الخطوة 6 (موسع): باقات التآزر الحيوي', 'اختيار المكملات التكميلية وربطها في باقة متكاملة بخصم مخصص وزر إضافة موحد.', 7)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">BUNDLES</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">استوديو الباقات</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot7_step6_bundle.png') }}" alt="Step 6 Bundles" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 7 Inventory -->
-                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot8_step7_inventory.png') }}', 'الخطوة 7: المستودعات والتشغيلات', 'التوزيع المزدوج الفوري لمستودع المتجر والمستودع المركزي وتسجيل تشغيلة الإنتاج.', 8)">
-                            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="text-[11px] font-bold text-sky-600 dark:text-sky-400 font-mono">STEP 07</span>
-                                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">المستودعات والمخزون</span>
-                            </div>
-                            <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src="{{ asset('images/guide/shot8_step7_inventory.png') }}" alt="Step 7 Inventory" class="w-full h-44 object-cover object-top" loading="lazy">
-                                <div class="bz-screen-zoom-overlay">
-                                    <span class="px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5">
-                                        <i class="fa-solid fa-magnifying-glass-plus text-sky-500"></i> تكبير الشاشة
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot6_step6_customizer.png') }}', 'الخطوة 6: مخصص أقسام صفحة المنتج', 'التحكم المنفصل لظهور الأقسام على الكمبيوتر والموبايل وحالة فتح الأكورديون.', 6)">
+                            <img src="{{ asset('images/guide/shot6_step6_customizer.png') }}" alt="Step 6 Customizer" class="w-full h-40 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">الخطوة 6: مخصص الشاشات</div>
                         </div>
                     </div>
                 </div>
@@ -500,100 +444,109 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 4. TAB 2: PURCHASING & GOODS RECEIPTS (GRN) -->
+        <!-- SECTION 2: PURCHASING & SUPPLIERS -->
         <!-- ========================================================================= -->
-        <div id="module-purchases" class="bz-guide-module-view space-y-6" style="display: none;">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
-                <!-- Section Header -->
+        <div class="bz-system-section space-y-6" data-section="purchasing" data-keywords="purchasing suppliers vendors po quotations procurement مشتريات موردين أوامر شراء عروض أسعار">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
                     <div class="flex items-center gap-4">
-                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#059669] to-[#10b981] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#059669]/25 flex-shrink-0">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-emerald-600/25 flex-shrink-0">
                             <i class="fa-solid fa-cart-shopping"></i>
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded-full">PROCUREMENT & SOURCING</span>
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 rounded-full">SECTION 02</span>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                                    {{ app()->getLocale() === 'ar' ? 'دورة المشتريات، الموردين وسندات استلام البضائع (GRN)' : 'Purchases, Suppliers & Goods Receiving' }}
+                                    {{ app()->getLocale() === 'ar' ? 'إدارة المشتريات، الموردين وعروض الأسعار' : 'Procurement, Supplier Lifecycle & Purchase Orders' }}
                                 </h2>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسارات: /admin/suppliers | /admin/purchase-orders/create | /admin/goods-receipts' : 'Paths: /admin/suppliers | /admin/purchase-orders/create | /admin/goods-receipts' }}
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/purchase-orders و /admin/suppliers — اعتماد الموردين cGMP، طلبات الشراء، والمطابقة الثلاثية 3-Way Matching' : 'Routes: /admin/purchase-orders & /admin/suppliers — cGMP Vendor Audits, PO Workflows & 3-Way Matching' }}
                             </p>
                         </div>
                     </div>
-                    <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-file-invoice text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'أمر شراء جديد' : 'New PO' }}</span>
-                    </a>
-                </div>
-
-                <!-- Clean Flowchart -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-1">01. المورد المعياري (SUP)</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">تسجيل المورد وشهادات cGMP</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            تحديد عملة التوريد، مدة التوريد بالأيام، وصلاحية اعتماد جودة صيدلانية لسنة كاملة، مع رمز الدولة المعياري (ISO2).
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-1">02. عروض الأسعار (RFQ)</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">مقارنة عروض الموردين</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            المفاضلة بين أسعار الموردين للمواد الخام والمنتجات التجارية مع حساب تكاليف الشحن الدولي ورسوم الاستيراد.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-1">03. أمر الشراء (PO)</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">تثبيت الصرف وتكاليف الوصول</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            إصدار أمر الشراء المعتمد، تثبيت سعر الصرف FX Rate، وحساب تكلفة الوصول النهائية للوحدة (Landed Cost).
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-teal-600 dark:text-teal-400 mb-1">04. سند الاستلام (GRN)</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">فحص الأختام والإيداع بالحجر</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            فحص سلامة أختام الشحنة، تسجيل قراءات الحرارة، وإيداع البضائع في الحجر الصحي بانتظار فحص الجودة المخبري.
-                        </p>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.suppliers.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-truck-field text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الموردين' : 'Suppliers' }}</span>
+                        </a>
+                        <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'أمر شراء جديد' : 'Create PO' }}</span>
+                        </a>
                     </div>
                 </div>
 
-                <!-- Real Clean Screenshots Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
-                    <!-- PO Create Shot -->
-                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot11_purchases_po.png') }}', 'أمر شراء جديد مع حساب تكاليف الوصول', 'إدخال البنود، اختيار المورد المعتمد، تثبيت العملة وسعر الصرف، وحساب تكاليف الشحن والجمارك.', 11)">
-                        <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">PURCHASE ORDER</span>
-                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">نموذج أمر الشراء المعتمد</span>
-                        </div>
-                        <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                            <img src="{{ asset('images/guide/shot11_purchases_po.png') }}" alt="Purchase Order Create" class="w-full h-56 object-cover object-top" loading="lazy">
-                            <div class="bz-screen-zoom-overlay">
-                                <span class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-emerald-500"></i> تكبير شاشة أمر الشراء
-                                </span>
+                <!-- Complete Purchasing Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-emerald-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة المشتريات والمطابقة الثلاثية (Procurement & 3-Way Matching Cycle)' : 'Complete Purchasing Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-file-circle-check"></i>
                             </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تأهيل واعتماد المورد</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                التحقق من شهادات الـ ISO ومعايير التصنيع الدوائي، تعيين كود الدولة ISO2، وفحص فترات الائتمان وسجل التوريد السابق.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-calculator"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">عروض الأسعار والمقارنة</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                استدراج عروض الأسعار (RFQ)، المفاضلة بين أسعار المواد الخام، ومطابقة تكلفة الشحن والشروط اللوجستية Incoterms.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">إصدار أمر الشراء PO</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                توليد أمر شراء رسمي بحالة Approved، إرساله للمورد، وتثبيت الأسعار والكميات المطلوبة وتاريخ التوريد الملزم.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-teal-600 dark:text-teal-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">المطابقة الثلاثية 3-Way Match</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                مطابقة الكميات والأسعار بين (أمر الشراء PO + سند الاستلام الفعلي GRN + فاتورة المورد) قبل ترحيل القيد المحاسبي.
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- GRN List Shot -->
-                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot12_goods_receipts.png') }}', 'سندات استلام البضائع وفحص الأختام والحرارة', 'جدول استلام الشحنات المبردة، تسجيل مسجلات الحرارة، وإيداع التشغيلات في الحجر الصحي.', 12)">
-                        <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-teal-600 dark:text-teal-400 font-mono">GOODS RECEIPTS (GRN)</span>
-                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">مذكرات استلام البضائع</span>
+                <!-- Screenshots Gallery for Section 2 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-emerald-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لأوامر الشراء والموردين' : 'Purchasing Live Screenshots' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot11_purchases_po.png') }}', 'أوامر الشراء واعتماد الموردين', 'جدول أوامر الشراء، متابعة التوريد ومطابقة فواتير المواد الخام.', 11)">
+                            <img src="{{ asset('images/guide/shot11_purchases_po.png') }}" alt="PO Index" class="w-full h-52 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">سجل أوامر الشراء الرسمية المعتمدة (POs)</div>
                         </div>
-                        <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                            <img src="{{ asset('images/guide/shot12_goods_receipts.png') }}" alt="Goods Receipts Index" class="w-full h-56 object-cover object-top" loading="lazy">
-                            <div class="bz-screen-zoom-overlay">
-                                <span class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-teal-500"></i> تكبير شاشة سندات الاستلام
-                                </span>
-                            </div>
+
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot12_goods_receipts.png') }}', 'سندات استلام البضائع وفحص الأختام والحرارة', 'جدول استلام الشحنات المبردة، تسجيل مسجلات الحرارة، وإيداع التشغيلات في الحجر الصحي.', 12)">
+                            <img src="{{ asset('images/guide/shot12_goods_receipts.png') }}" alt="GRN Index" class="w-full h-52 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">سندات استلام البضائع وسلسلة التبريد (GRN)</div>
                         </div>
                     </div>
                 </div>
@@ -601,125 +554,171 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 5. TAB 3: INVENTORY & DUAL BUFFERS -->
+        <!-- SECTION 3: QC, COLD-CHAIN & QUARANTINE -->
         <!-- ========================================================================= -->
-        <div id="module-inventory" class="bz-guide-module-view space-y-6" style="display: none;">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
+        <div class="bz-system-section space-y-6" data-section="qc" data-keywords="qc cold-chain quarantine inspection temperature coa حجر صحي فحص جودة سلسلة تبريد عينات">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
                     <div class="flex items-center gap-4">
-                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#d97706] to-[#f59e0b] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#d97706]/25 flex-shrink-0">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-cyan-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-snowflake"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-cyan-100 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-300 dark:border-cyan-500/30 px-2 py-0.5 rounded-full">SECTION 03</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'استلام الشحنات، سلسلة التبريد والحجر الصحي وضبط الجودة' : 'Cold-Chain Logistics, Quarantine & QC Intake Lifecycle' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/goods-receipts — توثيق مسجلات الحرارة، سحب العينات المخبرية، وإجراءات الإفراج الدوائي cGMP' : 'Route: /admin/goods-receipts — Temperature Data Loggers, Laboratory Sampling & cGMP Quarantine Release' }}
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.goods-receipts.index') }}" class="btn btn-primary text-xs" target="_blank">
+                        <i class="fa-solid fa-boxes-packing text-xs"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'سجل سندات الاستلام GRN' : 'View GRN Log' }}</span>
+                    </a>
+                </div>
+
+                <!-- Complete QC & Quarantine Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-cyan-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الحجر الصحي وضبط الجودة (Cold-Chain & QC Intake Cycle)' : 'Complete QC Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-temperature-arrow-down"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">فحص سلسلة التبريد والأختام</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                فحص سلامة أختام الحاويات، قراءة مسجلات الحرارة (Data Loggers)، والتأكد من نطاق التخزين المعتمد (2°C - 8°C أو 15°C - 25°C).
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-dungeon"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الإيداع في مستودع الحجر الصحي</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                إيداع الشحنة في موقع الحجر الصحي (Quarantine Location)، حظر صرفها كلياً ومنع ظهورها في المتجر أو خطوط الإنتاج.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-vial-circle-check"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الفحص المخبري ومطابقة COA</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                سحب عينات عشوائية إحصائية، التحقق من شهادة التحليل (COA) واختبارات الميكروبيولوجي والمعادن الثقيلة والفعالية الحيوية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">قرار الجودة والإفراج التام</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                اعتماد تقرير الفحص QC Pass، تحويل الكمية آلياً إلى المستودع المركزي Central WH، أو التكهين والإرجاع في حالة الرفض.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 4: INVENTORY, BATCHES & DUAL-STOCK ALLOCATION -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="inventory" data-keywords="inventory batches stock transfer locations online central warehouse مخزون تشغيلات تحويل مستودعات صلاحية">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-amber-500/25 flex-shrink-0">
                             <i class="fa-solid fa-warehouse"></i>
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 px-2 py-0.5 rounded-full">INVENTORY MANAGEMENT</span>
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 px-2 py-0.5 rounded-full">SECTION 04</span>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                                    {{ app()->getLocale() === 'ar' ? 'المخزون الموحد، استراتيجية التوزيع المزدوج ونظام FEFO' : 'Unified Inventory, Dual Depot Buffers & FEFO Lot Expiry' }}
+                                    {{ app()->getLocale() === 'ar' ? 'إدارة المخزون، المستودع المركزي والتوزيع المزدوج والتشغيلات' : 'Inventory Management, Central Depot & Dual-Stock Allocation' }}
                                 </h2>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسارات: /admin/inventory | /admin/warehouses | /admin/batches — إدارة المواقع وتتبع الصلاحيات' : 'Paths: /admin/inventory | /admin/warehouses | /admin/batches' }}
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/batches و /admin/warehouses — الفصل الهندسي بين حصة المتجر الإلكتروني والمخزون الطبي المركزي وسندات التحويل' : 'Routes: /admin/batches & /admin/warehouses — Physical vs Storefront Stock Segregation & Inter-depot Transfers' }}
                             </p>
                         </div>
                     </div>
-                    <a href="{{ route('admin.inventory.index') }}" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-boxes-stacked text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'فتح المخزون' : 'Open Inventory' }}</span>
-                    </a>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bz-flow-node space-y-2">
-                        <div class="flex items-center gap-2 text-sky-600 dark:text-sky-400 font-bold text-sm">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>مخزن المتجر السريع (Online Store Buffer)</span>
-                        </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                            المخزون المخصص للبيع الإلكتروني المباشر؛ يُخصم فور تأكيد الطلب إلكترونياً وتحديث عداد الكمية المتوفرة على صفحة المتجر فوراً.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node space-y-2">
-                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                            <i class="fa-solid fa-building-shield"></i>
-                            <span>المستودع المركزي (Central Warehouse)</span>
-                        </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                            المخزون الاستراتيجي المخصص لمبيعات الجملة، المندوبين، والمستشفيات؛ يتم الصرف منه عبر أذونات الصرف والتحويل المخزني الداخلي.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node space-y-2">
-                        <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold text-sm">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                            <span>نظام FEFO لتتبع الصلاحية</span>
-                        </div>
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                            صرف التشغيلات الأقرب انتهاءً أولاً (First-Expired First-Out) لمنع الركود، مع تنبيهات استباقية للتشغيلات التي قاربت على الانتهاء.
-                        </p>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.batches.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-cubes text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'التشغيلات والصلاحية' : 'Batches & Expiry' }}</span>
+                        </a>
+                        <a href="{{ route('admin.warehouses.index') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-building-columns text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'المستودعات والمواقع' : 'Locations' }}</span>
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ========================================================================= -->
-        <!-- 6. TAB 4: HERO SLIDER & SIMULATION STUDIO -->
-        <!-- ========================================================================= -->
-        <div id="module-slider" class="bz-guide-module-view space-y-6" style="display: none;">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
-                    <div class="flex items-center gap-4">
-                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#4f46e5] to-[#6366f1] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#4f46e5]/25 flex-shrink-0">
-                            <i class="fa-solid fa-images"></i>
-                        </span>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/30 px-2 py-0.5 rounded-full">HERO CAROUSEL STUDIO</span>
-                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                                    {{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة الرئيسي، ربط المنتجات ولوحة المحاكاة' : 'Hero Slider Command Center, Live Simulation & Drag-Drop' }}
-                                </h2>
+                <!-- Complete Inventory Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-amber-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة تخصيص وحركة المخزون المزدوج (Dual-Stock & Allocation Cycle)' : 'Complete Inventory Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-tags"></i>
                             </div>
-                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/hero-slider — التحكم في زمن التبديل (Delay 5500ms)، الربط التلقائي للمنتج، والمحاكاة الحية' : 'Path: /admin/hero-slider — Autoplay Delay (5500ms), Auto-Link Active Product & Canvas Simulator' }}
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تسجيل التشغيلة والصلاحية</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تخصيص رقم تشغيلة فريد (Batch Code)، تاريخ الإنتاج والانتهاء، والربط مع رصيد المستودع لضمان قاعدة الوارد أولاً يصرف أولاً (FIFO).
                             </p>
                         </div>
-                    </div>
-                    <a href="{{ route('admin.hero-slides.index') }}" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-sliders text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'فتح مركز السلايدر' : 'Open Slider Hub' }}</span>
-                    </a>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                    <!-- Slider Overview Shot -->
-                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot9_hero_slider_overview.png') }}', 'مركز قيادة سلايدر الواجهة الرئيسي', 'التحكم في زمن الحركة التلقائي (Delay 5500ms)، تشغيل السلايدر، وإعادة الترتيب المباشر بالسحب والإفلات.', 9)">
-                        <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 font-mono">HERO SLIDER OVERVIEW</span>
-                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">لوحة التحكم وإعادة الترتيب</span>
-                        </div>
-                        <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                            <img src="{{ asset('images/guide/shot9_hero_slider_overview.png') }}" alt="Hero Slider Overview" class="w-full h-56 object-cover object-top" loading="lazy">
-                            <div class="bz-screen-zoom-overlay">
-                                <span class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-indigo-500"></i> تكبير السلايدر
-                                </span>
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-network-wired"></i>
                             </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">التخصيص المزدوج للحصص</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تقسيم الرصيد بدقة: حجز حصة المتجر الإلكتروني (Online Stock) لحماية تجربة العميل، وعزل حصة الصيدليات والمراكز الطبية بالمركزي.
+                            </p>
                         </div>
-                    </div>
 
-                    <!-- Slide Modal Studio Shot -->
-                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot10_hero_slide_modal.png') }}', 'محرر الشريحة التفاعلي ولوحة المحاكاة الحية', 'ربط المنتج التلقائي، ضبط نصوص التوهج التدرجي، وتنسيق أزرار الطلب مع معاينة حية للشريحة.', 10)">
-                        <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 font-mono">INTERACTIVE STUDIO MODAL</span>
-                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">محرر الشريحة والمحاكاة</span>
-                        </div>
-                        <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                            <img src="{{ asset('images/guide/shot10_hero_slide_modal.png') }}" alt="Slide Modal Studio" class="w-full h-56 object-cover object-top" loading="lazy">
-                            <div class="bz-screen-zoom-overlay">
-                                <span class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-indigo-500"></i> تكبير محرر الشريحة
-                                </span>
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-dolly"></i>
                             </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">سندات التحويل البيني</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                إصدار أمر تحويل بين المستودعات (Inter-depot Transfer)، خصم الكمية من المصدر وإضافتها للوجهة مع توثيق اسم أمين المستودع.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-rose-600 dark:text-rose-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-barcode"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الجرد ومطابقة الباركود</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                مسح الباركود الفعلي دورياً، معالجة فروقات الجرد عبر سندات التسوية المخزنية المعتمدة مع الترحيل المحاسبي التلقائي.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -727,128 +726,719 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 7. TAB 5: MANUFACTURING & QC -->
+        <!-- SECTION 5: MANUFACTURING & WORK ORDERS (cGMP) -->
         <!-- ========================================================================= -->
-        <div id="module-manufacturing" class="bz-guide-module-view space-y-6" style="display: none;">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
+        <div class="bz-system-section space-y-6" data-section="manufacturing" data-keywords="manufacturing work orders bom formula cgmp production raw materials تصنيع أوامر إنتاج تشغيل مواد خام">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
                     <div class="flex items-center gap-4">
-                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#7c3aed] to-[#8b5cf6] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#7c3aed]/25 flex-shrink-0">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-800 text-white flex items-center justify-center text-2xl shadow-lg shadow-purple-600/25 flex-shrink-0">
                             <i class="fa-solid fa-industry"></i>
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30 px-2 py-0.5 rounded-full">cGMP PHARMACEUTICAL</span>
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-purple-100 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30 px-2 py-0.5 rounded-full">SECTION 05</span>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                                    {{ app()->getLocale() === 'ar' ? 'التصنيع الدوائي، أوامر التشغيل وشهادات الفحص المخبري (COA)' : 'Pharmaceutical Manufacturing, Work Orders & COA' }}
+                                    {{ app()->getLocale() === 'ar' ? 'التصنيع، أوامر التشغيل والإنتاج الدوائي cGMP' : 'cGMP Pharmaceutical Manufacturing & Production Work Orders' }}
                                 </h2>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسارات: /admin/work-orders | /admin/qc | /admin/raw-materials' : 'Paths: /admin/work-orders | /admin/qc | /admin/raw-materials' }}
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/work-orders — وصفات المواد الخام (BOM)، صرف المواد (Dispensing)، والمراجعة الدوائية والإنتاج التام' : 'Route: /admin/work-orders — Bill of Materials (BOM), Dispensing Protocols, QC In-process & Finished Goods Release' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.work-orders.index') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-list-check text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل أوامر التشغيل' : 'Work Orders' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete Manufacturing Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-purple-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الإنتاج والتصنيع الدوائي (Pharmaceutical Manufacturing Cycle)' : 'Complete Production Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-flask"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">صيغة التشغيلة (BOM Formula)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تحديد نسب المواد الفعالة والمكونات المساعدة الدقيقة، التحقق من توفر المواد الخام في مستودع الخامات قبل جدولة الإنتاج.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">صرف ووزن المواد (Dispensing)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                بدء بروتوكول الصرف الدوائي المزدوج (Double Check)، وزن المواد بدقة وتوثيق أرقام تشغيلات المواد الخام المستهلكة.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">مراحل الخلط والكبس والتعبئة</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تشغيل خطوط الإنتاج تحت ظروف الغرف النظيفة (Cleanrooms)، أخذ عينات أثناء التشغيل (In-process Checks) للوزن والصلابة.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الإفراج وإيداع المنتج التام</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                اعتماد تقرير الجودة النهائي للمنتج التام، توليد رقم التشغيلة الرسمي، وإيداع الكميات المنتجة في المستودع المركزي للبيع.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-1">01. صرف المواد الخام</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">فاتورة المواد (BOM)</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            صرف المواد الأولية بالكميات الدقيقة طبقاً للعيارات المسجلة في تركيبة المستحضر المعتمدة.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-1">02. خط الإنتاج والخلط</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">أمر التشغيل (Work Order)</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            تتبع مراحل الكبسلة، الخلط، والتعبئة، واحتساب الفاقد الصناعي الطبيعي ونسبة الهدر المسموح بها.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-1">03. الفحص المخبري (QC)</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">شهادة النقاء (COA)</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            إجراء اختبارات التفتيت، المعايرة، والنقاء المخبري للتحقق من مطابقة معايير cGMP قبل الإفراج.
-                        </p>
-                    </div>
-
-                    <div class="bz-flow-node">
-                        <div class="text-xs font-mono font-bold text-teal-600 dark:text-teal-400 mb-1">04. الإيداع بالمستودع</div>
-                        <div class="font-bold text-sm text-slate-900 dark:text-white mb-1">توريد المنتج التام للبيع</div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                            إيداع العبوات الجاهزة وتوليد الباركود التجاري ورقم التشغيلة الرسمي لتصبح جاهزة للصرف والطلب.
-                        </p>
+                <!-- Screenshots Gallery for Section 5 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-purple-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لأوامر التشغيل والتصنيع' : 'Manufacturing Live Screenshots' }}</span>
+                    </h3>
+                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot14_manufacturing_work_orders.png') }}', 'أوامر التشغيل والتصنيع الدوائي cGMP', 'جدول إدارة أوامر الإنتاج، حالة الصرف Dispensing، والمراجعة الدوائية والإنتاج التام.', 14)">
+                        <img src="{{ asset('images/guide/shot14_manufacturing_work_orders.png') }}" alt="Work Orders Index" class="w-full h-56 object-cover object-top" loading="lazy">
+                        <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                        <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">سجل أوامر الإنتاج ومراحل الصرف والمطابقة cGMP</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 8. TAB 6: FINANCE & COLLECTIONS -->
+        <!-- SECTION 6: SALES, ORDERS, POS & FULFILLMENT -->
         <!-- ========================================================================= -->
-        <div id="module-finance" class="bz-guide-module-view space-y-6" style="display: none;">
-            <div class="bz-guide-panel p-6 sm:p-8 space-y-8">
+        <div class="bz-system-section space-y-6" data-section="sales" data-keywords="sales orders pos checkout shipping waybill fulfillment مبيعات طلبات دفع فواتير شحن نقطة بيع">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
                     <div class="flex items-center gap-4">
-                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-[#0d9488] to-[#14b8a6] text-white flex items-center justify-center text-2xl shadow-lg shadow-[#0d9488]/25 flex-shrink-0">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-rose-600 to-pink-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-500/30 px-2 py-0.5 rounded-full">SECTION 06</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'الطلبات، مبيعات المتجر، نقاط البيع والشحن' : 'Sales Operations, Orders, POS & Fulfillment Lifecycle' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/orders — حجز المخزون الفوري، بوابات الدفع الإلكتروني، التجهيز والتغليف، وبوالص الشحن' : 'Route: /admin/orders — Live Stock Reservation, Payment Gateways, Picking/Packing & Shipping Waybills' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-cart-arrow-down text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الطلبات والمبيعات' : 'View Orders' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete Sales Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-rose-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الطلب والتحصيل والشحن (Order-to-Cash Cycle)' : 'Complete Sales Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-rose-600 dark:text-rose-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">إنشاء الطلب وحجز المخزون</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                إنشاء الطلب من المتجر أو الـ POS، حجز فوري للمنتجات من رصيد المتجر الإلكتروني لمنع البيع الزائد (Overselling).
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-credit-card"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">الدفع وإصدار الفاتورة الضريبية</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                معالجة الدفع عبر البوابات الإلكترونية أو تثبيت خيار الدفع عند الاستلام (COD)، وتوليد الفاتورة الضريبية المعتمدة بـ QR Code.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-box"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">التجهيز والتغليف الدوائي</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                طباعة أمر التجهيز (Pick List)، فحص تاريخ الصلاحية وسلامة العبوات، وإرفاق ملصق الشحن المعياري للطرود.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-route"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">بوليصة الشحن والتسليم الميداني</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تسليم الشحنة لشركة الشحن، توليد رابط التتبع المباشر للعميل عبر الرسائل والإيميل، وتحديث حالة الطلب إلى Delivered.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Gallery for Section 6 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-rose-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لإدارة الطلبات والمبيعات' : 'Orders Live Screenshots' }}</span>
+                    </h3>
+                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot15_sales_orders.png') }}', 'مركز إدارة الطلبات والمبيعات والشحن', 'جدول الطلبات، متابعة الحالات (جديد، قيد الشحن، تم التسليم)، والتحقق من سندات الفواتير.', 15)">
+                        <img src="{{ asset('images/guide/shot15_sales_orders.png') }}" alt="Orders Index" class="w-full h-56 object-cover object-top" loading="lazy">
+                        <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                        <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">لوحة إدارة ومتابعة الطلبات الإلكترونية والشحن الميداني</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 7: FINANCE, GENERAL LEDGER & TREASURY -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="finance" data-keywords="finance ledger treasury accounts coa transactions مالية شجرة حسابات قيود يومية خزائن بنوك">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-teal-600 to-emerald-800 text-white flex items-center justify-center text-2xl shadow-lg shadow-teal-600/25 flex-shrink-0">
                             <i class="fa-solid fa-coins"></i>
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-teal-100 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-500/30 px-2 py-0.5 rounded-full">FINANCE & ACCOUNTING</span>
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-teal-100 dark:bg-teal-500/20 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-500/30 px-2 py-0.5 rounded-full">SECTION 07</span>
                                 <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                                    {{ app()->getLocale() === 'ar' ? 'الإدارة المالية، شبكة سندات التحصيل وفواتير المبيعات والمشتريات' : 'Financial Accounting, Collections & Ledgers' }}
+                                    {{ app()->getLocale() === 'ar' ? 'المالية، شجرة الحسابات، قيود اليومية والخزائن' : 'Enterprise Finance, General Ledger, COA & Treasury Lifecycle' }}
                                 </h2>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                                {{ app()->getLocale() === 'ar' ? 'المسارات: /admin/finance/dashboard | /admin/finance/collections | /admin/finance/accounts' : 'Paths: /admin/finance/dashboard | /admin/finance/collections | /admin/finance/accounts' }}
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/financial-accounts و /admin/finance — دليل الحسابات التوافقي، قيود اليومية المزدوجة التلقائية، وسندات القبض والصرف' : 'Routes: /admin/financial-accounts & /admin/finance — Chart of Accounts, Automated Double-Entry Ledger & Cashflow' }}
                             </p>
                         </div>
                     </div>
-                    <a href="{{ route('admin.finance.dashboard') }}" class="btn btn-primary" target="_blank">
-                        <i class="fa-solid fa-chart-line text-xs"></i>
-                        <span>{{ app()->getLocale() === 'ar' ? 'لوحة تحكم المالية' : 'Finance Dashboard' }}</span>
-                    </a>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.financial-accounts.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-sitemap text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'شجرة الحسابات COA' : 'COA Tree' }}</span>
+                        </a>
+                        <a href="{{ route('admin.finance.dashboard') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-chart-line text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'لوحة المالية' : 'Finance Dashboard' }}</span>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot13_finance_dashboard.png') }}', 'لوحة تحكم المنظومة المالية والحسابات', 'متابعة الذمم المدينة والدائنة، إجمالي المبيعات، ومصروفات التشغيل وحركة الصناديق.', 13)">
-                        <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-teal-600 dark:text-teal-400 font-mono">FINANCE DASHBOARD</span>
-                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">لوحة تحكم المالية</span>
-                        </div>
-                        <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-900">
-                            <img src="{{ asset('images/guide/shot13_finance_dashboard.png') }}" alt="Finance Dashboard" class="w-full h-56 object-cover object-top" loading="lazy">
-                            <div class="bz-screen-zoom-overlay">
-                                <span class="px-4 py-2 rounded-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-bold shadow-lg flex items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass-plus text-teal-500"></i> تكبير لوحة المالية
-                                </span>
+                <!-- Complete Finance Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-teal-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الترحيل المالي والقيود المزدوجة (Automated Financial Accounting Cycle)' : 'Complete Finance Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-teal-600 dark:text-teal-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-sitemap"></i>
                             </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">هيكل دليل الحسابات (COA)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تصنيف الحسابات الشجرية (الأصول، الخصوم، حقوق الملكية، الإيرادات، والمصروفات) وفق المعايير المحاسبية المعتمدة.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-money-bill-transfer"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">القيود الآلية المزدوجة</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                توليد قيود اليومية تلقائياً عند أي حركة (من حـ/ المخزون إلى حـ/ الموردين عند الشراء، ومن حـ/ الصندوق إلى حـ/ المبيعات عند الطلب).
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-cash-register"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">سندات القبض والصرف والخزائن</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                توثيق المقبوضات النقدية والبنكية، سداد مستحقات الموردين، وإدارة العهد المالية والمصروفات التشغيلية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">ميزان المراجعة والتقارير</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                استخراج ميزان المراجعة اللحظي، قائمة الدخل ومتابعة الأرباح الإجمالية والصافية وهامش الربحية التشغيلي.
+                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="space-y-4">
-                        <div class="bz-flow-node space-y-1.5">
-                            <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                                <i class="fa-solid fa-table-list text-teal-500"></i>
-                                <span>شبكة سندات وقيود التحصيل (Collection Grid)</span>
+                <!-- Screenshots Gallery for Section 7 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-teal-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية للمنظومة المالية وشجرة الحسابات' : 'Finance Live Screenshots' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot13_finance_dashboard.png') }}', 'لوحة تحكم المنظومة المالية والحسابات', 'متابعة الذمم المدينة والدائنة، إجمالي المبيعات، ومصروفات التشغيل وحركة الصناديق.', 13)">
+                            <img src="{{ asset('images/guide/shot13_finance_dashboard.png') }}" alt="Finance Dashboard" class="w-full h-52 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">لوحة قيادة المؤشرات المالية والتدفق النقدي</div>
+                        </div>
+
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot19_finance_chart_of_accounts.png') }}', 'شجرة دليل الحسابات المعياري (COA)', 'إدارة الأصول والخصوم والمصروفات والإيرادات والمستويات المحاسبية الشجرية.', 19)">
+                            <img src="{{ asset('images/guide/shot19_finance_chart_of_accounts.png') }}" alt="COA Tree" class="w-full h-52 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">دليل الحسابات الشجري العام (Chart of Accounts)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 8: FIELD CRM, MEDICAL REPS & DOCTORS -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="field-crm" data-keywords="field crm mr medical rep doctors clinics visits samples مندوبين زيارات عيادات أطباء عينات خطوط سير">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-blue-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-blue-100 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-500/30 px-2 py-0.5 rounded-full">SECTION 08</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'المندوبون الميدانيون والزيارات والعيادات (Field MR CRM)' : 'Field Medical Representatives, Doctor Visits & Samples Lifecycle' }}
+                                </h2>
                             </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                                شبكة تفاعلية سريعة تتيح تسجيل مقبوضات العملاء، الشيكات، والحوالات البنكية مع المزامنة التلقائية اللحظية مع قيود اليومية.
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/visits و /admin/mr — خطوط السير الجغرافية، تسجيل الزيارات بالبصمة الجغرافية GPS، وتوزيع العينات الدوائية' : 'Routes: /admin/visits & /admin/mr — Territory Planning, Geofenced GPS Check-ins & Clinical Sample Drops' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.visits.index') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-map-location-dot text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الزيارات الميدانية' : 'Field Visits' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete Field MR Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-blue-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الزيارات الطبية الميدانية للمندوبين (Medical Rep Field Visit Cycle)' : 'Complete Field CRM Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-route"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تخطيط المسارات والمناطق</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تقسيم المناطق الجغرافية والمدن، وتعيين قائمة الأطباء والمراكز الطبية المستهدفة لكل مندوب دعاية طبية (MR).
                             </p>
                         </div>
 
-                        <div class="bz-flow-node space-y-1.5">
-                            <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-                                <i class="fa-solid fa-money-bill-transfer text-rose-500"></i>
-                                <span>سندات الصرف ومستحقات الموردين (Payment Vouchers)</span>
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-location-crosshairs"></i>
                             </div>
-                            <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                                تسوية فواتير المشتريات وإصدار سندات الصرف النقدية والبنكية مع إمكانية طباعة سند الصرف المعتمد (Voucher PDF).
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">التحقق الجغرافي (GPS Geofence)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                منع تسجيل الزيارة إلا في حال تواجد المندوب داخل النطاق الجغرافي المحدد للعيادة أو المستشفى باستخدام إحداثيات GPS المباشرة.
                             </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-capsules"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تسليم العينات وتوثيق الفيدباك</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تسجيل العينات الدوائية المسلمة للطبيب (Sample Drops) مع خصمها التلقائي من عهدة المندوب، وتوثيق استجابة الطبيب للمنتج.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-purple-600 dark:text-purple-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-chart-pie"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تحليل التغطية ومعدل التحويل</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                قياس نسبة تغطية الزيارات مقابل التارجت الشهري، ومقارنة الزيارات بمعدل الوصفات الطبية والمبيعات الناتجة في كل منطقة.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Gallery for Section 8 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-blue-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية للزيارات الميدانية والمندوبين' : 'Field CRM Live Screenshots' }}</span>
+                    </h3>
+                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot17_field_mr_visits.png') }}', 'إدارة الزيارات الميدانية ومندوبي الدعاية الطبية', 'سجل الزيارات، التحقق الجغرافي GPS، توثيق العينات الطبية وتتبع التغطية الشهرية.', 17)">
+                        <img src="{{ asset('images/guide/shot17_field_mr_visits.png') }}" alt="Field Visits" class="w-full h-56 object-cover object-top" loading="lazy">
+                        <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                        <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">سجل الزيارات الطبية والتحقق الميداني GPS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 9: SALES CRM & B2B PIPELINE -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="sales-crm" data-keywords="sales crm leads pipeline deals b2b opportunities عملاء محتملين صفقات عروض أسعار تفاوض">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-orange-600 to-amber-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-orange-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-handshake"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-orange-100 dark:bg-orange-500/20 text-orange-800 dark:text-orange-300 border border-orange-300 dark:border-orange-500/30 px-2 py-0.5 rounded-full">SECTION 09</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'إدارة علاقات العملاء وفرص البيع والمراكز B2B' : 'Sales CRM Pipeline, Leads & B2B Medical Deal Cycle' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/crm — إدارة مسارات الصفقات (Deals Pipeline)، تأهيل العملاء المحتملين، والعقود الآجلة للمراكز' : 'Route: /admin/crm — Kanban Deals Pipeline, Lead Qualification & Institutional Medical Contracts' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.crm.dashboard') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-chart-column text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'لوحة قيادة الـ CRM' : 'CRM Dashboard' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete Sales CRM Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-orange-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة مسار الصفقات وإغلاق العقود (B2B Deals Pipeline Cycle)' : 'Complete CRM Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-orange-600 dark:text-orange-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-filter"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">التقاط وتأهيل العميل (Lead)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تسجيل بيانات المستشفيات والمراكز الطبية وسلاسل الصيدليات، وتحديد مستوى الاحتياج والملاءة الائتمانية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-comments-dollar"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تقديم العرض المالي والتفاوض</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                إنشاء عرض سعر رسمي (Quotation)، تحديد شرائح الخصم الكمي، والتفاوض على فترات السداد والتوريد الدوري.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">إغلاق الصفقة (Deal Won)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تحويل الصفقة لحالة Won، وتوليد عقد مؤسسي رسمي وحساب مديونية معتمد برقم ضريبي ورصيد ائتماني.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">التوريد والتحصيل المستمر</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                جدولة أوامر الشراء الآلية من العميل، متابعة فترات الاستحقاق، وإصدار كشوف الحساب الدورية والتحصيل.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Gallery for Section 9 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-orange-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لمنظومة علاقات العملاء CRM' : 'CRM Live Screenshots' }}</span>
+                    </h3>
+                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot18_sales_crm_dashboard.png') }}', 'لوحة تحكم إدارة علاقات العملاء والصفقات', 'متابعة مسار الصفقات Kanban، تأهيل العملاء المحتملين، وقيمة الصفقات المتوقعة والمحققة.', 18)">
+                        <img src="{{ asset('images/guide/shot18_sales_crm_dashboard.png') }}" alt="CRM Dashboard" class="w-full h-56 object-cover object-top" loading="lazy">
+                        <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                        <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">لوحة تحكم علاقات العملاء ومسار الصفقات Kanban</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 10: HR, ATTENDANCE & PAYROLL -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="hr" data-keywords="hr payroll attendance employees leaves shifts موارد بشرية رواتب حضور بصمة إجازات ورديات مسير">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-green-600 to-emerald-800 text-white flex items-center justify-center text-2xl shadow-lg shadow-green-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-green-100 dark:bg-green-500/20 text-green-800 dark:text-green-300 border border-green-300 dark:border-green-500/30 px-2 py-0.5 rounded-full">SECTION 10</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'الموارد البشرية، بصمة الحضور، الإجازات والرواتب' : 'Human Resources, Biometric Attendance & Automated Payroll Lifecycle' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/hr — تسجيل الحضور الذاتي بالبصمة الحية، تسوية الإجازات والورديات، ومسير الرواتب الآلي' : 'Routes: /admin/hr — Live Punch-in Biometrics, Shift Schedules, Leave Balances & Automated Payroll Batches' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.hr.employees.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-id-badge text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'سجل الموظفين' : 'Employees' }}</span>
+                        </a>
+                        <a href="{{ route('admin.hr.dashboard') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-user-clock text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'لوحة الـ HR' : 'HR Dashboard' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete HR Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-green-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة الحضور ومسير الرواتب الآلي (Attendance & Payroll Cycle)' : 'Complete HR Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-green-600 dark:text-green-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-fingerprint"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تسجيل الحضور بالبصمة الحية</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تسجيل الحضور والانصراف اللحظي (Self Check-in / Punch-in) مع مطابقة النطاق الجغرافي وساعات الوردية المعتمدة.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">حساب التأخير والإضافي آلياً</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                معالجة دقائق التأخير وفترات السماح، واحتساب ساعات العمل الإضافي وفق القواعد التنظيمية المعتمدة في النظام.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">تسوية الإجازات والأذونات</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تقديم وموافقة طلبات الإجازات (الاعتيادية، المرضية، العارضة) مع الخصم التلقائي من الرصيد السنوي للموظف.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-teal-600 dark:text-teal-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">مسير الرواتب وترحيل القيود</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                توليد مسير الرواتب الشهري، احتساب الاستقطاعات والبدلات، وتوليد قيد استحقاق الرواتب تلقائياً في دليل الحسابات.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Gallery for Section 10 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-green-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية لمنظومة الموارد البشرية' : 'HR Live Screenshots' }}</span>
+                    </h3>
+                    <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot16_hr_dashboard.png') }}', 'لوحة تحكم الموارد البشرية والرواتب وبصمة الحضور', 'متابعة نسب الحضور والانصراف، الورديات، مسير الرواتب الشهري، وطلبات الإجازات.', 16)">
+                        <img src="{{ asset('images/guide/shot16_hr_dashboard.png') }}" alt="HR Dashboard" class="w-full h-56 object-cover object-top" loading="lazy">
+                        <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                        <div class="p-3 bg-slate-50 dark:bg-[#061a2b] text-xs font-bold text-slate-800 dark:text-slate-200">لوحة قيادة الموارد البشرية وسجل الحضور والرواتب</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- SECTION 11: HERO SLIDER, SCIENCE & RBAC SECURITY -->
+        <!-- ========================================================================= -->
+        <div class="bz-system-section space-y-6" data-section="security" data-keywords="slider hero science rbac security permissions roles سلايدر محتوى أبحاث أدوار صلاحيات أمان">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-8">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-800 text-white flex items-center justify-center text-2xl shadow-lg shadow-indigo-600/25 flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-500/30 px-2 py-0.5 rounded-full">SECTION 11</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'سلايدر الواجهة، المحتوى العلمي والصلاحيات والأمان' : 'Hero Slider Studio, Science Monographs & RBAC Governance' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المسار: /admin/hero-slider و /admin/roles — استوديو محاكاة الشرائح، الأبحاث السريرية، ومصفوفة الصلاحيات الدقيقة' : 'Routes: /admin/hero-slider & /admin/roles — Live Slide Simulator, Monograph Studies & RBAC Permission Matrix' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <a href="{{ route('admin.hero-slider.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                            <i class="fa-solid fa-images text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'استوديو السلايدر' : 'Slider Studio' }}</span>
+                        </a>
+                        <a href="{{ route('admin.roles.index') }}" class="btn btn-primary text-xs" target="_blank">
+                            <i class="fa-solid fa-user-shield text-xs"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'الأدوار والصلاحيات' : 'Roles & RBAC' }}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Complete Governance Cycle -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-indigo-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'دورة حوكمة المحتوى والصلاحيات (Content & Security Governance Cycle)' : 'Complete Security Logic Cycle' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                                <span>PHASE 01</span>
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">استوديو ومحاكي السلايدر</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تخصيص شرائح العرض الرئيسية، ضبط زمن الحركة التلقائي (Delay 5500ms)، وتأثيرات التوهج اللوني مع المحاكاة الحية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-sky-600 dark:text-sky-400 mb-2">
+                                <span>PHASE 02</span>
+                                <i class="fa-solid fa-book-medical"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">نشر الأبحاث السريرية</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                توثيق الدراسات الطبية للمنتجات، المراجع العلمية الدولية، وربطها التلقائي بصفحات الكتالوج لإثبات الجدوى الطبية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-600 dark:text-amber-400 mb-2">
+                                <span>PHASE 03</span>
+                                <i class="fa-solid fa-user-lock"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">مصفوفة الصلاحيات (RBAC)</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                عزل الصلاحيات بدقة متناهية (مشاهدة، إنشاء، تعديل، حذف، واعتماد مالي) لكل دور وظيفي لمنع أي تجاوزات تشغيلية.
+                            </p>
+                        </div>
+
+                        <div class="bz-cycle-step">
+                            <div class="flex items-center justify-between text-xs font-mono font-bold text-rose-600 dark:text-rose-400 mb-2">
+                                <span>PHASE 04</span>
+                                <i class="fa-solid fa-shield-virus"></i>
+                            </div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white mb-1.5">سجل التدقيق والأمان الحصين</div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                                تسجيل كل حركة إدارية في سجل التدقيق (Audit Trail) مع توثيق الـ IP ووقت الإجراء، وحماية الجلسات ضد الثغرات.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screenshots Gallery for Section 11 -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-indigo-500"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? 'اللقطات الحية للسلايدر والصلاحيات' : 'Slider & Security Live Screenshots' }}</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot9_hero_slider_overview.png') }}', 'مركز قيادة سلايدر الواجهة الرئيسي', 'التحكم في زمن الحركة التلقائي (Delay 5500ms)، تشغيل السلايدر، وإعادة الترتيب المباشر بالسحب والإفلات.', 9)">
+                            <img src="{{ asset('images/guide/shot9_hero_slider_overview.png') }}" alt="Slider Overview" class="w-full h-44 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">سلايدر الواجهة ومحرك الحركة</div>
+                        </div>
+
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot10_hero_slide_modal.png') }}', 'محرر الشريحة التفاعلي ولوحة المحاكاة الحية', 'ربط المنتج التلقائي، ضبط نصوص التوهج التدرجي، وتنسيق أزرار الطلب مع معاينة حية للشريحة.', 10)">
+                            <img src="{{ asset('images/guide/shot10_hero_slide_modal.png') }}" alt="Slide Modal" class="w-full h-44 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">محرر الشريحة والمحاكاة الحية</div>
+                        </div>
+
+                        <div class="bz-screen-card" onclick="openLightboxModal('{{ asset('images/guide/shot20_roles_rbac_security.png') }}', 'مصفوفة الأدوار والصلاحيات والأمان (RBAC)', 'إدارة الصلاحيات الدقيقة، إنشاء الأدوار، وعزل مهام المشرفين والمحاسبين والمندوبين.', 20)">
+                            <img src="{{ asset('images/guide/shot20_roles_rbac_security.png') }}" alt="Roles RBAC" class="w-full h-44 object-cover object-top" loading="lazy">
+                            <div class="bz-screen-zoom-overlay"><i class="fa-solid fa-magnifying-glass-plus text-white text-2xl"></i></div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-[#061a2b] text-[11px] font-bold text-slate-800 dark:text-slate-200">مصفوفة الصلاحيات والأدوار RBAC</div>
                         </div>
                     </div>
                 </div>
@@ -858,187 +1448,265 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- 9. FULLSCREEN SMOOTH APPLE-STYLE LIGHTBOX MODAL -->
+    <!-- 4. APPLE-STYLE FULLSCREEN LIGHTBOX MODAL WITH ZOOM & CONTROLS -->
     <!-- ========================================================================= -->
     <div id="guideLightbox" onclick="closeLightboxModal(event)">
         <div id="guideLightboxContent" onclick="event.stopPropagation()">
-            <!-- Top Controls Header -->
+            <!-- Top Bar Actions -->
             <div class="w-full flex items-center justify-between text-white pb-3 px-2">
                 <div class="flex items-center gap-3">
-                    <span id="lightboxStepBadge" class="px-3 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/40 text-xs font-mono font-bold">STEP 01</span>
-                    <h3 id="lightboxTitle" class="text-base sm:text-lg font-black text-white">عنوان الخطوة</h3>
+                    <span id="lightboxStepBadge" class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-sky-500/30 text-sky-300 border border-sky-400/40">
+                        STEP 01
+                    </span>
+                    <h3 id="lightboxTitle" class="text-base sm:text-lg font-black tracking-tight text-white drop-shadow-sm">
+                        عنوان الشاشة
+                    </h3>
                 </div>
+
                 <div class="flex items-center gap-2">
-                    <button type="button" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition" onclick="navigateLightboxModal(-1)" title="Previous (Left Arrow)">
-                        <i class="fa-solid fa-chevron-left text-sm"></i>
+                    <button type="button" onclick="prevLightboxImage()" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer" title="السابق (Arrow Left)">
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
-                    <button type="button" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition" onclick="navigateLightboxModal(1)" title="Next (Right Arrow)">
-                        <i class="fa-solid fa-chevron-right text-sm"></i>
+                    <button type="button" onclick="nextLightboxImage()" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-all cursor-pointer" title="التالي (Arrow Right)">
+                        <i class="fa-solid fa-arrow-left"></i>
                     </button>
-                    <button type="button" class="w-9 h-9 rounded-full bg-rose-500/80 hover:bg-rose-600 text-white flex items-center justify-center transition ml-2" onclick="forceCloseLightboxModal()" title="Close (Esc)">
-                        <i class="fa-solid fa-xmark text-sm"></i>
+                    <button type="button" onclick="closeLightboxModal()" class="w-10 h-10 rounded-xl bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/40 text-rose-300 flex items-center justify-center transition-all cursor-pointer" title="إغلاق (Esc)">
+                        <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Image Viewport -->
-            <img id="lightboxImage" src="" alt="Guide Screenshot">
+            <!-- Image View -->
+            <div class="relative overflow-hidden rounded-2xl flex items-center justify-center bg-black/40">
+                <img id="lightboxImage" src="" alt="Guide Screenshot">
+            </div>
 
-            <!-- Bottom Action Description Card -->
-            <div class="mt-4 p-4 rounded-2xl bg-[#081d2f]/95 border border-sky-500/30 text-white max-w-2xl w-full text-right shadow-2xl backdrop-blur-md">
-                <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs mb-1">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>الإجراء المنفذ في هذه الشاشة (Action Details):</span>
-                </div>
-                <p id="lightboxDescription" class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium"></p>
+            <!-- Bottom Description Card -->
+            <div class="w-full mt-3 p-4 rounded-2xl bg-[#081d2f]/90 border border-sky-500/30 backdrop-blur-md text-white shadow-xl">
+                <p id="lightboxDescription" class="text-xs sm:text-sm font-medium leading-relaxed text-slate-200">
+                    وصف الإجراء والخطوة الميدانية بالتفصيل.
+                </p>
             </div>
         </div>
     </div>
 
     <!-- ========================================================================= -->
-    <!-- 10. JAVASCRIPT CONTROLLERS -->
+    <!-- 5. LIGHTBOX & DYNAMIC FILTER CONTROLLER SCRIPT -->
     <!-- ========================================================================= -->
     <script>
-        const galleryDatabase = [
+        // All 20 Real Distinct System Screenshots
+        const guideGallery = [
             {
+                step: 1,
                 url: "{{ asset('images/guide/shot1_step1_core.png') }}",
-                title: "الخطوة 1: الرمز والتصنيف الأساسي (Core SKU & Category)",
-                desc: "تحديد رمز SKU المعياري، مسار الـ SEO، التصنيف العلاجي، والعلامة التجارية مع حفظ المسودة تلقائياً.",
-                step: 1
+                title: "الخطوة 1: الرمز والتصنيف الأساسي والحفظ التلقائي",
+                desc: "تسجيل رمز SKU المعياري، الرابط الدائم (SEO Slug)، وتحديد التصنيف العلاجي مع الحفظ التلقائي الفوري للمسودة."
             },
             {
+                step: 2,
                 url: "{{ asset('images/guide/shot2_step2_content.png') }}",
-                title: "الخطوة 2: المحتوى والوصف ثنائي اللغة (Bilingual Content)",
-                desc: "إدخال الاسم التجاري والعلمي والملخص التسويقي والوصف الدوائي الكامل باللغتين العربية والإنجليزية.",
-                step: 2
+                title: "الخطوة 2: المحتوى الدوائي ثنائي اللغة",
+                desc: "كتابة الاسم التجاري والعلمي، الملخص التسويقي، والوصف السريري المفصل باللغتين العربية والإنجليزية."
             },
             {
+                step: 3,
                 url: "{{ asset('images/guide/shot3_step3_pricing.png') }}",
-                title: "الخطوة 3: السياسة السعرية والضرائب (Pricing & VAT)",
-                desc: "تحديد أسعار البيع والعروض، احتساب ضريبة القيمة المضافة ديناميكياً، وتكلفة الاستيراد لحساب هامش الربح الإجمالي.",
-                step: 3
+                title: "الخطوة 3: السياسة السعرية وهوامش الربح والضرائب",
+                desc: "تحديد سعر البيع الأساسي والتخفيض، احتساب ضريبة القيمة المضافة ديناميكياً، وتكلفة الاستيراد لحساب هامش الربح."
             },
             {
+                step: 4,
                 url: "{{ asset('images/guide/shot4_step4_media.png') }}",
-                title: "الخطوة 4: الأصول ومعرض الوسائط (High-Res Media)",
-                desc: "رفع صورة العبوة المفرغة (Master Packshot) وتوليد الصور المصغرة ومعرض الزوايا المتعددة.",
-                step: 4
+                title: "الخطوة 4: الأصول ومعرض الوسائط المفرغة",
+                desc: "رفع صورة العبوة المفرغة (Master Packshot) وتوليد الصور المصغرة ومعرض الزوايا المتعددة بجودة عالية."
             },
             {
+                step: 5,
                 url: "{{ asset('images/guide/shot5_step5_clinical.png') }}",
-                title: "الخطوة 5: الملف الطبي والجرعات (Clinical Monograph)",
-                desc: "تسجيل المكونات الفعالة والعيارات الصيدلانية القياسية والمؤشرات الفسيولوجية المستهدفة.",
-                step: 5
+                title: "الخطوة 5: الملف الطبي وجدول العيارات والجرعات",
+                desc: "جدول المكونات الفعالة والعيارات المعيارية والمؤشرات الفسيولوجية المستهدفة والفئات العمرية المسموحة."
             },
             {
+                step: 6,
                 url: "{{ asset('images/guide/shot6_step6_customizer.png') }}",
-                title: "الخطوة 6: مخصص أقسام صفحة المنتج (Section Customizer)",
-                desc: "مفاتيح تحكم مستقلة لظهور الأقسام على أجهزة الكمبيوتر والموبايل وحالة الفتح الافتراضية لكل قسم.",
-                step: 6
+                title: "الخطوة 6: مخصص أقسام صفحة المنتج (Desktop vs Mobile)",
+                desc: "التحكم المنفصل لظهور الأقسام الثمانية على الكمبيوتر والموبايل وحالة الفتح الافتراضية للأكورديون."
             },
             {
+                step: 7,
                 url: "{{ asset('images/guide/shot7_step6_bundle.png') }}",
-                title: "الخطوة 6 (موسع): باقات التآزر الحيوي (Synergistic Bundles)",
-                desc: "اختيار المكملات التكميلية وربطها في باقة متكاملة بخصم مخصص وإمكانية الشراء بنقرة واحدة.",
-                step: 7
+                title: "الخطوة 6 (موسع): باقات التآزر الحيوي الموحدة",
+                desc: "اختيار المكملات التكميلية وربطها في باقة متكاملة بخصم مخصص وزر إضافة جماعي موحد."
             },
             {
+                step: 8,
                 url: "{{ asset('images/guide/shot8_step7_inventory.png') }}",
-                title: "الخطوة 7: المستودعات والمخزون الأولي (Depot Allocation)",
-                desc: "التوزيع المزدوج الفوري لمستودع المتجر والمستودع المركزي وتسجيل بيانات تشغيلة الإنتاج الأولى.",
-                step: 8
+                title: "الخطوة 7: تكامل المخزون والباركود وإعادة الطلب",
+                desc: "تحديد نوع المخزون، باركود العبوة، وزن الشحن، وتعيين حدود التنبيه المبكر لإعادة الطلب."
             },
             {
+                step: 9,
                 url: "{{ asset('images/guide/shot9_hero_slider_overview.png') }}",
-                title: "سلايدر الواجهة: مركز التحكم والإعدادات العامة (Hero Slider)",
-                desc: "التحكم في زمن الحركة التلقائي (Delay 5500ms)، تشغيل السلايدر، وإعادة الترتيب المباشر بالسحب والإفلات.",
-                step: 9
+                title: "سلايدر الواجهة: مركز القيادة والترتيب المباشر",
+                desc: "التحكم في زمن الحركة التلقائي (Delay 5500ms)، تشغيل السلايدر، وإعادة الترتيب المباشر بالسحب والإفلات."
             },
             {
+                step: 10,
                 url: "{{ asset('images/guide/shot10_hero_slide_modal.png') }}",
-                title: "سلايدر الواجهة: محرر الشريحة والمحاكاة الحية (Slide Studio Modal)",
-                desc: "ربط المنتج التلقائي، ضبط نصوص التوهج التدرجي، وتنسيق أزرار الطلب مع معاينة مباشرة للشريحة.",
-                step: 10
+                title: "سلايدر الواجهة: محرر الشريحة واستوديو المحاكاة",
+                desc: "ربط المنتج التلقائي، ضبط نصوص التوهج التدرجي، وتنسيق أزرار الطلب مع معاينة حية للشريحة."
             },
             {
+                step: 11,
                 url: "{{ asset('images/guide/shot11_purchases_po.png') }}",
-                title: "أمر شراء جديد مع حساب تكاليف الوصول (Purchase Order)",
-                desc: "إدخال البنود، اختيار المورد المعتمد، تثبيت العملة وسعر الصرف، وحساب تكاليف الشحن والجمارك.",
-                step: 11
+                title: "المشتريات: أوامر الشراء الرسمية واعتماد الموردين",
+                desc: "جدول أوامر الشراء (POs)، اعتماد شروط التوريد، ومتابعة فواتير المواد الخام والمطابقة الثلاثية."
             },
             {
+                step: 12,
                 url: "{{ asset('images/guide/shot12_goods_receipts.png') }}",
-                title: "سندات استلام البضائع وفحص الأختام والحرارة (Goods Receipts GRN)",
-                desc: "جدول استلام الشحنات المبردة، تسجيل مسجلات الحرارة، وإيداع التشغيلات في الحجر الصحي.",
-                step: 12
+                title: "الحجر الصحي: سندات استلام البضائع وفحص الحرارة (GRN)",
+                desc: "سندات استلام الشحنات المبردة، تسجيل مسجلات الحرارة (Data Loggers)، وإيداع التشغيلات في الحجر الصحي."
             },
             {
+                step: 13,
                 url: "{{ asset('images/guide/shot13_finance_dashboard.png') }}",
-                title: "لوحة تحكم المنظومة المالية والحسابات (Finance Dashboard)",
-                desc: "متابعة الذمم المدينة والدائنة، إجمالي المبيعات، ومصروفات التشغيل وحركة الصناديق.",
-                step: 13
+                title: "المالية: لوحة تحكم المنظومة والتدفق النقدي",
+                desc: "متابعة الذمم المدينة والدائنة، إجمالي المبيعات، ومصروفات التشغيل وحركة الصناديق والبنوك."
+            },
+            {
+                step: 14,
+                url: "{{ asset('images/guide/shot14_manufacturing_work_orders.png') }}",
+                title: "التصنيع: أوامر التشغيل والإنتاج الدوائي cGMP",
+                desc: "إدارة خطوط الإنتاج، بدء صرف المواد (Dispensing Protocol)، المراجعة الدوائية، وإيداع المنتج التام."
+            },
+            {
+                step: 15,
+                url: "{{ asset('images/guide/shot15_sales_orders.png') }}",
+                title: "المبيعات: مركز إدارة الطلبات وبوالص الشحن",
+                desc: "جدول الطلبات، متابعة الحالات (جديد، قيد الشحن، تم التسليم)، والتحقق من سندات الفواتير الضريبية."
+            },
+            {
+                step: 16,
+                url: "{{ asset('images/guide/shot16_hr_dashboard.png') }}",
+                title: "الموارد البشرية: لوحة قيادة الحضور والرواتب",
+                desc: "متابعة نسب الحضور والانصراف، الورديات، مسير الرواتب الشهري، وطلبات الإجازات المعتمدة."
+            },
+            {
+                step: 17,
+                url: "{{ asset('images/guide/shot17_field_mr_visits.png') }}",
+                title: "المندوبون: إدارة الزيارات الميدانية والتحقق GPS",
+                desc: "سجل الزيارات الطبية، التحقق الجغرافي GPS، توثيق العينات الطبية وتتبع التغطية الشهرية للمناطق."
+            },
+            {
+                step: 18,
+                url: "{{ asset('images/guide/shot18_sales_crm_dashboard.png') }}",
+                title: "علاقات العملاء: لوحة قيادة مسار الصفقات CRM",
+                desc: "متابعة مسار الصفقات Kanban، تأهيل العملاء المحتملين، وقيمة الصفقات المتوقعة والمحققة للمراكز."
+            },
+            {
+                step: 19,
+                url: "{{ asset('images/guide/shot19_finance_chart_of_accounts.png') }}",
+                title: "المالية: شجرة دليل الحسابات العام (COA)",
+                desc: "إدارة الأصول والخصوم والمصروفات والإيرادات والمستويات المحاسبية الشجرية والقيود المزدوجة."
+            },
+            {
+                step: 20,
+                url: "{{ asset('images/guide/shot20_roles_rbac_security.png') }}",
+                title: "الأمان: مصفوفة الأدوار والصلاحيات الدقيقة RBAC",
+                desc: "إدارة الصلاحيات الدقيقة، إنشاء الأدوار، وعزل مهام المشرفين والمحاسبين والمندوبين بدقة تامة."
             }
         ];
 
-        let activeLightboxIdx = 0;
+        let currentLightboxIndex = 0;
 
         function openLightboxModal(url, title, desc, stepNum) {
-            activeLightboxIdx = galleryDatabase.findIndex(item => item.step === stepNum);
-            if (activeLightboxIdx === -1) activeLightboxIdx = 0;
-            renderLightboxView();
+            let foundIdx = guideGallery.findIndex(item => item.url === url || item.step === stepNum);
+            currentLightboxIndex = (foundIdx !== -1) ? foundIdx : 0;
+            renderLightboxContent();
+
             const modal = document.getElementById('guideLightbox');
-            modal.classList.add('active');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
             document.body.style.overflow = 'hidden';
         }
 
-        function renderLightboxView() {
-            const item = galleryDatabase[activeLightboxIdx];
+        function closeLightboxModal(event) {
+            if (event && event.target && event.target.id !== 'guideLightbox' && !event.target.closest('button')) {
+                return;
+            }
+            const modal = document.getElementById('guideLightbox');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        function renderLightboxContent() {
+            const item = guideGallery[currentLightboxIndex];
+            if (!item) return;
+
             document.getElementById('lightboxImage').src = item.url;
             document.getElementById('lightboxTitle').textContent = item.title;
             document.getElementById('lightboxDescription').textContent = item.desc;
             document.getElementById('lightboxStepBadge').textContent = 'STEP ' + String(item.step).padStart(2, '0');
         }
 
-        function navigateLightboxModal(dir) {
-            activeLightboxIdx += dir;
-            if (activeLightboxIdx < 0) activeLightboxIdx = galleryDatabase.length - 1;
-            if (activeLightboxIdx >= galleryDatabase.length) activeLightboxIdx = 0;
-            renderLightboxView();
+        function nextLightboxImage() {
+            currentLightboxIndex = (currentLightboxIndex + 1) % guideGallery.length;
+            renderLightboxContent();
         }
 
-        function closeLightboxModal(e) {
-            if (e.target.id === 'guideLightbox') {
-                forceCloseLightboxModal();
-            }
+        function prevLightboxImage() {
+            currentLightboxIndex = (currentLightboxIndex - 1 + guideGallery.length) % guideGallery.length;
+            renderLightboxContent();
         }
 
-        function forceCloseLightboxModal() {
+        // Keyboard Controls for Lightbox
+        window.addEventListener('keydown', function(e) {
             const modal = document.getElementById('guideLightbox');
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
+            if (!modal || !modal.classList.contains('active')) return;
 
-        document.addEventListener('keydown', (e) => {
-            const modal = document.getElementById('guideLightbox');
-            if (modal.classList.contains('active')) {
-                if (e.key === 'Escape') forceCloseLightboxModal();
-                if (e.key === 'ArrowRight') navigateLightboxModal(1);
-                if (e.key === 'ArrowLeft') navigateLightboxModal(-1);
-            }
+            if (e.key === 'Escape') closeLightboxModal();
+            if (e.key === 'ArrowRight') prevLightboxImage();
+            if (e.key === 'ArrowLeft') nextLightboxImage();
         });
 
-        function switchGuideModule(modId, btn) {
-            document.querySelectorAll('.bz-guide-tab-btn').forEach(b => b.classList.remove('active-tab'));
-            btn.classList.add('active-tab');
+        // Filter Sections by Tag Pill
+        function filterBySectionTag(tag, btn) {
+            document.querySelectorAll('.bz-tab-pill').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
 
-            document.querySelectorAll('.bz-guide-module-view').forEach(view => {
-                view.style.display = 'none';
+            const sections = document.querySelectorAll('.bz-system-section');
+            sections.forEach(sec => {
+                if (tag === 'all' || sec.getAttribute('data-section') === tag) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
             });
+        }
 
-            const targetView = document.getElementById('module-' + modId);
-            if (targetView) {
-                targetView.style.display = 'block';
+        // Live Search Input Filter
+        function filterGuideSections(query) {
+            const q = query.trim().toLowerCase();
+            const sections = document.querySelectorAll('.bz-system-section');
+
+            if (!q) {
+                sections.forEach(sec => sec.style.display = 'block');
+                return;
             }
+
+            sections.forEach(sec => {
+                const keywords = (sec.getAttribute('data-keywords') || '').toLowerCase();
+                const text = sec.innerText.toLowerCase();
+                if (keywords.includes(q) || text.includes(q)) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
         }
     </script>
 </x-layouts.admin>
