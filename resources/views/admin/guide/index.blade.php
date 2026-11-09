@@ -248,9 +248,10 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- 2. QUICK SEARCH & SECTION FILTER PILLS (FULL SYSTEM NAVIGATOR) -->
+        <!-- 2. LOGIC CYCLES & FLOWCHARTS NAVIGATOR (#logic-cycles) -->
         <!-- ========================================================================= -->
-        <div class="bz-section-panel p-4 space-y-4">
+        <div id="logic-cycles" class="scroll-mt-24 space-y-4">
+            <div class="bz-section-panel p-4 space-y-4">
             <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <!-- Search Filter Input -->
                 <div class="relative flex-1">
@@ -944,7 +945,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2.5">
-                        <a href="{{ route('admin.financial-accounts.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                        <a href="{{ route('admin.finance.accounts.index') }}" class="btn btn-secondary text-xs" target="_blank">
                             <i class="fa-solid fa-sitemap text-xs"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'شجرة الحسابات COA' : 'COA Tree' }}</span>
                         </a>
@@ -1352,7 +1353,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2.5">
-                        <a href="{{ route('admin.hero-slider.index') }}" class="btn btn-secondary text-xs" target="_blank">
+                        <a href="{{ route('admin.hero-slides.index') }}" class="btn btn-secondary text-xs" target="_blank">
                             <i class="fa-solid fa-images text-xs"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'استوديو السلايدر' : 'Slider Studio' }}</span>
                         </a>
@@ -1444,8 +1445,304 @@
                 </div>
             </div>
         </div>
+        </div> <!-- End of #logic-cycles container -->
 
-    </div>
+        <!-- ========================================================================= -->
+        <!-- 3. MASTER SYSTEM ELEMENTS & SCREENS CATALOG (#system-catalog) -->
+        <!-- ========================================================================= -->
+        <div id="system-catalog" class="scroll-mt-24 space-y-6">
+            <div class="bz-section-panel p-6 sm:p-8 space-y-6 border-l-4 border-l-amber-500">
+                <!-- Section Header -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-[#1e3a52] pb-6">
+                    <div class="flex items-center gap-4">
+                        <span class="w-13 h-13 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 text-white flex items-center justify-center text-2xl shadow-lg shadow-amber-500/25 flex-shrink-0">
+                            <i class="fa-solid fa-table-cells"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 px-2 py-0.5 rounded-full">MASTER CATALOG</span>
+                                <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                                    {{ app()->getLocale() === 'ar' ? 'فهرس الشاشات، العناصر، الحقول، وأزرار الإجراءات' : 'Master System Screens, Elements & Actions Catalog' }}
+                                </h2>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
+                                {{ app()->getLocale() === 'ar' ? 'المرجع المعماري والميداني لكافة شاشات وحقول النظام، قواعد التحقق، أزرار الإجراءات، والأثر المحاسبي والمخزني التلقائي' : 'Comprehensive directory of all system pages: form controls, validation rules, triggers and automated inventory & financial outputs' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div class="relative w-full sm:w-64">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-filter text-xs"></i>
+                            </span>
+                            <input type="text" id="catalogSearchInput" oninput="filterCatalogTable(this.value)" 
+                                   placeholder="{{ app()->getLocale() === 'ar' ? 'تصفية الفهرس...' : 'Filter elements...' }}" 
+                                   class="w-full pl-3 pr-8 py-2 text-xs rounded-xl bg-slate-50 dark:bg-[#061a2b] border border-slate-200 dark:border-[#1e3a52] text-slate-800 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Master Elements Table -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#1e3a52]">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 dark:bg-[#061a2b] text-slate-700 dark:text-slate-300 font-black uppercase text-[11px] border-b border-slate-200 dark:border-[#1e3a52]">
+                            <tr>
+                                <th class="p-3.5">{{ app()->getLocale() === 'ar' ? 'القسم والموديول' : 'Module' }}</th>
+                                <th class="p-3.5">{{ app()->getLocale() === 'ar' ? 'الشاشة والمسار البرمجي' : 'Screen & Route' }}</th>
+                                <th class="p-3.5">{{ app()->getLocale() === 'ar' ? 'عناصر التحكم والحقول الأساسية' : 'Key Form Fields & Elements' }}</th>
+                                <th class="p-3.5">{{ app()->getLocale() === 'ar' ? 'أزرار الإجراءات (Actions)' : 'Triggers & Actions' }}</th>
+                                <th class="p-3.5">{{ app()->getLocale() === 'ar' ? 'الأثر المحاسبي والمخزني والحالات' : 'Ledger & Inventory Rules' }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalogTableBody" class="divide-y divide-slate-200 dark:divide-[#1e3a52] text-slate-600 dark:text-slate-300">
+                            <!-- 1. Catalog & Products -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-sky-100 dark:bg-sky-500/20 text-sky-600 flex items-center justify-center text-xs"><i class="fa-solid fa-box-open"></i></span>
+                                    <span>الكتالوج والمنتجات</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-sky-600 dark:text-sky-400">
+                                    /admin/products/create<br>
+                                    <span class="text-slate-400">Route: admin.products.create</span>
+                                </td>
+                                <td class="p-3.5">
+                                    SKU (فريد)، SEO Slug، الاسم ثنائي اللغة، السعر، ضريبة القيمة المضافة، صورة Packshot المفرغة، 8 مفاتيح مخصص الشاشات (Desktop vs Mobile)، وباقات التآزر.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold">Auto-Save AJAX</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">نشر فوري Live</span>
+                                </td>
+                                <td class="p-3.5">
+                                    إنشاء سجل في جدول `products`، حفظ المسودة تلقائياً، حجز SKU في جدول `inventory_items`، ومنع كسر الروابط الدائمة (SEO Slug Uniqueness).
+                                </td>
+                            </tr>
+
+                            <!-- 2. Procurement -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-xs"><i class="fa-solid fa-cart-shopping"></i></span>
+                                    <span>المشتريات والموردين</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-emerald-600 dark:text-emerald-400">
+                                    /admin/purchase-orders/create<br>
+                                    <span class="text-slate-400">Route: admin.purchase-orders.create</span>
+                                </td>
+                                <td class="p-3.5">
+                                    اختيار المورد المعتمد، تاريخ الاستحقاق، جدول بنود المواد الخام، الكمية، سعر الوحدة، العملة، وشروط الشحن Incoterms.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">اعتماد الشراء Approve</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">إلغاء PO Cancel</span>
+                                </td>
+                                <td class="p-3.5">
+                                    حالة PO: (Draft -> Approved -> Received). تثبيت التزامات الشراء في جدول الذمم الدائنة (Accounts Payable) وتفعيل تتبع التوريد.
+                                </td>
+                            </tr>
+
+                            <!-- 3. Cold-Chain & QC -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 flex items-center justify-center text-xs"><i class="fa-solid fa-snowflake"></i></span>
+                                    <span>الحجر وضبط الجودة</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-cyan-600 dark:text-cyan-400">
+                                    /admin/goods-receipts<br>
+                                    <span class="text-slate-400">Route: admin.goods-receipts.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    رقم بوليصة الشحن، حالة أختام الحاوية، قراءات مسجلات الحرارة (Data Loggers)، شهادة التحليل COA، وموقع الحجر الصحي Quarantine.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-cyan-100 dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold">إيداع الحجر Quarantine</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">إفراج كلي QC Release</span>
+                                </td>
+                                <td class="p-3.5">
+                                    حظر صرف المخزون نهائياً لحين صدور شهادة الفحص المخبري، تحويل الكمية آلياً للمستودع المركزي فور اعتماد الإفراج.
+                                </td>
+                            </tr>
+
+                            <!-- 4. Inventory -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-500/20 text-amber-600 flex items-center justify-center text-xs"><i class="fa-solid fa-warehouse"></i></span>
+                                    <span>المخزون والتشغيلات</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-amber-600 dark:text-amber-400">
+                                    /admin/batches<br>
+                                    <span class="text-slate-400">Route: admin.batches.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    كود التشغيلة (Batch)، تاريخ الإنتاج والصلاحية، موقع التخزين، حصة المتجر (Online)، رصيد المستودع المركزي، ورقم الباركود.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">تحويل بيني Transfer</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold">تسوية جردية Adjust</span>
+                                </td>
+                                <td class="p-3.5">
+                                    تطبيق قاعدة FIFO تلقائياً، تسجيل حركة في جدول `inventory_movements`، وتوليد قيد تسوية فروقات الجرد المحاسبي.
+                                </td>
+                            </tr>
+
+                            <!-- 5. Manufacturing -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-500/20 text-purple-600 flex items-center justify-center text-xs"><i class="fa-solid fa-industry"></i></span>
+                                    <span>التصنيع الدوائي cGMP</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-purple-600 dark:text-purple-400">
+                                    /admin/work-orders<br>
+                                    <span class="text-slate-400">Route: admin.work-orders.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    رقم أمر التشغيل، كود المنتج التام، صيغة التشغيلة (BOM)، كمية المواد الفعالة والمساعدة، ومسؤول وزن وصرف المواد (Dispenser).
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 font-bold">بدء الصرف Dispense</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">إتمام الإنتاج Complete</span>
+                                </td>
+                                <td class="p-3.5">
+                                    خصم المواد الخام المستهلكة من مستودع الخامات، إضافة كمية المنتج التام للمركزي، وترحيل تكلفة التصنيع المباشرة.
+                                </td>
+                            </tr>
+
+                            <!-- 6. Sales & Orders -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-500/20 text-rose-600 flex items-center justify-center text-xs"><i class="fa-solid fa-truck-fast"></i></span>
+                                    <span>الطلبات والشحن</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-rose-600 dark:text-rose-400">
+                                    /admin/orders<br>
+                                    <span class="text-slate-400">Route: admin.orders.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    رقم الطلب، اسم العميل، عنوان التوصيل، بنود المنتجات والكميات، إجمالي الضريبة، بوابة الدفع، وحالة الشحن.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold">تجهيز الشحنة Pack</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold">إصدار بوليصة Waybill</span>
+                                </td>
+                                <td class="p-3.5">
+                                    حجز فوري للمخزون (Reserved Stock)، خصم فعلي عند الشحن، وتوليد الفاتورة الضريبية Zakat Compliant مع رمز QR.
+                                </td>
+                            </tr>
+
+                            <!-- 7. Finance -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-teal-100 dark:bg-teal-500/20 text-teal-600 flex items-center justify-center text-xs"><i class="fa-solid fa-coins"></i></span>
+                                    <span>المالية وشجرة الحسابات</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-teal-600 dark:text-teal-400">
+                                    /admin/financial-accounts<br>
+                                    <span class="text-slate-400">Route: admin.financial-accounts.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    رمز الحساب الشجري (Account Code)، نوع الحساب (أصل، خصم، مصروف، إيراد)، الرصيد المدين والدائن، وسندات القبض والصرف.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold">قيد يدوي Manual Entry</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 font-bold">تسوية بنك Reconcile</span>
+                                </td>
+                                <td class="p-3.5">
+                                    توازن القيد المحاسبي المزدوج (Debit = Credit)، ربط حركات البيع والشراء آلياً، وتحديث ميزان المراجعة اللحظي.
+                                </td>
+                            </tr>
+
+                            <!-- 8. Field MR -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-user-doctor"></i></span>
+                                    <span>المندوبون والعيادات</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-blue-600 dark:text-blue-400">
+                                    /admin/visits<br>
+                                    <span class="text-slate-400">Route: admin.visits.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    اسم الطبيب، المركز الطبي/العيادة، تصنيف التخصص، إحداثيات GPS المباشرة، خط السير، وسجل العينات المسلمة (Sample Drops).
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold">تحقق GPS Check-in</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold">تسجيل عينة Drop</span>
+                                </td>
+                                <td class="p-3.5">
+                                    منع تسجيل الزيارة خارج نطاق 100 متر من العيادة، خصم العينات تلقائياً من عهدة المندوب، وتحديث نسبة تغطية التارجت.
+                                </td>
+                            </tr>
+
+                            <!-- 9. Sales CRM -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center text-xs"><i class="fa-solid fa-handshake"></i></span>
+                                    <span>علاقات العملاء CRM</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-orange-600 dark:text-orange-400">
+                                    /admin/crm<br>
+                                    <span class="text-slate-400">Route: admin.crm.dashboard</span>
+                                </td>
+                                <td class="p-3.5">
+                                    العميل المحتمل (Lead)، جهة الاتصال، مرحلة الصفقات Kanban، قيمة العقد المتوقعة، شروط الخصم، وتاريخ الإغلاق المستهدف.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">إغلاق رابح Won</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold">خسارة الصفقة Lost</span>
+                                </td>
+                                <td class="p-3.5">
+                                    تحويل العميل الفائز إلى عميل مؤسسي دائم في جدول `customers`، تخصيص حد ائتماني وربط جدول الأسعار الخاص به.
+                                </td>
+                            </tr>
+
+                            <!-- 10. HR & Payroll -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-green-100 dark:bg-green-500/20 text-green-600 flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></span>
+                                    <span>الموارد والرواتب</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-green-600 dark:text-green-400">
+                                    /admin/hr/attendance<br>
+                                    <span class="text-slate-400">Route: admin.hr.attendance.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    كود الموظف، وقت البصمة الحية، إحداثيات الموقع الجغرافي، الوردية، دقائق التأخير، ساعات الإضافي، ورصيد الإجازات.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 font-bold">بصمة حضور Punch-in</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 font-bold">ترحيل المسير Payroll</span>
+                                </td>
+                                <td class="p-3.5">
+                                    حساب الاستقطاعات والبدلات آلياً، وتوليد قيد استحقاق الرواتب في الحسابات العامة (من حـ/ مصروفات الرواتب إلى حـ/ الرواتب المستحقة).
+                                </td>
+                            </tr>
+
+                            <!-- 11. Slider & Security -->
+                            <tr class="bz-catalog-row hover:bg-slate-50 dark:hover:bg-[#0a253d] transition-colors">
+                                <td class="p-3.5 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></span>
+                                    <span>السلايدر والأمان</span>
+                                </td>
+                                <td class="p-3.5 font-mono text-[11px] text-indigo-600 dark:text-indigo-400">
+                                    /admin/hero-slider و /admin/roles<br>
+                                    <span class="text-slate-400">Routes: admin.hero-slider.index, admin.roles.index</span>
+                                </td>
+                                <td class="p-3.5">
+                                    سرعة السلايدر (Delay 5500ms)، تدرج النصوص، ربط المنتج، مصفوفة الصلاحيات (مشاهدة/إنشاء/تعديل/حذف)، وسجل عمليات الـ Audit.
+                                </td>
+                                <td class="p-3.5">
+                                    <span class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold">حفظ الشريحة Save</span>,
+                                    <span class="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 font-bold">عزل الصلاحية Revoke</span>
+                                </td>
+                                <td class="p-3.5">
+                                    تحديث فوري لواجهة المتجر، منع الوصول غير المصرح عبر Middleware الصلاحيات، وتسجيل كل عملية إدارية مع عنوان IP.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
 
     <!-- ========================================================================= -->
     <!-- 4. APPLE-STYLE FULLSCREEN LIGHTBOX MODAL WITH ZOOM & CONTROLS -->
@@ -1708,5 +2005,47 @@
                 }
             });
         }
+
+        // Live Search for Master Elements Catalog Table
+        function filterCatalogTable(query) {
+            const q = query.trim().toLowerCase();
+            const rows = document.querySelectorAll('.bz-catalog-row');
+            rows.forEach(row => {
+                if (!q) {
+                    row.style.display = '';
+                    return;
+                }
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        // Global Dynamic Hash Handler for #logic-cycles & #system-catalog
+        window.handleUrlHash = function() {
+            const hash = window.location.hash;
+            if (!hash) return;
+
+            const targetEl = document.querySelector(hash);
+            if (targetEl) {
+                // If it was hidden by section tag filters, reset to 'all'
+                const allPill = document.querySelector('.bz-tab-pill');
+                if (targetEl.style.display === 'none' && allPill) {
+                    filterBySectionTag('all', allPill);
+                }
+
+                // Smooth scroll to target anchor
+                setTimeout(() => {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Highlight with pulse ring
+                    targetEl.classList.add('ring-4', 'ring-[#0284c7]/40', 'transition-all');
+                    setTimeout(() => targetEl.classList.remove('ring-4', 'ring-[#0284c7]/40'), 2500);
+                }, 50);
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', window.handleUrlHash);
+        window.addEventListener('hashchange', window.handleUrlHash);
+        // Also run immediately on execution
+        window.handleUrlHash();
     </script>
 </x-layouts.admin>

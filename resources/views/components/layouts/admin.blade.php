@@ -758,12 +758,14 @@
                         </a>
                         <a href="{{ route('admin.guide.index') }}#logic-cycles"
                             class="sidebar-sublink"
+                            onclick="if(window.location.pathname.includes('/admin/guide')){ window.location.hash='#logic-cycles'; if(window.handleUrlHash) window.handleUrlHash(); }"
                             title="{{ app()->getLocale() === 'ar' ? 'مخططات دورات العمل المحاسبية والتشغيلية' : 'End-to-End Logic Cycles & Flowcharts' }}">
                             <i class="fa-solid fa-diagram-project text-xs text-emerald-400"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'دورات ومخططات العمل' : 'Logic Cycles' }}</span>
                         </a>
                         <a href="{{ route('admin.guide.index') }}#system-catalog"
                             class="sidebar-sublink"
+                            onclick="if(window.location.pathname.includes('/admin/guide')){ window.location.hash='#system-catalog'; if(window.handleUrlHash) window.handleUrlHash(); }"
                             title="{{ app()->getLocale() === 'ar' ? 'فهرس الشاشات والعناصر والحقول' : 'Screens, Elements & Actions Catalog' }}">
                             <i class="fa-solid fa-table-cells text-xs text-amber-400"></i>
                             <span>{{ app()->getLocale() === 'ar' ? 'فهرس الشاشات والعناصر' : 'Elements Catalog' }}</span>
