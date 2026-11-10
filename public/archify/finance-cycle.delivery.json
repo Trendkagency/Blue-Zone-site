@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6de806d0-ea21-40cc-a9b5-3eea2e8c69d2",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\finance-cycle\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\finance-cycle.html",
+  "specification": {
+    "sha256": "4d910f83fde6ca1b8fdc7083d57674c4f07959b71f7824dc78b92dc0ad040181",
+    "bytes": 9280
+  },
+  "artifact": {
+    "sha256": "b0a29cbb2dc183d0501d1ae55c73b01603b027c76aa3ddf84d4287340ab17b18",
+    "bytes": 861257
+  }
+}

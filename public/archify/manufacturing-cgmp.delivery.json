@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9f986383-37f2-4368-bf35-e906723b1077",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\manufacturing-cgmp\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\manufacturing-cgmp.html",
+  "specification": {
+    "sha256": "acc721eb2c43a598c06fb4202f9f4d80aaa4415ba9ebf9d3ed6bd6bd1e238ac5",
+    "bytes": 5863
+  },
+  "artifact": {
+    "sha256": "0acccc31ac77fc88087d6487a03316c6e343928a5cccb5d98441594e867537ea",
+    "bytes": 849715
+  }
+}

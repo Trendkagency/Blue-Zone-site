@@ -773,6 +773,20 @@
                     </div>
                 </div>
             </nav>
+
+            <!-- Compact Anchored Sidebar Footer Dock -->
+            <div class="sidebar-footer" style="flex-shrink: 0; padding: 0.75rem 0.9rem; border-top: 1px solid rgba(255, 255, 255, 0.08); background: rgba(2, 16, 27, 0.72); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                <a href="{{ route('admin.guide.index') }}" class="flex items-center gap-2 text-xs font-bold text-slate-200 hover:text-cyan-300 transition-colors min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.7)]"></span>
+                    <span class="truncate">Bluezone OS • Docs</span>
+                </a>
+                <button type="button"
+                    onclick="if(window.BLUEZONE_THEME){BLUEZONE_THEME.toggle();}else if(typeof toggleTheme==='function'){toggleTheme();}"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 hover:bg-white/20 text-slate-100 shrink-0 cursor-pointer"
+                    title="{{ __('app.theme.title') }}">
+                    <i class="fa-solid fa-circle-half-stroke text-xs"></i>
+                </button>
+            </div>
         </aside>
 
         <!-- Admin Content Shell (Section Main) -->
@@ -1812,7 +1826,9 @@
         /* Desktop Collapsible Rail Mode */
         @media (min-width: 1024px) {
             .admin-layout.sidebar-collapsed .admin-sidebar {
-                width: 78px;
+                width: 78px !important;
+                min-width: 78px !important;
+                max-width: 78px !important;
             }
             
             .admin-layout.sidebar-collapsed .sidebar-header {
@@ -1824,8 +1840,14 @@
             .admin-layout.sidebar-collapsed .sidebar-link span,
             .admin-layout.sidebar-collapsed .sidebar-dropdown-btn span,
             .admin-layout.sidebar-collapsed .sidebar-dropdown-meta,
-            .admin-layout.sidebar-collapsed .sidebar-submenu {
+            .admin-layout.sidebar-collapsed .sidebar-submenu,
+            .admin-layout.sidebar-collapsed .sidebar-footer a span.truncate {
                 display: none !important;
+            }
+
+            .admin-layout.sidebar-collapsed .sidebar-footer {
+                justify-content: center;
+                padding: 0.75rem 0.5rem !important;
             }
 
             .admin-layout.sidebar-collapsed .sidebar-link,

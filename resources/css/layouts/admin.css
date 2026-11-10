@@ -1,27 +1,29 @@
 .admin-layout {
   display: flex;
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   background-color: var(--color-bg-body);
-  overflow: hidden;
+  overflow-x: clip;
   position: relative;
 }
 
 /* Sidebar */
 .admin-sidebar {
-  width: var(--admin-sidebar-width, 280px);
-  background-color: var(--color-bg-sidebar, #031827);
-  color: var(--color-sidebar-text, #94A3B8);
+  width: var(--admin-sidebar-width, 270px);
+  background-color: #031827;
+  color: #CBD5E1;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
   border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
-  position: sticky;
+  position: fixed;
   top: 0;
-  height: 100vh;
-  max-height: 100vh;
+  bottom: 0;
+  inset-inline-start: 0;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 
@@ -47,10 +49,12 @@
 }
 
 .sidebar-menu {
-  flex-grow: 1;
+  flex: 1 1 0%;
+  min-height: 0;
   padding: 0.75rem 0.65rem;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -151,26 +155,24 @@
   font-size: 1rem;
 }
 
-/* Admin Main Content Shell (Overflow Scroll Container) */
+/* Admin Main Content Shell (Single Document Scroll Flow — Zero Overscroll Trap) */
 .admin-main {
-  flex-grow: 1;
+  flex: 1 1 0%;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  height: 100vh;
-  max-height: 100vh;
-  flex: 1 1 0%;
-  width: calc(100% - var(--admin-sidebar-width, 280px));
-  max-width: calc(100% - var(--admin-sidebar-width, 280px));
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(10, 79, 120, 0.35) transparent;
+  min-height: 100dvh;
+  width: calc(100% - var(--admin-sidebar-width, 270px));
+  max-width: calc(100% - var(--admin-sidebar-width, 270px));
+  margin-inline-start: var(--admin-sidebar-width, 270px);
+  overflow-x: clip;
+  overflow-y: visible;
+  transition: margin-inline-start 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 1023.98px) {
   .admin-main {
+    margin-inline-start: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
   }
@@ -857,33 +859,46 @@
   max-width: 100%;
 }
 
-/* Explicit Desktop Layout Lock (Prevents Sidebar Overlay Collisions) */
+/* Explicit Desktop Layout Lock (Fixed Full-Height Sidebar + Single Window Scroll) */
 @media (min-width: 1024px) {
   .admin-layout {
     display: flex !important;
     flex-direction: row !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
     width: 100% !important;
+    overflow-x: clip !important;
+    overflow-y: visible !important;
   }
 
   .admin-sidebar {
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
-    left: auto !important;
-    right: auto !important;
+    bottom: 0 !important;
+    inset-inline-start: 0 !important;
     transform: none !important;
-    width: var(--admin-sidebar-width, 280px) !important;
-    min-width: var(--admin-sidebar-width, 280px) !important;
-    max-width: var(--admin-sidebar-width, 280px) !important;
+    width: var(--admin-sidebar-width, 270px) !important;
+    min-width: var(--admin-sidebar-width, 270px) !important;
+    max-width: var(--admin-sidebar-width, 270px) !important;
     flex-shrink: 0 !important;
-    height: 100vh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
     box-shadow: none !important;
-    z-index: 50 !important;
+    z-index: 60 !important;
     display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
   }
 
   [dir="rtl"] .admin-sidebar {
     transform: none !important;
     left: auto !important;
+    right: 0 !important;
+  }
+
+  [dir="ltr"] .admin-sidebar {
+    left: 0 !important;
     right: auto !important;
   }
 
@@ -894,8 +909,26 @@
   .admin-main {
     flex: 1 1 0% !important;
     min-width: 0 !important;
-    width: calc(100% - var(--admin-sidebar-width, 280px)) !important;
-    max-width: calc(100% - var(--admin-sidebar-width, 280px)) !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    overflow-x: clip !important;
+    margin-inline-start: var(--admin-sidebar-width, 270px) !important;
+    width: calc(100% - var(--admin-sidebar-width, 270px)) !important;
+    max-width: calc(100% - var(--admin-sidebar-width, 270px)) !important;
+  }
+
+  .admin-layout.sidebar-collapsed .admin-sidebar {
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+  }
+
+  .admin-layout.sidebar-collapsed .admin-main {
+    margin-inline-start: 78px !important;
+    width: calc(100% - 78px) !important;
+    max-width: calc(100% - 78px) !important;
   }
 
   .admin-mobile-toggle {

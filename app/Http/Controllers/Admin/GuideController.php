@@ -57,6 +57,16 @@ class GuideController extends Controller
             'hero_slides_count' => HeroSlide::count(),
         ];
 
-        return view('admin.guide.index', compact('systemMetrics'));
+        $guideService = \App\Services\GuideDataService::getInstance();
+        $overviewArchitecture = $guideService->getOverviewArchitecture();
+        $guideModules = $guideService->getModules($systemMetrics);
+        $catalogRows = $guideService->getCatalogRows($systemMetrics);
+
+        return view('admin.guide.index', compact(
+            'systemMetrics',
+            'overviewArchitecture',
+            'guideModules',
+            'catalogRows'
+        ));
     }
 }

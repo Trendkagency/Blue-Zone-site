@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "28b3f7d1-6226-42f1-8ce2-2723387eaee1",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\sales-crm-pipeline\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\sales-crm-pipeline.html",
+  "specification": {
+    "sha256": "f330e8cd770f163625e54e98b8445e56bb92e5860494adf304aaf6e6dc28acf5",
+    "bytes": 4460
+  },
+  "artifact": {
+    "sha256": "e991646da1fff2767f512c7976ade8d5dd5465449183a98f89f2ca0caa1c38d1",
+    "bytes": 843096
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c5e7bc7e-0458-461c-a572-ec7bff6cff93",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\inventory-allocation\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\inventory-allocation.html",
+  "specification": {
+    "sha256": "5fb06ef8e801227a0b15778e0c5c83f2a564a8b404ca87bff5af61ad6c6108fc",
+    "bytes": 5972
+  },
+  "artifact": {
+    "sha256": "66d9c36ece6055e3d84f728265ec45a1868b131418bfb026828aa03ac78de2f2",
+    "bytes": 846021
+  }
+}

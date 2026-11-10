@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "1efcd9d0-e91f-4d04-882c-6603a9f59cb7",
+  "status": "current",
+  "command": "deliver",
+  "type": "lifecycle",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\qc-coldchain\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\qc-coldchain.html",
+  "specification": {
+    "sha256": "0135eec58815d68535876506865c7f6030f0d5a5e4d86b7047388ced4c0c32a0",
+    "bytes": 5111
+  },
+  "artifact": {
+    "sha256": "600c248d3d50dedb9770ed04de2f2e3d582b74b3f24c651a3582cd0ef22cdc6d",
+    "bytes": 846731
+  }
+}

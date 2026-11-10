@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8f0fe2e9-eb63-4914-ae84-34dde4936c5a",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\products-wizard\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\products-wizard.html",
+  "specification": {
+    "sha256": "ecf0758963a0357ce73b570b013ef5aa2206f8724ab6eab25fe2ae8acd222f12",
+    "bytes": 7145
+  },
+  "artifact": {
+    "sha256": "87ad2d07463f419a967545543310e5bf8bffa88b33bc1d6031030531c75a1338",
+    "bytes": 854291
+  }
+}

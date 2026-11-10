@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "61e80439-79ad-4ae9-8663-f4b9801f7488",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\system-overview\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\system-overview.html",
+  "specification": {
+    "sha256": "69c85cb177548babd49bf11255cb3797bed85ba553e1aff705e3910c43d7bcb5",
+    "bytes": 8059
+  },
+  "artifact": {
+    "sha256": "fe9d889486645c9f5a1ad313a6b622051e2082d7528f49f807cfc66c730db012",
+    "bytes": 858067
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6194942f-d7d5-4d1f-93c7-d810686630c7",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\hr-payroll-cycle\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\hr-payroll-cycle.html",
+  "specification": {
+    "sha256": "f5426244f3b54d9d10f9ad4f0a9385c58a17f47aae6f265b3cf65a29608b1265",
+    "bytes": 6142
+  },
+  "artifact": {
+    "sha256": "e3ad463b3687c21e1f581c4939f2c2332185c72578630098e75f1e69aa2b5665",
+    "bytes": 849868
+  }
+}

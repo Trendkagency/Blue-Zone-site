@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "257964c3-8e3a-4e89-966b-c2bf19f95f4c",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\purchasing-cycle\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\purchasing-cycle.html",
+  "specification": {
+    "sha256": "113f98030460386cefc027e1006b27d7cbc77332bf2d180f7909e39683d28829",
+    "bytes": 6347
+  },
+  "artifact": {
+    "sha256": "a6b980dca3cc23d787f6df8c28b708e864a6a1f4ca7afdfa541b862711d65081",
+    "bytes": 850212
+  }
+}

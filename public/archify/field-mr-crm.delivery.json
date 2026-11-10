@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5681e540-da53-43b6-99bb-3150e75847ee",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\field-mr-crm\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\field-mr-crm.html",
+  "specification": {
+    "sha256": "b8d7486fe39dae1669b6d539e5d5ce5834466c1348815ac85257707bea91d530",
+    "bytes": 5986
+  },
+  "artifact": {
+    "sha256": "cef48f473b9f366362fa11032d3ac089d4237d0c69a3674c3b53642a40a85a8c",
+    "bytes": 850704
+  }
+}

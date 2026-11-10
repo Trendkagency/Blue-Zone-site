@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "0e810d37-2383-498e-9fd1-3d5559d4cef1",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\Lenovo\\.gemini\\antigravity\\brain\\251bfd02-ff39-496b-8c7a-a719d9138b39\\scratch\\archify-jobs\\security-studio\\candidate.json",
+  "output": "C:\\laragon\\www\\Blue_Zone_site\\public\\archify\\security-studio.html",
+  "specification": {
+    "sha256": "ba6cf44fe7d831a16b6aabec1f3a9d86021b5d6ac6ddca5fe1577ef9bbb81039",
+    "bytes": 5983
+  },
+  "artifact": {
+    "sha256": "d2886a8e4f2e9571360e71a015cec061b94ff920c01873b9ac2539439c5c2d79",
+    "bytes": 849725
+  }
+}
