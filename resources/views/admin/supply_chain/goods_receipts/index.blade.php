@@ -182,9 +182,14 @@
                                 </span>
                             </td>
                             <td class="whitespace-nowrap px-4 py-3.5 text-center">
-                                <a href="{{ route('admin.goods-receipts.show', $grn) }}" class="btn btn-ghost btn-sm text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/40" title="{{ __('goods_receipts.view_grn') }}">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
+                                <div class="inline-flex items-center gap-1 justify-center">
+                                    <a href="{{ route('admin.goods-receipts.show', $grn) }}" class="btn btn-ghost btn-sm text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-950/40" title="{{ __('goods_receipts.view_grn') }}">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('admin.goods-receipts.edit', $grn) }}" class="btn btn-ghost btn-sm text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40" title="{{ __('goods_receipts.edit_receipt') }}">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\GoodsReceiptStatus;
 use App\Enums\PurchaseOrderStatus;
+use App\Enums\RawMaterialBatchStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\GoodsReceiptRequest;
 use App\Models\GoodsReceipt;
+use App\Models\GoodsReceiptItem;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\ProductBatch;
 use App\Models\PurchaseInvoice;
 use App\Models\PurchaseOrder;
+use App\Models\RawMaterialBatch;
 use App\Models\Supplier;
 use App\Services\FinanceService;
 use App\Services\InventoryService;
@@ -223,10 +226,284 @@ class GoodsReceiptController extends Controller
         return view('admin.supply_chain.goods_receipts.show', compact('goodsReceipt', 'existingInvoice'));
     }
 
+    public function edit(GoodsReceipt $goodsReceipt): View
+    {
+        $this->authorize('update', $goodsReceipt);
+
+        $goodsReceipt->load([
+            'purchaseOrder.items.product',
+            'purchaseOrder.items.rawMaterial',
+            'supplier',
+            'location',
+            'receiver',
+            'items.rawMaterial',
+            'items.product',
+            'items.purchaseOrderItem',
+            'batches',
+        ]);
+
+        $existingInvoice = PurchaseInvoice::where('purchase_order_id', $goodsReceipt->purchase_order_id)
+            ->where('reference_number', $goodsReceipt->grn_number)
+            ->first();
+
+        $locations = Location::where('is_active', true)->get();
+
+        return view('admin.supply_chain.goods_receipts.edit', compact('goodsReceipt', 'existingInvoice', 'locations'));
+    }
+
+    public function update(GoodsReceiptRequest $request, GoodsReceipt $goodsReceipt): RedirectResponse
+    {
+        $this->authorize('update', $goodsReceipt);
+
+        $goodsReceipt = DB::transaction(function () use ($request, $goodsReceipt) {
+            $data = $request->validated();
+            $itemsData = $data['items'] ?? [];
+            unset($data['items']);
+
+            // Update Header & Dock Telemetry
+            $goodsReceipt->update([
+                'location_id' => $data['location_id'] ?? $goodsReceipt->location_id,
+                'received_date' => $data['received_date'] ?? $goodsReceipt->received_date,
+                'carrier_name' => $data['carrier_name'] ?? $goodsReceipt->carrier_name,
+                'tracking_number' => $data['tracking_number'] ?? $goodsReceipt->tracking_number,
+                'container_count' => $data['container_count'] ?? $goodsReceipt->container_count,
+                'temperature_logger_reading' => array_key_exists('temperature_logger_reading', $data) ? $data['temperature_logger_reading'] : $goodsReceipt->temperature_logger_reading,
+                'temperature_within_range' => !empty($data['temperature_within_range']),
+                'seal_verified' => !empty($data['seal_verified']),
+                'discrepancy_notes' => $data['discrepancy_notes'] ?? $goodsReceipt->discrepancy_notes,
+            ]);
+
+            $po = $goodsReceipt->purchaseOrder()->with('items')->first();
+
+            foreach ($itemsData as $itemInput) {
+                $grnItem = null;
+                if (!empty($itemInput['id'])) {
+                    $grnItem = $goodsReceipt->items()->find($itemInput['id']);
+                } elseif (!empty($itemInput['purchase_order_item_id'])) {
+                    $grnItem = $goodsReceipt->items()->where('purchase_order_item_id', $itemInput['purchase_order_item_id'])->first();
+                }
+
+                if (!$grnItem) {
+                    continue;
+                }
+
+                $oldQty = (float) $grnItem->received_qty;
+                $newQty = (float) $itemInput['received_qty'];
+                $diff = round($newQty - $oldQty, 4);
+
+                $grnItem->update([
+                    'received_qty' => $newQty,
+                    'rejected_qty' => $itemInput['rejected_qty'] ?? 0.0000,
+                    'supplier_lot' => $itemInput['supplier_lot'],
+                    'manufacture_date' => $itemInput['manufacture_date'],
+                    'expiry_date' => $itemInput['expiry_date'],
+                    'storage_condition' => $itemInput['storage_condition'] ?? $grnItem->storage_condition,
+                    'storage_bin' => $itemInput['storage_bin'] ?? $grnItem->storage_bin,
+                    'notes' => $itemInput['notes'] ?? $grnItem->notes,
+                ]);
+
+                // Synchronize Finished Good ProductBatch & Stock
+                if ($grnItem->item_type === 'product' || !empty($grnItem->product_id)) {
+                    $product = $grnItem->product ?? Product::find($grnItem->product_id);
+                    $productBatch = ProductBatch::where('goods_receipt_id', $goodsReceipt->id)
+                        ->where('product_id', $grnItem->product_id)
+                        ->first();
+
+                    if ($productBatch) {
+                        $productBatch->supplier_lot = $itemInput['supplier_lot'];
+                        $productBatch->manufacture_date = $itemInput['manufacture_date'];
+                        $productBatch->expiry_date = $itemInput['expiry_date'];
+                        $productBatch->storage_bin = $itemInput['storage_bin'] ?? $productBatch->storage_bin;
+                        $productBatch->location_id = $goodsReceipt->location_id;
+
+                        if (abs($diff) > 0.0001) {
+                            $intDiff = (int) round($diff);
+                            $productBatch->initial_qty = max(0, $productBatch->initial_qty + $intDiff);
+                            $productBatch->current_qty = max(0, $productBatch->current_qty + $intDiff);
+                            $productBatch->available_qty = max(0, $productBatch->available_qty + $intDiff);
+                            $productBatch->assertInvariant();
+                        }
+                        $productBatch->save();
+                    }
+
+                    if ($product && abs($diff) > 0.0001) {
+                        InventoryService::adjustStock(
+                            $product,
+                            $goodsReceipt->location_id,
+                            (int) round($diff),
+                            'GRN Quantity Adjustment',
+                            "Adjustment on GRN: {$goodsReceipt->grn_number} (PO: " . ($po?->po_number ?? 'N/A') . ")",
+                            auth()->user()?->name,
+                            $goodsReceipt->supplier?->name_en ?? 'Supplier'
+                        );
+                    }
+                } else {
+                    // Synchronize RawMaterialBatch (Quarantine or Approved)
+                    $rmBatch = RawMaterialBatch::where('goods_receipt_id', $goodsReceipt->id)
+                        ->where('raw_material_id', $grnItem->raw_material_id)
+                        ->first();
+
+                    if ($rmBatch) {
+                        $rmBatch->supplier_lot = $itemInput['supplier_lot'];
+                        $rmBatch->manufacture_date = $itemInput['manufacture_date'];
+                        $rmBatch->expiry_date = $itemInput['expiry_date'];
+                        $rmBatch->storage_bin = $itemInput['storage_bin'] ?? $rmBatch->storage_bin;
+                        $rmBatch->location_id = $goodsReceipt->location_id;
+
+                        if (abs($diff) > 0.0001) {
+                            $rmBatch->initial_qty = max(0.0000, round((float) $rmBatch->initial_qty + $diff, 4));
+                            $rmBatch->current_qty = max(0.0000, round((float) $rmBatch->current_qty + $diff, 4));
+
+                            if ($rmBatch->status === RawMaterialBatchStatus::Quarantine) {
+                                $rmBatch->quarantine_qty = max(0.0000, round((float) $rmBatch->quarantine_qty + $diff, 4));
+                            } else {
+                                $rmBatch->available_qty = max(0.0000, round((float) $rmBatch->available_qty + $diff, 4));
+                            }
+                            $rmBatch->assertInvariant();
+                        }
+                        $rmBatch->save();
+                    }
+                }
+
+                // Update PO Item received quantity
+                $poItem = $grnItem->purchaseOrderItem;
+                if ($poItem && abs($diff) > 0.0001) {
+                    $poItem->received_qty = max(0.0000, round((float) $poItem->received_qty + $diff, 4));
+                    $poItem->save();
+                }
+            }
+
+            // Re-evaluate PO Status
+            if ($po) {
+                $po->load('items');
+                $allReceived = true;
+                $anyReceived = false;
+                foreach ($po->items as $item) {
+                    if ((float) $item->received_qty >= (float) $item->ordered_qty) {
+                        $anyReceived = true;
+                    } else {
+                        $allReceived = false;
+                        if ((float) $item->received_qty > 0) {
+                            $anyReceived = true;
+                        }
+                    }
+                }
+
+                $po->status = $allReceived
+                    ? PurchaseOrderStatus::Received
+                    : ($anyReceived ? PurchaseOrderStatus::PartiallyReceived : PurchaseOrderStatus::Confirmed);
+                $po->save();
+            }
+
+            return $goodsReceipt;
+        });
+
+        return redirect()->route('admin.goods-receipts.show', $goodsReceipt)
+            ->with('success', __('goods_receipts.messages.updated', [
+                'default' => 'Goods receipt updated successfully. Line items, lots, and warehouse stock synchronized.',
+            ]));
+    }
+
+    public function destroy(GoodsReceipt $goodsReceipt): RedirectResponse
+    {
+        $this->authorize('delete', $goodsReceipt);
+
+        $existingInvoice = PurchaseInvoice::where('purchase_order_id', $goodsReceipt->purchase_order_id)
+            ->where('reference_number', $goodsReceipt->grn_number)
+            ->first();
+
+        if ($existingInvoice) {
+            return redirect()->route('admin.goods-receipts.show', $goodsReceipt)
+                ->with('error', __('goods_receipts.messages.cannot_delete_billed', [
+                    'default' => 'Cannot delete this receipt: Matched supplier bill ' . $existingInvoice->invoice_number . ' already exists in Finance.',
+                ]));
+        }
+
+        DB::transaction(function () use ($goodsReceipt) {
+            $po = $goodsReceipt->purchaseOrder()->with('items')->first();
+
+            foreach ($goodsReceipt->items as $item) {
+                $qty = (float) $item->received_qty;
+
+                if ($item->item_type === 'product' || !empty($item->product_id)) {
+                    $product = $item->product ?? Product::find($item->product_id);
+                    $productBatch = ProductBatch::where('goods_receipt_id', $goodsReceipt->id)
+                        ->where('product_id', $item->product_id)
+                        ->first();
+
+                    if ($productBatch) {
+                        $productBatch->delete();
+                    }
+
+                    if ($product && $qty > 0) {
+                        InventoryService::adjustStock(
+                            $product,
+                            $goodsReceipt->location_id,
+                            -(int) round($qty),
+                            'GRN Reversal',
+                            "Deleted GRN {$goodsReceipt->grn_number}",
+                            auth()->user()?->name,
+                            $goodsReceipt->supplier?->name_en ?? 'Supplier'
+                        );
+                    }
+                } else {
+                    $rmBatch = RawMaterialBatch::where('goods_receipt_id', $goodsReceipt->id)
+                        ->where('raw_material_id', $item->raw_material_id)
+                        ->first();
+
+                    if ($rmBatch) {
+                        $rmBatch->delete();
+                    }
+                }
+
+                if ($item->purchaseOrderItem && $qty > 0) {
+                    $item->purchaseOrderItem->received_qty = max(0.0000, round((float) $item->purchaseOrderItem->received_qty - $qty, 4));
+                    $item->purchaseOrderItem->save();
+                }
+
+                $item->delete();
+            }
+
+            if ($po) {
+                $po->load('items');
+                $allReceived = true;
+                $anyReceived = false;
+                foreach ($po->items as $pItem) {
+                    if ((float) $pItem->received_qty >= (float) $pItem->ordered_qty) {
+                        $anyReceived = true;
+                    } else {
+                        $allReceived = false;
+                        if ((float) $pItem->received_qty > 0) {
+                            $anyReceived = true;
+                        }
+                    }
+                }
+
+                $po->status = $allReceived
+                    ? PurchaseOrderStatus::Received
+                    : ($anyReceived ? PurchaseOrderStatus::PartiallyReceived : PurchaseOrderStatus::Confirmed);
+                $po->save();
+            }
+
+            $goodsReceipt->delete();
+        });
+
+        return redirect()->route('admin.goods-receipts.index')
+            ->with('success', __('goods_receipts.messages.deleted', [
+                'default' => 'Goods receipt deleted successfully and inventory adjustments reversed.',
+            ]));
+    }
+
     public function generateBill(GoodsReceipt $goodsReceipt, FinanceService $financeService): RedirectResponse
     {
         $this->authorize('view', $goodsReceipt);
-        $goodsReceipt->load(['purchaseOrder.items', 'supplier', 'items.product', 'items.rawMaterial']);
+        $goodsReceipt->load([
+            'purchaseOrder.items',
+            'supplier',
+            'items.product',
+            'items.rawMaterial',
+            'items.purchaseOrderItem',
+        ]);
 
         // Check if an invoice already exists for this GRN reference
         $existingInvoice = PurchaseInvoice::where('purchase_order_id', $goodsReceipt->purchase_order_id)
@@ -240,18 +517,37 @@ class GoodsReceiptController extends Controller
                 ]));
         }
 
+        if ($goodsReceipt->items->isEmpty()) {
+            return redirect()->route('admin.goods-receipts.show', $goodsReceipt)
+                ->with('error', __('goods_receipts.messages.no_items_to_bill', [
+                    'default' => 'Cannot generate bill: This Goods Receipt has no received line items.',
+                ]));
+        }
+
         // Build invoice data from received items
         $items = [];
         $subtotal = 0.0;
         foreach ($goodsReceipt->items as $item) {
             $poItem = $item->purchaseOrderItem;
             $unitPrice = $poItem ? (float) $poItem->unit_price : 0.0;
+            if ($unitPrice <= 0) {
+                if ($item->item_type === 'product' && $item->product) {
+                    $unitPrice = (float) ($item->product->cost_price ?? 0.0);
+                } elseif ($item->rawMaterial) {
+                    $unitPrice = (float) ($item->rawMaterial->standard_cost ?? $item->rawMaterial->unit_cost ?? 0.0);
+                }
+            }
+
             $qty = (float) $item->received_qty;
             $lineSub = round($qty * $unitPrice, 2);
             $subtotal += $lineSub;
 
             $items[] = [
+                'item_type' => $item->item_type ?? ($item->product_id ? 'product' : 'raw_material'),
+                'product_id' => $item->product_id,
                 'raw_material_id' => $item->raw_material_id,
+                'batch_number' => $item->supplier_lot,
+                'expiry_date' => $item->expiry_date?->toDateString(),
                 'item_name' => $item->item_name . ($item->supplier_lot ? " (Lot: {$item->supplier_lot})" : ''),
                 'quantity' => $qty,
                 'unit_price' => $unitPrice,
@@ -262,8 +558,10 @@ class GoodsReceiptController extends Controller
         $taxAmount = round($subtotal * 0.05, 2);
         $grandTotal = $subtotal + $taxAmount;
 
+        $supplierId = $goodsReceipt->supplier_id ?? $goodsReceipt->purchaseOrder?->supplier_id;
+
         $invoice = $financeService->createPurchaseInvoice([
-            'supplier_id' => $goodsReceipt->supplier_id,
+            'supplier_id' => $supplierId,
             'purchase_order_id' => $goodsReceipt->purchase_order_id,
             'reference_number' => $goodsReceipt->grn_number,
             'invoice_date' => now()->toDateString(),

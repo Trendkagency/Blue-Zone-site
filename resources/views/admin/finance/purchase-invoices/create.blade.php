@@ -45,19 +45,19 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.supplier') }} *</label>
-                        <select name="supplier_id" required class="form-select text-xs w-full rounded-xl">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{{ __('finance.supplier') }} <span class="text-rose-500">*</span></label>
+                        <select name="supplier_id" id="supplier_select" onchange="onSupplierChange(this)" required class="form-select text-xs w-full rounded-xl">
                             <option value="">{{ __('finance.select_supplier') }}</option>
                             @foreach($suppliers as $s)
-                                <option value="{{ $s->id }}" {{ $po && $po->supplier_id == $s->id ? 'selected' : '' }}>
-                                    {{ $s->name_en }} ({{ $s->code }})
+                                <option value="{{ $s->id }}" data-terms="{{ $s->payment_terms }}" {{ $po && $po->supplier_id == $s->id ? 'selected' : '' }}>
+                                    {{ $s->name_en }} ({{ $s->code }}) @if($s->payment_terms) — [{{ $s->payment_terms }}] @endif
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.linked_po') }}</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{{ __('finance.linked_po') }}</label>
                         <select name="purchase_order_id" class="form-select text-xs w-full rounded-xl">
                             <option value="">{{ __('finance.select_po') }}</option>
                             @foreach($purchaseOrders as $order)
@@ -69,22 +69,96 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.supplier_reference') }}</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{{ __('finance.supplier_reference') }}</label>
                         <input type="text" name="reference_number" placeholder="e.g. SUP-INV-9921" class="form-control text-xs w-full rounded-xl">
                     </div>
 
+                    <!-- 1. Invoice Date (Issue Date: Strictly Automatic Today & Locked/Disabled) -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.invoice_date') }} *</label>
-                        <input type="date" name="invoice_date" value="{{ date('Y-m-d') }}" required class="form-control text-xs w-full rounded-xl">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {{ __('finance.invoice_date') }} <span class="text-rose-500">*</span>
+                            </label>
+                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                                <i class="fa-solid fa-lock text-[9px] text-slate-400"></i>
+                                {{ app()->getLocale() === 'ar' ? 'تلقائي (اليوم)' : 'Automatic Today' }}
+                            </span>
+                        </div>
+                        <div class="relative">
+                            <input type="date" 
+                                   id="invoice_date" 
+                                   name="invoice_date" 
+                                   value="{{ date('Y-m-d') }}" 
+                                   readonly 
+                                   tabindex="-1"
+                                   required 
+                                   class="form-control text-xs w-full rounded-xl bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 cursor-not-allowed select-none font-mono font-bold pl-9 rtl:pr-9 rtl:pl-3"
+                                   title="{{ app()->getLocale() === 'ar' ? 'تاريخ الإصدار محدد تلقائياً باليوم الحالي لأغراض التدقيق والمطابقة المحاسبية' : 'Issue date is locked to today for audit & accounting compliance' }}">
+                            <div class="absolute inset-y-0 left-0 rtl:right-0 rtl:left-auto flex items-center pl-3 rtl:pr-3 pointer-events-none text-slate-400 dark:text-slate-500 text-xs">
+                                <i class="fa-solid fa-calendar-day"></i>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check text-emerald-500 text-[9px]"></i>
+                            <span>{{ app()->getLocale() === 'ar' ? 'تاريخ التقييد المحاسبي المعتمد رسمياً لليوم الحالي' : 'Official ledger posting date fixed to today.' }}</span>
+                        </p>
+                    </div>
+
+                    <!-- 2. Due Date (Calculated based on Logic with Small Responsive Customize Button) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1 gap-1 flex-wrap">
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                                {{ __('finance.due_date') }}
+                            </label>
+                            <button type="button" 
+                                    id="btnCustomizeDueDate" 
+                                    onclick="toggleCustomizeDueDate()" 
+                                    class="btn btn-ghost btn-xs text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg inline-flex items-center gap-1 px-2 py-0.5 border border-sky-200 dark:border-sky-800/60 shadow-xs transition"
+                                    title="{{ app()->getLocale() === 'ar' ? 'تخصيص تاريخ الاستحقاق يدوياً' : 'Manually override due date' }}">
+                                <i class="fa-solid fa-pen-to-square text-[10px]" id="customizeIcon"></i>
+                                <span id="customizeBtnText">{{ app()->getLocale() === 'ar' ? 'تخصيص التاريخ' : 'Customize Date' }}</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input type="date" 
+                                   id="due_date" 
+                                   name="due_date" 
+                                   value="{{ date('Y-m-d', strtotime('+30 days')) }}" 
+                                   readonly
+                                   class="form-control text-xs w-full rounded-xl bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 font-mono font-bold pl-9 rtl:pr-9 rtl:pl-3 transition"
+                                   onchange="onManualDueDateChange()">
+                            <div class="absolute inset-y-0 left-0 rtl:right-0 rtl:left-auto flex items-center pl-3 rtl:pr-3 pointer-events-none text-sky-500 text-xs" id="dueDateIcon">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Logic Preset Pills & Status -->
+                        <div class="mt-1.5 flex items-center justify-between gap-1 flex-wrap text-[10px]">
+                            <div class="flex items-center gap-1 flex-wrap" id="dueTermsPills">
+                                <button type="button" onclick="setDueDatePreset(0, 'Immediate (0d)')" class="term-pill px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+                                    {{ app()->getLocale() === 'ar' ? 'فوري (0 يوم)' : '0d (Due)' }}
+                                </button>
+                                <button type="button" onclick="setDueDatePreset(15, 'Net 15 (+15d)')" class="term-pill px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+                                    Net 15
+                                </button>
+                                <button type="button" onclick="setDueDatePreset(30, 'Net 30 (+30d)')" class="term-pill active-pill px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-800 transition">
+                                    Net 30
+                                </button>
+                                <button type="button" onclick="setDueDatePreset(60, 'Net 60 (+60d)')" class="term-pill px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+                                    Net 60
+                                </button>
+                                <button type="button" onclick="setDueDatePreset(90, 'Net 90 (+90d)')" class="term-pill px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
+                                    Net 90
+                                </button>
+                            </div>
+                            <span id="dueDateLogicBadge" class="font-mono text-[10px] text-sky-600 dark:text-sky-400 font-bold truncate max-w-[120px]">
+                                Net 30 (Default)
+                            </span>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.due_date') }}</label>
-                        <input type="date" name="due_date" value="{{ date('Y-m-d', strtotime('+30 days')) }}" class="form-control text-xs w-full rounded-xl">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-1">{{ __('finance.notes') }}</label>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">{{ __('finance.notes') }}</label>
                         <input type="text" name="notes" placeholder="Batch / PO notes" class="form-control text-xs w-full rounded-xl">
                     </div>
                 </div>
@@ -402,6 +476,174 @@
             document.getElementById('inputGrandTotal').value = grand.toFixed(2);
         }
 
-        document.addEventListener('DOMContentLoaded', calculateTotals);
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotals();
+
+            // Enforce automatic today on invoice_date
+            const invDateInput = document.getElementById('invoice_date');
+            if (invDateInput) {
+                invDateInput.value = getTodayDateStr();
+            }
+
+            // Initialize Due Date based on current supplier terms or default Net 30
+            const supplierSelect = document.getElementById('supplier_select');
+            if (supplierSelect && supplierSelect.value) {
+                onSupplierChange(supplierSelect);
+            } else {
+                updateDueDateByDays(30, 'Net 30 (Default)');
+            }
+        });
+
+        // ==========================================
+        // SMART DATE & PAYMENT TERMS LOGIC
+        // ==========================================
+        const isArabic = {{ app()->getLocale() === 'ar' ? 'true' : 'false' }};
+        let isCustomDueDate = false;
+        let currentLogicDays = 30;
+
+        function getTodayDateStr() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function calculateDatePlusDays(days) {
+            const d = new Date();
+            d.setDate(d.getDate() + parseInt(days));
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function parsePaymentTermsDays(termsStr) {
+            if (!termsStr) return 30;
+            const lower = termsStr.toLowerCase().trim();
+            if (lower.includes('advance') || lower.includes('immediate') || lower.includes('cash') || lower.includes('receipt') || lower.includes('0')) {
+                return 0;
+            }
+            const match = lower.match(/\d+/);
+            if (match) {
+                return parseInt(match[0]);
+            }
+            return 30;
+        }
+
+        function updateDueDateByDays(days, label = null) {
+            currentLogicDays = days;
+            const dateStr = calculateDatePlusDays(days);
+            const dueDateInput = document.getElementById('due_date');
+            if (dueDateInput) {
+                dueDateInput.value = dateStr;
+            }
+
+            const badge = document.getElementById('dueDateLogicBadge');
+            if (badge) {
+                badge.innerText = label || (days === 0 ? (isArabic ? 'استحقاق فوري (0d)' : 'Due on Receipt (0d)') : `Net ${days} (+${days}d)`);
+                badge.className = 'font-mono text-[10px] text-sky-600 dark:text-sky-400 font-bold truncate max-w-[120px]';
+            }
+
+            // Highlight matching preset button
+            document.querySelectorAll('#dueTermsPills .term-pill').forEach(btn => {
+                btn.classList.remove('active-pill', 'bg-sky-100', 'dark:bg-sky-950/60', 'text-sky-700', 'dark:text-sky-300', 'border', 'border-sky-300', 'dark:border-sky-800', 'font-bold');
+                btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'font-semibold');
+                const btnText = btn.innerText.toLowerCase();
+                if ((days === 0 && (btnText.includes('0') || btnText.includes('فوري'))) ||
+                    (days > 0 && btnText.includes(String(days)))) {
+                    btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'font-semibold');
+                    btn.classList.add('active-pill', 'bg-sky-100', 'dark:bg-sky-950/60', 'text-sky-700', 'dark:text-sky-300', 'border', 'border-sky-300', 'dark:border-sky-800', 'font-bold');
+                }
+            });
+        }
+
+        function setDueDatePreset(days, label = null) {
+            isCustomDueDate = false;
+            const dueDateInput = document.getElementById('due_date');
+            if (dueDateInput) {
+                dueDateInput.readOnly = true;
+                dueDateInput.classList.remove('bg-white', 'dark:bg-slate-900', 'border-amber-400', 'dark:border-amber-500', 'ring-2', 'ring-amber-100', 'dark:ring-amber-950/40');
+                dueDateInput.classList.add('bg-slate-50', 'dark:bg-slate-800/60', 'border-slate-200', 'dark:border-slate-700');
+            }
+
+            const btn = document.getElementById('btnCustomizeDueDate');
+            if (btn) {
+                btn.className = 'btn btn-ghost btn-xs text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 rounded-lg inline-flex items-center gap-1 px-2 py-0.5 border border-sky-200 dark:border-sky-800/60 shadow-xs transition';
+                document.getElementById('customizeBtnText').innerText = isArabic ? 'تخصيص التاريخ' : 'Customize Date';
+                document.getElementById('customizeIcon').className = 'fa-solid fa-pen-to-square text-[10px]';
+            }
+
+            const icon = document.getElementById('dueDateIcon');
+            if (icon) {
+                icon.className = 'absolute inset-y-0 left-0 rtl:right-0 rtl:left-auto flex items-center pl-3 rtl:pr-3 pointer-events-none text-sky-500 text-xs';
+                icon.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
+            }
+
+            updateDueDateByDays(days, label);
+        }
+
+        function toggleCustomizeDueDate() {
+            isCustomDueDate = !isCustomDueDate;
+            const dueDateInput = document.getElementById('due_date');
+            const btn = document.getElementById('btnCustomizeDueDate');
+            const badge = document.getElementById('dueDateLogicBadge');
+            const icon = document.getElementById('dueDateIcon');
+
+            if (isCustomDueDate) {
+                // Unlock input
+                dueDateInput.readOnly = false;
+                dueDateInput.classList.remove('bg-slate-50', 'dark:bg-slate-800/60', 'border-slate-200', 'dark:border-slate-700');
+                dueDateInput.classList.add('bg-white', 'dark:bg-slate-900', 'border-amber-400', 'dark:border-amber-500', 'ring-2', 'ring-amber-100', 'dark:ring-amber-950/40');
+                dueDateInput.focus();
+                if (typeof dueDateInput.showPicker === 'function') {
+                    try { dueDateInput.showPicker(); } catch (_) {}
+                }
+
+                btn.className = 'btn btn-xs text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/60 rounded-lg inline-flex items-center gap-1 px-2 py-0.5 border border-amber-300 dark:border-amber-700 shadow-xs transition';
+                document.getElementById('customizeBtnText').innerText = isArabic ? 'إعادة للقفل التلقائي' : 'Lock to Logic';
+                document.getElementById('customizeIcon').className = 'fa-solid fa-rotate-left text-[10px]';
+
+                if (icon) {
+                    icon.className = 'absolute inset-y-0 left-0 rtl:right-0 rtl:left-auto flex items-center pl-3 rtl:pr-3 pointer-events-none text-amber-500 text-xs';
+                    icon.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                }
+
+                if (badge) {
+                    badge.innerText = isArabic ? 'تاريخ مخصص يدوي' : 'Custom Override';
+                    badge.className = 'font-mono text-[10px] text-amber-600 dark:text-amber-400 font-bold truncate max-w-[120px]';
+                }
+
+                // Clear pill highlights in custom mode
+                document.querySelectorAll('#dueTermsPills .term-pill').forEach(pill => {
+                    pill.classList.remove('active-pill', 'bg-sky-100', 'dark:bg-sky-950/60', 'text-sky-700', 'dark:text-sky-300', 'border', 'border-sky-300', 'dark:border-sky-800', 'font-bold');
+                    pill.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'font-semibold');
+                });
+            } else {
+                // Re-lock to logic
+                setDueDatePreset(currentLogicDays);
+            }
+        }
+
+        function onManualDueDateChange() {
+            if (!isCustomDueDate) return;
+            const badge = document.getElementById('dueDateLogicBadge');
+            if (badge) {
+                badge.innerText = isArabic ? 'تاريخ مخصص يدوي' : 'Custom Override';
+                badge.className = 'font-mono text-[10px] text-amber-600 dark:text-amber-400 font-bold truncate max-w-[120px]';
+            }
+        }
+
+        function onSupplierChange(selectElem) {
+            const selectedOpt = selectElem.options[selectElem.selectedIndex];
+            if (!selectedOpt || !selectedOpt.value) return;
+
+            const termsStr = selectedOpt.getAttribute('data-terms');
+            if (!isCustomDueDate) {
+                const days = parsePaymentTermsDays(termsStr);
+                const label = termsStr ? `${termsStr} (${days}d)` : `Net ${days}`;
+                updateDueDateByDays(days, label);
+            }
+        }
     </script>
 </x-layouts.admin>

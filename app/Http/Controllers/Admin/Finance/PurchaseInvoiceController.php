@@ -100,6 +100,17 @@ class PurchaseInvoiceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Enforce automatic today issue date if not passed or empty
+        if (! $request->filled('invoice_date')) {
+            $request->merge(['invoice_date' => now()->toDateString()]);
+        }
+
+        // Default due date to 30 days from invoice date if not passed or empty
+        if (! $request->filled('due_date')) {
+            $baseDate = $request->input('invoice_date', now()->toDateString());
+            $request->merge(['due_date' => \Carbon\Carbon::parse($baseDate)->addDays(30)->toDateString()]);
+        }
+
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'purchase_order_id' => 'nullable|exists:purchase_orders,id',

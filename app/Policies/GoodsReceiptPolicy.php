@@ -9,16 +9,33 @@ class GoodsReceiptPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('goods_receipts.view') || $user->hasPermission('*');
+        return $user->hasPermission('goods_receipts.view') || $user->hasPermission('goods_receipts') || $user->hasPermission('*');
     }
 
     public function view(User $user, GoodsReceipt $receipt): bool
     {
-        return $user->hasPermission('goods_receipts.view') || $user->hasPermission('*');
+        return $user->hasPermission('goods_receipts.view') || $user->hasPermission('goods_receipts') || $user->hasPermission('*');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('goods_receipts.create') || $user->hasPermission('*');
+        return $user->hasPermission('goods_receipts.create') || $user->hasPermission('goods_receipts') || $user->hasPermission('*');
+    }
+
+    public function update(User $user, GoodsReceipt $receipt): bool
+    {
+        return $user->hasPermission('goods_receipts.edit')
+            || $user->hasPermission('goods_receipts.update')
+            || $user->hasPermission('goods_receipts.create')
+            || $user->hasPermission('goods_receipts')
+            || $user->hasPermission('*');
+    }
+
+    public function delete(User $user, GoodsReceipt $receipt): bool
+    {
+        return $user->hasPermission('goods_receipts.delete')
+            || $user->hasPermission('goods_receipts')
+            || $user->hasPermission('*');
     }
 }
+

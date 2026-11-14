@@ -859,7 +859,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/create', [GoodsReceiptController::class, 'create'])->middleware('permission:goods_receipts.create')->name('create');
             Route::post('/', [GoodsReceiptController::class, 'store'])->middleware('permission:goods_receipts.create')->name('store');
             Route::get('/{goodsReceipt}', [GoodsReceiptController::class, 'show'])->middleware('permission:goods_receipts.view')->name('show');
-            Route::post('/{goodsReceipt}/generate-bill', [GoodsReceiptController::class, 'generateBill'])->middleware('permission:goods_receipts.create')->name('generate-bill');
+            Route::get('/{goodsReceipt}/edit', [GoodsReceiptController::class, 'edit'])->middleware('permission:goods_receipts.view')->name('edit');
+            Route::put('/{goodsReceipt}', [GoodsReceiptController::class, 'update'])->middleware('permission:goods_receipts.view')->name('update');
+            Route::delete('/{goodsReceipt}', [GoodsReceiptController::class, 'destroy'])->middleware('permission:goods_receipts.view')->name('destroy');
+            Route::match(['get', 'post'], '/{goodsReceipt}/generate-bill', [GoodsReceiptController::class, 'generateBill'])->middleware('permission:goods_receipts.view')->name('generate-bill');
         });
 
         // Raw Material Batches (FEFO Ledger)

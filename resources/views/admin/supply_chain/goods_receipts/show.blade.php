@@ -13,6 +13,11 @@
                 <span>{{ app()->getLocale() === 'ar' ? 'العودة لسجل الاستلام' : 'Back to Receipts' }}</span>
             </a>
 
+            <a href="{{ route('admin.goods-receipts.edit', $goodsReceipt) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>{{ __('goods_receipts.edit_receipt') }}</span>
+            </a>
+
             @if($goodsReceipt->purchaseOrder)
                 <a href="{{ route('admin.purchase-orders.show', $goodsReceipt->purchaseOrder) }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
                     <i class="fa-solid fa-file-invoice text-sky-600"></i>
