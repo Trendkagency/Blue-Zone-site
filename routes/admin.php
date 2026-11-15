@@ -846,6 +846,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [PurchaseOrderController::class, 'index'])->middleware('permission:purchase_orders.view')->name('index');
             Route::get('/create', [PurchaseOrderController::class, 'create'])->middleware('permission:purchase_orders.create')->name('create');
             Route::post('/', [PurchaseOrderController::class, 'store'])->middleware('permission:purchase_orders.create')->name('store');
+            Route::post('/item-adjustment', [PurchaseOrderController::class, 'getItemAdjustment'])->middleware('permission:purchase_orders.create')->name('item-adjustment');
+            Route::post('/calculate-landed-costs', [PurchaseOrderController::class, 'calculateLandedCosts'])->middleware('permission:purchase_orders.create')->name('calculate-landed-costs');
             Route::get('/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->middleware('permission:purchase_orders.view')->name('show');
             Route::post('/{purchaseOrder}/submit', [PurchaseOrderController::class, 'submit'])->middleware('permission:purchase_orders.edit')->name('submit');
             Route::post('/{purchaseOrder}/approve', [PurchaseOrderController::class, 'approve'])->middleware('permission:purchase_orders.approve')->name('approve');

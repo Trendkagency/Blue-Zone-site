@@ -37,6 +37,9 @@ class PurchaseOrderRequest extends FormRequest
             'items.*.product_id' => ['nullable', 'required_without:items.*.raw_material_id', 'exists:products,id'],
             'items.*.ordered_qty' => ['required', 'numeric', 'min:0.0001'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+            'items.*.allocated_landed_cost' => ['nullable', 'numeric', 'min:0'],
+            'items.*.adjustment_cost' => ['nullable', 'numeric', 'min:0'],
+            'items.*.landed_unit_cost' => ['nullable', 'numeric', 'min:0'],
             'items.*.notes' => ['nullable', 'string', 'max:255'],
         ];
     }

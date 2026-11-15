@@ -139,6 +139,8 @@ class GoodsReceiptController extends Controller
                         $expDate = $itemInput['expiry_date'] ?: $product->calculateDefaultExpiryDate($mfgDate);
                         $batchNumber = !empty($itemInput['supplier_lot']) ? $itemInput['supplier_lot'] : ProductBatch::generateBatchNumber();
 
+                        $effectiveBatchUnitCost = (float) (($poItem?->landed_unit_cost && $poItem->landed_unit_cost > 0) ? $poItem->landed_unit_cost : ($poItem?->unit_price ?? $product->cost_price ?? 0));
+
                         ProductBatch::create([
                             'product_id' => $product->id,
                             'batch_number' => $batchNumber,
@@ -151,11 +153,20 @@ class GoodsReceiptController extends Controller
                             'available_qty' => $qty,
                             'reserved_qty' => 0,
                             'quarantine_qty' => 0,
-                            'unit_cost' => (float) ($poItem?->unit_price ?? $product->cost_price ?? 0),
+                            'unit_cost' => $effectiveBatchUnitCost,
                             'manufacture_date' => $mfgDate,
                             'expiry_date' => $expDate,
                             'status' => 'approved',
                         ]);
+
+                        // Update Product Cost Price using Weighted Average Cost (WAC - IAS 2) in inventory
+                        $currentStock = (int) ($product->stock_online ?? 0);
+                        $currentCost = (float) ($product->cost_price ?? 0);
+                        $newStockTotal = $currentStock + $qty;
+                        if ($newStockTotal > 0) {
+                            $product->cost_price = round((($currentStock * $currentCost) + ($qty * $effectiveBatchUnitCost)) / $newStockTotal, 4);
+                            $product->save();
+                        }
 
                         InventoryService::adjustStock(
                             $product,

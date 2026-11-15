@@ -229,13 +229,14 @@
             <table class="table text-xs w-full">
                 <thead>
                     <tr class="bg-gray-50/70 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300">
-                        <th style="width: 5%;">#</th>
-                        <th style="width: 14%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
-                        <th style="width: 31%;">{{ app()->getLocale() === 'ar' ? 'البند' : 'Item Description' }}</th>
-                        <th style="width: 12%;">{{ __('purchase_orders.quantity') }}</th>
-                        <th style="width: 12%;">{{ __('purchase_orders.received_qty') }}</th>
-                        <th style="width: 13%;">{{ __('purchase_orders.unit_price') }}</th>
-                        <th style="width: 13%;">{{ __('purchase_orders.line_total') }}</th>
+                        <th style="width: 4%;">#</th>
+                        <th style="width: 13%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
+                        <th style="width: 28%;">{{ app()->getLocale() === 'ar' ? 'البند' : 'Item Description' }}</th>
+                        <th style="width: 11%;">{{ __('purchase_orders.quantity') }}</th>
+                        <th style="width: 11%;">{{ __('purchase_orders.received_qty') }}</th>
+                        <th style="width: 11%;">{{ __('purchase_orders.unit_price') }}</th>
+                        <th style="width: 11%;">{{ __('purchase_orders.line_total') }}</th>
+                        <th style="width: 11%;">{{ app()->getLocale() === 'ar' ? 'التكلفة المحملة' : 'Landed Unit Cost' }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -245,6 +246,7 @@
                             $rec = (float) $item->received_qty;
                             $pct = $ord > 0 ? min(100, round(($rec / $ord) * 100)) : 0;
                             $isProduct = $item->item_type === 'product';
+                            $landedCost = (float) ($item->landed_unit_cost > 0 ? $item->landed_unit_cost : $item->unit_price);
                         @endphp
                         <tr class="hover:bg-sky-50/20 dark:hover:bg-slate-800/30 transition">
                             <td class="font-mono text-gray-400">{{ $index + 1 }}</td>
@@ -290,6 +292,22 @@
                             <td class="font-mono font-bold text-slate-800 dark:text-white">
                                 {{ number_format($item->total_price, 2) }} {{ $purchaseOrder->currency }}
                             </td>
+                            <td class="font-mono text-slate-800 dark:text-white">
+                                <span class="font-bold text-sky-700 dark:text-sky-300">{{ number_format($landedCost, 4) }}</span>
+                                <span class="text-[10px] text-gray-400 block">{{ $purchaseOrder->currency }}</span>
+                                @php
+                                    $additions = [];
+                                    if ($item->allocated_landed_cost > 0) {
+                                        $additions[] = (app()->getLocale() === 'ar' ? 'شحن: +' : 'Freight: +') . number_format($item->allocated_landed_cost, 2);
+                                    }
+                                    if ($item->adjustment_cost > 0) {
+                                        $additions[] = (app()->getLocale() === 'ar' ? 'تسوية: +' : 'Adj: +') . number_format($item->adjustment_cost, 2);
+                                    }
+                                @endphp
+                                @if(!empty($additions))
+                                    <span class="text-[10px] text-emerald-600 font-semibold block">{{ implode(' | ', $additions) }}</span>
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -298,7 +316,7 @@
 
         <!-- Totals & Landed Cost Breakdown -->
         <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end">
-            <div class="w-80 space-y-2 text-xs">
+            <div class="w-96 space-y-2 text-xs">
                 <div class="flex justify-between text-gray-500">
                     <span>{{ __('purchase_orders.subtotal') }}:</span>
                     <span class="font-mono font-bold text-slate-800 dark:text-white">{{ number_format($purchaseOrder->subtotal, 2) }} {{ $purchaseOrder->currency }}</span>
@@ -324,6 +342,24 @@
                 <div class="pt-2 border-t border-gray-200 dark:border-gray-700 flex justify-between text-sm">
                     <span class="font-black text-slate-800 dark:text-white uppercase">{{ __('purchase_orders.total_amount') }}:</span>
                     <span class="font-black font-mono text-sky-600 text-base">{{ number_format($purchaseOrder->grand_total, 2) }} {{ $purchaseOrder->currency }}</span>
+                </div>
+
+                @php
+                    $totalLandedInv = $purchaseOrder->items->sum(fn($it) => (float)$it->ordered_qty * (float)($it->landed_unit_cost > 0 ? $it->landed_unit_cost : $it->unit_price));
+                @endphp
+                <div class="p-2.5 mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs">
+                    <div class="text-start">
+                        <div class="font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-1">
+                            <i class="fa-solid fa-warehouse text-emerald-600"></i>
+                            <span>{{ __('purchase_orders.total_landed_inventory_cost') }}:</span>
+                        </div>
+                        <div class="text-[10px] text-emerald-600 dark:text-emerald-400">
+                            {{ app()->getLocale() === 'ar' ? 'القيمة الرأسمالية المسجلة في تقييم المخزون (IAS 2)' : 'Capitalized valuation recorded in inventory ledger (IAS 2)' }}
+                        </div>
+                    </div>
+                    <div class="font-mono font-black text-emerald-700 dark:text-emerald-300 text-sm">
+                        {{ number_format($totalLandedInv, 2) }} {{ $purchaseOrder->currency }}
+                    </div>
                 </div>
             </div>
         </div>

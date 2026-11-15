@@ -21,6 +21,9 @@ class PurchaseOrderItem extends Model
         'quantity_received',
         'unit_price',
         'total_price',
+        'allocated_landed_cost',
+        'adjustment_cost',
+        'landed_unit_cost',
         'notes',
     ];
 
@@ -31,6 +34,9 @@ class PurchaseOrderItem extends Model
             'received_qty' => 'decimal:4',
             'unit_price' => 'decimal:4',
             'total_price' => 'decimal:2',
+            'allocated_landed_cost' => 'decimal:2',
+            'adjustment_cost' => 'decimal:2',
+            'landed_unit_cost' => 'decimal:4',
         ];
     }
 

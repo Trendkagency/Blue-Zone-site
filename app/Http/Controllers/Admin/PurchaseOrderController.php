@@ -10,7 +10,9 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\RawMaterial;
 use App\Models\Supplier;
+use App\Services\LandedCostService;
 use DomainException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,7 +79,115 @@ class PurchaseOrderController extends Controller
             $selectedQuotation = \App\Models\SupplierQuotation::with(['supplier', 'items.rawMaterial', 'items.product'])->find($request->input('quotation_id'));
         }
 
-        return view('admin.supply_chain.purchase_orders.create', compact('suppliers', 'materials', 'products', 'locations', 'selectedQuotation', 'baseCurrency', 'currencies'));
+        return view('admin.supply_chain.purchase_orders.create', compact(
+            'suppliers', 'materials', 'products', 'locations', 'selectedQuotation', 
+            'baseCurrency', 'currencies'
+        ));
+    }
+
+    /**
+     * AJAX endpoint: Retrieve the latest stock adjustment information for a specific item (product or raw material).
+     */
+    public function getItemAdjustment(Request $request): JsonResponse
+    {
+        $itemType = $request->input('item_type', 'product');
+        $itemId = (int) $request->input('item_id');
+
+        if (!$itemId) {
+            return response()->json(['has_adjustment' => false]);
+        }
+
+        if ($itemType === 'product') {
+            $product = Product::find($itemId);
+            if (!$product) {
+                return response()->json(['has_adjustment' => false]);
+            }
+
+            $movement = \App\Models\InventoryMovement::where(function ($q) use ($itemId, $product) {
+                    $q->where('product_id', $itemId);
+                    if (!empty($product->sku)) {
+                        $q->orWhere('sku', $product->sku);
+                    }
+                })
+                ->whereIn('movement_type', ['Manual Adjustment', 'Damaged', 'Expired', 'Return', 'Stock Out', 'Adjustment'])
+                ->orderBy('date', 'desc')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($movement) {
+                $qty = abs((float) $movement->quantity);
+                $unitCost = (float) ($product->cost_price ?? $product->price * 0.5 ?? 0);
+                $val = round($qty * $unitCost, 2);
+                $date = $movement->date ? (is_string($movement->date) ? $movement->date : $movement->date->format('Y-m-d')) : '';
+                $num = 'MOV-' . str_pad((string)$movement->id, 5, '0', STR_PAD_LEFT);
+
+                return response()->json([
+                    'has_adjustment' => true,
+                    'movement_id' => $movement->id,
+                    'movement_number' => $num,
+                    'movement_type' => $movement->movement_type,
+                    'quantity' => $qty,
+                    'unit_cost' => $unitCost,
+                    'total_value' => $val,
+                    'date' => $date,
+                    'note' => $movement->note,
+                    'current_stock' => (int) ($product->stock_online ?? 0),
+                ]);
+            }
+        } else {
+            $material = RawMaterial::find($itemId);
+            if (!$material) {
+                return response()->json(['has_adjustment' => false]);
+            }
+
+            $rawMovement = \App\Models\RawMaterialMovement::whereHas('batch', function ($q) use ($itemId) {
+                    $q->where('raw_material_id', $itemId);
+                })
+                ->whereIn('movement_type', [\App\Enums\RawMaterialMovementType::Adjustment->value, \App\Enums\RawMaterialMovementType::Scrap->value])
+                ->orderBy('created_at', 'desc')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($rawMovement) {
+                $qty = abs((float) $rawMovement->quantity);
+                $unitCost = (float) ($material->standard_cost ?? 0);
+                $val = round($qty * $unitCost, 2);
+                $date = $rawMovement->created_at ? $rawMovement->created_at->format('Y-m-d') : '';
+                $num = 'RMOV-' . str_pad((string)$rawMovement->id, 5, '0', STR_PAD_LEFT);
+                $typeLabel = $rawMovement->movement_type instanceof \App\Enums\RawMaterialMovementType ? $rawMovement->movement_type->label(app()->getLocale()) : (string) $rawMovement->movement_type;
+
+                return response()->json([
+                    'has_adjustment' => true,
+                    'movement_id' => $rawMovement->id,
+                    'movement_number' => $num,
+                    'movement_type' => $typeLabel,
+                    'quantity' => $qty,
+                    'unit_cost' => $unitCost,
+                    'total_value' => $val,
+                    'date' => $date,
+                    'note' => $rawMovement->note ?? $rawMovement->notes,
+                    'current_stock' => 0,
+                ]);
+            }
+        }
+
+        return response()->json(['has_adjustment' => false]);
+    }
+
+    /**
+     * AJAX endpoint: Calculate automated landed costs based on selected or latest transaction
+     * minus selected or latest stock adjustments, and apportion using IAS 2 value-based allocation.
+     */
+    public function calculateLandedCosts(Request $request): JsonResponse
+    {
+        $supplierId = $request->input('supplier_id') ? (int) $request->input('supplier_id') : null;
+        $items = $request->input('items', []);
+        $transactionId = $request->input('transaction_id') ? (int) $request->input('transaction_id') : null;
+        $adjustmentId = $request->input('adjustment_id') ? (string) $request->input('adjustment_id') : null;
+
+        $result = LandedCostService::getInstance()->calculateLandedCost($supplierId, $items, $transactionId, $adjustmentId);
+
+        return response()->json($result);
     }
 
     public function store(PurchaseOrderRequest $request): RedirectResponse
@@ -102,6 +212,8 @@ class PurchaseOrderController extends Controller
 
                 $isProduct = ($item['item_type'] ?? '') === 'product' || !empty($item['product_id']);
 
+                $adjCost = (float) ($item['adjustment_cost'] ?? 0.0);
+
                 $itemsToCreate[] = [
                     'item_type' => $isProduct ? 'product' : 'raw_material',
                     'product_id' => $isProduct ? $item['product_id'] : null,
@@ -110,6 +222,9 @@ class PurchaseOrderController extends Controller
                     'received_qty' => 0.0000,
                     'unit_price' => $item['unit_price'],
                     'total_price' => $lineTotal,
+                    'allocated_landed_cost' => (float) ($item['allocated_landed_cost'] ?? 0.0),
+                    'adjustment_cost' => $adjCost,
+                    'landed_unit_cost' => (float) ($item['landed_unit_cost'] ?? $item['unit_price']),
                     'notes' => $item['notes'] ?? null,
                 ];
             }
@@ -119,6 +234,42 @@ class PurchaseOrderController extends Controller
             $customs = (float) ($data['customs_duties'] ?? 0);
             $tax = (float) ($data['tax_amount'] ?? 0);
             $data['grand_total'] = round($subtotal + $freight + $customs + $tax, 2);
+
+            // Ensure IAS 2 Value-Based Landed Cost Allocation across items
+            $totalLandedCost = $freight + $customs;
+            if ($totalLandedCost > 0 && $subtotal > 0) {
+                $allocatedSum = 0.0;
+                $largestIdx = 0;
+                $maxLine = -1.0;
+                foreach ($itemsToCreate as $idx => &$itemRef) {
+                    $weight = $itemRef['total_price'] / $subtotal;
+                    $itemAlloc = round($totalLandedCost * $weight, 2);
+                    $itemRef['allocated_landed_cost'] = $itemAlloc;
+                    $allocatedSum += $itemAlloc;
+                    if ($itemRef['total_price'] > $maxLine) {
+                        $maxLine = $itemRef['total_price'];
+                        $largestIdx = $idx;
+                    }
+                }
+                unset($itemRef);
+
+                // Rounding penny gap reconciliation
+                $roundingGap = round($totalLandedCost - $allocatedSum, 2);
+                if ($roundingGap != 0.0) {
+                    $itemsToCreate[$largestIdx]['allocated_landed_cost'] = round($itemsToCreate[$largestIdx]['allocated_landed_cost'] + $roundingGap, 2);
+                }
+            }
+
+            // Always calculate final landed unit cost (base price + allocated freight/customs + absorbed adjustment)
+            foreach ($itemsToCreate as &$itemRef) {
+                $qty = (float) $itemRef['ordered_qty'];
+                $allocLanded = (float) ($itemRef['allocated_landed_cost'] ?? 0.0);
+                $adj = (float) ($itemRef['adjustment_cost'] ?? 0.0);
+                $itemRef['landed_unit_cost'] = $qty > 0
+                    ? round((float) $itemRef['unit_price'] + (($allocLanded + $adj) / $qty), 4)
+                    : (float) $itemRef['unit_price'];
+            }
+            unset($itemRef);
 
             $order = PurchaseOrder::create($data);
             foreach ($itemsToCreate as $itemData) {

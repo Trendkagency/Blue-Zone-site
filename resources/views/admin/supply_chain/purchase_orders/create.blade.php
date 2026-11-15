@@ -227,12 +227,13 @@
                     <table class="table text-xs w-full">
                         <thead>
                             <tr class="bg-gray-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300">
-                                <th style="width: 14%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
-                                <th style="width: 36%;">{{ app()->getLocale() === 'ar' ? 'البند المطلوب' : 'Item Selection' }}</th>
-                                <th style="width: 14%; text-align: right;">{{ __('purchase_orders.quantity') }}</th>
-                                <th style="width: 16%; text-align: right;">{{ __('purchase_orders.unit_price') }}</th>
-                                <th style="width: 15%; text-align: right;">{{ __('purchase_orders.line_total') }}</th>
-                                <th style="width: 5%; text-align: center;"></th>
+                                <th style="width: 13%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
+                                <th style="width: 31%;">{{ app()->getLocale() === 'ar' ? 'البند المطلوب' : 'Item Selection' }}</th>
+                                <th style="width: 12%; text-align: right;">{{ __('purchase_orders.quantity') }}</th>
+                                <th style="width: 13%; text-align: right;">{{ __('purchase_orders.unit_price') }}</th>
+                                <th style="width: 13%; text-align: right;">{{ __('purchase_orders.line_total') }}</th>
+                                <th style="width: 14%; text-align: right;">{{ app()->getLocale() === 'ar' ? 'التكلفة المحملة' : 'Landed Unit Cost' }}</th>
+                                <th style="width: 4%; text-align: center;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -262,7 +263,7 @@
 
                                         <!-- Raw Material Selector -->
                                         <div x-show="item.item_type === 'raw_material'">
-                                            <select :name="`items[${index}][raw_material_id]`" :required="item.item_type === 'raw_material'" x-model="item.raw_material_id" class="form-select text-xs w-full">
+                                            <select :name="`items[${index}][raw_material_id]`" :required="item.item_type === 'raw_material'" x-model="item.raw_material_id" @change="onMaterialSelect(index)" class="form-select text-xs w-full">
                                                 <option value="">{{ app()->getLocale() === 'ar' ? '-- اختر المادة الخام --' : '-- Select Raw Material --' }}</option>
                                                 @foreach($materials as $material)
                                                     <option value="{{ $material->id }}">
@@ -273,6 +274,26 @@
                                         </div>
 
                                         <input type="text" :name="`items[${index}][notes]`" x-model="item.notes" placeholder="{{ app()->getLocale() === 'ar' ? 'ملاحظة خاصة بالبند (اختياري)...' : 'Item note (e.g. batch/grade specs)...' }}" class="form-control text-[11px] mt-1 py-0.5">
+
+                                        <!-- Latest Stock Adjustment with Absorption Checkbox -->
+                                        <template x-if="item.latest_adjustment && item.latest_adjustment.has_adjustment">
+                                            <div class="mt-1.5 p-2 rounded-lg bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-900 dark:text-amber-200 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <i class="fa-solid fa-boxes-packing text-amber-600"></i>
+                                                    <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'آخر تسوية مخزنية:' : 'Latest Stock Adj:' }}</span>
+                                                    <span class="badge badge-amber text-[9px] py-0 px-1 font-bold" x-text="item.latest_adjustment.movement_type"></span>
+                                                    <span class="font-mono text-slate-500" x-text="'(' + item.latest_adjustment.date + ')'"></span>
+                                                    <span class="font-mono font-bold text-rose-600 dark:text-rose-400" x-text="'-' + item.latest_adjustment.quantity + ' ' + (item.item_type === 'product' ? '{{ app()->getLocale() === 'ar' ? 'وحدة' : 'units' }}' : '{{ app()->getLocale() === 'ar' ? 'كجم' : 'kg' }}')"></span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-sky-900 dark:text-sky-200 bg-white/90 dark:bg-slate-800 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700 shadow-xs hover:bg-sky-50 transition" title="{{ app()->getLocale() === 'ar' ? 'إضافة قيمة التسوية المخزنية على تكلفة الوحدة للمخزون فقط دون تغيير فاتورة المورد' : 'Capitalize adjustment into inventory unit cost without affecting supplier payable' }}">
+                                                        <input type="checkbox" class="form-checkbox text-sky-600 rounded text-xs" x-model="item.absorb_adjustment" @change="calculateTotal()">
+                                                        <span>{{ app()->getLocale() === 'ar' ? 'تحميل التسوية على تكلفة المخزون' : 'Absorb in Inventory Cost' }}</span>
+                                                        <span class="font-mono text-emerald-600 dark:text-emerald-400 font-black" x-text="'(+' + Number(item.latest_adjustment.total_value).toFixed(2) + ' ' + currency + ')'"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </td>
 
                                     <!-- Ordered Qty -->
@@ -294,6 +315,24 @@
                                         <span class="text-[10px] text-gray-400" x-text="currency"></span>
                                     </td>
 
+                                    <!-- Landed Unit Cost & Allocation Badge -->
+                                    <td class="font-mono text-xs text-right">
+                                        <div class="font-bold text-sky-700 dark:text-sky-300">
+                                            <span x-text="(Number(item.landed_unit_cost) || Number(item.unit_price) || 0).toFixed(4)"></span>
+                                            <span class="text-[10px] text-gray-400" x-text="currency"></span>
+                                        </div>
+                                        <template x-if="(Number(item.allocated_landed_cost) || 0) + (Number(item.adjustment_cost) || 0) > 0">
+                                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5" title="{{ app()->getLocale() === 'ar' ? 'المبلغ المضاف لتكلفة الوحدة للمخزون (شحن + تسوية)' : 'Addition to inventory unit cost (freight + adjustment)' }}">
+                                                <span>+</span>
+                                                <span x-text="(((Number(item.allocated_landed_cost) || 0) + (Number(item.adjustment_cost) || 0)) / (Number(item.ordered_qty) || 1)).toFixed(4)"></span>
+                                                <span class="text-[9px] text-slate-500">/unit</span>
+                                            </div>
+                                        </template>
+                                        <input type="hidden" :name="`items[${index}][allocated_landed_cost]`" :value="item.allocated_landed_cost || 0">
+                                        <input type="hidden" :name="`items[${index}][adjustment_cost]`" :value="item.adjustment_cost || 0">
+                                        <input type="hidden" :name="`items[${index}][landed_unit_cost]`" :value="item.landed_unit_cost || item.unit_price || 0">
+                                    </td>
+
                                     <!-- Remove Action -->
                                     <td style="text-align: center;">
                                         <button type="button" class="btn btn-ghost btn-xs text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30" @click="removeItem(index)" x-show="items.length > 1">
@@ -308,29 +347,36 @@
 
                 <!-- 3. Landed Cost & Calculation Summary -->
                 <div class="pt-5 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                    <div class="space-y-3 p-4 rounded-xl bg-gray-50/70 dark:bg-slate-800/40 border border-gray-100 dark:border-gray-800">
-                        <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-calculator text-sky-600"></i>
-                            <span>{{ app()->getLocale() === 'ar' ? 'رسوم الوصول والتخليص (Landed Costs)' : 'Landed Costs & Duties' }}</span>
-                        </h4>
+                    <div class="space-y-3.5 p-4 rounded-xl bg-gray-50/70 dark:bg-slate-800/40 border border-gray-100 dark:border-gray-800">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-calculator text-sky-600"></i>
+                                <span>{{ app()->getLocale() === 'ar' ? 'رسوم الوصول والتخليص (LANDED COSTS)' : 'LANDED COSTS & DUTIES' }}</span>
+                            </h4>
+                            <span class="text-[11px] text-slate-500 font-medium">
+                                <i class="fa-solid fa-info-circle text-sky-500 mr-1 ml-1"></i>
+                                {{ app()->getLocale() === 'ar' ? 'توزع على تكلفة المخزون فقط' : 'Allocated to inventory cost only' }}
+                            </span>
+                        </div>
 
-                        <div class="grid grid-cols-3 gap-3">
+                        <!-- 3 clean input fields for Landed costs -->
+                        <div class="grid grid-cols-3 gap-3 pt-1">
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.shipping_cost') }}</label>
-                                <input type="number" step="0.01" min="0" name="freight_cost" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="freightCost" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="freight_cost" class="form-control text-xs font-mono font-bold" x-model.number="freightCost" @input="calculateTotal()">
                             </div>
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.customs_duty') }}</label>
-                                <input type="number" step="0.01" min="0" name="customs_duties" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="customsDuties" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="customs_duties" class="form-control text-xs font-mono font-bold" x-model.number="customsDuties" @input="calculateTotal()">
                             </div>
                             <div>
                                 <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.tax_amount') }} (VAT)</label>
-                                <input type="number" step="0.01" min="0" name="tax_amount" value="0.00" class="form-control text-xs font-mono font-bold" x-model.number="taxAmount" @input="calculateTotal()">
+                                <input type="number" step="0.01" min="0" name="tax_amount" class="form-control text-xs font-mono font-bold" x-model.number="taxAmount" @input="calculateTotal()">
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 rounded-xl bg-sky-50/40 dark:bg-slate-800/60 border border-sky-100 dark:border-gray-700 space-y-2 text-end">
+                    <div class="p-4 rounded-xl bg-sky-50/40 dark:bg-slate-800/60 border border-sky-100 dark:border-gray-700 space-y-2.5 text-end">
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span>{{ __('purchase_orders.subtotal') }}:</span>
                             <span class="font-mono font-bold text-slate-800 dark:text-white">
@@ -348,6 +394,22 @@
                             <span class="text-lg font-black text-sky-600 font-mono">
                                 <span x-text="total.toFixed(2)"></span> <span x-text="currency"></span>
                             </span>
+                        </div>
+
+                        <!-- Capitalized Inventory Value Card (IAS 2) -->
+                        <div class="p-2.5 mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs">
+                            <div class="text-start">
+                                <div class="font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-1">
+                                    <i class="fa-solid fa-warehouse text-emerald-600"></i>
+                                    <span>{{ __('purchase_orders.total_landed_inventory_cost') }}:</span>
+                                </div>
+                                <div class="text-[10px] text-emerald-600 dark:text-emerald-400">
+                                    {{ app()->getLocale() === 'ar' ? 'القيمة الرأسمالية للمخزون (شحن + تسويات ممتصة)' : 'Capitalized inventory value (freight + absorbed adjustments)' }}
+                                </div>
+                            </div>
+                            <div class="font-mono font-black text-emerald-700 dark:text-emerald-300 text-sm">
+                                <span x-text="totalLandedInventoryCost.toFixed(2)"></span> <span x-text="currency"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -375,18 +437,29 @@
                 'raw_material_id' => $qItem->raw_material_id ? (string) $qItem->raw_material_id : '',
                 'ordered_qty' => (float) $qItem->quantity,
                 'unit_price' => (float) $qItem->unit_price,
+                'allocated_landed_cost' => 0,
+                'adjustment_cost' => 0,
+                'landed_unit_cost' => (float) $qItem->unit_price,
+                'absorb_adjustment' => true,
                 'notes' => $qItem->notes ?? '',
+                'latest_adjustment' => null,
             ];
         }
     }
     if (empty($initialItems)) {
+        $firstProd = $products->first();
         $initialItems[] = [
             'item_type' => 'product',
-            'product_id' => '',
+            'product_id' => $firstProd ? (string) $firstProd->id : '',
             'raw_material_id' => '',
             'ordered_qty' => 50,
-            'unit_price' => 25,
+            'unit_price' => (float) ($firstProd?->cost_price ?? 25),
+            'allocated_landed_cost' => 0,
+            'adjustment_cost' => 0,
+            'landed_unit_cost' => (float) ($firstProd?->cost_price ?? 25),
+            'absorb_adjustment' => true,
             'notes' => '',
+            'latest_adjustment' => null,
         ];
     }
 
@@ -412,6 +485,7 @@
                 taxAmount: {{ (float) old('tax_amount', $selectedQuotation?->tax_amount ?? 0) }},
                 subtotal: 0,
                 total: 0,
+                totalLandedInventoryCost: 0,
                 items: @json($initialItems),
                 suppliers: @json($suppliersData),
                 getSelectedSupplierInfo() {
@@ -431,7 +505,12 @@
                         raw_material_id: '',
                         ordered_qty: 1,
                         unit_price: 0,
-                        notes: ''
+                        allocated_landed_cost: 0,
+                        adjustment_cost: 0,
+                        landed_unit_cost: 0,
+                        absorb_adjustment: true,
+                        notes: '',
+                        latest_adjustment: null
                     });
                     this.calculateTotal();
                 },
@@ -445,6 +524,11 @@
                     this.items[index].product_id = '';
                     this.items[index].raw_material_id = '';
                     this.items[index].unit_price = 0;
+                    this.items[index].allocated_landed_cost = 0;
+                    this.items[index].adjustment_cost = 0;
+                    this.items[index].landed_unit_cost = 0;
+                    this.items[index].latest_adjustment = null;
+                    this.items[index].absorb_adjustment = true;
                     this.calculateTotal();
                 },
                 onProductSelect(index) {
@@ -455,18 +539,111 @@
                             this.items[index].unit_price = cost;
                         }
                     }
+                    this.fetchItemAdjustment(index);
                     this.calculateTotal();
+                },
+                onMaterialSelect(index) {
+                    this.fetchItemAdjustment(index);
+                    this.calculateTotal();
+                },
+                async fetchItemAdjustment(index) {
+                    const item = this.items[index];
+                    if (!item) return;
+                    const itemId = item.item_type === 'product' ? item.product_id : item.raw_material_id;
+                    if (!itemId) {
+                        item.latest_adjustment = null;
+                        item.adjustment_cost = 0;
+                        this.calculateTotal();
+                        return;
+                    }
+                    try {
+                        const res = await fetch('{{ route("admin.purchase-orders.item-adjustment") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                item_type: item.item_type,
+                                item_id: itemId
+                            })
+                        });
+                        const data = await res.json();
+                        if (data && data.has_adjustment) {
+                            item.latest_adjustment = data;
+                            if (item.absorb_adjustment !== false) {
+                                item.adjustment_cost = Number(data.total_value) || 0;
+                            }
+                        } else {
+                            item.latest_adjustment = null;
+                            item.adjustment_cost = 0;
+                        }
+                        this.calculateTotal();
+                    } catch (e) {
+                        console.error('Error fetching item adjustment:', e);
+                    }
                 },
                 calculateTotal() {
                     let sub = 0;
                     this.items.forEach(i => {
                         sub += (Number(i.ordered_qty) || 0) * (Number(i.unit_price) || 0);
+                        if (i.absorb_adjustment && i.latest_adjustment && i.latest_adjustment.has_adjustment) {
+                            i.adjustment_cost = Number(i.latest_adjustment.total_value) || 0;
+                        } else {
+                            i.adjustment_cost = 0;
+                        }
                     });
                     this.subtotal = sub;
-                    this.total = sub + (Number(this.freightCost) || 0) + (Number(this.customsDuties) || 0) + (Number(this.taxAmount) || 0);
+                    const totalFreightCustoms = (Number(this.freightCost) || 0) + (Number(this.customsDuties) || 0);
+                    // Supplier Payable Total: Strictly Subtotal + Freight + Customs + VAT
+                    this.total = sub + totalFreightCustoms + (Number(this.taxAmount) || 0);
+
+                    // Dynamic IAS 2 Apportionment across line items (for inventory valuation only)
+                    if (this.items.length > 0) {
+                        let allocatedSum = 0;
+                        let maxLine = -1;
+                        let largestIdx = 0;
+
+                        this.items.forEach((item, idx) => {
+                            const lineVal = (Number(item.ordered_qty) || 0) * (Number(item.unit_price) || 0);
+                            const weight = sub > 0 ? (lineVal / sub) : (1 / this.items.length);
+                            const alloc = Math.round(totalFreightCustoms * weight * 100) / 100;
+                            item.allocated_landed_cost = alloc;
+                            allocatedSum += alloc;
+                            if (lineVal > maxLine) {
+                                maxLine = lineVal;
+                                largestIdx = idx;
+                            }
+                        });
+
+                        const gap = Math.round((totalFreightCustoms - allocatedSum) * 100) / 100;
+                        if (gap !== 0 && this.items[largestIdx]) {
+                            this.items[largestIdx].allocated_landed_cost = Math.round((this.items[largestIdx].allocated_landed_cost + gap) * 100) / 100;
+                        }
+
+                        let totalCapitalized = 0;
+                        this.items.forEach(item => {
+                            const qty = Number(item.ordered_qty) || 0;
+                            const basePrice = Number(item.unit_price) || 0;
+                            const alloc = Number(item.allocated_landed_cost) || 0;
+                            const adj = Number(item.adjustment_cost) || 0;
+                            item.landed_unit_cost = qty > 0 ? Number((basePrice + ((alloc + adj) / qty)).toFixed(4)) : basePrice;
+                            totalCapitalized += qty * item.landed_unit_cost;
+                        });
+                        this.totalLandedInventoryCost = totalCapitalized;
+                    } else {
+                        this.totalLandedInventoryCost = 0;
+                    }
                 },
                 init() {
                     this.calculateTotal();
+                    // Auto-fetch adjustment info for preloaded items
+                    this.items.forEach((item, idx) => {
+                        if (item.product_id || item.raw_material_id) {
+                            this.fetchItemAdjustment(idx);
+                        }
+                    });
                 }
             }
         }

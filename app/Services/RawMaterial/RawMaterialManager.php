@@ -45,7 +45,9 @@ class RawMaterialManager
         return DB::transaction(function () use ($item, $receiver, $locationId, $storageBin) {
             $grn = $item->goodsReceipt;
             $rawMaterial = $item->rawMaterial;
-            $unitCost = $item->purchaseOrderItem?->unit_price ?? 0;
+            $unitCost = ($item->purchaseOrderItem?->landed_unit_cost && $item->purchaseOrderItem->landed_unit_cost > 0)
+                ? (float) $item->purchaseOrderItem->landed_unit_cost
+                : (float) ($item->purchaseOrderItem?->unit_price ?? 0);
             $locId = $locationId ?? $grn?->location_id ?? Location::first()?->id ?? 'central_wh';
 
             $batch = new RawMaterialBatch([
