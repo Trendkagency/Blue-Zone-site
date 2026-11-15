@@ -293,9 +293,14 @@
                                 {{ number_format($item->total_price, 2) }} {{ $purchaseOrder->currency }}
                             </td>
                             <td class="font-mono text-slate-800 dark:text-white">
-                                <span class="font-bold text-sky-700 dark:text-sky-300">{{ number_format($landedCost, 4) }}</span>
+                                <span class="font-bold text-sky-700 dark:text-sky-300">
+                                    {{ round($landedCost, 2) == round($landedCost, 4) ? number_format($landedCost, 2) : number_format($landedCost, 4) }}
+                                </span>
                                 <span class="text-[10px] text-gray-400 block">{{ $purchaseOrder->currency }}</span>
                                 @php
+                                    $unitAlloc = $item->ordered_qty > 0 ? ($item->allocated_landed_cost / $item->ordered_qty) : 0;
+                                    $unitAdj = $item->ordered_qty > 0 ? ($item->adjustment_cost / $item->ordered_qty) : 0;
+                                    $totalUnitAdd = $unitAlloc + $unitAdj;
                                     $additions = [];
                                     if ($item->allocated_landed_cost > 0) {
                                         $additions[] = (app()->getLocale() === 'ar' ? 'شحن: +' : 'Freight: +') . number_format($item->allocated_landed_cost, 2);
@@ -304,8 +309,14 @@
                                         $additions[] = (app()->getLocale() === 'ar' ? 'تسوية: +' : 'Adj: +') . number_format($item->adjustment_cost, 2);
                                     }
                                 @endphp
-                                @if(!empty($additions))
-                                    <span class="text-[10px] text-emerald-600 font-semibold block">{{ implode(' | ', $additions) }}</span>
+                                @if($totalUnitAdd > 0)
+                                    <div dir="ltr" class="inline-flex items-center gap-1 text-[11px] text-emerald-600 font-bold mt-0.5">
+                                        <span>+{{ round($totalUnitAdd, 2) == round($totalUnitAdd, 4) ? number_format($totalUnitAdd, 2) : number_format($totalUnitAdd, 4) }}</span>
+                                        <span class="text-[9px] text-slate-400 font-sans">/ {{ $item->item_type === 'product' ? (app()->getLocale() === 'ar' ? 'وحدة' : 'unit') : (app()->getLocale() === 'ar' ? 'كجم' : 'kg') }}</span>
+                                    </div>
+                                    @if(!empty($additions))
+                                        <span class="text-[9px] text-slate-400 block">{{ implode(' | ', $additions) }}</span>
+                                    @endif
                                 @endif
                             </td>
                         </tr>

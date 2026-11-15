@@ -316,16 +316,16 @@
                                     </td>
 
                                     <!-- Landed Unit Cost & Allocation Badge -->
-                                    <td class="font-mono text-xs text-right">
-                                        <div class="font-bold text-sky-700 dark:text-sky-300">
-                                            <span x-text="(Number(item.landed_unit_cost) || Number(item.unit_price) || 0).toFixed(4)"></span>
-                                            <span class="text-[10px] text-gray-400" x-text="currency"></span>
+                                    <td class="text-xs text-right font-mono">
+                                        <div class="font-bold text-sky-700 dark:text-sky-300 inline-flex items-center gap-1 justify-end">
+                                            <span x-text="formatCost(item.landed_unit_cost || item.unit_price)"></span>
+                                            <span class="text-[10px] text-gray-400 font-sans" x-text="currency"></span>
                                         </div>
                                         <template x-if="(Number(item.allocated_landed_cost) || 0) + (Number(item.adjustment_cost) || 0) > 0">
-                                            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5" title="{{ app()->getLocale() === 'ar' ? 'المبلغ المضاف لتكلفة الوحدة للمخزون (شحن + تسوية)' : 'Addition to inventory unit cost (freight + adjustment)' }}">
+                                            <div dir="ltr" class="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5" title="{{ app()->getLocale() === 'ar' ? 'المبلغ المضاف لتكلفة الوحدة للمخزون (شحن + تسوية)' : 'Addition to inventory unit cost (freight + adjustment)' }}">
                                                 <span>+</span>
-                                                <span x-text="(((Number(item.allocated_landed_cost) || 0) + (Number(item.adjustment_cost) || 0)) / (Number(item.ordered_qty) || 1)).toFixed(4)"></span>
-                                                <span class="text-[9px] text-slate-500">/unit</span>
+                                                <span x-text="formatCost(((Number(item.allocated_landed_cost) || 0) + (Number(item.adjustment_cost) || 0)) / (Number(item.ordered_qty) || 1))"></span>
+                                                <span class="text-[10px] text-slate-500 font-sans" x-text="'/ ' + (item.item_type === 'product' ? '{{ app()->getLocale() === 'ar' ? 'وحدة' : 'unit' }}' : '{{ app()->getLocale() === 'ar' ? 'كجم' : 'kg' }}')"></span>
                                             </div>
                                         </template>
                                         <input type="hidden" :name="`items[${index}][allocated_landed_cost]`" :value="item.allocated_landed_cost || 0">
@@ -488,6 +488,14 @@
                 totalLandedInventoryCost: 0,
                 items: @json($initialItems),
                 suppliers: @json($suppliersData),
+                formatCost(val) {
+                    const num = Number(val) || 0;
+                    const rounded2 = Math.round(num * 100) / 100;
+                    if (Math.abs(num - rounded2) < 0.0001) {
+                        return rounded2.toFixed(2);
+                    }
+                    return num.toFixed(4);
+                },
                 getSelectedSupplierInfo() {
                     if (!this.supplierId) return null;
                     return this.suppliers.find(s => s.id == this.supplierId) || null;
