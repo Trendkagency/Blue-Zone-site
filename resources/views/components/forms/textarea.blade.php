@@ -7,15 +7,22 @@
     'required' => false,
     'hint' => null,
     'error' => null,
+    'info' => null,
+    'infoType' => 'info',
 ])
 
 <div class="form-group">
     @if($label)
         <label for="{{ $name }}" class="form-label">
-            <span>{{ $label }}</span>
-            @if($required)
-                <span class="required-mark">*</span>
-            @endif
+            <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
+                {{ $label }}
+                @if($required)
+                    <span class="required-mark">*</span>
+                @endif
+                @if($info)
+                    <x-info-tooltip :text="$info" :type="$infoType" />
+                @endif
+            </span>
         </label>
     @endif
 

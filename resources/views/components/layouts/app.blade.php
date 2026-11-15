@@ -74,6 +74,7 @@
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}?v={{ file_exists(public_path('css/custom.css')) ? filemtime(public_path('css/custom.css')) : time() }}">
     <link rel="stylesheet" href="{{ asset('css/map-loader.css') }}?v={{ file_exists(public_path('css/map-loader.css')) ? filemtime(public_path('css/map-loader.css')) : time() }}">
     <link rel="stylesheet" href="{{ asset('css/bz-select.css') }}?v={{ file_exists(public_path('css/bz-select.css')) ? filemtime(public_path('css/bz-select.css')) : time() }}">
+    <link rel="stylesheet" href="{{ asset('css/bz-form-info.css') }}?v={{ file_exists(public_path('css/bz-form-info.css')) ? filemtime(public_path('css/bz-form-info.css')) : time() }}">
 
     <!-- Vite CSS & JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -147,6 +148,9 @@
 
     <!-- Enterprise Searchable Select Component (BZ-Select) -->
     <script src="{{ asset('js/bz-select.js') }}?v={{ file_exists(public_path('js/bz-select.js')) ? filemtime(public_path('js/bz-select.js')) : time() }}"></script>
+
+    <!-- Global Professional Form Info & Guidance Engine -->
+    <script src="{{ asset('js/bz-form-info.js') }}?v={{ file_exists(public_path('js/bz-form-info.js')) ? filemtime(public_path('js/bz-form-info.js')) : time() }}"></script>
 
     @stack('scripts')
 </body>

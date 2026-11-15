@@ -72,8 +72,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Supplier Selector with Name and Number -->
                     <div class="md:col-span-1">
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.supplier') }} <span class="text-rose-500">*</span>
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ __('purchase_orders.supplier') }} <span class="text-rose-500">*</span></span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'اختر المورد المعتمد المؤهل وفق معايير الجودة (cGMP). يؤدي الاختيار لمزامنة العملة وشروط السداد آلياً.' : 'Select a qualified cGMP supplier. Vendor default currency and payment terms will sync automatically.'" />
                         </label>
                         <select 
                             name="supplier_id" 
@@ -137,24 +138,27 @@
                     </div>
 
                     <div>
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.order_date') }} <span class="text-rose-500">*</span>
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ __('purchase_orders.order_date') }} <span class="text-rose-500">*</span></span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'تاريخ التحرير الرسمي لأمر الشراء وهو التاريخ المعتمد للالتزام المالي ومطابقة الفترة المحاسبية.' : 'Official issuance date representing formal procurement commitment and accounting period matching.'" type="accounting" />
                         </label>
                         <input type="date" name="order_date" value="{{ old('order_date', date('Y-m-d')) }}" required class="form-control text-sm w-full font-mono @error('order_date') border-rose-500 @enderror">
                         @error('order_date') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.expected_delivery_date') }}
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ __('purchase_orders.expected_delivery_date') }}</span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'تاريخ وصول الشحنة المتفق عليه عند الرصيف. يُستخدم لمراقبة تأخيرات التوريد وحساب معدل كفاءة المورد (KPIs).' : 'Promised dock arrival date used for lead-time tracking and supplier performance KPIs.'" type="inventory" />
                         </label>
                         <input type="date" name="expected_date" value="{{ old('expected_date', date('Y-m-d', strtotime('+14 days'))) }}" class="form-control text-sm w-full font-mono @error('expected_date') border-rose-500 @enderror">
                         @error('expected_date') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.destination') }} <span class="text-rose-500">*</span>
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ __('purchase_orders.destination') }} <span class="text-rose-500">*</span></span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'المستودع أو الرصيف الفعلي الذي سيتم استلام وفحص البضاعة فيه عند إصدار سند الاستلام (GRN).' : 'The receiving physical warehouse/bay where inbound dock receiving and QC inspection (GRN) take place.'" type="inventory" />
                         </label>
                         <select name="destination_location_id" required class="form-select text-sm w-full @error('destination_location_id') border-rose-500 @enderror">
                             @foreach($locations as $location)
@@ -167,8 +171,9 @@
                     </div>
 
                     <div>
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ __('purchase_orders.currency') }} &amp; FX Rate <span class="text-rose-500">*</span>
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ __('purchase_orders.currency') }} &amp; FX Rate <span class="text-rose-500">*</span></span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'عملة الفاتورة وسعر الصرف مقابل العملة الأساسية للمنشأة لتقييم الدفاتر والمخزون.' : 'Invoice transaction currency and FX conversion rate against company base currency for ledger valuation.'" type="accounting" />
                         </label>
                         <div class="grid grid-cols-2 gap-2">
                             <select name="currency" required class="form-select text-sm font-bold" x-model="currency">
@@ -182,8 +187,9 @@
                     </div>
 
                     <div>
-                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                            {{ app()->getLocale() === 'ar' ? 'رقم عرض السعر / مرجع المورد' : 'Supplier Quote / Proforma Ref' }}
+                        <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                            <span>{{ app()->getLocale() === 'ar' ? 'رقم عرض السعر / مرجع المورد' : 'Supplier Quote / Proforma Ref' }}</span>
+                            <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'الرقم المرجعي لعرض الأسعار المقدم من المورد (RFQ) لربط دورة التوريد والتحقق الثلاثي عند الفوترة.' : 'Supplier quotation or proforma reference for 3-way matching during accounts payable invoicing.'" />
                         </label>
                         <input type="text" name="supplier_reference" value="{{ old('supplier_reference', $selectedQuotation?->quote_number) }}" class="form-control text-sm w-full font-mono" placeholder="e.g. QTE-99214">
                         @error('supplier_reference') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
@@ -191,8 +197,9 @@
                 </div>
 
                 <div>
-                    <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300">
-                        {{ app()->getLocale() === 'ar' ? 'ملاحظات أو تعليمات خاصة بالشحن والتخليص' : 'Procurement Instructions & Shipping Notes' }}
+                    <label class="form-label font-bold text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>{{ app()->getLocale() === 'ar' ? 'ملاحظات أو تعليمات خاصة بالشحن والتخليص' : 'Procurement Instructions & Shipping Notes' }}</span>
+                        <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'تعليمات خاصة للناقل ومسؤول الرصيف مثل درجة حرارة التخزين (سلسلة التبريد 2-8°م) أو معايير المناولة.' : 'Special carrier and warehouse instructions like cold-chain requirements (2-8°C) or fragile handling specs.'" />
                     </label>
                     <textarea name="notes" rows="2" class="form-control text-sm w-full" placeholder="{{ app()->getLocale() === 'ar' ? 'اكتب أي متطلبات خاصة بالمطابقة أو درجات حرارة التخزين...' : 'Specify temperature sensitivity, packaging requirements, or delivery bay rules...' }}">{{ old('notes') }}</textarea>
                 </div>
@@ -226,13 +233,25 @@
                 <div class="table-responsive">
                     <table class="table text-xs w-full">
                         <thead>
-                            <tr class="bg-gray-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300">
-                                <th style="width: 13%;">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }}</th>
-                                <th style="width: 31%;">{{ app()->getLocale() === 'ar' ? 'البند المطلوب' : 'Item Selection' }}</th>
-                                <th style="width: 12%; text-align: right;">{{ __('purchase_orders.quantity') }}</th>
-                                <th style="width: 13%; text-align: right;">{{ __('purchase_orders.unit_price') }}</th>
-                                <th style="width: 13%; text-align: right;">{{ __('purchase_orders.line_total') }}</th>
-                                <th style="width: 14%; text-align: right;">{{ app()->getLocale() === 'ar' ? 'التكلفة المحملة' : 'Landed Unit Cost' }}</th>
+                            <tr class="bg-gray-50/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs">
+                                <th style="width: 13%;">
+                                    <span class="inline-flex items-center gap-1">{{ app()->getLocale() === 'ar' ? 'النوع' : 'Catalog Type' }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'اختر بين منتجات تجارية تامة الصنع أو مواد خام أولية تدخل في التصنيع والتركيب.' : 'Select finished retail longevity items or compounding raw materials.'" /></span>
+                                </th>
+                                <th style="width: 31%;">
+                                    <span class="inline-flex items-center gap-1">{{ app()->getLocale() === 'ar' ? 'البند المطلوب' : 'Item Selection' }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'الصنف المطلوب مع الكود وسعر التكلفة وآخر حركة تسوية مخزنية تمت عليه.' : 'Selected product or raw material with SKU and benchmark inventory cost.'" /></span>
+                                </th>
+                                <th style="width: 12%; text-align: right;">
+                                    <span class="inline-flex items-center gap-1 justify-end">{{ __('purchase_orders.quantity') }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'الكمية المطلوبة وفق وحدة القياس الأساسية (قطع أو كجم).' : 'Requested order quantity in base UOM (units or kg).'" /></span>
+                                </th>
+                                <th style="width: 13%; text-align: right;">
+                                    <span class="inline-flex items-center gap-1 justify-end">{{ __('purchase_orders.unit_price') }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'سعر شراء القطعة الواحدة المتفق عليه مع المورد دون تكاليف الشحن أو الجمارك.' : 'Contract purchase price per unit payable to the vendor.'" type="accounting" /></span>
+                                </th>
+                                <th style="width: 13%; text-align: right;">
+                                    <span class="inline-flex items-center gap-1 justify-end">{{ __('purchase_orders.line_total') }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'إجمالي قيمة البند = الكمية المطلوبة × سعر الوحدة (المبلغ المستحق للمورد).' : 'Line subtotal payable directly to the supplier.'" type="accounting" /></span>
+                                </th>
+                                <th style="width: 14%; text-align: right;">
+                                    <span class="inline-flex items-center gap-1 justify-end">{{ app()->getLocale() === 'ar' ? 'التكلفة المحملة' : 'Landed Unit Cost' }} <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'تكلفة الوحدة في المخزون (IAS 2) بعد توزيع حصة الشحن، الجمارك، وتسويات التلف الممتصة.' : 'Capitalized unit cost entering inventory ledger under IAS 2 including freight, tariffs, and absorbed adjustments.'" type="inventory" /></span>
+                                </th>
                                 <th style="width: 4%; text-align: center;"></th>
                             </tr>
                         </thead>
@@ -362,15 +381,24 @@
                         <!-- 3 clean input fields for Landed costs -->
                         <div class="grid grid-cols-3 gap-3 pt-1">
                             <div>
-                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.shipping_cost') }}</label>
+                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
+                                    <span>{{ __('purchase_orders.shipping_cost') }}</span>
+                                    <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'رسوم الشحن والنقل البري أو البحري أو الجوي. توزع آلياً بنسبة القيمة على البنود لزيادة تكلفة المخزون (IAS 2).' : 'Inbound freight, ocean or air cargo fees. Proportionally apportioned across items to capitalize into inventory asset cost (IAS 2).'" type="inventory" />
+                                </label>
                                 <input type="number" step="0.01" min="0" name="freight_cost" class="form-control text-xs font-mono font-bold" x-model.number="freightCost" @input="calculateTotal()">
                             </div>
                             <div>
-                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.customs_duty') }}</label>
+                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
+                                    <span>{{ __('purchase_orders.customs_duty') }}</span>
+                                    <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'الرسوم الجمركية ورسوم الموانئ غير القابلة للاسترداد. تُضاف رأسمالياً إلى تكلفة المخزون عند الوصول.' : 'Non-recoverable port tariffs and customs fees added directly to the capitalized batch unit cost upon dock intake.'" type="accounting" />
+                                </label>
                                 <input type="number" step="0.01" min="0" name="customs_duties" class="form-control text-xs font-mono font-bold" x-model.number="customsDuties" @input="calculateTotal()">
                             </div>
                             <div>
-                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400">{{ __('purchase_orders.tax_amount') }} (VAT)</label>
+                                <label class="form-label font-bold text-[11px] text-slate-600 dark:text-slate-400 flex items-center justify-between">
+                                    <span>{{ __('purchase_orders.tax_amount') }} (VAT)</span>
+                                    <x-info-tooltip :text="app()->getLocale() === 'ar' ? 'ضريبة القيمة المضافة على المشتريات (ضريبة مدخلات). لا تُضاف لتكلفة المخزون إذا كانت قابلة للخصم في الإقرار الضريبي.' : 'Value Added Tax (Input VAT). Remains on tax clearing accounts and is not capitalized into inventory if tax-recoverable.'" type="accounting" />
+                                </label>
                                 <input type="number" step="0.01" min="0" name="tax_amount" class="form-control text-xs font-mono font-bold" x-model.number="taxAmount" @input="calculateTotal()">
                             </div>
                         </div>

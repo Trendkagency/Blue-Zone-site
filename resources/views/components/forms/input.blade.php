@@ -8,6 +8,8 @@
     'hint' => null,
     'error' => null,
     'unit' => null,
+    'info' => null,
+    'infoType' => 'info',
 ])
 
 @php
@@ -36,10 +38,13 @@
 <div class="form-group" style="position: relative;">
     @if($label)
         <label for="{{ $inputId }}" class="form-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-            <span>
+            <span style="display: inline-flex; align-items: center; gap: 0.25rem;">
                 {{ $label }}
                 @if($required)
                     <span class="required-mark" style="color: #ef4444; font-weight: 800;">*</span>
+                @endif
+                @if($info)
+                    <x-info-tooltip :text="$info" :type="$infoType" />
                 @endif
             </span>
             @if($isNumeric)
