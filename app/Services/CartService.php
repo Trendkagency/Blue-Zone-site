@@ -164,11 +164,24 @@ class CartService
             }
         }
 
+        // Handle Protocol Duration Tier Overrides (Multipliers & Discounted Prices)
+        if (!empty($fallbackData['tier_id'])) {
+            $itemData['tier_id'] = $fallbackData['tier_id'];
+            $itemData['tier_multiplier'] = max(1, (int) ($fallbackData['tier_multiplier'] ?? 1));
+            $itemData['tier_title_en'] = $fallbackData['tier_title_en'] ?? '';
+            $itemData['tier_title_ar'] = $fallbackData['tier_title_ar'] ?? '';
+            if (isset($fallbackData['price']) && is_numeric($fallbackData['price'])) {
+                $itemData['price'] = (float) $fallbackData['price'];
+            }
+        }
+
         $items = self::getItems();
         $foundIndex = -1;
 
         foreach ($items as $idx => $item) {
-            if ((string)$item['id'] === (string)$itemData['id'] || (string)$item['slug'] === (string)$itemData['slug']) {
+            $sameProduct = ((string)$item['id'] === (string)$itemData['id'] || (string)$item['slug'] === (string)$itemData['slug']);
+            $sameTier = (($item['tier_id'] ?? null) === ($itemData['tier_id'] ?? null));
+            if ($sameProduct && $sameTier) {
                 $foundIndex = $idx;
                 break;
             }

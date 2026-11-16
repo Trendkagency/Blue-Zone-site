@@ -80,6 +80,10 @@ class CartController extends Controller
             'image' => $request->input('image') ?? $request->json('image'),
             'slug' => $request->input('slug') ?? $request->json('slug'),
             'id' => $productId,
+            'tier_id' => $request->input('tier_id') ?? $request->json('tier_id'),
+            'tier_multiplier' => $request->input('tier_multiplier') ?? $request->json('tier_multiplier'),
+            'tier_title_en' => $request->input('tier_title_en') ?? $request->json('tier_title_en'),
+            'tier_title_ar' => $request->input('tier_title_ar') ?? $request->json('tier_title_ar'),
         ];
 
         try {

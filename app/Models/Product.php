@@ -702,8 +702,270 @@ class Product extends Model implements HasMedia
             'custom_content_mobile' => $customContentMobile,
             'custom_content_mobile_en' => $customContentMobileEn,
             'custom_content_mobile_ar' => $customContentMobileAr,
+            'items' => $productSettings['items'] ?? [],
+            'certificates' => $productSettings['certificates'] ?? [],
+            'intro_en' => $productSettings['intro_en'] ?? '',
+            'intro_ar' => $productSettings['intro_ar'] ?? '',
+            'intro' => $isRtl ? ($productSettings['intro_ar'] ?? $productSettings['intro_en'] ?? '') : ($productSettings['intro_en'] ?? $productSettings['intro_ar'] ?? ''),
+            'quality_badges' => $productSettings['quality_badges'] ?? [],
+            'benefits' => $productSettings['benefits'] ?? [],
+            'phases' => $productSettings['phases'] ?? [],
+            'dose_badge_en' => $productSettings['dose_badge_en'] ?? '',
+            'dose_badge_ar' => $productSettings['dose_badge_ar'] ?? '',
+            'dose_badge' => $isRtl ? ($productSettings['dose_badge_ar'] ?? $productSettings['dose_badge_en'] ?? '') : ($productSettings['dose_badge_en'] ?? $productSettings['dose_badge_ar'] ?? ''),
+            'primary_directive_en' => $productSettings['primary_directive_en'] ?? '',
+            'primary_directive_ar' => $productSettings['primary_directive_ar'] ?? '',
+            'primary_directive' => $isRtl ? ($productSettings['primary_directive_ar'] ?? $productSettings['primary_directive_en'] ?? '') : ($productSettings['primary_directive_en'] ?? $productSettings['primary_directive_ar'] ?? ''),
+            'cards' => $productSettings['cards'] ?? [],
+            'mechanism_en' => $productSettings['mechanism_en'] ?? '',
+            'mechanism_ar' => $productSettings['mechanism_ar'] ?? '',
+            'mechanism' => $isRtl ? ($productSettings['mechanism_ar'] ?? $productSettings['mechanism_en'] ?? '') : ($productSettings['mechanism_en'] ?? $productSettings['mechanism_ar'] ?? ''),
+            'diagram_image' => $productSettings['diagram_image'] ?? '',
+            'pathways' => $productSettings['pathways'] ?? [],
+            'research_note_en' => $productSettings['research_note_en'] ?? '',
+            'research_note_ar' => $productSettings['research_note_ar'] ?? '',
+            'research_note' => $isRtl ? ($productSettings['research_note_ar'] ?? $productSettings['research_note_en'] ?? '') : ($productSettings['research_note_en'] ?? $productSettings['research_note_ar'] ?? ''),
+            'warnings_en' => $productSettings['warnings_en'] ?? '',
+            'warnings_ar' => $productSettings['warnings_ar'] ?? '',
+            'warnings' => $isRtl ? ($productSettings['warnings_ar'] ?? $productSettings['warnings_en'] ?? '') : ($productSettings['warnings_en'] ?? $productSettings['warnings_ar'] ?? ''),
+            'contraindications_en' => $productSettings['contraindications_en'] ?? '',
+            'contraindications_ar' => $productSettings['contraindications_ar'] ?? '',
+            'contraindications' => $isRtl ? ($productSettings['contraindications_ar'] ?? $productSettings['contraindications_en'] ?? '') : ($productSettings['contraindications_en'] ?? $productSettings['contraindications_ar'] ?? ''),
+            'purity_badges' => $productSettings['purity_badges'] ?? [],
+            'specs' => $productSettings['specs'] ?? [],
             'bundle' => $bundleConfig,
         ];
+    }
+
+    /**
+     * Get Hero Image Overlays Configuration (Floating badges, watermark, styling).
+     */
+    public function getHeroOverlaysConfig(): array
+    {
+        $settings = is_array($this->section_settings) ? ($this->section_settings['hero_overlays'] ?? []) : [];
+        $isRtl = app()->getLocale() === 'ar';
+
+        $enabledDesktop = $settings['enabled_desktop'] ?? true;
+        $enabledMobile = $settings['enabled_mobile'] ?? true;
+        $watermarkEnabled = $settings['watermark_enabled'] ?? true;
+        $watermarkEn = $settings['watermark_en'] ?? 'A Sharper You';
+        $watermarkAr = $settings['watermark_ar'] ?? 'نسخة أكثر صفاءً وتركيزاً';
+
+        $badges = $settings['badges'] ?? null;
+        if (!is_array($badges) || empty($badges)) {
+            // Smart Fallback from Product Benefits & HPLC
+            $rawBenefitsEn = is_array($this->benefits_en) ? $this->benefits_en : [];
+            $rawBenefitsAr = is_array($this->benefits_ar) ? $this->benefits_ar : [];
+
+            $icons = ['fa-brain', 'fa-lightbulb', 'fa-gear', 'fa-shield-heart'];
+            $defaultBadges = [];
+
+            if (!empty($rawBenefitsEn)) {
+                $count = 0;
+                foreach ($rawBenefitsEn as $i => $benEn) {
+                    if ($count >= 3) break;
+                    $benAr = $rawBenefitsAr[$i] ?? $benEn;
+                    $defaultBadges[] = [
+                        'id' => 'b_' . ($count + 1),
+                        'position' => 'top_right',
+                        'icon' => $icons[$count % count($icons)],
+                        'text_en' => strtoupper(trim((string)$benEn)),
+                        'text_ar' => trim((string)$benAr),
+                        'style' => 'pill',
+                    ];
+                    $count++;
+                }
+            } else {
+                $defaultBadges = [
+                    ['id' => 'b1', 'position' => 'top_right', 'icon' => 'fa-brain', 'text_en' => 'SUPPORTS MEMORY', 'text_ar' => 'يدعم الذاكرة', 'style' => 'pill'],
+                    ['id' => 'b2', 'position' => 'top_right', 'icon' => 'fa-lightbulb', 'text_en' => 'ENHANCES FOCUS', 'text_ar' => 'يعزز التركيز الذهني', 'style' => 'pill'],
+                    ['id' => 'b3', 'position' => 'top_right', 'icon' => 'fa-gear', 'text_en' => 'BOOSTS MENTAL PERFORMANCE', 'text_ar' => 'يرفع الأداء الإدراكي', 'style' => 'pill'],
+                ];
+            }
+
+            // Standard laboratory certified seal
+            $defaultBadges[] = [
+                'id' => 'b_hplc',
+                'position' => 'bottom_left',
+                'icon' => 'fa-check-double',
+                'text_en' => 'HPLC TRIPLE-ASSAYED',
+                'text_ar' => 'معاير ومفحوص مخبرياً (HPLC)',
+                'style' => 'pulse_dot',
+            ];
+
+            $badges = $defaultBadges;
+        }
+
+        return [
+            'enabled_desktop' => (bool) $enabledDesktop,
+            'enabled_mobile' => (bool) $enabledMobile,
+            'watermark_enabled' => (bool) $watermarkEnabled,
+            'watermark_en' => $watermarkEn,
+            'watermark_ar' => $watermarkAr,
+            'watermark' => $isRtl && !empty($watermarkAr) ? $watermarkAr : $watermarkEn,
+            'badges' => array_values($badges),
+        ];
+    }
+
+    /**
+     * Get Commercial Buy Box and Trust Badges Configuration.
+     */
+    public function getBuyBoxConfig(): array
+    {
+        $settings = is_array($this->section_settings) ? ($this->section_settings['buy_box'] ?? []) : [];
+        $isRtl = app()->getLocale() === 'ar';
+
+        $stockStatusEn = !empty($settings['stock_status_en']) ? $settings['stock_status_en'] : 'In Stock • Cold-Chain Ready';
+        $stockStatusAr = !empty($settings['stock_status_ar']) ? $settings['stock_status_ar'] : 'متوفر في المستودع • جاهز للشحن المبرد';
+
+        $saveBadgeEn = !empty($settings['save_badge_en']) ? $settings['save_badge_en'] : 'SAVE 15% TODAY';
+        $saveBadgeAr = !empty($settings['save_badge_ar']) ? $settings['save_badge_ar'] : 'وفّر 15% اليوم';
+
+        $btnAddCartEn = !empty($settings['btn_add_cart_en']) ? $settings['btn_add_cart_en'] : Setting::get('btn_buy_now_text_en', 'ADD TO CLINICAL PROTOCOL');
+        $btnAddCartAr = !empty($settings['btn_add_cart_ar']) ? $settings['btn_add_cart_ar'] : Setting::get('btn_buy_now_text_ar', 'إضافة إلى السلة والبروتوكول');
+
+        $btnBuyNowEn = !empty($settings['btn_buy_now_en']) ? $settings['btn_buy_now_en'] : 'ORDER & INSTANT CHECKOUT';
+        $btnBuyNowAr = !empty($settings['btn_buy_now_ar']) ? $settings['btn_buy_now_ar'] : 'طلب المستحضر والشراء السريع';
+
+        $ctaSubtextEn = !empty($settings['cta_subtext_en']) ? $settings['cta_subtext_en'] : Setting::get('btn_buy_now_subtext_en', 'Clinically Verified Formulation • 100% Purity');
+        $ctaSubtextAr = !empty($settings['cta_subtext_ar']) ? $settings['cta_subtext_ar'] : Setting::get('btn_buy_now_subtext_ar', 'تركيبة سريرية موثقة • نقاء دوائي 100%');
+
+        $guaranteeDays = (int) ($settings['guarantee_days'] ?? 30);
+        $guaranteeTextEn = !empty($settings['guarantee_text_en']) ? $settings['guarantee_text_en'] : "{$guaranteeDays}-Day Clinical Refund";
+        $guaranteeTextAr = !empty($settings['guarantee_text_ar']) ? $settings['guarantee_text_ar'] : "{$guaranteeDays} يوماً استرداد كامل";
+        $guaranteeTitleEn = !empty($settings['guarantee_title_en']) ? $settings['guarantee_title_en'] : 'Satisfaction Guarantee:';
+        $guaranteeTitleAr = !empty($settings['guarantee_title_ar']) ? $settings['guarantee_title_ar'] : 'ضمان الرضا الطبي:';
+
+        $trustBadges = $settings['trust_badges'] ?? null;
+        if (!is_array($trustBadges) || empty($trustBadges)) {
+            $trustBadges = [
+                ['icon' => 'fa-check-double', 'text_en' => 'Triple HPLC Assayed', 'text_ar' => 'فحص HPLC ثلاثي'],
+                ['icon' => 'fa-shield-virus', 'text_en' => 'Heavy Metal Screened', 'text_ar' => 'خالٍ من الملوثات والسموم'],
+                ['icon' => 'fa-dna', 'text_en' => '100% Non-GMO & Vegan', 'text_ar' => 'نباتي غير معدل وراثياً'],
+            ];
+        }
+
+        return [
+            'enabled_desktop' => (bool) ($settings['enabled_desktop'] ?? true),
+            'enabled_mobile' => (bool) ($settings['enabled_mobile'] ?? true),
+            'stock_status' => $isRtl ? $stockStatusAr : $stockStatusEn,
+            'stock_status_en' => $stockStatusEn,
+            'stock_status_ar' => $stockStatusAr,
+            'save_badge' => $isRtl ? $saveBadgeAr : $saveBadgeEn,
+            'save_badge_en' => $saveBadgeEn,
+            'save_badge_ar' => $saveBadgeAr,
+            'btn_add_cart' => $isRtl ? $btnAddCartAr : $btnAddCartEn,
+            'btn_add_cart_en' => $btnAddCartEn,
+            'btn_add_cart_ar' => $btnAddCartAr,
+            'btn_buy_now' => $isRtl ? $btnBuyNowAr : $btnBuyNowEn,
+            'btn_buy_now_en' => $btnBuyNowEn,
+            'btn_buy_now_ar' => $btnBuyNowAr,
+            'cta_subtext' => $isRtl ? $ctaSubtextAr : $ctaSubtextEn,
+            'cta_subtext_en' => $ctaSubtextEn,
+            'cta_subtext_ar' => $ctaSubtextAr,
+            'guarantee_days' => $guaranteeDays,
+            'guarantee_text' => $isRtl ? $guaranteeTextAr : $guaranteeTextEn,
+            'guarantee_text_en' => $guaranteeTextEn,
+            'guarantee_text_ar' => $guaranteeTextAr,
+            'guarantee_title' => $isRtl ? $guaranteeTitleAr : $guaranteeTitleEn,
+            'guarantee_title_en' => $guaranteeTitleEn,
+            'guarantee_title_ar' => $guaranteeTitleAr,
+            'trust_badges' => array_values($trustBadges),
+        ];
+    }
+
+    /**
+     * Get Protocol Duration Tiers Configuration (Multi-packs, duration plans, discounts).
+     */
+    public function getProtocolDurationsConfig(): array
+    {
+        $settings = is_array($this->section_settings) ? ($this->section_settings['protocol_durations'] ?? []) : [];
+        $isRtl = app()->getLocale() === 'ar';
+
+        $headingEn = !empty($settings['heading_en']) ? $settings['heading_en'] : 'SELECT PROTOCOL DURATION:';
+        $headingAr = !empty($settings['heading_ar']) ? $settings['heading_ar'] : 'اختر خطة البروتوكول العلاجي:';
+
+        $subheadingEn = !empty($settings['subheading_en']) ? $settings['subheading_en'] : 'Controlled Protocol Pricing';
+        $subheadingAr = !empty($settings['subheading_ar']) ? $settings['subheading_ar'] : 'تسعير بروتوكولي مدروس';
+
+        $tiers = $settings['tiers'] ?? null;
+        if (!is_array($tiers) || empty($tiers)) {
+            $tiers = [
+                [
+                    'id' => 'tier_30',
+                    'title_en' => '30-Day Starter',
+                    'title_ar' => 'بروتوكول 30 يوماً (البداية)',
+                    'multiplier' => 1,
+                    'discount_type' => 'percentage',
+                    'discount_value' => 0,
+                    'badge_en' => '1x',
+                    'badge_ar' => 'عبوة واحدة',
+                    'serving_en' => '30 Tablets (Serving: 1 Tablet Daily)',
+                    'serving_ar' => '30 قرصاً (الجرعة: قرص واحد يومياً)',
+                    'is_recommended' => false,
+                ],
+                [
+                    'id' => 'tier_90',
+                    'title_en' => '90-Day Cellular',
+                    'title_ar' => 'بروتوكول 90 يوماً (التجديد الخلوي)',
+                    'multiplier' => 3,
+                    'discount_type' => 'percentage',
+                    'discount_value' => 15,
+                    'badge_en' => 'SAVE 15%',
+                    'badge_ar' => 'توفير 15%',
+                    'serving_en' => '3 Complete Bottles (Recommended)',
+                    'serving_ar' => '3 عبوات كاملة (البروتوكول الموصى به)',
+                    'is_recommended' => true,
+                ],
+            ];
+        }
+
+        // Calculate pricing for each tier based on current product base price
+        $basePrice = (float) ($this->sale_price ?: $this->price ?: 58.00);
+        $calculatedTiers = [];
+
+        foreach ($tiers as $tier) {
+            $multiplier = max(1, (int) ($tier['multiplier'] ?? 1));
+            $rawTotal = $basePrice * $multiplier;
+            $discType = $tier['discount_type'] ?? 'percentage';
+            $discVal = (float) ($tier['discount_value'] ?? 0);
+
+            $discAmount = ($discType === 'percentage') ? ($rawTotal * $discVal / 100.0) : min($rawTotal, $discVal);
+            $finalPrice = max(0, $rawTotal - $discAmount);
+            $unitPrice = $multiplier > 0 ? round($finalPrice / $multiplier, 2) : $finalPrice;
+
+            $calculatedTiers[] = array_merge($tier, [
+                'multiplier' => $multiplier,
+                'raw_total' => round($rawTotal, 2),
+                'discount_amount' => round($discAmount, 2),
+                'final_price' => round($finalPrice, 2),
+                'unit_price' => $unitPrice,
+                'display_title' => $isRtl && !empty($tier['title_ar']) ? $tier['title_ar'] : ($tier['title_en'] ?? ''),
+                'display_badge' => $isRtl && !empty($tier['badge_ar']) ? $tier['badge_ar'] : ($tier['badge_en'] ?? ''),
+                'display_serving' => $isRtl && !empty($tier['serving_ar']) ? $tier['serving_ar'] : ($tier['serving_en'] ?? ''),
+            ]);
+        }
+
+        return [
+            'enabled_desktop' => (bool) ($settings['enabled_desktop'] ?? true),
+            'enabled_mobile' => (bool) ($settings['enabled_mobile'] ?? true),
+            'heading' => $isRtl ? $headingAr : $headingEn,
+            'heading_en' => $headingEn,
+            'heading_ar' => $headingAr,
+            'subheading' => $isRtl ? $subheadingAr : $subheadingEn,
+            'subheading_en' => $subheadingEn,
+            'subheading_ar' => $subheadingAr,
+            'tiers' => $calculatedTiers,
+        ];
+    }
+
+    /**
+     * Get Custom Free-Form Modular Blocks (FAQs, rich text, features grid).
+     */
+    public function getCustomBlocksConfig(): array
+    {
+        $blocks = is_array($this->section_settings) ? ($this->section_settings['custom_blocks'] ?? []) : [];
+        return is_array($blocks) ? array_values($blocks) : [];
     }
 
     /**

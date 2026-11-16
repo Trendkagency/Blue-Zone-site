@@ -3,6 +3,42 @@
     $secData = $sectionSettings ?? ($product['section_settings'] ?? []);
 
     $sections = [
+        'hero_overlays' => [
+            'num' => '00-A',
+            'icon' => 'fa-images',
+            'color' => '#0ea5e9',
+            'color_light' => 'rgba(14, 165, 233, 0.12)',
+            'color_border' => 'rgba(14, 165, 233, 0.35)',
+            'name_en' => 'Hero Visual Overlays & Watermark Studio',
+            'name_ar' => 'شارات المعرض الصوري والعلامة المائية العائمة',
+            'tag' => 'VISUAL HERO',
+            'has_open_state' => false,
+            'has_custom_content' => false,
+            'default_badge_en' => '',
+            'default_badge_ar' => '',
+            'default_title_en' => '',
+            'default_title_ar' => '',
+            'description_en' => 'Dynamic floating badges (HPLC seal, clinical benefits) and stylized background watermark on the hero product image.',
+            'description_ar' => 'الشارات العائمة التفاعلية فوق صورة المنتج (ختم النقاء HPLC، الفوائد الطبية) والعلامة المائية الخلفية.',
+        ],
+        'protocol_durations' => [
+            'num' => '00-B',
+            'icon' => 'fa-calendar-days',
+            'color' => '#14b8a6',
+            'color_light' => 'rgba(20, 184, 166, 0.12)',
+            'color_border' => 'rgba(20, 184, 166, 0.35)',
+            'name_en' => 'Protocol Duration Plans & Tier Pricing Studio',
+            'name_ar' => 'خطط مدة البروتوكول العلاجي وباقات التوفير المتعددة',
+            'tag' => 'TIER PRICING',
+            'has_open_state' => false,
+            'has_custom_content' => false,
+            'default_badge_en' => '',
+            'default_badge_ar' => '',
+            'default_title_en' => '',
+            'default_title_ar' => '',
+            'description_en' => 'Configures multi-pack duration plans (30-day starter, 90-day cellular, etc.) with multiplier pricing, custom discounts, and badge tags.',
+            'description_ar' => 'إعداد باقات وخطط الاستخدام المجدولة (شهر، 3 أشهر) مع مضاعف الكمية، نسب الخصم المبرمجة وشارات التوفير.',
+        ],
         'dossier' => [
             'num' => '00',
             'icon' => 'fa-folder-open',
@@ -176,6 +212,12 @@
     $allProductList = $allProducts ?? collect();
     $currentProductPrice = (float) ($product['sale_price'] ?? ($product['price'] ?? 68.0));
     $currentProductName = $product['name_' . app()->getLocale()] ?? ($product['name_en'] ?? 'Current Product');
+
+    $prodModel = ($product instanceof \App\Models\Product) ? $product : (isset($product->id) ? \App\Models\Product::find($product->id) : (isset($product['id']) ? \App\Models\Product::find($product['id']) : null));
+    $heroOverlaysData = $prodModel ? $prodModel->getHeroOverlaysConfig() : [];
+    $protocolDurationsData = $prodModel ? $prodModel->getProtocolDurationsConfig() : [];
+    $buyBoxData = $prodModel ? $prodModel->getBuyBoxConfig() : [];
+    $customBlocksData = $prodModel ? $prodModel->getCustomBlocksConfig() : [];
 @endphp
 
 <style>
@@ -805,242 +847,25 @@
                             </div>
                         @endif
 
-                        @if($sDef['has_custom_content'])
-                            <!-- ==========================================================
-                                 SECTION CONTENT & VISUAL ELEMENTS STUDIO
-                                 ========================================================== -->
-                            <div class="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-800 space-y-4">
-                                <!-- Studio Master Bar: Title, Description, and Master Toggle -->
-                                <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-50 via-white to-amber-50/20 dark:from-[#031827] dark:via-[#062B49] dark:to-amber-950/20 border-2 {{ $hasCustom ? 'border-amber-500/50 dark:border-amber-500/40 shadow-md' : 'border-slate-200 dark:border-slate-700/80' }} transition-all">
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div class="space-y-1 min-w-0 flex-1">
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full {{ $hasCustom ? 'bg-amber-500 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300' }} font-mono text-[10px] font-black uppercase tracking-wider transition-all"
-                                                      id="badge-custom-status-{{ $sKey }}">
-                                                    <i class="fa-solid {{ $hasCustom ? 'fa-wand-magic-sparkles' : 'fa-cubes' }}"></i>
-                                                    <span>{{ $hasCustom ? ($isAr ? 'عناصر مخصصة مفعلة' : 'BESPOKE ELEMENTS ACTIVE') : ($isAr ? 'القالب التلقائي الافتراضي' : 'STANDARD SYSTEM TEMPLATE') }}</span>
-                                                </span>
-                                                <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">
-                                                    {{ $isAr ? 'التحكم الدقيق بمحتوى وعناصر القسم' : 'Granular Content & Screen Overrides' }}
-                                                </span>
-                                            </div>
-
-                                            <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                <span>{{ $isAr ? 'استوديو تخصيص محتوى وعناصر القسم' : 'Section Content & Elements Studio' }}</span>
-                                            </h4>
-                                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                                                {{ $isAr 
-                                                    ? 'يتيح لك استبدال الهيكل التلقائي بمحتوى وعناصر بصرية مخصصة، مع إمكانية التخصيص حسب نوع الشاشة (كمبيوتر وهاتف) وإدراج قوالب جاهزة بضغطة زر.'
-                                                    : 'Override default automated elements with bespoke content, cards, badges, and directives with screen-specific targeting (Desktop vs Mobile).' }}
-                                            </p>
-                                        </div>
-
-                                        <!-- Master Content Studio Switch Pill -->
-                                        <div class="shrink-0 flex items-center gap-3">
-                                            <label class="bz-switch-pill {{ $hasCustom ? 'is-active' : 'is-inactive' }}" 
-                                                   id="pill-custom-master-{{ $sKey }}"
-                                                   style="{{ $hasCustom ? 'background-color: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.6); color: #f59e0b;' : '' }}">
-                                                <input type="hidden" name="section_settings[{{ $sKey }}][custom_content_enabled]" value="0">
-                                                <input type="checkbox" name="section_settings[{{ $sKey }}][custom_content_enabled]" value="1" 
-                                                       id="input-custom-master-{{ $sKey }}"
-                                                       class="sr-only"
-                                                       onchange="toggleSectionContentStudio(this, '{{ $sKey }}')"
-                                                       {{ $hasCustom ? 'checked' : '' }}>
-                                                <span class="bz-switch-thumb" style="{{ $hasCustom ? 'background-color: #f59e0b; color: #fff;' : '' }}">
-                                                    <i class="fa-solid {{ $hasCustom ? 'fa-wand-magic-sparkles' : 'fa-xmark' }}"></i>
-                                                </span>
-                                                <i class="fa-solid fa-code text-xs"></i>
-                                                <span class="switch-label">{{ $isAr ? 'تخصيص المحتوى' : 'Custom Content' }}</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Studio Drawer Panels (Visible only when custom_content_enabled is checked) -->
-                                <div class="{{ $hasCustom ? 'block' : 'hidden' }} space-y-4 pt-1" 
-                                     id="studio-drawer-{{ $sKey }}">
-
-                                    <!-- Studio Controls Bar: Screen Mode + Quick Blueprints + Element Inserters -->
-                                    <div class="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#031827] border-2 border-slate-200 dark:border-slate-700/80 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-                                        
-                                        <!-- Screen Viewport Target Selector -->
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mr-1 ml-1">
-                                                <i class="fa-solid fa-sliders text-[#0A4F78] dark:text-[#2A8FC2]"></i>
-                                                <span>{{ $isAr ? 'توجيه الشاشات:' : 'Screen Targeting:' }}</span>
-                                            </span>
-
-                                            <div class="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700">
-                                                <label class="px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 {{ $contentScreenMode === 'unified' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900' }}"
-                                                       id="lbl-screen-unified-{{ $sKey }}">
-                                                    <input type="radio" name="section_settings[{{ $sKey }}][content_screen_mode]" value="unified" 
-                                                           class="sr-only" onchange="setSectionScreenMode('{{ $sKey }}', 'unified')"
-                                                           {{ $contentScreenMode === 'unified' ? 'checked' : '' }}>
-                                                    <i class="fa-solid fa-globe text-[11px]"></i>
-                                                    <span>{{ $isAr ? 'جميع الشاشات (متجاوب)' : 'All Screens (Unified)' }}</span>
-                                                </label>
-
-                                                <label class="px-3 py-1 rounded-lg text-xs font-extrabold cursor-pointer transition-all flex items-center gap-1.5 {{ $contentScreenMode === 'per_screen' ? 'bg-[#0A4F78] text-white shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900' }}"
-                                                       id="lbl-screen-perscreen-{{ $sKey }}">
-                                                    <input type="radio" name="section_settings[{{ $sKey }}][content_screen_mode]" value="per_screen" 
-                                                           class="sr-only" onchange="setSectionScreenMode('{{ $sKey }}', 'per_screen')"
-                                                           {{ $contentScreenMode === 'per_screen' ? 'checked' : '' }}>
-                                                    <i class="fa-solid fa-mobile-screen text-[11px]"></i>
-                                                    <span>{{ $isAr ? 'تخصيص محتوى الهاتف منفصلاً' : 'Dedicated Mobile Content' }}</span>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <!-- Blueprint & Quick Snippet Inserters -->
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            <button type="button" onclick="loadSectionBlueprint('{{ $sKey }}')" 
-                                                    class="px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-black transition-all flex items-center gap-1.5 border border-amber-500/30 cursor-pointer shadow-xs active:scale-95"
-                                                    title="{{ $isAr ? 'تحميل كود القالب الافتراضي لتعديل العناصر الجاهزة' : 'Load default system layout elements into editors' }}">
-                                                <i class="fa-solid fa-bolt text-amber-500"></i>
-                                                <span>{{ $isAr ? 'تحميل قالب القسم' : 'Load Blueprint' }}</span>
-                                            </button>
-
-                                            <div class="hidden sm:flex items-center gap-1">
-                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'card')" 
-                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
-                                                    + {{ $isAr ? 'بطاقة' : 'Card' }}
-                                                </button>
-                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'pill')" 
-                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
-                                                    + {{ $isAr ? 'شارة' : 'Pill' }}
-                                                </button>
-                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'callout')" 
-                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
-                                                    + {{ $isAr ? 'تنبيه' : 'Alert' }}
-                                                </button>
-                                                <button type="button" onclick="insertStudioSnippet('{{ $sKey }}', 'grid')" 
-                                                        class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
-                                                    + {{ $isAr ? 'شبكة' : 'Grid' }}
-                                                </button>
-                                            </div>
-
-                                            <button type="button" onclick="toggleInCardPreview('{{ $sKey }}')" 
-                                                    class="px-3 py-1.5 rounded-xl bg-[#0A4F78]/10 hover:bg-[#0A4F78]/20 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] text-xs font-bold transition-all flex items-center gap-1.5 border border-[#0A4F78]/20 cursor-pointer">
-                                                <i class="fa-solid fa-eye"></i>
-                                                <span id="btn-text-preview-{{ $sKey }}">{{ $isAr ? 'معاينة العناصر' : 'Live Preview' }}</span>
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <!-- Bilingual Language Tabs -->
-                                    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                                        <button type="button" onclick="setStudioLangTab('{{ $sKey }}', 'en')" 
-                                                id="tab-btn-en-{{ $sKey }}"
-                                                class="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-[#0A4F78] text-white shadow-xs">
-                                            <span>🇬🇧 English Content</span>
-                                        </button>
-                                        <button type="button" onclick="setStudioLangTab('{{ $sKey }}', 'ar')" 
-                                                id="tab-btn-ar-{{ $sKey }}"
-                                                class="px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer bg-slate-100 dark:bg-[#062B49] text-slate-700 dark:text-slate-300 hover:text-[#67B34A]">
-                                            <span>🇸🇦 المحتوى بالعربية</span>
-                                        </button>
-                                    </div>
-
-                                    <!-- English Editor Pane -->
-                                    <div class="space-y-4" id="pane-lang-en-{{ $sKey }}">
-                                        <!-- Desktop / Standard EN Editor -->
-                                        <div class="space-y-2 bg-white dark:bg-[#031827] p-4 sm:p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/80 shadow-inner">
-                                            <div class="flex items-center justify-between">
-                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <span class="px-2 py-0.5 rounded bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2] text-[10px] font-mono font-bold">🇬🇧 EN DESKTOP / MAIN</span>
-                                                    <span>{{ $isAr ? 'المحتوى الرئيسي / سطح المكتب (HTML أو نصوص):' : 'Main / Desktop Content (HTML / Rich Elements):' }}</span>
-                                                </label>
-                                                <span class="text-[10px] font-mono text-slate-400">Responsive Elements</span>
-                                            </div>
-                                            <textarea name="section_settings[{{ $sKey }}][custom_content_en]" 
-                                                      id="editor-en-{{ $sKey }}"
-                                                      rows="7"
-                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'en')"
-                                                      placeholder="<div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-4&quot;>&#10;  <!-- Insert custom cards, clinical parameters or directives here -->&#10;</div>"
-                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#062B49] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-[#0A4F78] dark:focus:border-[#2A8FC2] focus:ring-4 focus:ring-[#0A4F78]/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentEn }}</textarea>
-                                        </div>
-
-                                        <!-- Mobile-Dedicated EN Editor (Conditioned by per_screen mode) -->
-                                        <div class="{{ $contentScreenMode === 'per_screen' ? 'block' : 'hidden' }} space-y-2 bg-slate-50/80 dark:bg-[#062B49]/40 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-[#0A4F78]/40 shadow-inner"
-                                             id="wrapper-mobile-en-{{ $sKey }}">
-                                            <div class="flex items-center justify-between">
-                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold">📱 EN MOBILE EXCLUSIVE</span>
-                                                    <span>{{ $isAr ? 'محتوى مخصص للهاتف فقط (English Mobile Override):' : 'Mobile-Exclusive Viewport Content (English):' }}</span>
-                                                </label>
-                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold">Visible on Phones Only</span>
-                                            </div>
-                                            <textarea name="section_settings[{{ $sKey }}][custom_content_mobile_en]" 
-                                                      id="editor-mobile-en-{{ $sKey }}"
-                                                      rows="5"
-                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'en')"
-                                                      placeholder="Compact cards or touch-optimized elements for smartphones..."
-                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#031827] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentMobileEn }}</textarea>
-                                        </div>
-                                    </div>
-
-                                    <!-- Arabic Editor Pane -->
-                                    <div class="space-y-4 hidden" id="pane-lang-ar-{{ $sKey }}">
-                                        <!-- Desktop / Standard AR Editor -->
-                                        <div class="space-y-2 bg-white dark:bg-[#031827] p-4 sm:p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700/80 shadow-inner">
-                                            <div class="flex items-center justify-between" dir="rtl">
-                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <span class="px-2 py-0.5 rounded bg-[#67B34A]/15 text-[#67B34A] text-[10px] font-mono font-bold">🇸🇦 AR DESKTOP / MAIN</span>
-                                                    <span class="font-tajawal">{{ $isAr ? 'المحتوى الرئيسي / سطح المكتب (عربي):' : 'Main / Desktop Content (Arabic):' }}</span>
-                                                </label>
-                                                <span class="text-[10px] font-tajawal text-slate-400">عناصر متجاوبة</span>
-                                            </div>
-                                            <textarea name="section_settings[{{ $sKey }}][custom_content_ar]" 
-                                                      id="editor-ar-{{ $sKey }}"
-                                                      dir="rtl"
-                                                      rows="7"
-                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'ar')"
-                                                      placeholder="<div class=&quot;grid grid-cols-1 md:grid-cols-2 gap-4&quot; dir=&quot;rtl&quot;>&#10;  <!-- أضف البطاقات أو التوجيهات السريرية المخصصة هنا -->&#10;</div>"
-                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-[#062B49] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-[#67B34A] focus:ring-4 focus:ring-[#67B34A]/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentAr }}</textarea>
-                                        </div>
-
-                                        <!-- Mobile-Dedicated AR Editor (Conditioned by per_screen mode) -->
-                                        <div class="{{ $contentScreenMode === 'per_screen' ? 'block' : 'hidden' }} space-y-2 bg-slate-50/80 dark:bg-[#062B49]/40 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-[#67B34A]/40 shadow-inner"
-                                             id="wrapper-mobile-ar-{{ $sKey }}">
-                                            <div class="flex items-center justify-between" dir="rtl">
-                                                <label class="block text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
-                                                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 text-[10px] font-mono font-bold">📱 AR MOBILE EXCLUSIVE</span>
-                                                    <span class="font-tajawal">{{ $isAr ? 'محتوى مخصص للهاتف فقط (بالعربية):' : 'Mobile-Exclusive Viewport Content (Arabic):' }}</span>
-                                                </label>
-                                                <span class="text-[10px] text-amber-600 dark:text-amber-400 font-bold font-tajawal">يظهر على الهواتف الذكية فقط</span>
-                                            </div>
-                                            <textarea name="section_settings[{{ $sKey }}][custom_content_mobile_ar]" 
-                                                      id="editor-mobile-ar-{{ $sKey }}"
-                                                      dir="rtl"
-                                                      rows="5"
-                                                      oninput="syncCustomContentToSimulator('{{ $sKey }}', 'ar')"
-                                                      placeholder="بطاقات ملائمة لشاشات اللمس والهواتف الذكية..."
-                                                      class="w-full p-4 font-mono text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-[#031827] rounded-xl border-2 border-slate-300 dark:border-slate-600 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 outline-none transition-all resize-y shadow-inner leading-relaxed">{{ $contentMobileAr }}</textarea>
-                                        </div>
-                                    </div>
-
-                                    <!-- In-Card Live Rendered Elements Preview Box -->
-                                    <div class="hidden p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#031827] border-2 border-dashed border-[#0A4F78]/30 shadow-md space-y-3"
-                                         id="incard-preview-{{ $sKey }}">
-                                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                                            <span class="text-xs font-black text-[#0A4F78] dark:text-[#2A8FC2] uppercase tracking-wider flex items-center gap-1.5">
-                                                <i class="fa-solid fa-sparkles"></i>
-                                                <span>{{ $isAr ? 'معاينة العناصر الحية في هذه البطاقة' : 'In-Card Rendered Elements Preview' }}</span>
-                                            </span>
-                                            <button type="button" onclick="renderInCardPreviewContent('{{ $sKey }}')" 
-                                                    class="text-xs font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-                                                <i class="fa-solid fa-rotate text-[10px]"></i>
-                                                <span>{{ $isAr ? 'تحديث' : 'Refresh' }}</span>
-                                            </button>
-                                        </div>
-                                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] text-xs leading-relaxed text-slate-900 dark:text-slate-100 overflow-x-auto min-h-[60px]"
-                                             id="incard-preview-body-{{ $sKey }}">
-                                            <!-- Rendered HTML will inject here -->
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
+                        {{-- Specialized Section Studios --}}
+                        @if($sKey === 'hero_overlays')
+                            @include('admin.products.partials.customizer.hero_overlays')
+                        @elseif($sKey === 'protocol_durations')
+                            @include('admin.products.partials.customizer.protocol_durations')
+                        @elseif($sKey === 'buy_box')
+                            @include('admin.products.partials.customizer.buy_box')
+                        @elseif($sKey === 'sec1')
+                            @include('admin.products.partials.customizer.sec1_ingredients')
+                        @elseif($sKey === 'sec2')
+                            @include('admin.products.partials.customizer.sec2_biomarkers')
+                        @elseif($sKey === 'sec3')
+                            @include('admin.products.partials.customizer.sec3_protocol')
+                        @elseif($sKey === 'sec4')
+                            @include('admin.products.partials.customizer.sec4_mechanism')
+                        @elseif($sKey === 'sec5')
+                            @include('admin.products.partials.customizer.sec5_warnings')
+                        @elseif($sKey === 'sec6')
+                            @include('admin.products.partials.customizer.sec6_certifications')
                         @endif
 
                         <!-- ==========================================================
@@ -1274,6 +1099,9 @@
                     </div>
                 </div>
             @endforeach
+
+            <!-- Modular Custom Blocks & FAQs Studio -->
+            @include('admin.products.partials.customizer.custom_blocks')
         </div>
 
         <!-- ======================================================
@@ -2385,6 +2213,531 @@
             syncSimulatorCard(secKey);
         });
         recalculateBundleHUD();
+    }
+
+    // ==========================================================
+    // REPEATERS & DYNAMIC CONTROLS ENGINE
+    // ==========================================================
+    function triggerStickyPreviewSync() {
+        syncAllSimulatorCards();
+        syncHeroOverlaysPreview();
+        syncProtocolDurationsPreview();
+        syncBuyBoxPreview();
+    }
+
+    function handleSimpleSwitch(checkbox) {
+        if (!checkbox) return;
+        const pill = checkbox.closest('.bz-switch-pill');
+        if (!pill) return;
+        const thumbIcon = pill.querySelector('.bz-switch-thumb i');
+        if (checkbox.checked) {
+            pill.classList.remove('is-inactive');
+            pill.classList.add('is-active');
+            if (thumbIcon) thumbIcon.className = 'fa-solid fa-check';
+        } else {
+            pill.classList.remove('is-active');
+            pill.classList.add('is-inactive');
+            if (thumbIcon) thumbIcon.className = 'fa-solid fa-xmark';
+        }
+    }
+
+    // Hero Overlays Dynamic Badges Repeater
+    function addOverlayBadgeRow() {
+        const container = document.getElementById('heroOverlayBadgesList');
+        if (!container) return;
+        const notice = document.getElementById('noBadgesNotice');
+        if (notice) notice.remove();
+        const nextIdx = container.querySelectorAll('.overlay-badge-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-stretch md:items-center gap-3 overlay-badge-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <input type="hidden" name="section_settings[hero_overlays][badges][${nextIdx}][id]" value="b_${nextIdx}">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Position:</label>
+                    <select name="section_settings[hero_overlays][badges][${nextIdx}][position]" onchange="syncHeroOverlaysPreview()" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                        <option value="top_right">Top Right</option>
+                        <option value="bottom_left">Bottom Left</option>
+                        <option value="top_left">Top Left</option>
+                        <option value="bottom_right">Bottom Right</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Style:</label>
+                    <select name="section_settings[hero_overlays][badges][${nextIdx}][style]" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                        <option value="pill">Pill Badge</option>
+                        <option value="pulse_dot">Pulse Dot Seal</option>
+                        <option value="solid">Solid Tag</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Icon (FA):</label>
+                    <input type="text" name="section_settings[hero_overlays][badges][${nextIdx}][icon]" value="fa-brain" placeholder="fa-brain" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
+                    <input type="text" name="section_settings[hero_overlays][badges][${nextIdx}][text_en]" value="" oninput="syncHeroOverlaysPreview()" placeholder="SUPPORTS MEMORY" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (AR):</label>
+                    <input type="text" name="section_settings[hero_overlays][badges][${nextIdx}][text_ar]" value="" oninput="syncHeroOverlaysPreview()" dir="rtl" placeholder="يدعم الذاكرة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.overlay-badge-row').remove(); syncHeroOverlaysPreview();" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end md:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+        syncHeroOverlaysPreview();
+    }
+
+    // Protocol Duration Plans Repeater
+    function addDurationTierRow() {
+        const container = document.getElementById('durationTiersList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.duration-tier-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#062B49] border-2 border-slate-200 dark:border-slate-700 space-y-3 duration-tier-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <input type="hidden" name="section_settings[protocol_durations][tiers][${nextIdx}][id]" value="tier_${nextIdx}">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2.5">
+                <div class="flex items-center gap-3">
+                    <span class="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 font-mono text-[10px] font-black uppercase">Tier Plan</span>
+                    <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer">
+                        <input type="checkbox" name="section_settings[protocol_durations][tiers][${nextIdx}][is_recommended]" value="1" onchange="syncProtocolDurationsPreview()" class="w-4 h-4 rounded text-teal-600 focus:ring-teal-500">
+                        <span>Recommended Plan</span>
+                    </label>
+                </div>
+                <button type="button" onclick="this.closest('.duration-tier-row').remove(); syncProtocolDurationsPreview();" class="text-rose-500 hover:text-rose-700 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer">
+                    <i class="fa-solid fa-trash-can text-[10px]"></i> <span>Remove</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Plan Title (EN):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][title_en]" value="" oninput="syncProtocolDurationsPreview()" placeholder="60-Day Protocol" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Plan Title (AR):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][title_ar]" value="" oninput="syncProtocolDurationsPreview()" placeholder="بروتوكول 60 يوماً" dir="rtl" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Multiplier (Bottles):</label>
+                    <input type="number" min="1" max="24" name="section_settings[protocol_durations][tiers][${nextIdx}][multiplier]" value="2" oninput="syncProtocolDurationsPreview()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Discount (%):</label>
+                    <div class="relative">
+                        <input type="number" step="0.5" min="0" max="100" name="section_settings[protocol_durations][tiers][${nextIdx}][discount_value]" value="10" oninput="syncProtocolDurationsPreview()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono font-bold">
+                        <span class="absolute inset-y-0 end-3 flex items-center text-xs font-mono font-bold text-slate-400">%</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Badge Tag (EN):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][badge_en]" value="SAVE 10%" oninput="syncProtocolDurationsPreview()" placeholder="SAVE 10%" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Badge Tag (AR):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][badge_ar]" value="توفير 10%" oninput="syncProtocolDurationsPreview()" placeholder="توفير 10%" dir="rtl" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Serving Note (EN):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][serving_en]" value="" placeholder="60 Tablets (Serving: 1 Daily)" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Serving Note (AR):</label>
+                    <input type="text" name="section_settings[protocol_durations][tiers][${nextIdx}][serving_ar]" value="" placeholder="60 قرصاً" dir="rtl" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+        syncProtocolDurationsPreview();
+    }
+
+    // Trust Badges Repeater
+    function addTrustBadgeRow() {
+        const container = document.getElementById('trustBadgesList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.trust-badge-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 trust-badge-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="w-full sm:w-1/4">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Icon (FA):</label>
+                <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][icon]" value="fa-check-double" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+            </div>
+            <div class="w-full sm:w-1/3">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
+                <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][text_en]" value="" oninput="syncBuyBoxPreview()" placeholder="Laboratory Assayed" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+            </div>
+            <div class="w-full sm:w-1/3">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (AR):</label>
+                <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][text_ar]" value="" oninput="syncBuyBoxPreview()" dir="rtl" placeholder="مفحوص مخبرياً" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+            </div>
+            <button type="button" onclick="this.closest('.trust-badge-row').remove(); syncBuyBoxPreview();" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end sm:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+        syncBuyBoxPreview();
+    }
+
+    // Active Ingredients Repeater
+    function addIngredientRow() {
+        const container = document.getElementById('sec1IngredientsList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.ingredient-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col lg:flex-row items-stretch lg:items-center gap-3 ingredient-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="grid grid-cols-2 lg:grid-cols-6 gap-2 flex-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Compound (EN):</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][compound_en]" value="" placeholder="Compound Name" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">المادة (AR):</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][compound_ar]" value="" dir="rtl" placeholder="اسم المادة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Potency:</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][potency]" value="" placeholder="100 mg" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Purity:</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][purity]" value="" placeholder="99% Pure" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Role (EN):</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][role_en]" value="" placeholder="Cellular action" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الدور (AR):</label>
+                    <input type="text" name="section_settings[sec1][items][${nextIdx}][role_ar]" value="" dir="rtl" placeholder="الأثر الحيوي" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.ingredient-row').remove()" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end lg:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Biomarkers Repeater
+    function addBiomarkerRow() {
+        const container = document.getElementById('sec2BiomarkersList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.biomarker-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-stretch md:items-center gap-3 biomarker-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 flex-1">
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Value (النتيجة):</label>
+                    <input type="text" name="section_settings[sec2][items][${nextIdx}][value]" value="+25%" placeholder="+25%" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono font-black text-amber-600 dark:text-amber-400">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Metric (EN):</label>
+                    <input type="text" name="section_settings[sec2][items][${nextIdx}][metric_en]" value="" placeholder="Target Metric" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">المؤشر (AR):</label>
+                    <input type="text" name="section_settings[sec2][items][${nextIdx}][metric_ar]" value="" dir="rtl" placeholder="اسم المؤشر" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Detail (EN):</label>
+                    <input type="text" name="section_settings[sec2][items][${nextIdx}][description_en]" value="" placeholder="Description" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">التفصيل (AR):</label>
+                    <input type="text" name="section_settings[sec2][items][${nextIdx}][description_ar]" value="" dir="rtl" placeholder="التفاصيل" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.biomarker-row').remove()" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end md:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Protocol Step Repeater
+    function addProtocolStepRow() {
+        const container = document.getElementById('sec3ProtocolList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.protocol-step-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-stretch md:items-center gap-3 protocol-step-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 flex-1">
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
+                    <input type="text" name="section_settings[sec3][items][${nextIdx}][icon]" value="fa-clock" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Step (EN):</label>
+                    <input type="text" name="section_settings[sec3][items][${nextIdx}][step_en]" value="" placeholder="Step Title" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الخطوة (AR):</label>
+                    <input type="text" name="section_settings[sec3][items][${nextIdx}][step_ar]" value="" dir="rtl" placeholder="عنوان الخطوة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Instruction (EN):</label>
+                    <input type="text" name="section_settings[sec3][items][${nextIdx}][instruction_en]" value="" placeholder="Direction" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white">
+                </div>
+                <div class="sm:col-span-1">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">التوجيه (AR):</label>
+                    <input type="text" name="section_settings[sec3][items][${nextIdx}][instruction_ar]" value="" dir="rtl" placeholder="الإرشادات" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.protocol-step-row').remove()" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end md:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Protocol 4-Cards Repeater
+    function addProtocolCardRow() {
+        const container = document.getElementById('sec3CardsList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.protocol-card-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 space-y-3 protocol-card-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-600 font-mono text-[10px] font-black">
+                    CARD #${nextIdx + 1}
+                </span>
+                <button type="button" onclick="this.closest('.protocol-card-row').remove()" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="sm:col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
+                    <input type="text" name="section_settings[sec3][cards][${nextIdx}][icon]" value="fa-clock" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
+                    <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_en]" value="" placeholder="Protocol Pillar" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
+                    <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان الركيزة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Description (EN):</label>
+                    <textarea name="section_settings[sec3][cards][${nextIdx}][description_en]" rows="2" placeholder="Clinical instruction..." class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الوصف (AR):</label>
+                    <textarea name="section_settings[sec3][cards][${nextIdx}][description_ar]" rows="2" dir="rtl" placeholder="التوجيه السريري..." class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal"></textarea>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Key Benefits Bullet Repeater
+    function addBenefitRow() {
+        const container = document.getElementById('sec2BenefitsList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.benefit-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 benefit-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Benefit (EN):</label>
+                    <input type="text" name="section_settings[sec2][benefits][${nextIdx}][text_en]" value="" placeholder="New clinical benefit..." class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-medium">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الفائدة (AR):</label>
+                    <input type="text" name="section_settings[sec2][benefits][${nextIdx}][text_ar]" value="" dir="rtl" placeholder="فائدة سريرية جديدة..." class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-medium">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.benefit-row').remove()" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end sm:self-center transition-colors cursor-pointer">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Precision Pathways Repeater
+    function addPathwayRow() {
+        const container = document.getElementById('sec4PathwaysList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.pathway-card-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 space-y-3 pathway-card-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-600 font-mono text-[10px] font-black">
+                    PATHWAY #${nextIdx + 1}
+                </span>
+                <button type="button" onclick="this.closest('.pathway-card-row').remove()" class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="sm:col-span-2">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
+                    <input type="text" name="section_settings[sec4][pathways][${nextIdx}][icon]" value="fa-microchip" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
+                    <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_en]" value="" placeholder="Pathway Title" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div class="sm:col-span-5">
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
+                    <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان المسار" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Description (EN):</label>
+                    <textarea name="section_settings[sec4][pathways][${nextIdx}][description_en]" rows="2" placeholder="Pathway mechanism description..." class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الوصف (AR):</label>
+                    <textarea name="section_settings[sec4][pathways][${nextIdx}][description_ar]" rows="2" dir="rtl" placeholder="شرح المسار الحيوي..." class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal"></textarea>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    // Quality Certificates Repeater
+    function addCertificateRow() {
+        const container = document.getElementById('sec6CertificatesList');
+        if (!container) return;
+        const nextIdx = container.querySelectorAll('.cert-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 cert-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
+                    <input type="text" name="section_settings[sec6][certificates][${nextIdx}][icon]" value="fa-award" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Certificate Name (EN):</label>
+                    <input type="text" name="section_settings[sec6][certificates][${nextIdx}][name_en]" value="" placeholder="Certified Standard" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">اسم الشهادة (AR):</label>
+                    <input type="text" name="section_settings[sec6][certificates][${nextIdx}][name_ar]" value="" dir="rtl" placeholder="اسم الاعتماد" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Standard / Code:</label>
+                    <input type="text" name="section_settings[sec6][certificates][${nextIdx}][standard]" value="" placeholder="ISO Code" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                </div>
+            </div>
+            <button type="button" onclick="this.closest('.cert-row').remove()" class="w-8 h-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 self-end sm:self-center transition-colors cursor-pointer" title="Remove">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    // Custom Modular Blocks Manager
+    function addCustomBlockRow(type) {
+        const container = document.getElementById('customBlocksContainer');
+        if (!container) return;
+        const notice = document.getElementById('noBlocksNotice');
+        if (notice) notice.remove();
+        const nextIdx = container.querySelectorAll('.custom-block-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#031827] border-2 border-purple-500/30 space-y-4 custom-block-row';
+        div.dataset.index = nextIdx;
+        div.innerHTML = `
+            <input type="hidden" name="section_settings[custom_blocks][${nextIdx}][id]" value="cb_${nextIdx}">
+            <input type="hidden" name="section_settings[custom_blocks][${nextIdx}][type]" value="${type}">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-300 font-mono text-[10px] font-black uppercase">
+                        ${type.toUpperCase()} BLOCK
+                    </span>
+                </div>
+                <button type="button" onclick="this.closest('.custom-block-row').remove()" class="text-rose-500 hover:text-rose-700 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer">
+                    <i class="fa-solid fa-trash-can text-[10px]"></i> <span>Delete Block</span>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Block Title (EN):</label>
+                    <input type="text" name="section_settings[custom_blocks][${nextIdx}][title_en]" value="Frequently Asked Questions" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#062B49] text-slate-900 dark:text-white font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">عنوان القسم (AR):</label>
+                    <input type="text" name="section_settings[custom_blocks][${nextIdx}][title_ar]" value="الأسئلة الشائعة حول المستحضر" dir="rtl" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-[#062B49] text-slate-900 dark:text-white font-tajawal font-bold">
+                </div>
+            </div>
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Question & Answer Items:</span>
+                    <button type="button" onclick="addFaqItemToBlock(${nextIdx})" class="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-plus text-[10px]"></i> <span>Add Question</span>
+                    </button>
+                </div>
+                <div class="space-y-3" id="faqItemsContainer-${nextIdx}"></div>
+            </div>
+        `;
+        container.appendChild(div);
+        addFaqItemToBlock(nextIdx);
+    }
+
+    function addFaqItemToBlock(blockIdx) {
+        const container = document.getElementById(`faqItemsContainer-${blockIdx}`);
+        if (!container) return;
+        const nextItemIdx = container.querySelectorAll('.faq-item-row').length + Math.floor(Math.random() * 1000);
+        const div = document.createElement('div');
+        div.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 space-y-2 faq-item-row';
+        div.dataset.index = nextItemIdx;
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-slate-400 font-bold">Q&A Item</span>
+                <button type="button" onclick="this.closest('.faq-item-row').remove()" class="text-rose-500 hover:text-rose-700 text-xs">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <input type="text" name="section_settings[custom_blocks][${blockIdx}][items][${nextItemIdx}][question_en]" value="" placeholder="Question (EN)" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
+                <input type="text" name="section_settings[custom_blocks][${blockIdx}][items][${nextItemIdx}][question_ar]" value="" dir="rtl" placeholder="السؤال (AR)" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <textarea name="section_settings[custom_blocks][${blockIdx}][items][${nextItemIdx}][answer_en]" rows="2" placeholder="Answer (EN)" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white"></textarea>
+                <textarea name="section_settings[custom_blocks][${blockIdx}][items][${nextItemIdx}][answer_ar]" rows="2" dir="rtl" placeholder="الإجابة (AR)" class="w-full p-2 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal"></textarea>
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function syncHeroOverlaysPreview() {}
+    function syncProtocolDurationsPreview() {}
+    function syncBuyBoxPreview() {
+        const btnTextEn = document.getElementById('inputBtnCartEn')?.value;
+        const btnTextAr = document.getElementById('inputBtnCartAr')?.value;
+        const isAr = activeStudioLang === 'ar';
+        const simBtn = document.getElementById('simCartBtnText');
+        if (simBtn) {
+            simBtn.textContent = (isAr && btnTextAr) ? btnTextAr : (btnTextEn || 'Add to Cart');
+        }
     }
 
     // Initialize HUD on load

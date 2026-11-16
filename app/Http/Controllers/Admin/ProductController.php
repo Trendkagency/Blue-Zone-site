@@ -799,6 +799,7 @@ class ProductController extends Controller
             $clean = [];
             $allKeys = ['dossier', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'buy_box', 'related'];
 
+            // 1. Process Core Dossier & Monograph Sections
             foreach ($allKeys as $key) {
                 $sec = is_array($raw) ? ($raw[$key] ?? []) : [];
                 $contentScreenMode = $sec['content_screen_mode'] ?? 'unified';
@@ -818,6 +819,119 @@ class ProductController extends Controller
                     'custom_content_mobile_ar' => $sec['custom_content_mobile_ar'] ?? '',
                 ];
 
+                // Structured items (Ingredients for sec1, Biomarkers for sec2, Protocols for sec3)
+                if (isset($sec['items']) && is_array($sec['items'])) {
+                    $clean[$key]['items'] = array_values(array_filter($sec['items'], function ($item) {
+                        return is_array($item) && !empty(array_filter($item));
+                    }));
+                }
+
+                // Section 1: Ingredients & Quality Badges
+                if ($key === 'sec1') {
+                    if (isset($sec['quality_badges']) && is_array($sec['quality_badges'])) {
+                        $clean[$key]['quality_badges'] = array_values(array_filter($sec['quality_badges'], function ($b) {
+                            return is_array($b) && (!empty($b['text_en']) || !empty($b['text_ar']));
+                        }));
+                    }
+                }
+
+                // Section 2: Biomarkers, Benefits, and 3-Phase Timeline
+                if ($key === 'sec2') {
+                    $clean[$key]['intro_en'] = trim($sec['intro_en'] ?? '');
+                    $clean[$key]['intro_ar'] = trim($sec['intro_ar'] ?? '');
+                    if (isset($sec['benefits']) && is_array($sec['benefits'])) {
+                        $clean[$key]['benefits'] = array_values(array_filter($sec['benefits'], function ($b) {
+                            if (is_array($b)) {
+                                return !empty($b['text_en']) || !empty($b['text_ar']);
+                            }
+                            return !empty(trim($b));
+                        }));
+                    }
+                    if (isset($sec['phases']) && is_array($sec['phases'])) {
+                        $clean[$key]['phases'] = array_values(array_filter($sec['phases'], function ($p) {
+                            return is_array($p) && (!empty($p['title_en']) || !empty($p['title_ar']) || !empty($p['phase_label']));
+                        }));
+                    }
+                }
+
+                // Section 3: Protocol, Directives, and 4 Visual Protocol Cards
+                if ($key === 'sec3') {
+                    $clean[$key]['dose_badge_en'] = trim($sec['dose_badge_en'] ?? '');
+                    $clean[$key]['dose_badge_ar'] = trim($sec['dose_badge_ar'] ?? '');
+                    $clean[$key]['primary_directive_en'] = trim($sec['primary_directive_en'] ?? '');
+                    $clean[$key]['primary_directive_ar'] = trim($sec['primary_directive_ar'] ?? '');
+                    if (isset($sec['cards']) && is_array($sec['cards'])) {
+                        $clean[$key]['cards'] = array_values(array_filter($sec['cards'], function ($c) {
+                            return is_array($c) && (!empty($c['title_en']) || !empty($c['title_ar']));
+                        }));
+                    }
+                }
+
+                // Section 4: Science Mechanism, Precision Pathways, and Research Note
+                if ($key === 'sec4') {
+                    $clean[$key]['mechanism_en'] = $sec['mechanism_en'] ?? '';
+                    $clean[$key]['mechanism_ar'] = $sec['mechanism_ar'] ?? '';
+                    $clean[$key]['research_note_en'] = trim($sec['research_note_en'] ?? '');
+                    $clean[$key]['research_note_ar'] = trim($sec['research_note_ar'] ?? '');
+                    if (isset($sec['diagram_image'])) $clean[$key]['diagram_image'] = $sec['diagram_image'];
+                    if (isset($sec['pathways']) && is_array($sec['pathways'])) {
+                        $clean[$key]['pathways'] = array_values(array_filter($sec['pathways'], function ($p) {
+                            return is_array($p) && (!empty($p['title_en']) || !empty($p['title_ar']));
+                        }));
+                    }
+                }
+
+                // Section 5: Safety Directives, Warnings, Contraindications & Purity Badges
+                if ($key === 'sec5') {
+                    $clean[$key]['warnings_en'] = $sec['warnings_en'] ?? '';
+                    $clean[$key]['warnings_ar'] = $sec['warnings_ar'] ?? '';
+                    $clean[$key]['contraindications_en'] = $sec['contraindications_en'] ?? '';
+                    $clean[$key]['contraindications_ar'] = $sec['contraindications_ar'] ?? '';
+                    if (isset($sec['purity_badges']) && is_array($sec['purity_badges'])) {
+                        $clean[$key]['purity_badges'] = array_values(array_filter($sec['purity_badges'], function ($pb) {
+                            return is_array($pb) && (!empty($pb['text_en']) || !empty($pb['text_ar']));
+                        }));
+                    }
+                }
+
+                // Section 6: Certifications & Technical Specs
+                if ($key === 'sec6') {
+                    if (isset($sec['certificates']) && is_array($sec['certificates'])) {
+                        $clean[$key]['certificates'] = array_values(array_filter($sec['certificates'], function ($cert) {
+                            return is_array($cert) && (!empty($cert['name_en']) || !empty($cert['name_ar']));
+                        }));
+                    }
+                    if (isset($sec['specs']) && is_array($sec['specs'])) {
+                        $clean[$key]['specs'] = $sec['specs'];
+                    }
+                }
+
+                // Buy box specific configuration
+                if ($key === 'buy_box') {
+                    $clean[$key]['stock_status_en'] = trim($sec['stock_status_en'] ?? 'In Stock • Cold-Chain Ready');
+                    $clean[$key]['stock_status_ar'] = trim($sec['stock_status_ar'] ?? 'متوفر في المستودع • جاهز للشحن المبرد');
+                    $clean[$key]['save_badge_en'] = trim($sec['save_badge_en'] ?? 'SAVE 15% TODAY');
+                    $clean[$key]['save_badge_ar'] = trim($sec['save_badge_ar'] ?? 'وفّر 15% اليوم');
+                    $clean[$key]['btn_add_cart_en'] = trim($sec['btn_add_cart_en'] ?? 'ADD TO CLINICAL PROTOCOL');
+                    $clean[$key]['btn_add_cart_ar'] = trim($sec['btn_add_cart_ar'] ?? 'إضافة إلى السلة والبروتوكول');
+                    $clean[$key]['btn_buy_now_en'] = trim($sec['btn_buy_now_en'] ?? 'ORDER & INSTANT CHECKOUT');
+                    $clean[$key]['btn_buy_now_ar'] = trim($sec['btn_buy_now_ar'] ?? 'طلب المستحضر والشراء السريع');
+                    $clean[$key]['cta_subtext_en'] = trim($sec['cta_subtext_en'] ?? 'Clinically Verified Formulation • 100% Purity');
+                    $clean[$key]['cta_subtext_ar'] = trim($sec['cta_subtext_ar'] ?? 'تركيبة سريرية موثقة • نقاء دوائي 100%');
+                    $clean[$key]['guarantee_days'] = max(0, (int) ($sec['guarantee_days'] ?? 30));
+                    $clean[$key]['guarantee_text_en'] = trim($sec['guarantee_text_en'] ?? '30-Day Clinical Refund');
+                    $clean[$key]['guarantee_text_ar'] = trim($sec['guarantee_text_ar'] ?? '30 يوماً استرداد كامل');
+                    $clean[$key]['guarantee_title_en'] = trim($sec['guarantee_title_en'] ?? 'Satisfaction Guarantee:');
+                    $clean[$key]['guarantee_title_ar'] = trim($sec['guarantee_title_ar'] ?? 'ضمان الرضا الطبي:');
+
+                    if (isset($sec['trust_badges']) && is_array($sec['trust_badges'])) {
+                        $clean[$key]['trust_badges'] = array_values(array_filter($sec['trust_badges'], function ($tb) {
+                            return is_array($tb) && (!empty($tb['text_en']) || !empty($tb['text_ar']));
+                        }));
+                    }
+                }
+
+                // Related products bundle
                 if ($key === 'related' && isset($sec['bundle'])) {
                     $bRaw = $sec['bundle'];
                     $clean[$key]['bundle'] = [
@@ -831,6 +945,89 @@ class ProductController extends Controller
                 }
             }
 
+            // 2. Process Hero Media & Image Overlays
+            if (isset($raw['hero_overlays']) && is_array($raw['hero_overlays'])) {
+                $hoRaw = $raw['hero_overlays'];
+                $clean['hero_overlays'] = [
+                    'enabled_desktop' => !isset($hoRaw['enabled_desktop']) || (bool) $hoRaw['enabled_desktop'],
+                    'enabled_mobile' => !isset($hoRaw['enabled_mobile']) || (bool) $hoRaw['enabled_mobile'],
+                    'watermark_enabled' => !isset($hoRaw['watermark_enabled']) || (bool) $hoRaw['watermark_enabled'],
+                    'watermark_en' => trim($hoRaw['watermark_en'] ?? 'A Sharper You'),
+                    'watermark_ar' => trim($hoRaw['watermark_ar'] ?? 'نسخة أكثر صفاءً وتركيزاً'),
+                    'badges' => [],
+                ];
+
+                if (isset($hoRaw['badges']) && is_array($hoRaw['badges'])) {
+                    foreach ($hoRaw['badges'] as $b) {
+                        if (is_array($b) && (!empty($b['text_en']) || !empty($b['text_ar']))) {
+                            $clean['hero_overlays']['badges'][] = [
+                                'id' => $b['id'] ?? ('b_' . uniqid()),
+                                'position' => in_array($b['position'] ?? 'top_right', ['top_right', 'top_left', 'bottom_left', 'bottom_right']) ? $b['position'] : 'top_right',
+                                'icon' => trim($b['icon'] ?? 'fa-circle-check'),
+                                'text_en' => trim($b['text_en'] ?? ''),
+                                'text_ar' => trim($b['text_ar'] ?? ''),
+                                'style' => in_array($b['style'] ?? 'pill', ['pill', 'pulse_dot', 'solid']) ? $b['style'] : 'pill',
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // 3. Process Protocol Duration Tiers
+            if (isset($raw['protocol_durations']) && is_array($raw['protocol_durations'])) {
+                $pdRaw = $raw['protocol_durations'];
+                $clean['protocol_durations'] = [
+                    'enabled_desktop' => !isset($pdRaw['enabled_desktop']) || (bool) $pdRaw['enabled_desktop'],
+                    'enabled_mobile' => !isset($pdRaw['enabled_mobile']) || (bool) $pdRaw['enabled_mobile'],
+                    'heading_en' => trim($pdRaw['heading_en'] ?? 'SELECT PROTOCOL DURATION:'),
+                    'heading_ar' => trim($pdRaw['heading_ar'] ?? 'اختر خطة البروتوكول العلاجي:'),
+                    'subheading_en' => trim($pdRaw['subheading_en'] ?? 'Controlled Protocol Pricing'),
+                    'subheading_ar' => trim($pdRaw['subheading_ar'] ?? 'تسعير بروتوكولي مدروس'),
+                    'tiers' => [],
+                ];
+
+                if (isset($pdRaw['tiers']) && is_array($pdRaw['tiers'])) {
+                    foreach ($pdRaw['tiers'] as $t) {
+                        if (is_array($t) && (!empty($t['title_en']) || !empty($t['title_ar']))) {
+                            $clean['protocol_durations']['tiers'][] = [
+                                'id' => $t['id'] ?? ('tier_' . uniqid()),
+                                'title_en' => trim($t['title_en'] ?? ''),
+                                'title_ar' => trim($t['title_ar'] ?? ''),
+                                'multiplier' => max(1, (int) ($t['multiplier'] ?? 1)),
+                                'discount_type' => in_array($t['discount_type'] ?? 'percentage', ['percentage', 'fixed']) ? $t['discount_type'] : 'percentage',
+                                'discount_value' => max(0, (float) ($t['discount_value'] ?? 0)),
+                                'badge_en' => trim($t['badge_en'] ?? ''),
+                                'badge_ar' => trim($t['badge_ar'] ?? ''),
+                                'serving_en' => trim($t['serving_en'] ?? ''),
+                                'serving_ar' => trim($t['serving_ar'] ?? ''),
+                                'is_recommended' => !empty($t['is_recommended']),
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // 4. Process Custom Blocks (FAQs, Rich Content, Features Grid)
+            if (isset($raw['custom_blocks']) && is_array($raw['custom_blocks'])) {
+                $clean['custom_blocks'] = [];
+                foreach ($raw['custom_blocks'] as $cb) {
+                    if (is_array($cb) && (!empty($cb['title_en']) || !empty($cb['title_ar']))) {
+                        $clean['custom_blocks'][] = [
+                            'id' => $cb['id'] ?? ('cb_' . uniqid()),
+                            'type' => in_array($cb['type'] ?? 'faq', ['faq', 'rich_text', 'features_grid']) ? $cb['type'] : 'faq',
+                            'title_en' => trim($cb['title_en'] ?? ''),
+                            'title_ar' => trim($cb['title_ar'] ?? ''),
+                            'enabled_desktop' => !isset($cb['enabled_desktop']) || (bool) $cb['enabled_desktop'],
+                            'enabled_mobile' => !isset($cb['enabled_mobile']) || (bool) $cb['enabled_mobile'],
+                            'content_en' => $cb['content_en'] ?? '',
+                            'content_ar' => $cb['content_ar'] ?? '',
+                            'items' => is_array($cb['items'] ?? null) ? array_values(array_filter($cb['items'])) : [],
+                        ];
+                    }
+                }
+            }
+
+            // 5. Section Order
             if (isset($raw['section_order']) && is_array($raw['section_order'])) {
                 $clean['section_order'] = array_values(array_intersect($raw['section_order'], $allKeys));
             }
