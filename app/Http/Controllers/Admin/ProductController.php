@@ -191,7 +191,7 @@ class ProductController extends Controller
         }
 
         if ($primaryFile && $primaryFile->isValid()) {
-            $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+            $ext = \App\Support\SafeUpload::image($primaryFile);
             $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
             $destDir = public_path('storage/products/hero');
             if (!file_exists($destDir)) {
@@ -215,7 +215,7 @@ class ProductController extends Controller
             }
             foreach ($galleryFiles as $file) {
                 if ($file && $file->isValid()) {
-                    $ext = $file->getClientOriginalExtension() ?: 'webp';
+                    $ext = \App\Support\SafeUpload::image($file);
                     $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
                     $file->move($destDir, $filename);
                     $galleryUrls[] = Product::normalizeUrl('/storage/products/gallery/' . $filename);
@@ -566,7 +566,7 @@ class ProductController extends Controller
             if (!empty($product->image)) {
                 $this->deletePhysicalProductFile($product->image);
             }
-            $ext = $primaryFile->getClientOriginalExtension() ?: 'webp';
+            $ext = \App\Support\SafeUpload::image($primaryFile);
             $filename = 'product_' . $product->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
             $destDir = public_path('storage/products/hero');
             if (!file_exists($destDir)) {
@@ -605,7 +605,7 @@ class ProductController extends Controller
                     continue;
                 }
 
-                $ext = $file->getClientOriginalExtension() ?: 'webp';
+                $ext = \App\Support\SafeUpload::image($file);
                 $filename = 'gallery_' . $product->id . '_' . time() . '_' . Str::random(8) . '.' . $ext;
                 $file->move($destDir, $filename);
                 $existingGallery[] = Product::normalizeUrl('/storage/products/gallery/' . $filename);
@@ -1452,7 +1452,7 @@ class ProductController extends Controller
                             if (!empty($product->image)) {
                                 $this->deletePhysicalProductFile($product->image);
                             }
-                            $ext = $file->getClientOriginalExtension() ?: 'webp';
+                            $ext = \App\Support\SafeUpload::image($file);
                             $filename = 'product_' . $product->id . '_' . time() . '.' . $ext;
                             $dest = public_path('storage/products/hero');
                             if (!file_exists($dest)) @mkdir($dest, 0755, true);
@@ -1480,7 +1480,7 @@ class ProductController extends Controller
 
                         foreach ($files as $f) {
                             if ($f && $f->isValid()) {
-                                $ext = $f->getClientOriginalExtension() ?: 'webp';
+                                $ext = \App\Support\SafeUpload::image($f);
                                 $fname = 'gallery_' . $product->id . '_' . time() . '_' . \Illuminate\Support\Str::random(6) . '.' . $ext;
                                 $f->move($dest, $fname);
                                 $currentImages[] = Product::normalizeUrl('/storage/products/gallery/' . $fname);
