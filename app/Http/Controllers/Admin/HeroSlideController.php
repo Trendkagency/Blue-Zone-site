@@ -520,7 +520,7 @@ class HeroSlideController extends Controller
         // Handle Background Image
         if ($request->hasFile('bg_image_file')) {
             $file = $request->file('bg_image_file');
-            $filename = 'hero_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+            $filename = 'hero_' . time() . '_' . Str::random(8) . '.' . \App\Support\SafeUpload::image($file);
             $destination = public_path('uploads/hero');
             if (!file_exists($destination)) {
                 mkdir($destination, 0755, true);
@@ -536,7 +536,7 @@ class HeroSlideController extends Controller
         // Handle Floating Card Image
         if ($request->hasFile('card_image_file')) {
             $file = $request->file('card_image_file');
-            $filename = 'card_' . time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+            $filename = 'card_' . time() . '_' . Str::random(8) . '.' . \App\Support\SafeUpload::image($file);
             $destination = public_path('uploads/hero');
             if (!file_exists($destination)) {
                 mkdir($destination, 0755, true);

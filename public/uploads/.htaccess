@@ -1,0 +1,6 @@
+Options -Includes -ExecCGI -Indexes
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phar .shtml .shtm .stm .cgi .pl .py
+RemoveType .php .phtml .phar .shtml .shtm
+<FilesMatch "(?i)\.(php\d?|phtml|phar|shtml?|stm|cgi|pl|py|sh|htaccess)$">
+    Require all denied
+</FilesMatch>
