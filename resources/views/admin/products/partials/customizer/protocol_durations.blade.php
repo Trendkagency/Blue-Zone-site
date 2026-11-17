@@ -101,6 +101,7 @@
             @foreach($tiers as $idx => $t)
                 <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-[#062B49] border-2 {{ !empty($t['is_recommended']) ? 'border-teal-500 dark:border-teal-400 shadow-md' : 'border-slate-200 dark:border-slate-700' }} space-y-3 duration-tier-row" data-index="{{ $idx }}">
                     <input type="hidden" name="section_settings[protocol_durations][tiers][{{ $idx }}][id]" value="{{ $t['id'] ?? ('tier_'.$idx) }}">
+                    <input type="hidden" name="section_settings[protocol_durations][tiers][{{ $idx }}][discount_type]" value="{{ $t['discount_type'] ?? 'percentage' }}">
                     
                     <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2.5">
                         <div class="flex items-center gap-3">

@@ -935,9 +935,10 @@ class ProductController extends Controller
                 // Related products bundle
                 if ($key === 'related' && isset($sec['bundle'])) {
                     $bRaw = $sec['bundle'];
+                    $bDiscType = $bRaw['discount_type'] ?? 'percentage';
                     $clean[$key]['bundle'] = [
                         'enabled' => !empty($bRaw['enabled']),
-                        'discount_type' => in_array($bRaw['discount_type'] ?? 'percentage', ['percentage', 'fixed']) ? $bRaw['discount_type'] : 'percentage',
+                        'discount_type' => in_array($bDiscType, ['percentage', 'fixed'], true) ? $bDiscType : 'percentage',
                         'discount_value' => (float) ($bRaw['discount_value'] ?? 15.0),
                         'badge_en' => trim($bRaw['badge_en'] ?? 'Optimal Synergistic Protocol'),
                         'badge_ar' => trim($bRaw['badge_ar'] ?? 'البروتوكول التكاملي الموصى به'),
@@ -961,13 +962,15 @@ class ProductController extends Controller
                 if (isset($hoRaw['badges']) && is_array($hoRaw['badges'])) {
                     foreach ($hoRaw['badges'] as $b) {
                         if (is_array($b) && (!empty($b['text_en']) || !empty($b['text_ar']))) {
+                            $pos = $b['position'] ?? 'top_right';
+                            $style = $b['style'] ?? 'pill';
                             $clean['hero_overlays']['badges'][] = [
                                 'id' => $b['id'] ?? ('b_' . uniqid()),
-                                'position' => in_array($b['position'] ?? 'top_right', ['top_right', 'top_left', 'bottom_left', 'bottom_right']) ? $b['position'] : 'top_right',
+                                'position' => in_array($pos, ['top_right', 'top_left', 'bottom_left', 'bottom_right'], true) ? $pos : 'top_right',
                                 'icon' => trim($b['icon'] ?? 'fa-circle-check'),
                                 'text_en' => trim($b['text_en'] ?? ''),
                                 'text_ar' => trim($b['text_ar'] ?? ''),
-                                'style' => in_array($b['style'] ?? 'pill', ['pill', 'pulse_dot', 'solid']) ? $b['style'] : 'pill',
+                                'style' => in_array($style, ['pill', 'pulse_dot', 'solid'], true) ? $style : 'pill',
                             ];
                         }
                     }
@@ -990,12 +993,13 @@ class ProductController extends Controller
                 if (isset($pdRaw['tiers']) && is_array($pdRaw['tiers'])) {
                     foreach ($pdRaw['tiers'] as $t) {
                         if (is_array($t) && (!empty($t['title_en']) || !empty($t['title_ar']))) {
+                            $tierDiscType = $t['discount_type'] ?? 'percentage';
                             $clean['protocol_durations']['tiers'][] = [
                                 'id' => $t['id'] ?? ('tier_' . uniqid()),
                                 'title_en' => trim($t['title_en'] ?? ''),
                                 'title_ar' => trim($t['title_ar'] ?? ''),
                                 'multiplier' => max(1, (int) ($t['multiplier'] ?? 1)),
-                                'discount_type' => in_array($t['discount_type'] ?? 'percentage', ['percentage', 'fixed']) ? $t['discount_type'] : 'percentage',
+                                'discount_type' => in_array($tierDiscType, ['percentage', 'fixed'], true) ? $tierDiscType : 'percentage',
                                 'discount_value' => max(0, (float) ($t['discount_value'] ?? 0)),
                                 'badge_en' => trim($t['badge_en'] ?? ''),
                                 'badge_ar' => trim($t['badge_ar'] ?? ''),
@@ -1013,9 +1017,10 @@ class ProductController extends Controller
                 $clean['custom_blocks'] = [];
                 foreach ($raw['custom_blocks'] as $cb) {
                     if (is_array($cb) && (!empty($cb['title_en']) || !empty($cb['title_ar']))) {
+                        $cbType = $cb['type'] ?? 'faq';
                         $clean['custom_blocks'][] = [
                             'id' => $cb['id'] ?? ('cb_' . uniqid()),
-                            'type' => in_array($cb['type'] ?? 'faq', ['faq', 'rich_text', 'features_grid']) ? $cb['type'] : 'faq',
+                            'type' => in_array($cbType, ['faq', 'rich_text', 'features_grid'], true) ? $cbType : 'faq',
                             'title_en' => trim($cb['title_en'] ?? ''),
                             'title_ar' => trim($cb['title_ar'] ?? ''),
                             'enabled_desktop' => !isset($cb['enabled_desktop']) || (bool) $cb['enabled_desktop'],

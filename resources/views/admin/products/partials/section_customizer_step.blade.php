@@ -2308,6 +2308,7 @@
         div.dataset.index = nextIdx;
         div.innerHTML = `
             <input type="hidden" name="section_settings[protocol_durations][tiers][${nextIdx}][id]" value="tier_${nextIdx}">
+            <input type="hidden" name="section_settings[protocol_durations][tiers][${nextIdx}][discount_type]" value="percentage">
             <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2.5">
                 <div class="flex items-center gap-3">
                     <span class="px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 font-mono text-[10px] font-black uppercase">Tier Plan</span>

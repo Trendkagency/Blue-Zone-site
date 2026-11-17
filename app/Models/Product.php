@@ -673,13 +673,14 @@ class Product extends Model implements HasMedia
             $responsiveClass = 'block md:hidden';
         }
 
+        $bundleRaw = (isset($productSettings['bundle']) && is_array($productSettings['bundle'])) ? $productSettings['bundle'] : [];
         $bundleConfig = ($key === 'related') ? [
-            'enabled' => !empty($productSettings['bundle']['enabled']),
-            'discount_type' => $productSettings['bundle']['discount_type'] ?? 'percentage',
-            'discount_value' => (float) ($productSettings['bundle']['discount_value'] ?? 15.0),
-            'badge_en' => $productSettings['bundle']['badge_en'] ?? 'Optimal Synergistic Protocol',
-            'badge_ar' => $productSettings['bundle']['badge_ar'] ?? 'البروتوكول التكاملي الموصى به',
-            'product_ids' => array_map('intval', (array) ($productSettings['bundle']['product_ids'] ?? [])),
+            'enabled' => !empty($bundleRaw['enabled']),
+            'discount_type' => $bundleRaw['discount_type'] ?? 'percentage',
+            'discount_value' => (float) ($bundleRaw['discount_value'] ?? 15.0),
+            'badge_en' => $bundleRaw['badge_en'] ?? 'Optimal Synergistic Protocol',
+            'badge_ar' => $bundleRaw['badge_ar'] ?? 'البروتوكول التكاملي الموصى به',
+            'product_ids' => array_map('intval', (array) ($bundleRaw['product_ids'] ?? [])),
         ] : null;
 
         return [
@@ -994,7 +995,7 @@ class Product extends Model implements HasMedia
         $allProducts = collect([$this])->concat($bundleProducts);
         $totalOriginalPrice = $allProducts->sum(fn($p) => (float) ($p->sale_price ?: $p->price));
 
-        $discountValue = (float) $bundle['discount_value'];
+        $discountValue = (float) ($bundle['discount_value'] ?? 15.0);
         $discountType = $bundle['discount_type'] ?? 'percentage';
 
         if ($discountType === 'percentage') {

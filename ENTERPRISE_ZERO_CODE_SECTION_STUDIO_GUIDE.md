@@ -340,9 +340,10 @@ protected function formatSectionSettings(array &$data, Request $request): void
         // Related Synergistic Protocol Bundle
         if ($key === 'related' && isset($sec['bundle'])) {
             $b = $sec['bundle'];
+            $bDiscType = $b['discount_type'] ?? 'percentage';
             $clean[$key]['bundle'] = [
                 'enabled'        => !empty($b['enabled']),
-                'discount_type'  => in_array($b['discount_type'] ?? 'percentage', ['percentage', 'fixed']) ? $b['discount_type'] : 'percentage',
+                'discount_type'  => in_array($bDiscType, ['percentage', 'fixed'], true) ? $bDiscType : 'percentage',
                 'discount_value' => (float)($b['discount_value'] ?? 15.0),
                 'badge_en'       => trim($b['badge_en'] ?? 'Optimal Synergistic Protocol'),
                 'badge_ar'       => trim($b['badge_ar'] ?? 'البروتوكول التكاملي الموصى به'),
