@@ -47,14 +47,8 @@
         <div class="space-y-3" id="sec6CertificatesList">
             @foreach($sec6Certs as $idx => $c)
                 <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 cert-row" data-index="{{ $idx }}">
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1">
-                        <div>
-                            @include('admin.products.partials.customizer.icon_selector', [
-                                'name' => "section_settings[sec6][certificates][{$idx}][icon]",
-                                'value' => $c['icon'] ?? 'fa-award',
-                                'label' => 'Icon (FA):',
-                            ])
-                        </div>
+                    <input type="hidden" name="section_settings[sec6][certificates][{{ $idx }}][icon]" value="{{ $c['icon'] ?? ($idx === 0 ? 'fa-award' : ($idx === 1 ? 'fa-check-double' : 'fa-leaf')) }}">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Certificate Name (EN):</label>
                             <input type="text" name="section_settings[sec6][certificates][{{ $idx }}][name_en]" 

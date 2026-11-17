@@ -106,22 +106,16 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                        <div class="sm:col-span-3">
-                            @include('admin.products.partials.customizer.icon_selector', [
-                                'name' => "section_settings[sec4][pathways][{$idx}][icon]",
-                                'value' => $pw['icon'] ?? 'fa-microchip',
-                                'label' => 'Icon (FA):',
-                            ])
-                        </div>
-                        <div class="sm:col-span-5">
+                    <input type="hidden" name="section_settings[sec4][pathways][{{ $idx }}][icon]" value="{{ $pw['icon'] ?? ($idx === 1 ? 'fa-atom' : ($idx === 2 ? 'fa-dna' : 'fa-microchip')) }}">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
                             <input type="text" name="section_settings[sec4][pathways][{{ $idx }}][title_en]" 
                                    value="{{ $pw['title_en'] ?? '' }}" 
                                    placeholder="Blood-Brain Barrier (BBB) Kinetics:"
                                    class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                         </div>
-                        <div class="sm:col-span-4">
+                        <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                             <input type="text" name="section_settings[sec4][pathways][{{ $idx }}][title_ar]" 
                                    value="{{ $pw['title_ar'] ?? '' }}" 

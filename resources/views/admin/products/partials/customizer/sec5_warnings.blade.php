@@ -103,13 +103,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($sec5PurityBadges as $idx => $badge)
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 space-y-2">
-                    <div>
-                        @include('admin.products.partials.customizer.icon_selector', [
-                            'name' => "section_settings[sec5][purity_badges][{$idx}][icon]",
-                            'value' => $badge['icon'] ?? 'fa-leaf',
-                            'label' => 'Icon (FA):',
-                        ])
-                    </div>
+                    <input type="hidden" name="section_settings[sec5][purity_badges][{{ $idx }}][icon]" value="{{ $badge['icon'] ?? ($idx === 0 ? 'fa-ban' : ($idx === 1 ? 'fa-leaf' : ($idx === 2 ? 'fa-droplet-slash' : 'fa-flask'))) }}">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Text (EN):</label>
                         <input type="text" name="section_settings[sec5][purity_badges][{{ $idx }}][text_en]" 
