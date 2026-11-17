@@ -2259,7 +2259,8 @@
         div.dataset.index = nextIdx;
         div.innerHTML = `
             <input type="hidden" name="section_settings[hero_overlays][badges][${nextIdx}][id]" value="b_${nextIdx}">
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
+            <input type="hidden" name="section_settings[hero_overlays][badges][${nextIdx}][icon]" value="fa-circle-check">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 flex-1">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-1">Position:</label>
                     <select name="section_settings[hero_overlays][badges][${nextIdx}][position]" onchange="syncHeroOverlaysPreview()" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
@@ -2276,9 +2277,6 @@
                         <option value="pulse_dot">Pulse Dot Seal</option>
                         <option value="solid">Solid Tag</option>
                     </select>
-                </div>
-                <div>
-                    ${BZIconPicker.renderField(`section_settings[hero_overlays][badges][${nextIdx}][icon]`, 'fa-brain', 'Icon (FA):', 'syncHeroOverlaysPreview()')}
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>

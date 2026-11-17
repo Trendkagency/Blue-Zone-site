@@ -261,22 +261,15 @@
         <div class="space-y-3" id="trustBadgesList">
             @foreach($trustBadges as $idx => $tb)
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 trust-badge-row" data-index="{{ $idx }}">
-                    <div class="w-full sm:w-1/4">
-                        @include('admin.products.partials.customizer.icon_selector', [
-                            'name' => "section_settings[buy_box][trust_badges][{$idx}][icon]",
-                            'value' => $tb['icon'] ?? 'fa-check-double',
-                            'label' => 'Icon (FA):',
-                            'onchange' => 'syncBuyBoxPreview()',
-                        ])
-                    </div>
-                    <div class="w-full sm:w-1/3">
+                    <input type="hidden" name="section_settings[buy_box][trust_badges][{{ $idx }}][icon]" value="{{ $tb['icon'] ?? 'fa-check-double' }}">
+                    <div class="w-full sm:w-1/2">
                         <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
                         <input type="text" name="section_settings[buy_box][trust_badges][{{ $idx }}][text_en]" 
                                value="{{ $tb['text_en'] ?? '' }}" 
                                oninput="syncBuyBoxPreview()"
                                class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                     </div>
-                    <div class="w-full sm:w-1/3">
+                    <div class="w-full sm:w-1/2">
                         <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (AR):</label>
                         <input type="text" name="section_settings[buy_box][trust_badges][{{ $idx }}][text_ar]" 
                                value="{{ $tb['text_ar'] ?? '' }}" 
