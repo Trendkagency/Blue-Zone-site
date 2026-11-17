@@ -1,6 +1,7 @@
 @php
     $isAr = app()->getLocale() === 'ar';
-    $secData = $sectionSettings ?? ($product['section_settings'] ?? []);
+    $product = $product ?? null;
+    $secData = $sectionSettings ?? (is_array($product) ? ($product['section_settings'] ?? []) : ($product->section_settings ?? []));
 
     $sections = [
         'hero_overlays' => [
@@ -210,8 +211,10 @@
     ];
 
     $allProductList = $allProducts ?? collect();
-    $currentProductPrice = (float) ($product['sale_price'] ?? ($product['price'] ?? 68.0));
-    $currentProductName = $product['name_' . app()->getLocale()] ?? ($product['name_en'] ?? 'Current Product');
+    $currentProductPrice = (float) (is_array($product) ? ($product['sale_price'] ?? ($product['price'] ?? 68.0)) : ($product->sale_price ?? ($product->price ?? 68.0)));
+    $currentProductName = is_array($product) 
+        ? ($product['name_' . app()->getLocale()] ?? ($product['name_en'] ?? ($isAr ? 'تركيبة جديدة' : 'New Formulation'))) 
+        : ($product ? ($product->{'name_' . app()->getLocale()} ?? ($product->name_en ?? ($isAr ? 'تركيبة جديدة' : 'New Formulation'))) : ($isAr ? 'تركيبة جديدة' : 'New Formulation'));
 
     $prodModel = ($product instanceof \App\Models\Product) ? $product : (isset($product->id) ? \App\Models\Product::find($product->id) : (isset($product['id']) ? \App\Models\Product::find($product['id']) : null));
     $heroOverlaysData = $prodModel ? $prodModel->getHeroOverlaysConfig() : [];
@@ -1148,11 +1151,14 @@
                     <!-- Simulated Product Header Capsule -->
                     <div class="p-4 rounded-2xl bg-white dark:bg-[#062B49] border border-slate-200/80 dark:border-slate-800 shadow-sm flex items-center gap-3">
                         <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden border shrink-0">
-                            <img src="{{ asset($product['image'] ?? 'image.jpg') }}" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
+                            @php
+                                $simImg = is_array($product) ? ($product['image'] ?? null) : ($product->image ?? null);
+                            @endphp
+                            <img src="{{ $simImg ? asset($simImg) : asset('image.jpg') }}" alt="" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='{{ asset('image.jpg') }}';">
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="text-[10px] font-mono text-[#0A4F78] dark:text-[#2A8FC2] font-black uppercase tracking-wider">
-                                {{ $product['category_name_en'] ?? 'CELLULAR LONGEVITY' }}
+                                {{ (is_array($product) ? ($product['category_name_en'] ?? null) : ($product->category->name_en ?? null)) ?: 'CELLULAR LONGEVITY' }}
                             </div>
                             <div class="text-xs font-black text-slate-900 dark:text-white truncate" id="simProductName">
                                 {{ $currentProductName }}

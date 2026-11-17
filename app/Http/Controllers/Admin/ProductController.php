@@ -147,6 +147,7 @@ class ProductController extends Controller
         $taxInfo = TaxService::breakdownPrice(68.00, 22.00);
 
         return view('admin.products.create', [
+            'product' => new Product(),
             'categories' => $categories,
             'taxInfo' => $taxInfo,
             'detailsSettings' => $this->getGlobalDetailsSettings(),
