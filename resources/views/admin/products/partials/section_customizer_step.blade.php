@@ -2278,8 +2278,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Icon (FA):</label>
-                    <input type="text" name="section_settings[hero_overlays][badges][${nextIdx}][icon]" value="fa-brain" placeholder="fa-brain" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                    ${BZIconPicker.renderField(`section_settings[hero_overlays][badges][${nextIdx}][icon]`, 'fa-brain', 'Icon (FA):', 'syncHeroOverlaysPreview()')}
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
@@ -2375,8 +2374,7 @@
         div.dataset.index = nextIdx;
         div.innerHTML = `
             <div class="w-full sm:w-1/4">
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">Icon (FA):</label>
-                <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][icon]" value="fa-check-double" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                ${BZIconPicker.renderField(`section_settings[buy_box][trust_badges][${nextIdx}][icon]`, 'fa-check-double', 'Icon (FA):', 'syncBuyBoxPreview()')}
             </div>
             <div class="w-full sm:w-1/3">
                 <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
@@ -2485,8 +2483,7 @@
         div.innerHTML = `
             <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 flex-1">
                 <div class="sm:col-span-1">
-                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                    <input type="text" name="section_settings[sec3][items][${nextIdx}][icon]" value="fa-clock" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                    ${BZIconPicker.renderField(`section_settings[sec3][items][${nextIdx}][icon]`, 'fa-clock', 'Icon (FA):')}
                 </div>
                 <div class="sm:col-span-1">
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Step (EN):</label>
@@ -2530,15 +2527,14 @@
                 </button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                    <input type="text" name="section_settings[sec3][cards][${nextIdx}][icon]" value="fa-clock" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                <div class="sm:col-span-3">
+                    ${BZIconPicker.renderField(`section_settings[sec3][cards][${nextIdx}][icon]`, 'fa-clock', 'Icon (FA):')}
                 </div>
                 <div class="sm:col-span-5">
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
                     <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_en]" value="" placeholder="Protocol Pillar" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                 </div>
-                <div class="sm:col-span-5">
+                <div class="sm:col-span-4">
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                     <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان الركيزة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
                 </div>
@@ -2601,15 +2597,14 @@
                 </button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-2">
-                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                    <input type="text" name="section_settings[sec4][pathways][${nextIdx}][icon]" value="fa-microchip" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                <div class="sm:col-span-3">
+                    ${BZIconPicker.renderField(`section_settings[sec4][pathways][${nextIdx}][icon]`, 'fa-microchip', 'Icon (FA):')}
                 </div>
                 <div class="sm:col-span-5">
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
                     <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_en]" value="" placeholder="Pathway Title" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                 </div>
-                <div class="sm:col-span-5">
+                <div class="sm:col-span-4">
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                     <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان المسار" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
                 </div>
@@ -2639,8 +2634,7 @@
         div.innerHTML = `
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                    <input type="text" name="section_settings[sec6][certificates][${nextIdx}][icon]" value="fa-award" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                    ${BZIconPicker.renderField(`section_settings[sec6][certificates][${nextIdx}][icon]`, 'fa-award', 'Icon (FA):')}
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Certificate Name (EN):</label>
@@ -2753,3 +2747,7 @@
         triggerStickyPreviewSync();
     });
 </script>
+
+{{-- BZ-OS Visual FontAwesome Clinical Icon Selector System --}}
+@include('admin.products.partials.customizer.icon_picker_system')
+

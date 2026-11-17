@@ -113,11 +113,12 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ $isAr ? 'الأيقونة (FA):' : 'Icon (FA):' }}</label>
-                            <input type="text" name="section_settings[hero_overlays][badges][{{ $idx }}][icon]" 
-                                   value="{{ $b['icon'] ?? 'fa-circle-check' }}" 
-                                   placeholder="fa-brain"
-                                   class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                            @include('admin.products.partials.customizer.icon_selector', [
+                                'name' => "section_settings[hero_overlays][badges][{$idx}][icon]",
+                                'value' => $b['icon'] ?? 'fa-circle-check',
+                                'label' => $isAr ? 'الأيقونة (FA):' : 'Icon (FA):',
+                                'onchange' => 'syncHeroOverlaysPreview()',
+                            ])
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ $isAr ? 'النص (EN):' : 'Text (EN):' }}</label>

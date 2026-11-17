@@ -262,10 +262,12 @@
             @foreach($trustBadges as $idx => $tb)
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 trust-badge-row" data-index="{{ $idx }}">
                     <div class="w-full sm:w-1/4">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1">Icon (FA):</label>
-                        <input type="text" name="section_settings[buy_box][trust_badges][{{ $idx }}][icon]" 
-                               value="{{ $tb['icon'] ?? 'fa-check-double' }}" 
-                               class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                        @include('admin.products.partials.customizer.icon_selector', [
+                            'name' => "section_settings[buy_box][trust_badges][{$idx}][icon]",
+                            'value' => $tb['icon'] ?? 'fa-check-double',
+                            'label' => 'Icon (FA):',
+                            'onchange' => 'syncBuyBoxPreview()',
+                        ])
                     </div>
                     <div class="w-full sm:w-1/3">
                         <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>

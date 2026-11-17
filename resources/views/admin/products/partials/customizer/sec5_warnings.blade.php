@@ -104,10 +104,11 @@
             @foreach($sec5PurityBadges as $idx => $badge)
                 <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 space-y-2">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                        <input type="text" name="section_settings[sec5][purity_badges][{{ $idx }}][icon]" 
-                               value="{{ $badge['icon'] ?? 'fa-leaf' }}" 
-                               class="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                        @include('admin.products.partials.customizer.icon_selector', [
+                            'name' => "section_settings[sec5][purity_badges][{$idx}][icon]",
+                            'value' => $badge['icon'] ?? 'fa-leaf',
+                            'label' => 'Icon (FA):',
+                        ])
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Text (EN):</label>

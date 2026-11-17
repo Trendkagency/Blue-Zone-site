@@ -146,11 +146,12 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                        <div class="sm:col-span-2">
-                            <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Icon (FA):</label>
-                            <input type="text" name="section_settings[sec3][cards][{{ $idx }}][icon]" 
-                                   value="{{ $card['icon'] ?? 'fa-sun' }}" 
-                                   class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-mono">
+                        <div class="sm:col-span-3">
+                            @include('admin.products.partials.customizer.icon_selector', [
+                                'name' => "section_settings[sec3][cards][{$idx}][icon]",
+                                'value' => $card['icon'] ?? 'fa-sun',
+                                'label' => 'Icon (FA):',
+                            ])
                         </div>
                         <div class="sm:col-span-5">
                             <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
@@ -159,7 +160,7 @@
                                    placeholder="1. Timing"
                                    class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                         </div>
-                        <div class="sm:col-span-5">
+                        <div class="sm:col-span-4">
                             <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                             <input type="text" name="section_settings[sec3][cards][{{ $idx }}][title_ar]" 
                                    value="{{ $card['title_ar'] ?? '' }}" 
