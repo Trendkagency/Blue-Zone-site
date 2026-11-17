@@ -2371,14 +2371,12 @@
         div.className = 'p-3.5 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 trust-badge-row';
         div.dataset.index = nextIdx;
         div.innerHTML = `
-            <div class="w-full sm:w-1/4">
-                ${BZIconPicker.renderField(`section_settings[buy_box][trust_badges][${nextIdx}][icon]`, 'fa-check-double', 'Icon (FA):', 'syncBuyBoxPreview()')}
-            </div>
-            <div class="w-full sm:w-1/3">
+            <input type="hidden" name="section_settings[buy_box][trust_badges][${nextIdx}][icon]" value="fa-check-double">
+            <div class="w-full sm:w-1/2">
                 <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (EN):</label>
                 <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][text_en]" value="" oninput="syncBuyBoxPreview()" placeholder="Laboratory Assayed" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
             </div>
-            <div class="w-full sm:w-1/3">
+            <div class="w-full sm:w-1/2">
                 <label class="block text-[10px] font-bold text-slate-500 mb-1">Text (AR):</label>
                 <input type="text" name="section_settings[buy_box][trust_badges][${nextIdx}][text_ar]" value="" oninput="syncBuyBoxPreview()" dir="rtl" placeholder="مفحوص مخبرياً" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
             </div>
@@ -2479,23 +2477,21 @@
         div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-stretch md:items-center gap-3 protocol-step-row';
         div.dataset.index = nextIdx;
         div.innerHTML = `
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 flex-1">
-                <div class="sm:col-span-1">
-                    ${BZIconPicker.renderField(`section_settings[sec3][items][${nextIdx}][icon]`, 'fa-clock', 'Icon (FA):')}
-                </div>
-                <div class="sm:col-span-1">
+            <input type="hidden" name="section_settings[sec3][items][${nextIdx}][icon]" value="fa-clock">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Step (EN):</label>
                     <input type="text" name="section_settings[sec3][items][${nextIdx}][step_en]" value="" placeholder="Step Title" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                 </div>
-                <div class="sm:col-span-1">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">الخطوة (AR):</label>
                     <input type="text" name="section_settings[sec3][items][${nextIdx}][step_ar]" value="" dir="rtl" placeholder="عنوان الخطوة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
                 </div>
-                <div class="sm:col-span-1">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Instruction (EN):</label>
                     <input type="text" name="section_settings[sec3][items][${nextIdx}][instruction_en]" value="" placeholder="Direction" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white">
                 </div>
-                <div class="sm:col-span-1">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">التوجيه (AR):</label>
                     <input type="text" name="section_settings[sec3][items][${nextIdx}][instruction_ar]" value="" dir="rtl" placeholder="الإرشادات" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal">
                 </div>
@@ -2524,15 +2520,13 @@
                     <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-3">
-                    ${BZIconPicker.renderField(`section_settings[sec3][cards][${nextIdx}][icon]`, 'fa-clock', 'Icon (FA):')}
-                </div>
-                <div class="sm:col-span-5">
+            <input type="hidden" name="section_settings[sec3][cards][${nextIdx}][icon]" value="fa-clock">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
                     <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_en]" value="" placeholder="Protocol Pillar" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                 </div>
-                <div class="sm:col-span-4">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                     <input type="text" name="section_settings[sec3][cards][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان الركيزة" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
                 </div>
@@ -2594,15 +2588,13 @@
                     <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-3">
-                    ${BZIconPicker.renderField(`section_settings[sec4][pathways][${nextIdx}][icon]`, 'fa-microchip', 'Icon (FA):')}
-                </div>
-                <div class="sm:col-span-5">
+            <input type="hidden" name="section_settings[sec4][pathways][${nextIdx}][icon]" value="fa-microchip">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Title (EN):</label>
                     <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_en]" value="" placeholder="Pathway Title" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
                 </div>
-                <div class="sm:col-span-4">
+                <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">العنوان (AR):</label>
                     <input type="text" name="section_settings[sec4][pathways][${nextIdx}][title_ar]" value="" dir="rtl" placeholder="عنوان المسار" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-tajawal font-bold">
                 </div>
