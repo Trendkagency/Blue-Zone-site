@@ -341,6 +341,12 @@ class ProductController extends Controller
                 'image' => $dbProduct->primary_image_url,
                 'short_description_en' => $dbProduct->short_description_en,
                 'description_en' => $dbProduct->description_en,
+                'ingredients' => is_array($dbProduct->ingredients) ? $dbProduct->ingredients : (is_string($dbProduct->ingredients) ? (json_decode($dbProduct->ingredients, true) ?: []) : []),
+                'science_en' => $dbProduct->science_en,
+                'science_ar' => $dbProduct->science_ar,
+                'benefits_en' => $dbProduct->benefits_en,
+                'benefits_ar' => $dbProduct->benefits_ar,
+                'section_settings' => $dbProduct->section_settings ?? [],
             ];
         } else {
             $product = ProductViewModel::find($id);

@@ -34,17 +34,24 @@
             </div>
 
             <!-- Ingredients Card -->
+            @php
+                $ingredientsList = is_array($product['ingredients'] ?? null) ? $product['ingredients'] : [];
+            @endphp
+            @if(!empty($ingredientsList))
             <div class="card" style="padding: 2rem;">
                 <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem;">Clinical Actives</h3>
                 <div class="ingredients-matrix">
-                    @foreach($product['ingredients'] as $ing)
+                    @foreach($ingredientsList as $ing)
+                        @if(is_array($ing))
                         <div class="ingredient-item">
-                            <div class="ingredient-name">{{ $ing['name_en'] }}</div>
-                            <div class="ingredient-dose">{{ $ing['dose'] }}</div>
+                            <div class="ingredient-name">{{ $ing['name_en'] ?? ($ing['name_ar'] ?? 'Active Compound') }}</div>
+                            <div class="ingredient-dose">{{ $ing['dose'] ?? '' }}</div>
                         </div>
+                        @endif
                     @endforeach
                 </div>
             </div>
+            @endif
         </div>
 
         <!-- Right: Stock & Identifiers Card -->
