@@ -91,7 +91,8 @@
                 <div class="p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-stretch md:items-center gap-3 overlay-badge-row" data-index="{{ $idx }}">
                     <input type="hidden" name="section_settings[hero_overlays][badges][{{ $idx }}][id]" value="{{ $b['id'] ?? ('b_'.$idx) }}">
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-1">
+                    <input type="hidden" name="section_settings[hero_overlays][badges][{{ $idx }}][icon]" value="{{ $b['icon'] ?? 'fa-circle-check' }}">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 flex-1">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ $isAr ? 'الموضع:' : 'Position:' }}</label>
                             <select name="section_settings[hero_overlays][badges][{{ $idx }}][position]" 
@@ -111,14 +112,6 @@
                                 <option value="pulse_dot" {{ ($b['style'] ?? '') === 'pulse_dot' ? 'selected' : '' }}>Pulse Dot Seal</option>
                                 <option value="solid" {{ ($b['style'] ?? '') === 'solid' ? 'selected' : '' }}>Solid Tag</option>
                             </select>
-                        </div>
-                        <div>
-                            @include('admin.products.partials.customizer.icon_selector', [
-                                'name' => "section_settings[hero_overlays][badges][{$idx}][icon]",
-                                'value' => $b['icon'] ?? 'fa-circle-check',
-                                'label' => $isAr ? 'الأيقونة (FA):' : 'Icon (FA):',
-                                'onchange' => 'syncHeroOverlaysPreview()',
-                            ])
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">{{ $isAr ? 'النص (EN):' : 'Text (EN):' }}</label>
