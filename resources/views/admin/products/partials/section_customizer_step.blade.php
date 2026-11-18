@@ -2622,10 +2622,8 @@
         div.className = 'p-4 rounded-xl bg-slate-50 dark:bg-[#062B49] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 cert-row';
         div.dataset.index = nextIdx;
         div.innerHTML = `
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1">
-                <div>
-                    ${BZIconPicker.renderField(`section_settings[sec6][certificates][${nextIdx}][icon]`, 'fa-award', 'Icon (FA):')}
-                </div>
+            <input type="hidden" name="section_settings[sec6][certificates][${nextIdx}][icon]" value="fa-award">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 mb-0.5">Certificate Name (EN):</label>
                     <input type="text" name="section_settings[sec6][certificates][${nextIdx}][name_en]" value="" placeholder="Certified Standard" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-[#031827] dark:text-white font-bold">
