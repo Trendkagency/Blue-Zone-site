@@ -211,17 +211,25 @@
 
             <!-- Quick Metrics -->
             <div class="flex items-center gap-3 text-xs flex-wrap">
-                <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[100px]">
-                    <span class="text-gray-400 block">{{ __('production.target_quantity') }}</span>
+                <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[90px]">
+                    <span class="text-gray-400 block text-[10px] uppercase font-bold">{{ __('production.target_quantity') }}</span>
                     <span class="font-mono font-bold text-slate-800 dark:text-white text-sm">{{ number_format($workOrder->planned_qty ?? $workOrder->target_quantity) }}</span>
                 </div>
-                <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[100px]">
-                    <span class="text-gray-400 block">{{ __('production.actual_quantity') }}</span>
+                <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[90px]">
+                    <span class="text-gray-400 block text-[10px] uppercase font-bold">{{ __('production.actual_quantity') }}</span>
                     <span class="font-mono font-bold text-emerald-600 text-sm">{{ number_format($workOrder->produced_qty ?? $workOrder->actual_quantity ?? 0) }}</span>
                 </div>
                 <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[110px]">
-                    <span class="text-gray-400 block">{{ __('production.unit_cost') }}</span>
-                    <span class="font-mono font-bold text-sky-600 text-sm">{{ number_format($workOrder->unit_cost ?? 0, 4) }} <span class="text-[10px]">SAR</span></span>
+                    <span class="text-gray-400 block text-[10px] uppercase font-bold">{{ app()->getLocale() === 'ar' ? 'تكلفة الخامات' : 'Raw Materials' }}</span>
+                    <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-sm">{{ number_format($workOrder->total_material_cost ?? 0, 2) }} <span class="text-[9px]">EGP</span></span>
+                </div>
+                <div class="bg-gray-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-center min-w-[110px]">
+                    <span class="text-gray-400 block text-[10px] uppercase font-bold">{{ app()->getLocale() === 'ar' ? 'مصاريف Landed Cost' : 'Landed Overheads' }}</span>
+                    <span class="font-mono font-bold text-amber-600 dark:text-amber-400 text-sm">{{ number_format($workOrder->total_landed_cost ?? 0, 2) }} <span class="text-[9px]">EGP</span></span>
+                </div>
+                <div class="bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center min-w-[120px]">
+                    <span class="text-emerald-700 dark:text-emerald-400 block text-[10px] uppercase font-extrabold">{{ __('production.unit_cost') }}</span>
+                    <span class="font-mono font-black text-emerald-600 dark:text-emerald-300 text-sm">{{ number_format($workOrder->unit_cost ?? 0, 4) }} <span class="text-[9px]">EGP/u</span></span>
                 </div>
             </div>
         </div>
@@ -339,6 +347,64 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
+    <!-- Manufacturing Landed Costs Breakdown Card -->
+    <div class="card p-5 mb-6 border border-amber-200/70 dark:border-amber-900/50 shadow-sm bg-gradient-to-br from-amber-50/20 to-white dark:from-slate-900 dark:to-slate-900">
+        <h4 class="text-sm font-bold text-slate-800 dark:text-white border-b border-amber-200/50 dark:border-amber-900/40 pb-3 mb-4 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+                <i class="fa-solid fa-coins text-amber-500"></i> 
+                {{ app()->getLocale() === 'ar' ? 'تفاصيل تكاليف التصنيع الإضافية (Landed Cost & Overhead Breakdown)' : 'Manufacturing Landed Costs & Overhead Breakdown' }}
+            </span>
+            <span class="badge text-xs font-mono font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                {{ app()->getLocale() === 'ar' ? 'الإجمالي: ' : 'Total: ' }}{{ number_format($workOrder->total_landed_cost ?? 0, 2) }} EGP
+            </span>
+        </h4>
+
+        @if(!empty($workOrder->landed_costs) && is_array($workOrder->landed_costs) && count($workOrder->landed_costs) > 0)
+            <div class="table-responsive">
+                <table class="table text-xs">
+                    <thead>
+                        <tr class="text-amber-950 dark:text-amber-200">
+                            <th>#</th>
+                            <th>{{ app()->getLocale() === 'ar' ? 'بند التكلفة' : 'Cost Category' }}</th>
+                            <th style="text-align: right;">{{ app()->getLocale() === 'ar' ? 'المبلغ الإجمالي' : 'Total Amount' }}</th>
+                            <th style="text-align: right;">{{ app()->getLocale() === 'ar' ? 'نصيب القطعة الواحدة' : 'Per Finished Unit' }}</th>
+                            <th>{{ app()->getLocale() === 'ar' ? 'البيان والملاحظات' : 'Notes / Description' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $prodCount = max(1, (int) ($workOrder->produced_qty ?: ($workOrder->planned_qty ?: 1)));
+                        @endphp
+                        @foreach($workOrder->landed_costs as $lIdx => $lc)
+                            @php
+                                $lcAmount = (float) ($lc['amount'] ?? 0);
+                            @endphp
+                            <tr>
+                                <td class="font-mono text-gray-400">{{ $lIdx + 1 }}</td>
+                                <td class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-tag text-amber-500 text-[10px]"></i>
+                                    {{ $lc['category'] ?? 'Overhead' }}
+                                </td>
+                                <td class="font-mono font-bold text-amber-600 dark:text-amber-400" style="text-align: right;">
+                                    {{ number_format($lcAmount, 2) }} EGP
+                                </td>
+                                <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400" style="text-align: right;">
+                                    {{ number_format($lcAmount / $prodCount, 4) }} EGP
+                                </td>
+                                <td class="text-gray-500">{{ $lc['note'] ?? '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 text-center text-xs text-gray-500">
+                <i class="fa-solid fa-info-circle text-amber-500 mr-1.5 ml-1.5"></i>
+                {{ app()->getLocale() === 'ar' ? 'لم يتم إدراج تكاليف Landed Cost إضافية لهذا الأمر، وتم احتساب تكلفة الإنتاج بناءً على تكلفة الخامات المباشرة فقط.' : 'No additional landed cost entries recorded for this work order; unit cost is derived purely from direct raw material consumption.' }}
+            </div>
+        @endif
     </div>
 
     <!-- BOM Genealogy & Consumptions Table (Immutable) -->

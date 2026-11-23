@@ -38,7 +38,7 @@
 
                 @php
                     $u = auth()->user();
-                    $isPurchasesActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.supplier-quotations.*') || request()->routeIs('admin.purchase-orders.*') || request()->routeIs('admin.goods-receipts.*');
+                    $isPurchasesActive = request()->routeIs('admin.suppliers.*') || request()->routeIs('admin.supplier-quotations.*') || request()->routeIs('admin.finance.purchase-invoices.*') || request()->routeIs('admin.goods-receipts.*');
                     $isSupplyChainActive = request()->routeIs('admin.raw-materials.*') || request()->routeIs('admin.batches.*') || request()->routeIs('admin.qc.*') || request()->routeIs('admin.work-orders.*') || request()->routeIs('admin.supply-chain-reports.*');
                     $isCatalogActive = request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*') || request()->routeIs('admin.hero-slides.*');
                     $isInventoryActive = request()->routeIs('admin.inventory.*') || request()->routeIs('admin.locations.*') || request()->routeIs('admin.warehouses.*') || request()->routeIs('admin.products.*') || request()->routeIs('admin.categories.*');
@@ -385,19 +385,7 @@
                                 <span>{{ app()->getLocale() === 'ar' ? 'تحويلات المخزون' : 'Stock Transfers' }}</span>
                             </a>
 
-                            <!-- 7. Stock Adjustments & Types -->
-                            <div class="space-y-0.5">
-                                <a href="{{ route('admin.inventory.adjustments') }}"
-                                    class="sidebar-sublink {{ request()->routeIs('admin.inventory.adjustments') && !request()->routeIs('admin.inventory.adjustments.types*') ? 'active' : '' }}">
-                                    <i class="fa-solid fa-sliders text-xs text-purple-400"></i>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'تسويات الجرد والمخزون' : 'Stock Adjustments' }}</span>
-                                </a>
-                                <a href="{{ route('admin.inventory.adjustments.types.index') }}"
-                                    class="sidebar-sublink ps-7 rtl:pe-7 text-xs {{ request()->routeIs('admin.inventory.adjustments.types*') ? 'active font-bold' : '' }}">
-                                    <i class="fa-solid fa-tags text-[11px] text-indigo-400"></i>
-                                    <span>{{ app()->getLocale() === 'ar' ? 'أنواع التسويات' : 'Adjustment Types' }}</span>
-                                </a>
-                            </div>
+                            {{-- Stock Adjustments hidden per cycle update --}}
 
                             <!-- 8. Low Stock Alerts -->
                             <a href="{{ route('admin.inventory.alerts') }}"
@@ -416,7 +404,7 @@
                 @endif
 
                 <!-- Dedicated PURCHASES Section (Exact Match to User Design Screen) -->
-                @if($u && ($u->hasPermission('suppliers.view') || $u->hasPermission('purchase_orders.view') || $u->hasPermission('goods_receipts.view') || $u->isSuperAdmin() || $u->isAdmin()))
+                @if($u && ($u->hasPermission('suppliers.view') || $u->hasPermission('purchase_orders.view') || $u->hasPermission('goods_receipts.view') || $u->hasPermission('finance.view') || $u->hasPermission('finance') || $u->isSuperAdmin() || $u->isAdmin()))
                     <div class="sidebar-dropdown-group {{ $isPurchasesActive ? 'is-open' : '' }}" id="group-purchases">
                         <button type="button" class="sidebar-dropdown-btn {{ $isPurchasesActive ? 'active-parent' : '' }}" onclick="toggleSidebarDropdown('group-purchases')">
                             <div class="sidebar-dropdown-label">
@@ -438,10 +426,10 @@
                                 <i class="fa-solid fa-file-contract text-xs text-amber-400"></i>
                                 <span>{{ app()->getLocale() === 'ar' ? 'عروض الأسعار (RFQ)' : 'Supplier RFQs' }}</span>
                             </a>
-                            <a href="{{ route('admin.purchase-orders.index') }}"
-                                class="sidebar-sublink {{ request()->routeIs('admin.purchase-orders.*') ? 'active' : '' }}">
-                                <i class="fa-solid fa-file-invoice-dollar text-xs text-blue-400"></i>
-                                <span>{{ app()->getLocale() === 'ar' ? 'أوامر الشراء' : 'Purchase Orders' }}</span>
+                            <a href="{{ route('admin.finance.purchase-invoices.index') }}"
+                                class="sidebar-sublink {{ request()->routeIs('admin.finance.purchase-invoices.*') ? 'active' : '' }}">
+                                <i class="fa-solid fa-file-invoice-dollar text-xs text-emerald-400"></i>
+                                <span class="font-bold">{{ app()->getLocale() === 'ar' ? 'فواتير المشتريات' : 'Purchase Invoices' }}</span>
                             </a>
                             <a href="{{ route('admin.goods-receipts.index') }}"
                                 class="sidebar-sublink {{ request()->routeIs('admin.goods-receipts.*') ? 'active' : '' }}">

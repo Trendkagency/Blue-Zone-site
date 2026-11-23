@@ -25,10 +25,10 @@
             {{ app()->getLocale() === 'ar' ? 'تحويل مخزون' : 'Stock Transfer' }}
         </a>
 
-        <!-- Stock Adjustments -->
-        <a href="{{ route('admin.inventory.adjustments') }}" class="btn btn-primary font-bold text-xs sm:text-sm shadow-sm">
-            <i class="fa-solid fa-plus-minus mr-1.5 ml-1.5"></i>
-            {{ app()->getLocale() === 'ar' ? 'تسوية جردية' : 'New Adjustment' }}
+        <!-- Purchase Invoice Quick Inward -->
+        <a href="{{ route('admin.finance.purchase-invoices.create') }}" class="btn btn-primary font-bold text-xs sm:text-sm shadow-sm">
+            <i class="fa-solid fa-file-invoice mr-1.5 ml-1.5"></i>
+            {{ app()->getLocale() === 'ar' ? 'فاتورة مشتريات جديدة' : 'New Purchase Invoice' }}
         </a>
     </x-slot>
 

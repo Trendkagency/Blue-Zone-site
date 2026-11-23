@@ -40,10 +40,22 @@ class WorkOrderObserver
                 }
 
                 $order->total_material_cost = $totalCost;
+
+                // 1.b Calculate additional Landed Costs & Manufacturing Overhead
+                $totalLandedCost = 0.0;
+                if (!empty($order->landed_costs) && is_array($order->landed_costs)) {
+                    foreach ($order->landed_costs as $lc) {
+                        $totalLandedCost += (float) ($lc['amount'] ?? 0);
+                    }
+                }
+                $order->total_landed_cost = $totalLandedCost;
                 $order->completed_at = now();
 
+                // Total Absorbed Manufacturing Cost = Direct Materials + Landed Costs
+                $totalManufacturingCost = $totalCost + $totalLandedCost;
+
                 $producedUnits = max(1, (int) $order->produced_qty);
-                $unitCost = round($totalCost / $producedUnits, 4);
+                $unitCost = round($totalManufacturingCost / $producedUnits, 4);
                 $order->unit_cost = $unitCost;
 
                 // 2. Provision / increment finished product in inventory_items

@@ -31,6 +31,8 @@ class WorkOrder extends Model
         'started_at',
         'completed_at',
         'total_material_cost',
+        'landed_costs',
+        'total_landed_cost',
         'unit_cost',
         'created_by',
         'notes',
@@ -47,6 +49,8 @@ class WorkOrder extends Model
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'total_material_cost' => 'decimal:4',
+            'landed_costs' => 'array',
+            'total_landed_cost' => 'decimal:4',
             'unit_cost' => 'decimal:4',
         ];
     }

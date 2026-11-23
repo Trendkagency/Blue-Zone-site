@@ -31,6 +31,19 @@
                 'stock_available' => (float) ($ri->rawMaterial?->current_stock ?? $ri->rawMaterial?->approved_stock ?? 0),
             ]),
         ])) }},
+        landedCosts: [
+            { category: 'Direct Labor & Wages', amount: 0, note: '' },
+            { category: 'Packaging & Labeling', amount: 0, note: '' }
+        ],
+        addLandedRow() {
+            this.landedCosts.push({ category: 'Operational Overhead', amount: 0, note: '' });
+        },
+        removeLandedRow(idx) {
+            this.landedCosts.splice(idx, 1);
+        },
+        totalLanded() {
+            return this.landedCosts.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+        },
         getCurrentProduct() {
             return this.products.find(p => p.id == this.selectedProduct) || null;
         }
@@ -253,6 +266,131 @@
                 <p class="text-slate-600 dark:text-gray-400 ml-6 mr-6">
                     {{ app()->getLocale() === 'ar' ? 'عند اعتماد هذا الخيار، سيقوم النظام تلقائياً باحتساب الاحتياجات من واقع قائمة مكونات المنتج (BOM) وحجز الكميات المطلوبة حصرياً من التشغيلات المعتمدة الأقرب انتهاءً وتجميدها ضد أي استخدام آخر.' : 'Upon creation, the system multiplies formulation BOM dosages by target quantity and atomically locks required inventory from active approved lots using lockForUpdate.' }}
                 </p>
+            </div>
+
+            <!-- Manufacturing Landed Costs & Conversion Overhead Card -->
+            <div class="card p-6 border border-amber-200/70 dark:border-amber-900/50 bg-gradient-to-br from-amber-50/30 to-white dark:from-slate-900 dark:to-slate-900 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b border-amber-200/50 dark:border-amber-900/40 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 dark:text-white">
+                                {{ app()->getLocale() === 'ar' ? 'تكاليف التصنيع الإضافية (Landed Cost & Overhead)' : 'Manufacturing Landed Costs & Conversion Overhead' }}
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-gray-400">
+                                {{ app()->getLocale() === 'ar' ? 'إضافة أجور العمالة المباشرة، مواد التعبئة والتغليف، ومصاريف التشغيل لحساب تكلفة القطعة الواحدة (Unit Cost of Goods) طبقاً لمعيار IAS 2' : 'Direct labor, packaging, quality testing and overhead costs added to raw materials to calculate true unit cost.' }}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="badge text-[11px] bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-mono font-bold">
+                        IAS 2 Full Absorption Costing
+                    </span>
+                </div>
+
+                <!-- Dynamic Rows for Landed Costs -->
+                <div class="space-y-3">
+                    <template x-for="(cost, cIdx) in landedCosts" :key="cIdx">
+                        <div class="p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-800/60 shadow-sm flex flex-col md:flex-row items-center gap-3">
+                            <!-- Category Select -->
+                            <div class="w-full md:w-1/3">
+                                <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                    {{ app()->getLocale() === 'ar' ? 'نوع التكلفة / البند' : 'Cost Category' }}
+                                </label>
+                                <select 
+                                    :name="`landed_costs[${cIdx}][category]`" 
+                                    x-model="cost.category" 
+                                    class="form-select text-xs w-full rounded-lg"
+                                >
+                                    <option value="Direct Labor & Wages">{{ app()->getLocale() === 'ar' ? 'أجور وعمالة تصنيع مباشرة' : 'Direct Labor & Wages' }}</option>
+                                    <option value="Packaging & Labeling">{{ app()->getLocale() === 'ar' ? 'مواد التعبئة والتغليف والعلب' : 'Packaging & Labeling' }}</option>
+                                    <option value="Machine & Equipment Overhead">{{ app()->getLocale() === 'ar' ? 'تشغيل خطوط الإنتاج والماكينات' : 'Machine & Equipment Overhead' }}</option>
+                                    <option value="Quality Control & Lab Testing">{{ app()->getLocale() === 'ar' ? 'فحوصات الجودة والتحاليل المخبرية' : 'Quality Control & Lab Testing' }}</option>
+                                    <option value="Freight & Material Transport">{{ app()->getLocale() === 'ar' ? 'شحن ونقل مستلزمات الإنتاج' : 'Freight & Material Transport' }}</option>
+                                    <option value="Utilities & Energy">{{ app()->getLocale() === 'ar' ? 'استهلاك طاقة ومرافق تشغيل' : 'Utilities & Energy' }}</option>
+                                    <option value="Operational Overhead">{{ app()->getLocale() === 'ar' ? 'مصاريف تشغيلية عامة' : 'Operational Overhead' }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Cost Amount -->
+                            <div class="w-full md:w-1/4">
+                                <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                    {{ app()->getLocale() === 'ar' ? 'القيمة (ج.م / EGP)' : 'Amount (EGP)' }}
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="number" 
+                                        step="0.01" 
+                                        min="0" 
+                                        :name="`landed_costs[${cIdx}][amount]`" 
+                                        x-model.number="cost.amount" 
+                                        placeholder="0.00" 
+                                        class="form-control text-xs font-mono font-bold text-right rounded-lg w-full pr-12"
+                                    >
+                                    <span class="absolute inset-y-0 right-2 flex items-center text-[10px] text-gray-400 font-bold pointer-events-none">
+                                        EGP
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Statement / Notes -->
+                            <div class="w-full md:flex-1">
+                                <label class="block text-[11px] font-bold text-gray-500 dark:text-gray-400 mb-1">
+                                    {{ app()->getLocale() === 'ar' ? 'البيان / ملاحظات' : 'Notes / Description' }}
+                                </label>
+                                <input 
+                                    type="text" 
+                                    :name="`landed_costs[${cIdx}][note]`" 
+                                    x-model="cost.note" 
+                                    placeholder="{{ app()->getLocale() === 'ar' ? 'مثال: تكلفة كرتون وطباعة عبوات تشغيلة الدفعة...' : 'e.g. Batch cartons, blister foil, lab tests...' }}" 
+                                    class="form-control text-xs rounded-lg w-full"
+                                >
+                            </div>
+
+                            <!-- Delete Button -->
+                            <div class="pt-5 flex items-center">
+                                <button 
+                                    type="button" 
+                                    @click="removeLandedRow(cIdx)" 
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                                    title="{{ app()->getLocale() === 'ar' ? 'حذف البند' : 'Remove' }}"
+                                >
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Add Row & Live KPI Summary Footer -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-amber-200/50 dark:border-amber-900/40">
+                    <button 
+                        type="button" 
+                        @click="addLandedRow()" 
+                        class="btn btn-sm btn-outline border-amber-500 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 font-bold text-xs rounded-xl inline-flex items-center gap-1.5"
+                    >
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>{{ app()->getLocale() === 'ar' ? '+ إضافة بند تكلفة إضافي' : '+ Add Landed Cost Item' }}</span>
+                    </button>
+
+                    <!-- Real-Time Calculation Badge -->
+                    <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-2.5 px-4 rounded-xl border border-amber-200 dark:border-slate-700 shadow-sm">
+                        <div class="text-right">
+                            <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">
+                                {{ app()->getLocale() === 'ar' ? 'إجمالي الـ Landed Cost' : 'Total Landed Cost' }}
+                            </span>
+                            <span class="font-mono font-black text-amber-600 dark:text-amber-400 text-sm" x-text="totalLanded().toFixed(2) + ' EGP'"></span>
+                        </div>
+                        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-gray-500 block uppercase font-bold tracking-wider">
+                                {{ app()->getLocale() === 'ar' ? 'مساهمة القطعة الواحدة' : 'Per Finished Unit' }}
+                            </span>
+                            <span class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-sm" x-text="(targetQty > 0 ? (totalLanded() / targetQty).toFixed(4) : '0.0000') + ' EGP / unit'"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Action Buttons -->

@@ -42,6 +42,11 @@ class WorkOrderRequest extends FormRequest
             'scheduled_start' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'auto_reserve' => ['nullable', 'boolean'],
+            'landed_costs' => ['nullable', 'array'],
+            'landed_costs.*.category' => ['nullable', 'string'],
+            'landed_costs.*.amount' => ['nullable', 'numeric', 'min:0'],
+            'landed_costs.*.note' => ['nullable', 'string'],
+            'landed_costs.*.expense_id' => ['nullable'],
         ];
     }
 }

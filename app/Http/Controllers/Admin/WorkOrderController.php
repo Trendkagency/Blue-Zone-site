@@ -97,8 +97,9 @@ class WorkOrderController extends Controller
         }
 
         $suggestedLot = WorkOrder::generateFinishedLot();
+        $recentExpenses = \App\Models\Expense::with('category')->latest('id')->limit(20)->get();
 
-        return view('admin.supply_chain.work_orders.create', compact('products', 'locations', 'suggestedLot'));
+        return view('admin.supply_chain.work_orders.create', compact('products', 'locations', 'suggestedLot', 'recentExpenses'));
     }
 
     public function store(WorkOrderRequest $request): RedirectResponse
@@ -114,6 +115,26 @@ class WorkOrderController extends Controller
 
         $data['status'] = WorkOrderStatus::Draft;
         $data['created_by'] = auth()->id();
+
+        // Process Landed Costs
+        if (!empty($data['landed_costs']) && is_array($data['landed_costs'])) {
+            $cleanLanded = [];
+            $totalLanded = 0.0;
+            foreach ($data['landed_costs'] as $lc) {
+                $amount = (float) ($lc['amount'] ?? 0);
+                if ($amount > 0) {
+                    $cleanLanded[] = [
+                        'category' => $lc['category'] ?? 'General Overhead',
+                        'amount' => $amount,
+                        'note' => $lc['note'] ?? null,
+                        'expense_id' => $lc['expense_id'] ?? null,
+                    ];
+                    $totalLanded += $amount;
+                }
+            }
+            $data['landed_costs'] = $cleanLanded;
+            $data['total_landed_cost'] = $totalLanded;
+        }
 
         $autoReserve = $request->boolean('auto_reserve', true);
 
@@ -287,6 +308,11 @@ class WorkOrderController extends Controller
             'produced_qty' => ['required', 'integer', 'min:1'],
             'rejected_qty' => ['nullable', 'integer', 'min:0'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'landed_costs' => ['nullable', 'array'],
+            'landed_costs.*.category' => ['nullable', 'string'],
+            'landed_costs.*.amount' => ['nullable', 'numeric', 'min:0'],
+            'landed_costs.*.note' => ['nullable', 'string'],
+            'landed_costs.*.expense_id' => ['nullable'],
         ]);
 
         try {
@@ -296,6 +322,25 @@ class WorkOrderController extends Controller
             $workOrder->rejected_qty = (int) ($validated['rejected_qty'] ?? 0);
             if (! empty($validated['notes'])) {
                 $workOrder->notes = trim(($workOrder->notes ? $workOrder->notes . "\n" : '') . $validated['notes']);
+            }
+
+            if (!empty($validated['landed_costs']) && is_array($validated['landed_costs'])) {
+                $cleanLanded = [];
+                $totalLanded = 0.0;
+                foreach ($validated['landed_costs'] as $lc) {
+                    $amount = (float) ($lc['amount'] ?? 0);
+                    if ($amount > 0) {
+                        $cleanLanded[] = [
+                            'category' => $lc['category'] ?? 'General Overhead',
+                            'amount' => $amount,
+                            'note' => $lc['note'] ?? null,
+                            'expense_id' => $lc['expense_id'] ?? null,
+                        ];
+                        $totalLanded += $amount;
+                    }
+                }
+                $workOrder->landed_costs = $cleanLanded;
+                $workOrder->total_landed_cost = $totalLanded;
             }
             $workOrder->status = WorkOrderStatus::Completed;
             $workOrder->save(); // Triggers WorkOrderObserver to credit finished product inventory and calculate landed cost!
