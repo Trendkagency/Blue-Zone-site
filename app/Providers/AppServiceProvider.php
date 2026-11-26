@@ -121,8 +121,23 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\PurchaseOrder::observe(\App\Observers\PurchaseOrderObserver::class);
         \App\Models\WorkOrder::observe(\App\Observers\WorkOrderObserver::class);
 
-        if ($this->app->environment('production') || config('app.env') === 'production' || str_starts_with(config('app.url', ''), 'https://')) {
+        // Enforce HTTPS scheme on all URLs, assets, forms, and routes:
+        // 1) In production or staging environments
+        // 2) When APP_URL starts with https://
+        // 3) When request is secure or forwarded from SSL reverse proxies / CDNs (Cloudflare, Hostinger, Nginx)
+        // 4) When running on any live remote domain (e.g. blue-zone.trendksoftware.com)
+        if (
+            $this->app->environment('production', 'staging')
+            || config('app.env') === 'production'
+            || str_starts_with(config('app.url', ''), 'https://')
+            || request()->isSecure()
+            || request()->header('X-Forwarded-Proto') === 'https'
+            || (!app()->runningInConsole() && !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1', 'blue-zone.test', 'blue_zone_site.test']) && !str_ends_with(request()->getHost(), '.test') && !str_ends_with(request()->getHost(), '.local'))
+        ) {
             URL::forceScheme('https');
+            if (!app()->runningInConsole()) {
+                request()->server->set('HTTPS', 'on');
+            }
         }
 
         Gate::before(function ($user, string $ability) {
