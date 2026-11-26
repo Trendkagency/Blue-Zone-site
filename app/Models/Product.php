@@ -940,22 +940,31 @@ class Product extends Model implements HasMedia
 
         // Calculate pricing for each tier based on current product base price
         $basePrice = (float) ($this->sale_price ?: $this->price ?: 58.00);
+        $originalUnit = (float) ($this->price ?: $basePrice);
         $calculatedTiers = [];
 
         foreach ($tiers as $tier) {
             $multiplier = max(1, (int) ($tier['multiplier'] ?? 1));
             $rawTotal = $basePrice * $multiplier;
+            $regularTotal = $originalUnit * $multiplier;
             $discType = $tier['discount_type'] ?? 'percentage';
             $discVal = (float) ($tier['discount_value'] ?? 0);
 
             $discAmount = ($discType === 'percentage') ? ($rawTotal * $discVal / 100.0) : min($rawTotal, $discVal);
             $finalPrice = max(0, $rawTotal - $discAmount);
+            $totalSavings = max(0, $regularTotal - $finalPrice);
+            $effectiveSavings = ($totalSavings > 0) ? $totalSavings : $discAmount;
             $unitPrice = $multiplier > 0 ? round($finalPrice / $multiplier, 2) : $finalPrice;
+            $discPct = ($discType === 'percentage') ? round($discVal) : ($regularTotal > 0 ? round(($effectiveSavings / $regularTotal) * 100) : 0);
 
             $calculatedTiers[] = array_merge($tier, [
                 'multiplier' => $multiplier,
                 'raw_total' => round($rawTotal, 2),
+                'regular_total' => round($regularTotal, 2),
                 'discount_amount' => round($discAmount, 2),
+                'total_savings' => round($effectiveSavings, 2),
+                'discount_percent' => $discPct,
+                'has_discount' => ($effectiveSavings > 0.01),
                 'final_price' => round($finalPrice, 2),
                 'unit_price' => $unitPrice,
                 'display_title' => $isRtl && !empty($tier['title_ar']) ? $tier['title_ar'] : ($tier['title_en'] ?? ''),

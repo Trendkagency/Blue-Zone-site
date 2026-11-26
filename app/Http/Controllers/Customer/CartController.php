@@ -84,6 +84,9 @@ class CartController extends Controller
             'tier_multiplier' => $request->input('tier_multiplier') ?? $request->json('tier_multiplier'),
             'tier_title_en' => $request->input('tier_title_en') ?? $request->json('tier_title_en'),
             'tier_title_ar' => $request->input('tier_title_ar') ?? $request->json('tier_title_ar'),
+            'original_price' => $request->input('original_price') ?? $request->json('original_price'),
+            'savings' => $request->input('savings') ?? $request->json('savings'),
+            'tier_badge' => $request->input('tier_badge') ?? $request->json('tier_badge') ?? $request->input('discount_badge') ?? $request->json('discount_badge'),
         ];
 
         try {

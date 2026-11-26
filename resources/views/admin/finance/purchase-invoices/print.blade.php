@@ -690,9 +690,12 @@
                             $itTax = (float) ($isModel ? $item->tax_amount : ($item['tax_amount'] ?? ($item['tax'] ?? round($itSubtotal * 0.05, 2))));
                             $itTotal = (float) ($isModel ? $item->total : ($item['total'] ?? ($itSubtotal + $itTax)));
 
-                            $batchExp = $isModel 
-                                ? ($item->batch_number ?? ($item->expiry_date ? $item->expiry_date->format('Y-m-d') : 'LOT-2026 / 2028-12')) 
-                                : ($item['batch_number'] ?? 'LOT-2026 / 2028-12');
+                            $batchNo = $isModel
+                                ? ($item->batch_number ?: ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number))
+                                : ($item['batch_number'] ?? null);
+                            $expDate = $isModel
+                                ? ($item->expiry_date?->format('Y-m-d') ?? $item->rawMaterialBatch?->expiry_date?->format('Y-m-d') ?? $item->productBatch?->expiry_date?->format('Y-m-d'))
+                                : ($item['expiry_date'] ?? null);
                         @endphp
                         <tr>
                             @if($isColVisible('row_number'))
@@ -708,7 +711,10 @@
                                 <td style="text-align: center; font-family: monospace; font-weight: bold;">{{ number_format($itQty, 2) }}</td>
                             @endif
                             @if($isColVisible('batch_expiry'))
-                                <td style="text-align: center; font-family: monospace; font-size: 0.68rem;">{{ $batchExp }}</td>
+                                <td style="text-align: center; font-family: monospace; font-size: 0.66rem; line-height: 1.3;">
+                                    <div style="font-weight: 700;">Batch: {{ $batchNo ?: '—' }}</div>
+                                    <div>Exp: {{ $expDate ?: '—' }}</div>
+                                </td>
                             @endif
                             @if($isColVisible('unit_price'))
                                 <td style="text-align: center; font-family: monospace;">{{ number_format($itPrice, 2) }}</td>

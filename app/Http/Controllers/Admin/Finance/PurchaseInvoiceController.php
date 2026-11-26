@@ -131,7 +131,7 @@ class PurchaseInvoiceController extends Controller
             'items.*.product_id' => 'nullable|exists:products,id',
             'items.*.raw_material_id' => 'nullable|exists:raw_materials,id',
             'items.*.batch_number' => 'nullable|string|max:100',
-            'items.*.expiry_date' => 'nullable|date',
+            'items.*.expiry_date' => 'required|date|after:today',
         ]);
 
         $po = !empty($validated['purchase_order_id']) ? PurchaseOrder::find($validated['purchase_order_id']) : null;
@@ -202,5 +202,46 @@ class PurchaseInvoiceController extends Controller
         $this->financeService->recordSupplierPayment($invoice, (float) $validated['amount'], $account, $validated);
 
         return redirect()->back()->with('status', __('finance.success_payment'));
+    }
+
+    /**
+     * Update or backfill real batch number and expiry date for an existing invoice line item.
+     */
+    public function updateItemBatchExpiry(Request $request, int $id, int $itemId): RedirectResponse
+    {
+        $invoice = PurchaseInvoice::findOrFail($id);
+        $item = $invoice->items()->with(['rawMaterialBatch', 'productBatch'])->findOrFail($itemId);
+
+        $validated = $request->validate([
+            'batch_number' => 'nullable|string|max:100',
+            'expiry_date' => 'required|date|after:today',
+        ]);
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($item, $validated) {
+            $batchNumber = isset($validated['batch_number']) && trim($validated['batch_number']) !== ''
+                ? trim($validated['batch_number'])
+                : $item->batch_number;
+
+            $item->update([
+                'batch_number' => $batchNumber,
+                'expiry_date' => $validated['expiry_date'],
+            ]);
+
+            if ($item->rawMaterialBatch) {
+                $item->rawMaterialBatch->update([
+                    'supplier_lot' => $batchNumber ?? $item->rawMaterialBatch->supplier_lot,
+                    'expiry_date' => $validated['expiry_date'],
+                ]);
+            }
+
+            if ($item->productBatch) {
+                $item->productBatch->update([
+                    'supplier_lot' => $batchNumber ?? $item->productBatch->supplier_lot,
+                    'expiry_date' => $validated['expiry_date'],
+                ]);
+            }
+        });
+
+        return redirect()->back()->with('status', 'Batch & Expiry Date updated and synced to inventory.');
     }
 }

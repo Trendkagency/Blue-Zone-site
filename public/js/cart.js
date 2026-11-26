@@ -148,6 +148,13 @@
           name_en: extraData.name_en || extraData.name || (typeof productId === 'string' ? productId.replace(/[-_]/g, ' ').toUpperCase() : 'BLUE ZONE Formulation'),
           name_ar: extraData.name_ar || extraData.name || null,
           price: extraData.price || 68.00,
+          original_price: extraData.original_price || extraData.regular_price || null,
+          savings: extraData.savings || extraData.discount_amount || null,
+          tier_id: extraData.tier_id || null,
+          tier_multiplier: extraData.tier_multiplier || 1,
+          tier_title_en: extraData.tier_title_en || extraData.title || null,
+          tier_title_ar: extraData.tier_title_ar || extraData.title || null,
+          tier_badge: extraData.tier_badge || extraData.badge || extraData.discount_badge || null,
           image: extraData.image || 'assets/logo/logo-main.png',
           slug: extraData.slug || (typeof productId === 'string' ? productId : ('product-' + productId))
         })
@@ -423,6 +430,19 @@
         : `$${subtotal.toFixed(2)}`;
     }
 
+    // Protocol Offers & Tier Savings Banner
+    const totalSavings = parseFloat(cartData.total_savings || cartData.tier_savings || 0);
+    const savingsEl = document.getElementById('cart-drawer-savings');
+    const savingsValEl = document.getElementById('cart-drawer-savings-val');
+    if (savingsEl && savingsValEl) {
+      if (totalSavings > 0.01) {
+        savingsEl.style.display = 'flex';
+        savingsValEl.textContent = `-${window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(totalSavings) : `$${totalSavings.toFixed(2)}`}`;
+      } else {
+        savingsEl.style.display = 'none';
+      }
+    }
+
     const needed = Math.max(0, threshold - subtotal);
     const progress = Math.min(100, (subtotal / threshold) * 100);
 
@@ -490,13 +510,30 @@
         rawImg = '/' + rawImg;
       }
 
+      const itemKey = item.cart_key || (item.tier_id ? (`${item.id}_${item.tier_id}`) : item.id);
+      const tierTitle = isAr ? (item.tier_title_ar || item.tier_title_en || '') : (item.tier_title_en || item.tier_title_ar || '');
+      const tierMultiplier = parseInt(item.tier_multiplier, 10) || 1;
+      const tierBadge = item.tier_badge || '';
+
       const itemPrice = parseFloat(item.price) || 0;
+      const originalPrice = parseFloat(item.original_price) || 0;
       const itemQty = parseInt(item.quantity, 10) || 1;
       const lineTotal = itemPrice * itemQty;
+
+      const savingsPerUnit = parseFloat(item.savings) || (originalPrice > itemPrice ? (originalPrice - itemPrice) : 0);
+      const totalItemSavings = savingsPerUnit * itemQty;
 
       const formattedPrice = window.BLUEZONE_CURRENCY 
         ? window.BLUEZONE_CURRENCY.format(itemPrice) 
         : `$${itemPrice.toFixed(2)}`;
+
+      const formattedOriginalPrice = originalPrice > 0 
+        ? (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(originalPrice) : `$${originalPrice.toFixed(2)}`) 
+        : null;
+
+      const formattedItemSavings = totalItemSavings > 0 
+        ? (window.BLUEZONE_CURRENCY ? window.BLUEZONE_CURRENCY.format(totalItemSavings) : `$${totalItemSavings.toFixed(2)}`) 
+        : null;
 
       const formattedLineTotal = window.BLUEZONE_CURRENCY 
         ? window.BLUEZONE_CURRENCY.format(lineTotal) 
@@ -514,19 +551,45 @@
               <a href="${detailUrl}" onclick="if(window.BLUEZONE_CART){BLUEZONE_CART.close();}" class="text-xs sm:text-sm font-black text-[#031827] dark:text-[#F6F5EF] leading-tight truncate hover:text-[#0A4F78] dark:hover:text-[#2A8FC2] transition-colors" title="${itemName}">
                 ${itemName}
               </a>
-              <button type="button" onclick="BLUEZONE_CART.remove('${item.id}')" aria-label="${isAr ? 'إزالة من السلة' : 'Remove from cart'}" class="p-1 text-[#031827]/40 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 cursor-pointer transition-colors rounded-lg shrink-0" title="${isAr ? 'إزالة' : 'Remove'}">
+              <button type="button" onclick="BLUEZONE_CART.remove('${itemKey}')" aria-label="${isAr ? 'إزالة من السلة' : 'Remove from cart'}" class="p-1 text-[#031827]/40 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 cursor-pointer transition-colors rounded-lg shrink-0" title="${isAr ? 'إزالة' : 'Remove'}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               </button>
             </div>
-            <div class="flex items-baseline gap-2">
+
+            <!-- Dynamic Protocol Offer & Discount Badges -->
+            ${item.tier_id ? `
+              <div class="flex items-center gap-1.5 flex-wrap my-1">
+                <span class="px-2 py-0.5 rounded-md bg-[#0A4F78]/10 dark:bg-[#2A8FC2]/20 text-[#0A4F78] dark:text-[#2A8FC2] text-[10px] font-mono font-black flex items-center gap-1 border border-[#0A4F78]/15">
+                  <i class="fa-solid fa-calendar-check text-[9px]"></i>
+                  ${tierTitle || (isAr ? 'باقة بروتوكول' : 'Protocol Pack')} (${tierMultiplier}x)
+                </span>
+                ${formattedItemSavings ? `
+                  <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-extrabold flex items-center gap-1 border border-emerald-500/30">
+                    <i class="fa-solid fa-tag text-[8px]"></i>
+                    ${isAr ? `وفّرت ${formattedItemSavings}` : `Saved ${formattedItemSavings}`}
+                  </span>
+                ` : (tierBadge ? `
+                  <span class="px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-extrabold border border-emerald-500/30">
+                    ${tierBadge}
+                  </span>
+                ` : '')}
+              </div>
+            ` : ''}
+
+            <!-- Price with Original Strikethrough if discounted -->
+            <div class="flex items-baseline gap-2 flex-wrap">
               <span class="text-xs font-extrabold text-[#0A4F78] dark:text-[#2A8FC2]">${formattedPrice}</span>
+              ${(formattedOriginalPrice && originalPrice > itemPrice) ? `
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 line-through font-mono">${formattedOriginalPrice}</span>
+              ` : ''}
               ${itemQty > 1 ? `<span class="text-[10px] text-[#031827]/50 dark:text-white/50">× ${itemQty}</span>` : ''}
             </div>
+
             <div class="flex items-center justify-between gap-2 pt-1">
               <div class="flex items-center border border-[#0A4F78]/25 dark:border-[#0A4F78]/40 rounded-lg bg-[#F6F5EF] dark:bg-[#031827] overflow-hidden text-[#031827] dark:text-white shadow-xs">
-                <button type="button" onclick="BLUEZONE_CART.updateQty('${item.id}', -1)" aria-label="${isAr ? 'إنقاص الكمية' : 'Decrease quantity'}" class="w-7 h-6 flex items-center justify-center text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">-</button>
+                <button type="button" onclick="BLUEZONE_CART.updateQty('${itemKey}', -1)" aria-label="${isAr ? 'إنقاص الكمية' : 'Decrease quantity'}" class="w-7 h-6 flex items-center justify-center text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">-</button>
                 <span class="w-7 text-center text-xs font-bold select-none text-[#031827] dark:text-white">${itemQty}</span>
-                <button type="button" onclick="BLUEZONE_CART.updateQty('${item.id}', 1)" aria-label="${isAr ? 'زيادة الكمية' : 'Increase quantity'}" class="w-7 h-6 flex items-center justify-center text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">+</button>
+                <button type="button" onclick="BLUEZONE_CART.updateQty('${itemKey}', 1)" aria-label="${isAr ? 'زيادة الكمية' : 'Increase quantity'}" class="w-7 h-6 flex items-center justify-center text-xs font-black cursor-pointer hover:bg-[#0A4F78]/15 text-[#031827] dark:text-white transition-colors">+</button>
               </div>
               <span class="text-xs font-black text-[#031827] dark:text-white">${formattedLineTotal}</span>
             </div>

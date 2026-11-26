@@ -274,60 +274,93 @@ class FinanceService
                     $batchNumber = !empty($item['batch_number']) ? trim($item['batch_number']) : null;
                     $expiryDate = !empty($item['expiry_date']) ? $item['expiry_date'] : null;
 
-                    $createdRawBatch = null;
+                    $rawMaterialBatchId = $item['raw_material_batch_id'] ?? null;
+                    $productBatchId = $item['product_batch_id'] ?? null;
+                    $rawMat = null;
+                    $prod = null;
 
-                    // Direct Inwarding: Auto-register Raw Material Batch & Update standard cost
+                    // Direct Inwarding: Auto-register Raw Material Batch only if not already linked from a GRN
                     if ($itemType === 'raw_material' && $rawMaterialId) {
                         $rawMat = RawMaterial::find($rawMaterialId);
                         if ($rawMat) {
-                            // Update raw material standard cost with latest purchase price
                             $rawMat->standard_cost = $price;
                             $rawMat->save();
 
-                            // Generate batch number if empty
-                            if (empty($batchNumber)) {
-                                $batchSeq = RawMaterialBatch::where('raw_material_id', $rawMaterialId)->count() + 1;
-                                $batchNumber = 'RM-' . date('Y') . '-' . str_pad((string) $batchSeq, 4, '0', STR_PAD_LEFT);
+                            if (!$rawMaterialBatchId) {
+                                $supplierLot = $batchNumber;
+                                if (empty($batchNumber) || RawMaterialBatch::where('batch_number', $batchNumber)->exists()) {
+                                    $batchNumber = RawMaterialBatch::generateBatchNumber();
+                                }
+
+                                if (empty($expiryDate)) {
+                                    $days = (int) ($rawMat->shelf_life_days ?: 730);
+                                    $expiryDate = Carbon::parse($invoice->invoice_date)->addDays($days)->toDateString();
+                                }
+
+                                $createdRawBatch = RawMaterialBatch::create([
+                                    'raw_material_id' => $rawMat->id,
+                                    'batch_number' => $batchNumber,
+                                    'supplier_lot' => $supplierLot ?? $batchNumber,
+                                    'supplier_id' => $invoice->supplier_id,
+                                    'location_id' => 'central_wh',
+                                    'initial_qty' => $qty,
+                                    'current_qty' => $qty,
+                                    'available_qty' => $qty,
+                                    'reserved_qty' => 0,
+                                    'quarantine_qty' => 0,
+                                    'unit_cost' => $price,
+                                    'manufacture_date' => $invoice->invoice_date,
+                                    'expiry_date' => $expiryDate,
+                                    'status' => RawMaterialBatchStatus::Approved,
+                                ]);
+                                $rawMaterialBatchId = $createdRawBatch->id;
+
+                                RawMaterialMovement::create([
+                                    'raw_material_batch_id' => $createdRawBatch->id,
+                                    'movement_type' => RawMaterialMovementType::Receipt,
+                                    'from_location' => 'Supplier: ' . ($invoice->supplier?->name_en ?? 'Direct Vendor Intake'),
+                                    'to_location' => 'central_wh',
+                                    'quantity' => $qty,
+                                    'previous_qty' => 0,
+                                    'new_qty' => $qty,
+                                    'user_id' => auth()->id() ?? 1,
+                                    'reference_type' => 'purchase_invoice',
+                                    'reference_id' => $invoice->id,
+                                    'note' => "Direct intake from Purchase Invoice #{$invoice->invoice_number}",
+                                    'ip_address' => request()?->ip(),
+                                    'created_at' => now(),
+                                ]);
+                            }
+                        }
+                    } elseif ($itemType === 'product' && $productId) {
+                        $prod = Product::find($productId);
+                        if ($prod && !$productBatchId) {
+                            $supplierLot = $batchNumber;
+                            if (empty($batchNumber) || ProductBatch::where('batch_number', $batchNumber)->exists()) {
+                                $batchNumber = ProductBatch::generateBatchNumber();
                             }
 
                             if (empty($expiryDate)) {
-                                $days = (int) ($rawMat->shelf_life_days ?: 730);
-                                $expiryDate = Carbon::parse($invoice->invoice_date)->addDays($days)->toDateString();
+                                $expiryDate = $prod->calculateDefaultExpiryDate($invoice->invoice_date);
                             }
 
-                            $createdRawBatch = RawMaterialBatch::create([
-                                'raw_material_id' => $rawMat->id,
+                            $intQty = (int) round($qty);
+                            $createdProdBatch = ProductBatch::create([
+                                'product_id' => $prod->id,
                                 'batch_number' => $batchNumber,
-                                'supplier_lot' => $batchNumber,
-                                'supplier_id' => $invoice->supplier_id,
+                                'supplier_lot' => $supplierLot ?? $batchNumber,
                                 'location_id' => 'central_wh',
-                                'initial_qty' => $qty,
-                                'current_qty' => $qty,
-                                'available_qty' => $qty,
+                                'initial_qty' => $intQty,
+                                'current_qty' => $intQty,
+                                'available_qty' => $intQty,
                                 'reserved_qty' => 0,
                                 'quarantine_qty' => 0,
                                 'unit_cost' => $price,
                                 'manufacture_date' => $invoice->invoice_date,
                                 'expiry_date' => $expiryDate,
-                                'status' => RawMaterialBatchStatus::Approved,
+                                'status' => 'approved',
                             ]);
-
-                            // Record movement audit log
-                            RawMaterialMovement::create([
-                                'raw_material_batch_id' => $createdRawBatch->id,
-                                'movement_type' => RawMaterialMovementType::Receipt,
-                                'from_location' => 'Supplier: ' . ($invoice->supplier?->name_en ?? 'Direct Vendor Intake'),
-                                'to_location' => 'central_wh',
-                                'quantity' => $qty,
-                                'previous_qty' => 0,
-                                'new_qty' => $qty,
-                                'user_id' => auth()->id() ?? 1,
-                                'reference_type' => 'purchase_invoice',
-                                'reference_id' => $invoice->id,
-                                'note' => "Direct intake from Purchase Invoice #{$invoice->invoice_number}",
-                                'ip_address' => request()?->ip(),
-                                'created_at' => now(),
-                            ]);
+                            $productBatchId = $createdProdBatch->id;
                         }
                     }
 
@@ -336,10 +369,11 @@ class FinanceService
                         'item_type' => $itemType,
                         'product_id' => $productId,
                         'raw_material_id' => $rawMaterialId,
-                        'raw_material_batch_id' => $createdRawBatch?->id,
+                        'product_batch_id' => $productBatchId,
+                        'raw_material_batch_id' => $rawMaterialBatchId,
                         'batch_number' => $batchNumber,
                         'expiry_date' => $expiryDate,
-                        'item_name' => $item['item_name'] ?? ($rawMat?->name_en ?? 'Item'),
+                        'item_name' => $item['item_name'] ?? ($rawMat?->name_en ?? $prod?->name_en ?? 'Item'),
                         'quantity' => $qty,
                         'unit_price' => $price,
                         'subtotal' => $sub,

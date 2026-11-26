@@ -931,6 +931,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/{purchaseInvoice}', [PurchaseInvoiceController::class, 'show'])->name('show');
                 Route::get('/{purchaseInvoice}/print', [PurchaseInvoiceController::class, 'print'])->name('print');
                 Route::post('/{purchaseInvoice}/pay', [PurchaseInvoiceController::class, 'pay'])->name('pay');
+                Route::patch('/{purchaseInvoice}/items/{item}/batch-expiry', [PurchaseInvoiceController::class, 'updateItemBatchExpiry'])->name('update-item-batch-expiry');
             });
 
             // 4. Collection Entries (Spreadsheet Grid & System Ingestion)

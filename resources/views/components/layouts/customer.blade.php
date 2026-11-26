@@ -827,6 +827,13 @@
                         {{ app()->getLocale() === 'ar' ? 'دفع آمن 100%' : '256-Bit SSL' }}</span>
                 </div>
 
+                <!-- Protocol Offers & Tier Savings Banner -->
+                <div id="cart-drawer-savings" style="display: none;"
+                    class="px-3.5 py-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold justify-between items-center shadow-xs">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-sparkles text-[#67B34A]"></i> {{ app()->getLocale() === 'ar' ? 'إجمالي وفورات العروض:' : 'Total Protocol Savings:' }}</span>
+                    <span id="cart-drawer-savings-val" class="font-black font-mono">-$0.00</span>
+                </div>
+
                 <!-- Subtotal Breakdown -->
                 <div
                     class="flex justify-between items-baseline text-base sm:text-lg font-black text-[#031827] dark:text-white">

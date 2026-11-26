@@ -249,7 +249,23 @@
                                     $itSubtotal = (float) $item->subtotal;
                                     $itTax = (float) $item->tax_amount;
                                     $itTotal = (float) $item->total;
-                                    $batchExp = $item->batch_number ?? ($item->expiry_date ? $item->expiry_date->format('Y-m-d') : 'LOT-2026 / 2028-12');
+                                    $batchNo = $item->batch_number ?: ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number);
+                                    $expDate = $item->expiry_date ?? $item->rawMaterialBatch?->expiry_date ?? $item->productBatch?->expiry_date;
+                                    $expStr = $expDate ? $expDate->format('Y-m-d') : null;
+                                    $daysLeft = $expDate ? (int) now()->startOfDay()->diffInDays($expDate->copy()->startOfDay(), false) : null;
+                                    if ($daysLeft === null) {
+                                        $expBadgeClass = 'bg-slate-100 text-slate-600 border-slate-300';
+                                        $expBadgeLabel = 'Missing';
+                                    } elseif ($daysLeft < 0) {
+                                        $expBadgeClass = 'bg-rose-100 text-rose-700 border-rose-300';
+                                        $expBadgeLabel = 'Expired';
+                                    } elseif ($daysLeft <= 90) {
+                                        $expBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                                        $expBadgeLabel = $daysLeft . 'd left';
+                                    } else {
+                                        $expBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                                        $expBadgeLabel = 'Valid';
+                                    }
                                 @endphp
                                 <tr>
                                     @if($isColVisible('row_number'))
@@ -265,7 +281,20 @@
                                         <td class="text-center font-mono font-bold">{{ number_format($itQty, 2) }}</td>
                                     @endif
                                     @if($isColVisible('batch_expiry'))
-                                        <td class="text-center font-mono text-[11px]">{{ $batchExp }}</td>
+                                        <td class="text-center font-mono text-[11px] leading-tight">
+                                            <div class="font-bold text-slate-800">Batch: {{ $batchNo ?: '—' }}</div>
+                                            <div class="mt-0.5 {{ $expStr ? 'text-slate-700' : 'text-rose-600 font-bold' }}">
+                                                Exp: {{ $expStr ?? 'Not Set' }}
+                                            </div>
+                                            <div class="mt-0.5 flex items-center justify-center gap-1 print:hidden">
+                                                <span class="inline-block px-1.5 py-0.2 rounded border text-[9px] font-sans font-bold {{ $expBadgeClass }}">{{ $expBadgeLabel }}</span>
+                                                <button type="button"
+                                                    onclick="openBatchExpiryModal('{{ route('admin.finance.purchase-invoices.update-item-batch-expiry', [$invoice->id, $item->id]) }}', @js($item->item_name), @js($batchNo ?? ''), @js($expStr ?? ''))"
+                                                    class="text-[9px] font-sans font-bold text-sky-600 hover:text-sky-800 underline">
+                                                    Edit
+                                                </button>
+                                            </div>
+                                        </td>
                                     @endif
                                     @if($isColVisible('unit_price'))
                                         <td class="text-center font-mono">{{ number_format($itPrice, 2) }}</td>
@@ -657,7 +686,52 @@
         }
     </style>
 
+    <!-- Edit Batch & Expiry Modal -->
+    <div id="batchExpiryModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 print:hidden">
+        <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-black text-slate-900 dark:text-white">Update Real Batch & Expiry Date</h3>
+                <button type="button" onclick="closeBatchExpiryModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+            </div>
+            <p id="batchExpiryItemName" class="text-xs font-semibold text-slate-500 mb-4"></p>
+            <form id="batchExpiryForm" method="POST" action="">
+                @csrf
+                @method('PATCH')
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Batch / Lot Number</label>
+                        <input type="text" name="batch_number" id="modalBatchNumber" class="form-control text-xs w-full rounded-xl font-mono" placeholder="e.g. LOT-2026-001">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Real Expiry Date <span class="text-rose-500">*</span></label>
+                        <input type="date" name="expiry_date" id="modalExpiryDate" required min="{{ now()->addDay()->toDateString() }}" class="form-control text-xs w-full rounded-xl font-mono">
+                    </div>
+                </div>
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" onclick="closeBatchExpiryModal()" class="btn btn-secondary text-xs rounded-xl px-4">Cancel</button>
+                    <button type="submit" class="btn btn-primary text-xs rounded-xl px-4 font-bold">Save & Sync Batch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function openBatchExpiryModal(actionUrl, itemName, batchNo, expiryDate) {
+            document.getElementById('batchExpiryForm').action = actionUrl;
+            document.getElementById('batchExpiryItemName').textContent = itemName || '';
+            document.getElementById('modalBatchNumber').value = batchNo || '';
+            document.getElementById('modalExpiryDate').value = expiryDate || '';
+            const modal = document.getElementById('batchExpiryModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeBatchExpiryModal() {
+            const modal = document.getElementById('batchExpiryModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         function printInvoiceSheet() {
             const printUrl = "{{ route('admin.finance.purchase-invoices.print', $invoice->id) }}";
             const printWin = window.open(printUrl, '_blank', 'width=950,height=800,scrollbars=yes');

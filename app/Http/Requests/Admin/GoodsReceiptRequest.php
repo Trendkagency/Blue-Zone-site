@@ -38,7 +38,7 @@ class GoodsReceiptRequest extends FormRequest
             'items.*.rejected_qty' => ['nullable', 'numeric', 'min:0'],
             'items.*.supplier_lot' => ['required', 'string', 'max:100'],
             'items.*.manufacture_date' => ['required', 'date'],
-            'items.*.expiry_date' => ['required', 'date'],
+            'items.*.expiry_date' => $isUpdate ? ['required', 'date'] : ['required', 'date', 'after:today'],
             'items.*.storage_condition' => ['nullable'],
             'items.*.storage_bin' => ['nullable', 'string', 'max:50'],
             'items.*.notes' => ['nullable', 'string', 'max:255'],

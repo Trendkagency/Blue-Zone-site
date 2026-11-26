@@ -165,23 +165,34 @@ class CartService
         }
 
         // Handle Protocol Duration Tier Overrides (Multipliers & Discounted Prices)
+        $cartKey = (string) $itemData['id'];
         if (!empty($fallbackData['tier_id'])) {
             $itemData['tier_id'] = $fallbackData['tier_id'];
             $itemData['tier_multiplier'] = max(1, (int) ($fallbackData['tier_multiplier'] ?? 1));
             $itemData['tier_title_en'] = $fallbackData['tier_title_en'] ?? '';
             $itemData['tier_title_ar'] = $fallbackData['tier_title_ar'] ?? '';
+            $itemData['tier_badge'] = $fallbackData['tier_badge'] ?? ($fallbackData['discount_badge'] ?? '');
             if (isset($fallbackData['price']) && is_numeric($fallbackData['price'])) {
                 $itemData['price'] = (float) $fallbackData['price'];
             }
+            if (isset($fallbackData['original_price']) && is_numeric($fallbackData['original_price'])) {
+                $itemData['original_price'] = (float) $fallbackData['original_price'];
+            }
+            if (isset($fallbackData['savings']) && is_numeric($fallbackData['savings'])) {
+                $itemData['savings'] = (float) $fallbackData['savings'];
+            } elseif (!empty($itemData['original_price']) && $itemData['original_price'] > $itemData['price']) {
+                $itemData['savings'] = round($itemData['original_price'] - $itemData['price'], 2);
+            }
+            $cartKey = $itemData['id'] . '_' . $itemData['tier_id'];
         }
+        $itemData['cart_key'] = $cartKey;
 
         $items = self::getItems();
         $foundIndex = -1;
 
         foreach ($items as $idx => $item) {
-            $sameProduct = ((string)$item['id'] === (string)$itemData['id'] || (string)$item['slug'] === (string)$itemData['slug']);
-            $sameTier = (($item['tier_id'] ?? null) === ($itemData['tier_id'] ?? null));
-            if ($sameProduct && $sameTier) {
+            $itemCartKey = $item['cart_key'] ?? (!empty($item['tier_id']) ? ($item['id'] . '_' . $item['tier_id']) : (string)$item['id']);
+            if ($itemCartKey === $cartKey) {
                 $foundIndex = $idx;
                 break;
             }
@@ -219,7 +230,8 @@ class CartService
         }
 
         foreach ($items as $idx => $item) {
-            if ((string)$item['id'] === (string)$productId || (string)$item['slug'] === (string)$productId) {
+            $itemCartKey = $item['cart_key'] ?? (!empty($item['tier_id']) ? ($item['id'] . '_' . $item['tier_id']) : (string)$item['id']);
+            if ($itemCartKey === (string)$productId || (string)$item['id'] === (string)$productId || (string)($item['slug'] ?? '') === (string)$productId) {
                 $product = Product::find($item['id']);
                 $maxStock = $product ? (int)$product->stock_online : 99;
 
@@ -241,9 +253,10 @@ class CartService
     public static function remove(int|string $productId): array
     {
         $items = self::getItems();
-        $filtered = array_filter($items, function ($item) use ($productId) {
-            return (string)$item['id'] !== (string)$productId && (string)$item['slug'] !== (string)$productId;
-        });
+        $filtered = array_values(array_filter($items, function ($item) use ($productId) {
+            $itemCartKey = $item['cart_key'] ?? (!empty($item['tier_id']) ? ($item['id'] . '_' . $item['tier_id']) : (string)$item['id']);
+            return $itemCartKey !== (string)$productId && (string)$item['id'] !== (string)$productId && (string)($item['slug'] ?? '') !== (string)$productId;
+        }));
 
         self::saveItems($filtered);
 
@@ -399,15 +412,28 @@ class CartService
      */
     public static function getSummary(): array
     {
+        $items = self::getItems();
         $subtotal = self::getSubtotal();
         $freeShippingThreshold = (float) Setting::get('free_shipping_threshold', 75.00);
         $neededForFreeShipping = max(0.0, round($freeShippingThreshold - $subtotal, 2));
 
+        $tierSavings = 0.0;
+        foreach ($items as $it) {
+            $s = (float)($it['savings'] ?? 0);
+            $q = (int)($it['quantity'] ?? 1);
+            $tierSavings += ($s * $q);
+        }
+        $tierSavings = round($tierSavings, 2);
+        $couponDiscount = self::getDiscount();
+        $totalSavings = round($tierSavings + $couponDiscount, 2);
+
         return [
-            'items' => self::getItems(),
+            'items' => $items,
             'count' => self::getCount(),
             'subtotal' => $subtotal,
-            'discount' => self::getDiscount(),
+            'discount' => $couponDiscount,
+            'tier_savings' => $tierSavings,
+            'total_savings' => $totalSavings,
             'coupon' => self::getCoupon(),
             'shipping' => self::getShipping(),
             'tax' => self::getTax(),

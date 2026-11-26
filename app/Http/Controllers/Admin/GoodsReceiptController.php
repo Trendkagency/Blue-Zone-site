@@ -553,12 +553,32 @@ class GoodsReceiptController extends Controller
             $lineSub = round($qty * $unitPrice, 2);
             $subtotal += $lineSub;
 
+            $itemType = $item->item_type ?? ($item->product_id ? 'product' : 'raw_material');
+            $existingProductBatch = $itemType === 'product' && $item->product_id
+                ? ProductBatch::where('goods_receipt_id', $goodsReceipt->id)
+                    ->where('product_id', $item->product_id)
+                    ->when($item->supplier_lot, fn ($q) => $q->where('supplier_lot', $item->supplier_lot))
+                    ->first()
+                : null;
+            $existingRawBatch = $itemType === 'raw_material' && $item->raw_material_id
+                ? \App\Models\RawMaterialBatch::where('goods_receipt_id', $goodsReceipt->id)
+                    ->where('raw_material_id', $item->raw_material_id)
+                    ->when($item->supplier_lot, fn ($q) => $q->where('supplier_lot', $item->supplier_lot))
+                    ->first()
+                : null;
+
+            $resolvedExpiry = $item->expiry_date?->toDateString()
+                ?? $existingProductBatch?->expiry_date?->toDateString()
+                ?? $existingRawBatch?->expiry_date?->toDateString();
+
             $items[] = [
-                'item_type' => $item->item_type ?? ($item->product_id ? 'product' : 'raw_material'),
+                'item_type' => $itemType,
                 'product_id' => $item->product_id,
                 'raw_material_id' => $item->raw_material_id,
-                'batch_number' => $item->supplier_lot,
-                'expiry_date' => $item->expiry_date?->toDateString(),
+                'product_batch_id' => $existingProductBatch?->id,
+                'raw_material_batch_id' => $existingRawBatch?->id,
+                'batch_number' => $item->supplier_lot ?: ($existingProductBatch?->batch_number ?? $existingRawBatch?->batch_number),
+                'expiry_date' => $resolvedExpiry,
                 'item_name' => $item->item_name . ($item->supplier_lot ? " (Lot: {$item->supplier_lot})" : ''),
                 'quantity' => $qty,
                 'unit_price' => $unitPrice,

@@ -215,7 +215,7 @@
                                             <select name="items[{{ $idx }}][raw_material_id]" onchange="onSelectItem(this, {{ $idx }}, 'raw_material')" class="form-select text-xs w-full rounded-xl mb-1">
                                                 <option value="">-- Choose Raw Material --</option>
                                                 @foreach($rawMaterials as $rm)
-                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}" {{ $pItem->raw_material_id == $rm->id ? 'selected' : '' }}>
+                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}" data-shelf-life="{{ (int) ($rm->shelf_life_days ?? 730) }}" {{ $pItem->raw_material_id == $rm->id ? 'selected' : '' }}>
                                                         {{ $rm->name_en }} ({{ $rm->material_code }})
                                                     </option>
                                                 @endforeach
@@ -226,7 +226,10 @@
                                             <input type="text" name="items[{{ $idx }}][batch_number]" placeholder="LOT-RM-..." value="{{ $pItem->batch_number ?? '' }}" class="form-control text-xs rounded-xl font-mono">
                                         </td>
                                         <td>
-                                            <input type="date" name="items[{{ $idx }}][expiry_date]" value="{{ $pItem->expiry_date?->format('Y-m-d') ?? '' }}" class="form-control text-xs rounded-xl font-mono">
+                                            <div class="flex items-center gap-1">
+                                                <input type="date" name="items[{{ $idx }}][expiry_date]" value="{{ $pItem->expiry_date?->format('Y-m-d') ?? '' }}" required min="{{ now()->addDay()->toDateString() }}" class="item-expiry form-control text-xs rounded-xl font-mono">
+                                                <button type="button" onclick="autoFillExpiry(this)" title="Auto-calculate from shelf life" class="px-2 py-1.5 text-[10px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">Auto</button>
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="number" step="0.01" name="items[{{ $idx }}][quantity]" value="{{ $pItem->quantity }}" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
@@ -256,7 +259,7 @@
                                             <select name="items[0][raw_material_id]" onchange="onSelectItem(this, 0, 'raw_material')" class="form-select text-xs w-full rounded-xl mb-1">
                                                 <option value="">-- Choose Raw Material --</option>
                                                 @foreach($rawMaterials as $rm)
-                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}">
+                                                    <option value="{{ $rm->id }}" data-cost="{{ $rm->standard_cost }}" data-name="{{ $rm->name_en }}" data-shelf-life="{{ (int) ($rm->shelf_life_days ?? 730) }}">
                                                         {{ $rm->name_en }} ({{ $rm->material_code }})
                                                     </option>
                                                 @endforeach
@@ -268,7 +271,10 @@
                                         <input type="text" name="items[0][batch_number]" placeholder="LOT-RM-2026-001" class="form-control text-xs rounded-xl font-mono">
                                     </td>
                                     <td>
-                                        <input type="date" name="items[0][expiry_date]" value="{{ date('Y-m-d', strtotime('+24 months')) }}" class="form-control text-xs rounded-xl font-mono">
+                                        <div class="flex items-center gap-1">
+                                            <input type="date" name="items[0][expiry_date]" required min="{{ now()->addDay()->toDateString() }}" class="item-expiry form-control text-xs rounded-xl font-mono">
+                                            <button type="button" onclick="autoFillExpiry(this)" title="Auto-calculate from shelf life" class="px-2 py-1.5 text-[10px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">Auto</button>
+                                        </div>
                                     </td>
                                     <td>
                                         <input type="number" step="0.01" name="items[0][quantity]" value="10" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
@@ -324,10 +330,16 @@
     </div>
 
     <script>
-        const rawMaterialsList = @json($rawMaterials->map(fn($r) => ['id' => $r->id, 'name' => $r->name_en . ' (' . $r->material_code . ')', 'cost' => (float)$r->standard_cost]));
-        const productsList = @json($products->map(fn($p) => ['id' => $p->id, 'name' => $p->name_en . ' (' . $p->sku . ')', 'cost' => (float)$p->cost_price]));
+        const rawMaterialsList = @json($rawMaterials->map(fn($r) => ['id' => $r->id, 'name' => $r->name_en . ' (' . $r->material_code . ')', 'cost' => (float)$r->standard_cost, 'shelf_life' => (int)($r->shelf_life_days ?? 730)]));
+        const productsList = @json($products->map(fn($p) => ['id' => $p->id, 'name' => $p->name_en . ' (' . $p->sku . ')', 'cost' => (float)$p->cost_price, 'shelf_life' => (int)(($p->shelf_life_months ?? 24) * 30)]));
 
         let rowCount = {{ $po && $po->items->isNotEmpty() ? $po->items->count() : 1 }};
+
+        function getMinExpiryDate() {
+            const d = new Date();
+            d.setDate(d.getDate() + 1);
+            return d.toISOString().split('T')[0];
+        }
 
         function addItemRow(defaultType = 'raw_material') {
             const tbody = document.getElementById('itemsBody');
@@ -336,13 +348,11 @@
             tr.setAttribute('data-row', rowCount);
 
             const isRm = defaultType === 'raw_material';
-            const defaultDate = new Date();
-            defaultDate.setMonth(defaultDate.getMonth() + 24);
-            const dateStr = defaultDate.toISOString().split('T')[0];
+            const minDate = getMinExpiryDate();
 
             let optionsHtml = isRm
-                ? rawMaterialsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('')
-                : productsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('');
+                ? rawMaterialsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}" data-shelf-life="${item.shelf_life}">${item.name}</option>`).join('')
+                : productsList.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}" data-shelf-life="${item.shelf_life}">${item.name}</option>`).join('');
 
             const selectName = isRm ? `items[${rowCount}][raw_material_id]` : `items[${rowCount}][product_id]`;
             const placeholder = isRm ? '-- Choose Raw Material --' : '-- Choose Finished Product --';
@@ -368,7 +378,10 @@
                     <input type="text" name="items[${rowCount}][batch_number]" placeholder="${batchPrefix}${new Date().getFullYear()}-001" class="form-control text-xs rounded-xl font-mono">
                 </td>
                 <td>
-                    <input type="date" name="items[${rowCount}][expiry_date]" value="${dateStr}" class="form-control text-xs rounded-xl font-mono">
+                    <div class="flex items-center gap-1">
+                        <input type="date" name="items[${rowCount}][expiry_date]" required min="${minDate}" class="item-expiry form-control text-xs rounded-xl font-mono">
+                        <button type="button" onclick="autoFillExpiry(this)" title="Auto-calculate from shelf life" class="px-2 py-1.5 text-[10px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 shrink-0">Auto</button>
+                    </div>
                 </td>
                 <td>
                     <input type="number" step="0.01" name="items[${rowCount}][quantity]" value="1" required oninput="calculateTotals()" class="item-qty form-control text-xs text-center rounded-xl font-mono font-bold">
@@ -400,7 +413,7 @@
             const placeholder = isRm ? '-- Choose Raw Material --' : '-- Choose Finished Product --';
             const list = isRm ? rawMaterialsList : productsList;
 
-            let optionsHtml = list.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}">${item.name}</option>`).join('');
+            let optionsHtml = list.map(item => `<option value="${item.id}" data-cost="${item.cost}" data-name="${item.name}" data-shelf-life="${item.shelf_life}">${item.name}</option>`).join('');
 
             wrapper.innerHTML = `
                 <select name="${selectName}" onchange="onSelectItem(this, ${rowIdx}, '${type}')" class="form-select text-xs w-full rounded-xl mb-1">
@@ -429,6 +442,22 @@
             }
 
             calculateTotals();
+        }
+
+        function autoFillExpiry(btn) {
+            const tr = btn.closest('tr');
+            if (!tr) return;
+            const expiryInput = tr.querySelector('.item-expiry');
+            if (!expiryInput) return;
+
+            const itemSelect = tr.querySelector('select[name*="[raw_material_id]"], select[name*="[product_id]"]');
+            const selectedOpt = itemSelect && itemSelect.selectedIndex >= 0 ? itemSelect.options[itemSelect.selectedIndex] : null;
+            const shelfDays = parseInt(selectedOpt?.getAttribute('data-shelf-life') || '730', 10) || 730;
+
+            const invoiceDateInput = document.querySelector('input[name="invoice_date"]');
+            const baseDate = invoiceDateInput && invoiceDateInput.value ? new Date(invoiceDateInput.value) : new Date();
+            baseDate.setDate(baseDate.getDate() + shelfDays);
+            expiryInput.value = baseDate.toISOString().split('T')[0];
         }
 
         function removeItemRow(btn) {
