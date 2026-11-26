@@ -247,6 +247,22 @@ class ProductBatch extends Model
     }
 
     /**
+     * Restore quantity back into the batch (e.g. cancelled sales order or manual adjustment return).
+     */
+    public function restoreQuantity(int $quantity): void
+    {
+        if ($quantity <= 0) {
+            return;
+        }
+
+        $this->available_qty += $quantity;
+        $this->current_qty += $quantity;
+        $this->initial_qty = max((int) ($this->initial_qty ?? 0), (int) $this->current_qty);
+        $this->assertInvariant();
+        $this->save();
+    }
+
+    /**
      * Generate unique Finished Goods Batch Number: LOT-FG-YYYYMM-XXXX
      */
     public static function generateBatchNumber(?Product $product = null): string
@@ -255,7 +271,8 @@ class ProductBatch extends Model
         $prefix = "LOT-FG-{$ym}-";
 
         return DB::transaction(function () use ($prefix) {
-            $latest = self::where('batch_number', 'like', "{$prefix}%")
+            $latest = self::withTrashed()
+                ->where('batch_number', 'like', "{$prefix}%")
                 ->lockForUpdate()
                 ->orderBy('id', 'desc')
                 ->first();
@@ -265,8 +282,32 @@ class ProductBatch extends Model
                 $seq = ((int) $matches[1]) + 1;
             }
 
-            return $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+            $candidate = $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+            while (self::withTrashed()->where('batch_number', $candidate)->exists()) {
+                $seq++;
+                $candidate = $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
+            }
+
+            return $candidate;
         });
+    }
+
+    /**
+     * Generate a unique child batch number when splitting a batch across warehouse hubs.
+     */
+    public static function generateChildBatchNumber(string $parentBatchNumber, string $locationId): string
+    {
+        $locSlug = strtoupper(substr((string) preg_replace('/[^a-zA-Z0-9]/', '', $locationId), 0, 4)) ?: 'LOC';
+        $base = substr($parentBatchNumber, 0, 48) . '-' . $locSlug;
+        $candidate = $base;
+        $suffix = 2;
+
+        while (self::withTrashed()->where('batch_number', $candidate)->exists()) {
+            $candidate = substr($base, 0, 56) . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $candidate;
     }
 
     protected static function booted(): void

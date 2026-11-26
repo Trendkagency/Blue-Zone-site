@@ -66,23 +66,32 @@ class FifoAllocationEngine
             $batches = $query->get();
 
             // Auto-provision initial batch for legacy catalog stock ONLY if no batches exist at all
-            if ($batches->isEmpty() && !$specificBatchId && $product->batches()->doesntExist() && (int) $product->stock_online >= (int) $requiredQty) {
-                $initialQty = max((int) $product->stock_online, (int) $requiredQty);
-                $initBatch = ProductBatch::create([
-                    'batch_number' => ProductBatch::generateBatchNumber($product),
-                    'product_id' => $product->id,
-                    'location_id' => $locationId ?: 'online',
-                    'initial_qty' => $initialQty,
-                    'current_qty' => $initialQty,
-                    'available_qty' => $initialQty,
-                    'reserved_qty' => 0,
-                    'quarantine_qty' => 0,
-                    'unit_cost' => (float) ($product->cost_price ?? 0),
-                    'manufacture_date' => now()->startOfDay(),
-                    'expiry_date' => $product->calculateDefaultExpiryDate(now()),
-                    'status' => 'approved',
-                ]);
-                $batches = collect([$initBatch]);
+            $locationAvailableStock = (int) InventoryService::getItem($product, $locationId)->available_stock;
+            $legacyAvailable = $locationId === 'online'
+                ? max((int) ($product->stock_online ?? 0), $locationAvailableStock)
+                : $locationAvailableStock;
+
+            if ($batches->isEmpty() && !$specificBatchId && $product->batches()->withTrashed()->doesntExist() && $legacyAvailable >= (int) $requiredQty) {
+                InventoryService::syncMissingProductBatches($product);
+                $batches = $query->get();
+                if ($batches->isEmpty()) {
+                    $initialQty = $legacyAvailable;
+                    $initBatch = ProductBatch::create([
+                        'batch_number' => ProductBatch::generateBatchNumber($product),
+                        'product_id' => $product->id,
+                        'location_id' => $locationId ?: 'online',
+                        'initial_qty' => $initialQty,
+                        'current_qty' => $initialQty,
+                        'available_qty' => $initialQty,
+                        'reserved_qty' => 0,
+                        'quarantine_qty' => 0,
+                        'unit_cost' => (float) ($product->cost_price ?? 0),
+                        'manufacture_date' => now()->startOfDay(),
+                        'expiry_date' => $product->calculateDefaultExpiryDate(now()),
+                        'status' => 'approved',
+                    ]);
+                    $batches = collect([$initBatch]);
+                }
             }
 
             $allocations = [];
@@ -204,7 +213,7 @@ class FifoAllocationEngine
                 $prevStock = $batch->current_qty;
                 $batch->deductQuantity($qty, $reason);
 
-                // Update location inventory items as well
+                // Update location inventory items as well (batch already deducted above)
                 $product = $batch->product;
                 if ($product) {
                     InventoryService::adjustStock(
@@ -214,7 +223,8 @@ class FifoAllocationEngine
                         'Sales Issue',
                         $reason ?? "Deducted via FEFO Batch {$batch->batch_number}",
                         $userName,
-                        $reference ? get_class($reference) . " #{$reference->id}" : 'Invoice / Order'
+                        $reference ? get_class($reference) . " #{$reference->id}" : 'Invoice / Order',
+                        false
                     );
                 }
             }

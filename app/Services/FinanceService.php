@@ -361,6 +361,19 @@ class FinanceService
                                 'status' => 'approved',
                             ]);
                             $productBatchId = $createdProdBatch->id;
+
+                            if ($intQty > 0) {
+                                InventoryService::adjustStock(
+                                    $prod,
+                                    'central_wh',
+                                    $intQty,
+                                    'Purchase Receipt',
+                                    "Bill {$invoice->invoice_number} | Batch: {$batchNumber}",
+                                    auth()->user()?->name ?? 'Finance System',
+                                    $invoice->supplier?->name_en ?? 'Supplier',
+                                    false
+                                );
+                            }
                         }
                     }
 

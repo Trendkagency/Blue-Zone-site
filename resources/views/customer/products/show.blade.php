@@ -1909,6 +1909,12 @@
         const unitSavings = Math.max(0, baseRawPrice - baseUnitPrice);
 
         const payload = {
+          id: {{ (int) ($product->id ?? 0) }} || pSlug,
+          slug: pSlug,
+          name: @js($pNameEn ?? $pName ?? $pSlug),
+          name_en: @js($pNameEn ?? $pName ?? $pSlug),
+          name_ar: @js($pNameAr ?? $pName ?? $pSlug),
+          image: @js($product->primary_image_url ?? $product->image ?? '/assets/logo/logo-main.png'),
           quantity: currentDetailQty,
           tier_id: tier ? tier.id : null,
           tier_multiplier: tier ? (tier.multiplier || 1) : 1,
@@ -1921,9 +1927,6 @@
         };
 
         BLUEZONE_CART.add(pSlug, currentDetailQty, payload);
-        if (window.toast) {
-          window.toast.success(isAr ? 'تمت إضافة باقة البروتوكول إلى السلة بنجاح' : 'Added Protocol Pack to Cart successfully');
-        }
       }
 
       // Initial Buy Box sync on page load

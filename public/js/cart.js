@@ -22,6 +22,10 @@
     return meta ? meta.getAttribute('content') : '';
   }
 
+  function getCartUrl(key, fallback) {
+    return (window.BLUEZONE_CART_ROUTES && window.BLUEZONE_CART_ROUTES[key]) || fallback;
+  }
+
   function getLocalCart() {
     try {
       const saved = localStorage.getItem(CART_KEY);
@@ -57,7 +61,7 @@
 
   async function syncWithServer() {
     try {
-      const res = await fetch('/cart/items', {
+      const res = await fetch(getCartUrl('items', '/cart/items'), {
         headers: { 'Accept': 'application/json' }
       });
       if (res.ok) {
@@ -133,7 +137,7 @@
     }
 
     try {
-      const res = await fetch('/cart/add', {
+      const res = await fetch(getCartUrl('add', '/cart/add'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -185,7 +189,15 @@
         return;
       } else {
         console.warn("Cart add server response:", res.status, data);
-        if (data && data.message && res.status !== 422) {
+        if (res.status === 422 && data && data.message) {
+          if (window.toast) {
+            window.toast.error(data.message);
+          } else {
+            alert(data.message);
+          }
+          return;
+        }
+        if (data && data.message) {
           if (window.toast) window.toast.error(data.message);
         }
       }
@@ -241,7 +253,7 @@
     const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
 
     try {
-      const res = await fetch('/cart/remove', {
+      const res = await fetch(getCartUrl('remove', '/cart/remove'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -294,7 +306,7 @@
     }
 
     try {
-      const res = await fetch('/cart/update', {
+      const res = await fetch(getCartUrl('update', '/cart/update'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -338,7 +350,7 @@
     const isAr = document.documentElement.lang === 'ar' || document.documentElement.getAttribute('dir') === 'rtl';
 
     try {
-      const res = await fetch('/cart/clear', {
+      const res = await fetch(getCartUrl('clear', '/cart/clear'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

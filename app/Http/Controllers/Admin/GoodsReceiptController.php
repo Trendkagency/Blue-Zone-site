@@ -175,7 +175,8 @@ class GoodsReceiptController extends Controller
                             'Purchase Receipt',
                             "GRN: {$grn->grn_number} (PO: {$po->po_number}) | Lot: {$batchNumber}",
                             auth()->user()?->name,
-                            $po->supplier?->name_en ?? 'Supplier'
+                            $po->supplier?->name_en ?? 'Supplier',
+                            false
                         );
                     }
                 } else {
@@ -345,7 +346,8 @@ class GoodsReceiptController extends Controller
                             'GRN Quantity Adjustment',
                             "Adjustment on GRN: {$goodsReceipt->grn_number} (PO: " . ($po?->po_number ?? 'N/A') . ")",
                             auth()->user()?->name,
-                            $goodsReceipt->supplier?->name_en ?? 'Supplier'
+                            $goodsReceipt->supplier?->name_en ?? 'Supplier',
+                            false
                         );
                     }
                 } else {
@@ -454,7 +456,8 @@ class GoodsReceiptController extends Controller
                             'GRN Reversal',
                             "Deleted GRN {$goodsReceipt->grn_number}",
                             auth()->user()?->name,
-                            $goodsReceipt->supplier?->name_en ?? 'Supplier'
+                            $goodsReceipt->supplier?->name_en ?? 'Supplier',
+                            false
                         );
                     }
                 } else {

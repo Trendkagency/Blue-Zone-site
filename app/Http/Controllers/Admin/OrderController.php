@@ -119,14 +119,26 @@ class OrderController extends Controller
                     if ($item->product_id) {
                         $product = \App\Models\Product::find($item->product_id);
                         if ($product) {
+                            $batchRestored = false;
+                            $batchLoc = $targetLoc;
+                            if ($item->product_batch_id) {
+                                $linkedBatch = \App\Models\ProductBatch::find($item->product_batch_id);
+                                if ($linkedBatch) {
+                                    $linkedBatch->restoreQuantity((int) $item->quantity);
+                                    $batchLoc = $linkedBatch->location_id ?: $targetLoc;
+                                    $batchRestored = true;
+                                }
+                            }
+
                             \App\Services\InventoryService::adjustStock(
                                 product: $product,
-                                locationId: $targetLoc,
+                                locationId: $batchLoc,
                                 quantityDelta: (int) $item->quantity,
                                 movementType: 'Cancelled Order',
                                 reason: "Automatic inventory restock due to order cancellation #{$order->order_number}",
                                 userName: auth()->user()?->name ?? 'System Admin',
-                                sourceOrTarget: "Order #{$order->order_number}"
+                                sourceOrTarget: "Order #{$order->order_number}",
+                                syncBatch: !$batchRestored
                             );
                         }
                     }

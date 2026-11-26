@@ -126,6 +126,14 @@
             }
         };
 
+        window.BLUEZONE_CART_ROUTES = {
+            items: "{{ route('customer.cart.items') }}",
+            add: "{{ route('customer.cart.add') }}",
+            update: "{{ route('customer.cart.update') }}",
+            remove: "{{ route('customer.cart.remove') }}",
+            clear: "{{ route('customer.cart.clear') }}"
+        };
+
         window.BLUEZONE_CART = window.BLUEZONE_CART || {
             _queue: [],
             add: function() { this._queue.push(['add', Array.from(arguments)]); },

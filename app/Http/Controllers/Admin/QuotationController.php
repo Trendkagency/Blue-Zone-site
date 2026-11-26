@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
+use App\Services\FifoAllocationEngine;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -253,16 +254,19 @@ class QuotationController extends Controller
                 $allocatedExpiryDate = null;
 
                 if ($product) {
-                    try {
-                        $allocations = \App\Services\Product\FifoAllocationEngine::getInstance()->allocateProduct($product, $qty, 'central_wh');
-                        if (!empty($allocations)) {
-                            $primaryAlloc = $allocations[0];
-                            $allocatedBatchId = $primaryAlloc['batch_id'] ?? null;
-                            $allocatedBatchNumber = $primaryAlloc['batch_number'] ?? null;
-                            $allocatedExpiryDate = $primaryAlloc['expiry_date'] ?? null;
+                    foreach (['central_wh', 'online'] as $hub) {
+                        try {
+                            $allocations = FifoAllocationEngine::getInstance()->allocateProduct($product, $qty, $hub);
+                            if (!empty($allocations)) {
+                                $primaryAlloc = $allocations[0];
+                                $allocatedBatchId = $primaryAlloc['batch_id'] ?? null;
+                                $allocatedBatchNumber = $primaryAlloc['batch_number'] ?? null;
+                                $allocatedExpiryDate = $primaryAlloc['expiry_date'] ?: null;
+                                break;
+                            }
+                        } catch (\Throwable $e) {
+                            \Log::warning("Quotation->Order FEFO allocation check on [{$hub}] skipped: " . $e->getMessage());
                         }
-                    } catch (\Throwable $e) {
-                        \Log::warning("Quotation->Order FEFO allocation skipped: " . $e->getMessage());
                     }
                 }
 
@@ -285,10 +289,11 @@ class QuotationController extends Controller
                 ]);
 
                 if (!empty($allocations)) {
-                    \App\Services\Product\FifoAllocationEngine::getInstance()->commitProductDeduction(
+                    FifoAllocationEngine::getInstance()->commitProductDeduction(
                         $allocations,
                         "Sales Order #{$order->order_number}",
-                        auth()->user()?->name ?? 'System'
+                        auth()->user()?->name ?? 'System',
+                        $order
                     );
                 }
             }

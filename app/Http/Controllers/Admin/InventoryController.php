@@ -544,6 +544,10 @@ class InventoryController extends Controller
             'quantity' => 'required|integer|min:1',
             'reason' => 'required|string',
             'reference_number' => 'nullable|string|max:100',
+            'batch_number' => 'nullable|string|max:64',
+            'expiry_date' => 'nullable|date',
+            'manufacture_date' => 'nullable|date',
+            'product_batch_id' => 'nullable|integer|exists:product_batches,id',
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
@@ -576,7 +580,14 @@ class InventoryController extends Controller
                 quantityDelta: $delta,
                 movementType: $type,
                 reason: $note,
-                userName: auth()->user()?->name ?? 'Admin'
+                userName: auth()->user()?->name ?? 'Admin',
+                syncBatch: true,
+                batchMeta: [
+                    'batch_number' => $validated['batch_number'] ?? null,
+                    'expiry_date' => $validated['expiry_date'] ?? null,
+                    'manufacture_date' => $validated['manufacture_date'] ?? null,
+                    'product_batch_id' => $validated['product_batch_id'] ?? null,
+                ]
             );
 
             if ($request->wantsJson() || $request->ajax()) {
@@ -899,6 +910,7 @@ class InventoryController extends Controller
                 }
 
                 // Compute targets (2-pool model)
+                $prevOnline = (int) $onlineItem->current_stock;
                 $targetOnline = (int) round(($onlinePct / 100.0) * $totalStock);
                 $targetCentral = $totalStock - $targetOnline;
 
@@ -911,6 +923,13 @@ class InventoryController extends Controller
                 $centralItem->available_stock = $targetCentral;
                 $centralItem->refreshStatus();
                 $centralItem->save();
+
+                $onlineDelta = $targetOnline - $prevOnline;
+                if ($onlineDelta > 0) {
+                    InventoryService::moveBatchesBetweenLocations($product, 'central_wh', 'online', $onlineDelta);
+                } elseif ($onlineDelta < 0) {
+                    InventoryService::moveBatchesBetweenLocations($product, 'online', 'central_wh', abs($onlineDelta));
+                }
 
                 InventoryService::syncProductModelStock($product);
 

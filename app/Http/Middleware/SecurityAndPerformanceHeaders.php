@@ -45,15 +45,19 @@ class SecurityAndPerformanceHeaders
 
         // Content Security Policy (Report-Only safe baseline)
         if (!$response->headers->has('Content-Security-Policy') && !$response->headers->has('Content-Security-Policy-Report-Only')) {
+            $isLocalDev = app()->environment('local', 'testing');
+            $viteHttp = $isLocalDev ? ' http://localhost:* http://127.0.0.1:* http://[::1]:*' : '';
+            $viteWs = $isLocalDev ? ' ws://localhost:* ws://127.0.0.1:* ws://[::1]:*' : '';
+
             $csp = [
                 "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'",
                 "img-src 'self' https: data: blob: http:",
                 "worker-src 'self' blob:",
                 "child-src 'self' blob:",
-                "connect-src 'self' https: data: blob: http:",
-                "font-src 'self' https: data:",
-                "style-src 'self' https: 'unsafe-inline'",
-                "script-src 'self' https: 'unsafe-inline' 'unsafe-eval' blob:",
+                "connect-src 'self' https: data: blob: http:" . $viteWs,
+                "font-src 'self' https: data:" . $viteHttp,
+                "style-src 'self' https: 'unsafe-inline'" . $viteHttp,
+                "script-src 'self' https: 'unsafe-inline' 'unsafe-eval' blob:" . $viteHttp,
                 "frame-ancestors 'self'",
             ];
             $response->headers->set('Content-Security-Policy-Report-Only', implode('; ', $csp) . ';');

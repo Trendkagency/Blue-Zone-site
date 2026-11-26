@@ -6,6 +6,8 @@ use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -58,6 +60,142 @@ class InventoryService
                     }
                 }
             }
+
+            self::syncMissingProductBatches($product);
+        }
+    }
+
+    /**
+     * Provision initial ProductBatch records for stocked products that do not yet have any batch history.
+     */
+    public static function syncMissingProductBatches(Product $product): void
+    {
+        if ($product->batches()->withTrashed()->exists()) {
+            return;
+        }
+
+        $stockedItems = InventoryItem::where('product_id', $product->id)
+            ->where('current_stock', '>', 0)
+            ->get();
+
+        if ($stockedItems->isEmpty()) {
+            return;
+        }
+
+        foreach ($stockedItems as $item) {
+            $qty = (int) $item->current_stock;
+            $avail = max(0, min($qty, (int) ($item->available_stock ?? $qty)));
+            $reserved = max(0, $qty - $avail);
+            $mfg = now()->startOfDay();
+
+            ProductBatch::create([
+                'batch_number' => ProductBatch::generateBatchNumber($product),
+                'product_id' => $product->id,
+                'location_id' => $item->location_id,
+                'initial_qty' => $qty,
+                'current_qty' => $qty,
+                'available_qty' => $avail,
+                'reserved_qty' => $reserved,
+                'quarantine_qty' => 0,
+                'unit_cost' => (float) ($item->unit_cost ?? $product->cost_price ?? 0),
+                'manufacture_date' => $mfg,
+                'expiry_date' => $product->calculateDefaultExpiryDate($mfg),
+                'status' => 'approved',
+            ]);
+        }
+    }
+
+    /**
+     * Transfer or split ProductBatch records FEFO between locations so Expiry Date traceability follows stock.
+     */
+    public static function moveBatchesBetweenLocations(
+        Product $product,
+        string $fromLocationId,
+        string $toLocationId,
+        int $quantity
+    ): void {
+        if ($quantity <= 0 || $fromLocationId === $toLocationId) {
+            return;
+        }
+
+        $remaining = $quantity;
+        $today = now()->toDateString();
+
+        $batches = ProductBatch::where('product_id', $product->id)
+            ->where('location_id', $fromLocationId)
+            ->where('status', 'approved')
+            ->where('available_qty', '>', 0)
+            ->orderByRaw('CASE WHEN expiry_date IS NULL OR expiry_date > ? THEN 0 ELSE 1 END', [$today])
+            ->orderBy('expiry_date', 'asc')
+            ->orderBy('id', 'asc')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $take = min($remaining, (int) $batch->available_qty);
+            if ($take <= 0) {
+                continue;
+            }
+
+            if (
+                $take === (int) $batch->current_qty
+                && (int) ($batch->reserved_qty ?? 0) === 0
+                && (int) ($batch->quarantine_qty ?? 0) === 0
+            ) {
+                $batch->location_id = $toLocationId;
+                $batch->save();
+            } else {
+                $batch->deductQuantity($take, "Transfer {$fromLocationId} -> {$toLocationId}");
+                ProductBatch::create([
+                    'product_id' => $product->id,
+                    'batch_number' => ProductBatch::generateChildBatchNumber($batch->batch_number, $toLocationId),
+                    'supplier_lot' => $batch->supplier_lot,
+                    'work_order_id' => $batch->work_order_id,
+                    'goods_receipt_id' => $batch->goods_receipt_id,
+                    'location_id' => $toLocationId,
+                    'storage_bin' => $batch->storage_bin,
+                    'initial_qty' => $take,
+                    'current_qty' => $take,
+                    'available_qty' => $take,
+                    'reserved_qty' => 0,
+                    'quarantine_qty' => 0,
+                    'unit_cost' => $batch->unit_cost,
+                    'manufacture_date' => $batch->manufacture_date,
+                    'expiry_date' => $batch->expiry_date,
+                    'status' => $batch->status,
+                ]);
+            }
+
+            $remaining -= $take;
+        }
+
+        // Fallback if unbatched legacy hub stock was moved while product already had batches elsewhere
+        if ($remaining > 0) {
+            $refBatch = ProductBatch::where('product_id', $product->id)
+                ->where('status', 'approved')
+                ->orderBy('expiry_date', 'asc')
+                ->first();
+            $mfg = $refBatch?->manufacture_date ?? now()->startOfDay();
+            $exp = $refBatch?->expiry_date ?? $product->calculateDefaultExpiryDate($mfg);
+
+            ProductBatch::create([
+                'product_id' => $product->id,
+                'batch_number' => ProductBatch::generateBatchNumber($product),
+                'location_id' => $toLocationId,
+                'initial_qty' => $remaining,
+                'current_qty' => $remaining,
+                'available_qty' => $remaining,
+                'reserved_qty' => 0,
+                'quarantine_qty' => 0,
+                'unit_cost' => (float) ($refBatch?->unit_cost ?? $product->cost_price ?? 0),
+                'manufacture_date' => $mfg,
+                'expiry_date' => $exp,
+                'status' => 'approved',
+            ]);
         }
     }
 
@@ -203,6 +341,9 @@ class InventoryService
             $destItem->current_stock += $quantity;
             $destItem->refreshStatus();
 
+            // Synchronize product batches (FEFO move/split) BEFORE syncing product model stock
+            self::moveBatchesBetweenLocations($product, $fromLocationId, $toLocationId, $quantity);
+
             // Synchronize product columns
             self::syncProductModelStock($product);
 
@@ -229,6 +370,8 @@ class InventoryService
 
     /**
      * Adjust stock for a single location (Stock In, Stock Out, Damaged, Expired, Return, Manual Adjustment).
+     *
+     * @param array<string, mixed>|null $batchMeta
      */
     public static function adjustStock(
         Product $product,
@@ -237,15 +380,21 @@ class InventoryService
         string $movementType,
         ?string $reason = null,
         ?string $userName = null,
-        ?string $sourceOrTarget = null
+        ?string $sourceOrTarget = null,
+        bool $syncBatch = true,
+        ?array $batchMeta = null
     ): InventoryMovement {
-        return DB::transaction(function () use ($product, $locationId, $quantityDelta, $movementType, $reason, $userName, $sourceOrTarget) {
+        return DB::transaction(function () use ($product, $locationId, $quantityDelta, $movementType, $reason, $userName, $sourceOrTarget, $syncBatch, $batchMeta) {
             $item = self::getItem($product, $locationId);
             $prevQty = $item->current_stock;
             $newQty = max(0, $prevQty + $quantityDelta);
 
             $item->current_stock = $newQty;
             $item->refreshStatus();
+
+            if ($syncBatch && $quantityDelta !== 0) {
+                self::syncBatchOnAdjustment($product, $locationId, $quantityDelta, $movementType, $batchMeta);
+            }
 
             self::syncProductModelStock($product);
 
@@ -270,6 +419,109 @@ class InventoryService
                 'note' => $reason ?? "Manual inventory adjustment ({$movementType})",
             ]);
         });
+    }
+
+    /**
+     * Synchronize ProductBatch balances when manual stock adjustments occur.
+     *
+     * @param array<string, mixed>|null $batchMeta
+     */
+    protected static function syncBatchOnAdjustment(
+        Product $product,
+        string $locationId,
+        int $quantityDelta,
+        string $movementType,
+        ?array $batchMeta = null
+    ): void {
+        $batchMeta = $batchMeta ?? [];
+
+        if ($quantityDelta > 0) {
+            if (!empty($batchMeta['product_batch_id'])) {
+                $targetBatch = ProductBatch::where('product_id', $product->id)
+                    ->lockForUpdate()
+                    ->find($batchMeta['product_batch_id']);
+                if ($targetBatch) {
+                    $targetBatch->restoreQuantity($quantityDelta);
+                    return;
+                }
+            }
+
+            $requestedNumber = !empty($batchMeta['batch_number']) ? trim((string) $batchMeta['batch_number']) : null;
+            if ($requestedNumber) {
+                $existingSame = ProductBatch::where('batch_number', $requestedNumber)->lockForUpdate()->first();
+                if ($existingSame && (int) $existingSame->product_id === (int) $product->id && $existingSame->location_id === $locationId) {
+                    $existingSame->restoreQuantity($quantityDelta);
+                    return;
+                }
+                if (ProductBatch::withTrashed()->where('batch_number', $requestedNumber)->exists()) {
+                    $requestedNumber = ProductBatch::generateBatchNumber($product);
+                }
+            }
+
+            $mfgDate = !empty($batchMeta['manufacture_date'])
+                ? Carbon::parse($batchMeta['manufacture_date'])->startOfDay()
+                : now()->startOfDay();
+            $expDate = !empty($batchMeta['expiry_date'])
+                ? Carbon::parse($batchMeta['expiry_date'])->startOfDay()
+                : $product->calculateDefaultExpiryDate($mfgDate);
+
+            ProductBatch::create([
+                'product_id' => $product->id,
+                'batch_number' => $requestedNumber ?: ProductBatch::generateBatchNumber($product),
+                'supplier_lot' => $batchMeta['supplier_lot'] ?? null,
+                'location_id' => $locationId,
+                'initial_qty' => $quantityDelta,
+                'current_qty' => $quantityDelta,
+                'available_qty' => $quantityDelta,
+                'reserved_qty' => 0,
+                'quarantine_qty' => 0,
+                'unit_cost' => (float) ($batchMeta['unit_cost'] ?? $product->cost_price ?? 0),
+                'manufacture_date' => $mfgDate,
+                'expiry_date' => $expDate,
+                'status' => 'approved',
+            ]);
+
+            return;
+        }
+
+        // Negative delta: deduct from specified batch or FEFO across matching hub batches
+        $remaining = abs($quantityDelta);
+
+        if (!empty($batchMeta['product_batch_id'])) {
+            $specific = ProductBatch::where('product_id', $product->id)
+                ->lockForUpdate()
+                ->find($batchMeta['product_batch_id']);
+            if ($specific && $specific->available_qty > 0) {
+                $take = min($remaining, (int) $specific->available_qty);
+                $specific->deductQuantity($take, $movementType);
+                $remaining -= $take;
+            }
+        }
+
+        if ($remaining <= 0) {
+            return;
+        }
+
+        $query = ProductBatch::where('product_id', $product->id)
+            ->where('location_id', $locationId)
+            ->where('available_qty', '>', 0)
+            ->lockForUpdate();
+
+        if ($movementType === 'Expired') {
+            $query->orderByRaw('CASE WHEN expiry_date <= ? THEN 0 ELSE 1 END', [now()->toDateString()]);
+        }
+        $query->orderBy('expiry_date', 'asc')->orderBy('id', 'asc');
+
+        foreach ($query->get() as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $take = min($remaining, (int) $batch->available_qty);
+            if ($take > 0) {
+                $batch->deductQuantity($take, $movementType);
+                $remaining -= $take;
+            }
+        }
     }
 
 
