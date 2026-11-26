@@ -169,19 +169,22 @@ class BluezoneSeeder extends Seeder
         $inventoryRole = Role::where('name', 'Inventory Staff')->first();
 
         $users = [
-            ['name' => 'Tariq M.',       'email' => 'admin@bluezone.com',   'role_id' => $adminRole?->id],
-            ['name' => 'Super Admin',    'email' => 'admin@admin.com',      'role_id' => $adminRole?->id],
-            ['name' => 'Lina Al-Rashid', 'email' => 'lina@bluezone.com',    'role_id' => $managerRole?->id],
-            ['name' => 'Khalid Nassir',  'email' => 'khalid@bluezone.com',  'role_id' => $salesRole?->id],
-            ['name' => 'Sara Almutairi', 'email' => 'sara@bluezone.com',    'role_id' => $salesRole?->id],
-            ['name' => 'Omar Fadhel',    'email' => 'omar@bluezone.com',    'role_id' => $inventoryRole?->id],
+            ['name' => 'Ziad Mohamed',   'email' => 'admin@bluezone.com',    'password' => '6pdysPuekJng', 'role_id' => $adminRole?->id],
+            ['name' => 'Super Admin',    'email' => 'admin@admin.com',       'password' => 'wL8cSK62pqbZ', 'role_id' => $adminRole?->id],
+            ['name' => 'Mohamed ElKholy','email' => 'm.elkholy@bluezone.com', 'password' => 'MaafKUwvUqN4', 'role_id' => $managerRole?->id],
+            ['name' => 'Khalid Nassir',  'email' => 'khalid@bluezone.com',   'password' => 'KJfTbAhq7Lzi', 'role_id' => $salesRole?->id],
+            ['name' => 'Sara Almutairi', 'email' => 'sara@bluezone.com',     'password' => 'bM8hYtPjBBqH', 'role_id' => $salesRole?->id],
+            ['name' => 'Omar Fadhel',    'email' => 'omar@bluezone.com',     'password' => 'x2CEpbyigqp7', 'role_id' => $inventoryRole?->id],
+            ['name' => 'Lina Al-Rashid', 'email' => 'lina@bluezone.com',     'password' => 'Wqy6fmeKPWim', 'role_id' => $managerRole?->id],
         ];
 
         foreach ($users as $u) {
+            $rawPass = $u['password'] ?? 'password';
+            unset($u['password']);
             User::updateOrCreate(
                 ['email' => $u['email']],
                 array_merge($u, [
-                    'password'          => bcrypt('password'),
+                    'password'          => bcrypt($rawPass),
                     'status'            => 'active',
                     'email_verified_at' => now(),
                 ])
