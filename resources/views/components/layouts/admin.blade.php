@@ -823,6 +823,9 @@
                         <a href="{{ route('admin.dashboard') }}"
                             class="breadcrumb-link">{{ __('admin.menu.dashboard') }}</a>
                         @foreach($breadcrumbs as $label => $url)
+                            @if(in_array(strtolower(trim($label)), ['dashboard', 'لوحة التحكم', strtolower(__('admin.menu.dashboard'))]))
+                                @continue
+                            @endif
                             <span class="breadcrumb-separator">›</span>
                             @if($loop->last)
                                 <span class="breadcrumb-current">{{ $label }}</span>
@@ -894,7 +897,7 @@
                         </button>
 
                         <!-- Notification Dropdown -->
-                        <div id="adminNotificationDropdown" class="admin-notification-dropdown">
+                        <div id="adminNotificationDropdown" class="admin-notification-dropdown" style="display: none;">
                             <div class="notification-dropdown-header">
                                 <div class="flex items-center gap-2">
                                     <span class="font-bold text-sm text-slate-800 dark:text-white">
@@ -905,13 +908,21 @@
                                         {{ $adminUnreadCount }} {{ __('admin.notifications.unread') ?? 'new' }}
                                     </span>
                                 </div>
-                                @if($adminUnreadCount > 0)
-                                    <button type="button" onclick="markAllNotificationsAsRead(event)"
-                                        id="adminMarkAllReadBtn"
-                                        class="text-xs text-sky-600 dark:text-sky-400 font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer">
-                                        {{ __('admin.notifications.mark_all_read') ?? 'Mark all as read' }}
+                                <div class="flex items-center gap-2.5">
+                                    @if($adminUnreadCount > 0)
+                                        <button type="button" onclick="markAllNotificationsAsRead(event)"
+                                            id="adminMarkAllReadBtn"
+                                            class="text-xs text-sky-600 dark:text-sky-400 font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer">
+                                            {{ __('admin.notifications.mark_all_read') ?? 'Mark all as read' }}
+                                        </button>
+                                    @endif
+                                    <button type="button" onclick="toggleAdminNotifications(event)"
+                                        class="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border-none bg-transparent"
+                                        aria-label="{{ app()->getLocale() === 'ar' ? 'إغلاق' : 'Close' }}"
+                                        title="{{ app()->getLocale() === 'ar' ? 'إغلاق' : 'Close' }}">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
                                     </button>
-                                @endif
+                                </div>
                             </div>
 
                             <div class="notification-dropdown-body" id="adminNotificationList">
@@ -1045,7 +1056,7 @@
                         </button>
 
                         <!-- Dropdown Menu -->
-                        <div id="adminProfileDropdown" class="admin-profile-dropdown">
+                        <div id="adminProfileDropdown" class="admin-profile-dropdown" style="display: none;">
                             <div
                                 style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border); background: var(--color-bg-subtle, rgba(0,0,0,0.02));">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
