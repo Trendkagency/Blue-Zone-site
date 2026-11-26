@@ -173,7 +173,7 @@ class ProductController extends Controller
         $data['landing_badge_ar'] = $request->input('landing_badge_ar');
         $data['shelf_life_months'] = (int) ($data['shelf_life_months'] ?? 24);
         $this->formatScienceInputs($data);
-        $this->formatSectionSettings($data, $request);
+        $this->formatSectionSettings($data, $request, $product->section_settings ?? []);
         $fallbackImage = $data['image'] ?? null;
         unset(
             $data['image'], 
@@ -527,7 +527,7 @@ class ProductController extends Controller
         |--------------------------------------------------------------------------
         */
         $this->formatScienceInputs($data);
-        $this->formatSectionSettings($data, $request);
+        $this->formatSectionSettings($data, $request, $product->section_settings ?? []);
         $fallbackImage = $data['image'] ?? null;
         
         $submittedStock = $request->input('stock_online');
@@ -799,31 +799,46 @@ class ProductController extends Controller
     /**
      * Normalize and sanitize per-product section settings (viewport visibility, titles, badges, bespoke content).
      */
-    protected function formatSectionSettings(array &$data, Request $request): void
+    protected function formatSectionSettings(array &$data, Request $request, array $existing = []): void
     {
         if ($request->has('section_settings') || isset($data['section_settings'])) {
             $raw = $request->input('section_settings', $data['section_settings'] ?? []);
-            $clean = [];
+            $clean = is_array($existing) ? $existing : [];
             $allKeys = ['dossier', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6', 'buy_box', 'related'];
 
             // 1. Process Core Dossier & Monograph Sections
             foreach ($allKeys as $key) {
+                if (!isset($raw[$key]) && isset($clean[$key])) {
+                    // Retain existing section settings if key not submitted in partial updates
+                    continue;
+                }
+
                 $sec = is_array($raw) ? ($raw[$key] ?? []) : [];
-                $contentScreenMode = $sec['content_screen_mode'] ?? 'unified';
+                $existSec = $clean[$key] ?? [];
+                $contentScreenMode = $sec['content_screen_mode'] ?? ($existSec['content_screen_mode'] ?? 'unified');
+
                 $clean[$key] = [
-                    'enabled_desktop' => isset($sec['enabled_desktop']) && ($sec['enabled_desktop'] === '1' || $sec['enabled_desktop'] === 1 || $sec['enabled_desktop'] === true),
-                    'enabled_mobile' => isset($sec['enabled_mobile']) && ($sec['enabled_mobile'] === '1' || $sec['enabled_mobile'] === 1 || $sec['enabled_mobile'] === true),
-                    'default_open' => isset($sec['default_open']) && ($sec['default_open'] === '1' || $sec['default_open'] === 1 || $sec['default_open'] === true),
-                    'custom_content_enabled' => isset($sec['custom_content_enabled']) && ($sec['custom_content_enabled'] === '1' || $sec['custom_content_enabled'] === 1 || $sec['custom_content_enabled'] === true),
+                    'enabled_desktop' => isset($sec['enabled_desktop']) 
+                        ? ($sec['enabled_desktop'] === '1' || $sec['enabled_desktop'] === 1 || $sec['enabled_desktop'] === true)
+                        : ($existSec['enabled_desktop'] ?? true),
+                    'enabled_mobile' => isset($sec['enabled_mobile']) 
+                        ? ($sec['enabled_mobile'] === '1' || $sec['enabled_mobile'] === 1 || $sec['enabled_mobile'] === true)
+                        : ($existSec['enabled_mobile'] ?? true),
+                    'default_open' => isset($sec['default_open']) 
+                        ? ($sec['default_open'] === '1' || $sec['default_open'] === 1 || $sec['default_open'] === true)
+                        : ($existSec['default_open'] ?? ($key === 'sec1')),
+                    'custom_content_enabled' => isset($sec['custom_content_enabled']) 
+                        ? ($sec['custom_content_enabled'] === '1' || $sec['custom_content_enabled'] === 1 || $sec['custom_content_enabled'] === true)
+                        : ($existSec['custom_content_enabled'] ?? false),
                     'content_screen_mode' => in_array($contentScreenMode, ['unified', 'per_screen']) ? $contentScreenMode : 'unified',
-                    'title_en' => trim($sec['title_en'] ?? ''),
-                    'title_ar' => trim($sec['title_ar'] ?? ''),
-                    'badge_en' => trim($sec['badge_en'] ?? ''),
-                    'badge_ar' => trim($sec['badge_ar'] ?? ''),
-                    'custom_content_en' => $sec['custom_content_en'] ?? '',
-                    'custom_content_ar' => $sec['custom_content_ar'] ?? '',
-                    'custom_content_mobile_en' => $sec['custom_content_mobile_en'] ?? '',
-                    'custom_content_mobile_ar' => $sec['custom_content_mobile_ar'] ?? '',
+                    'title_en' => isset($sec['title_en']) ? trim($sec['title_en']) : ($existSec['title_en'] ?? ''),
+                    'title_ar' => isset($sec['title_ar']) ? trim($sec['title_ar']) : ($existSec['title_ar'] ?? ''),
+                    'badge_en' => isset($sec['badge_en']) ? trim($sec['badge_en']) : ($existSec['badge_en'] ?? ''),
+                    'badge_ar' => isset($sec['badge_ar']) ? trim($sec['badge_ar']) : ($existSec['badge_ar'] ?? ''),
+                    'custom_content_en' => $sec['custom_content_en'] ?? ($existSec['custom_content_en'] ?? ''),
+                    'custom_content_ar' => $sec['custom_content_ar'] ?? ($existSec['custom_content_ar'] ?? ''),
+                    'custom_content_mobile_en' => $sec['custom_content_mobile_en'] ?? ($existSec['custom_content_mobile_en'] ?? ''),
+                    'custom_content_mobile_ar' => $sec['custom_content_mobile_ar'] ?? ($existSec['custom_content_mobile_ar'] ?? ''),
                 ];
 
                 // Structured items (Ingredients for sec1, Biomarkers for sec2, Protocols for sec3)
@@ -831,6 +846,8 @@ class ProductController extends Controller
                     $clean[$key]['items'] = array_values(array_filter($sec['items'], function ($item) {
                         return is_array($item) && !empty(array_filter($item));
                     }));
+                } elseif (isset($existSec['items'])) {
+                    $clean[$key]['items'] = $existSec['items'];
                 }
 
                 // Section 1: Ingredients & Quality Badges
@@ -839,13 +856,15 @@ class ProductController extends Controller
                         $clean[$key]['quality_badges'] = array_values(array_filter($sec['quality_badges'], function ($b) {
                             return is_array($b) && (!empty($b['text_en']) || !empty($b['text_ar']));
                         }));
+                    } elseif (isset($existSec['quality_badges'])) {
+                        $clean[$key]['quality_badges'] = $existSec['quality_badges'];
                     }
                 }
 
                 // Section 2: Biomarkers, Benefits, and 3-Phase Timeline
                 if ($key === 'sec2') {
-                    $clean[$key]['intro_en'] = trim($sec['intro_en'] ?? '');
-                    $clean[$key]['intro_ar'] = trim($sec['intro_ar'] ?? '');
+                    $clean[$key]['intro_en'] = isset($sec['intro_en']) ? trim($sec['intro_en']) : ($existSec['intro_en'] ?? '');
+                    $clean[$key]['intro_ar'] = isset($sec['intro_ar']) ? trim($sec['intro_ar']) : ($existSec['intro_ar'] ?? '');
                     if (isset($sec['benefits']) && is_array($sec['benefits'])) {
                         $clean[$key]['benefits'] = array_values(array_filter($sec['benefits'], function ($b) {
                             if (is_array($b)) {
@@ -853,51 +872,62 @@ class ProductController extends Controller
                             }
                             return !empty(trim($b));
                         }));
+                    } elseif (isset($existSec['benefits'])) {
+                        $clean[$key]['benefits'] = $existSec['benefits'];
                     }
                     if (isset($sec['phases']) && is_array($sec['phases'])) {
                         $clean[$key]['phases'] = array_values(array_filter($sec['phases'], function ($p) {
                             return is_array($p) && (!empty($p['title_en']) || !empty($p['title_ar']) || !empty($p['phase_label']));
                         }));
+                    } elseif (isset($existSec['phases'])) {
+                        $clean[$key]['phases'] = $existSec['phases'];
                     }
                 }
 
                 // Section 3: Protocol, Directives, and 4 Visual Protocol Cards
                 if ($key === 'sec3') {
-                    $clean[$key]['dose_badge_en'] = trim($sec['dose_badge_en'] ?? '');
-                    $clean[$key]['dose_badge_ar'] = trim($sec['dose_badge_ar'] ?? '');
-                    $clean[$key]['primary_directive_en'] = trim($sec['primary_directive_en'] ?? '');
-                    $clean[$key]['primary_directive_ar'] = trim($sec['primary_directive_ar'] ?? '');
+                    $clean[$key]['dose_badge_en'] = isset($sec['dose_badge_en']) ? trim($sec['dose_badge_en']) : ($existSec['dose_badge_en'] ?? '');
+                    $clean[$key]['dose_badge_ar'] = isset($sec['dose_badge_ar']) ? trim($sec['dose_badge_ar']) : ($existSec['dose_badge_ar'] ?? '');
+                    $clean[$key]['primary_directive_en'] = isset($sec['primary_directive_en']) ? trim($sec['primary_directive_en']) : ($existSec['primary_directive_en'] ?? '');
+                    $clean[$key]['primary_directive_ar'] = isset($sec['primary_directive_ar']) ? trim($sec['primary_directive_ar']) : ($existSec['primary_directive_ar'] ?? '');
                     if (isset($sec['cards']) && is_array($sec['cards'])) {
                         $clean[$key]['cards'] = array_values(array_filter($sec['cards'], function ($c) {
                             return is_array($c) && (!empty($c['title_en']) || !empty($c['title_ar']));
                         }));
+                    } elseif (isset($existSec['cards'])) {
+                        $clean[$key]['cards'] = $existSec['cards'];
                     }
                 }
 
                 // Section 4: Science Mechanism, Precision Pathways, and Research Note
                 if ($key === 'sec4') {
-                    $clean[$key]['mechanism_en'] = $sec['mechanism_en'] ?? '';
-                    $clean[$key]['mechanism_ar'] = $sec['mechanism_ar'] ?? '';
-                    $clean[$key]['research_note_en'] = trim($sec['research_note_en'] ?? '');
-                    $clean[$key]['research_note_ar'] = trim($sec['research_note_ar'] ?? '');
+                    $clean[$key]['mechanism_en'] = $sec['mechanism_en'] ?? ($existSec['mechanism_en'] ?? '');
+                    $clean[$key]['mechanism_ar'] = $sec['mechanism_ar'] ?? ($existSec['mechanism_ar'] ?? '');
+                    $clean[$key]['research_note_en'] = isset($sec['research_note_en']) ? trim($sec['research_note_en']) : ($existSec['research_note_en'] ?? '');
+                    $clean[$key]['research_note_ar'] = isset($sec['research_note_ar']) ? trim($sec['research_note_ar']) : ($existSec['research_note_ar'] ?? '');
                     if (isset($sec['diagram_image'])) $clean[$key]['diagram_image'] = $sec['diagram_image'];
+                    elseif (isset($existSec['diagram_image'])) $clean[$key]['diagram_image'] = $existSec['diagram_image'];
                     if (isset($sec['pathways']) && is_array($sec['pathways'])) {
                         $clean[$key]['pathways'] = array_values(array_filter($sec['pathways'], function ($p) {
                             return is_array($p) && (!empty($p['title_en']) || !empty($p['title_ar']));
                         }));
+                    } elseif (isset($existSec['pathways'])) {
+                        $clean[$key]['pathways'] = $existSec['pathways'];
                     }
                 }
 
                 // Section 5: Safety Directives, Warnings, Contraindications & Purity Badges
                 if ($key === 'sec5') {
-                    $clean[$key]['warnings_en'] = $sec['warnings_en'] ?? '';
-                    $clean[$key]['warnings_ar'] = $sec['warnings_ar'] ?? '';
-                    $clean[$key]['contraindications_en'] = $sec['contraindications_en'] ?? '';
-                    $clean[$key]['contraindications_ar'] = $sec['contraindications_ar'] ?? '';
+                    $clean[$key]['warnings_en'] = $sec['warnings_en'] ?? ($existSec['warnings_en'] ?? '');
+                    $clean[$key]['warnings_ar'] = $sec['warnings_ar'] ?? ($existSec['warnings_ar'] ?? '');
+                    $clean[$key]['contraindications_en'] = $sec['contraindications_en'] ?? ($existSec['contraindications_en'] ?? '');
+                    $clean[$key]['contraindications_ar'] = $sec['contraindications_ar'] ?? ($existSec['contraindications_ar'] ?? '');
                     if (isset($sec['purity_badges']) && is_array($sec['purity_badges'])) {
                         $clean[$key]['purity_badges'] = array_values(array_filter($sec['purity_badges'], function ($pb) {
                             return is_array($pb) && (!empty($pb['text_en']) || !empty($pb['text_ar']));
                         }));
+                    } elseif (isset($existSec['purity_badges'])) {
+                        $clean[$key]['purity_badges'] = $existSec['purity_badges'];
                     }
                 }
 
@@ -907,61 +937,72 @@ class ProductController extends Controller
                         $clean[$key]['certificates'] = array_values(array_filter($sec['certificates'], function ($cert) {
                             return is_array($cert) && (!empty($cert['name_en']) || !empty($cert['name_ar']));
                         }));
+                    } elseif (isset($existSec['certificates'])) {
+                        $clean[$key]['certificates'] = $existSec['certificates'];
                     }
                     if (isset($sec['specs']) && is_array($sec['specs'])) {
                         $clean[$key]['specs'] = $sec['specs'];
+                    } elseif (isset($existSec['specs'])) {
+                        $clean[$key]['specs'] = $existSec['specs'];
                     }
                 }
 
                 // Buy box specific configuration
                 if ($key === 'buy_box') {
-                    $clean[$key]['stock_status_en'] = trim($sec['stock_status_en'] ?? 'In Stock • Cold-Chain Ready');
-                    $clean[$key]['stock_status_ar'] = trim($sec['stock_status_ar'] ?? 'متوفر في المستودع • جاهز للشحن المبرد');
-                    $clean[$key]['save_badge_en'] = trim($sec['save_badge_en'] ?? 'SAVE 15% TODAY');
-                    $clean[$key]['save_badge_ar'] = trim($sec['save_badge_ar'] ?? 'وفّر 15% اليوم');
-                    $clean[$key]['btn_add_cart_en'] = trim($sec['btn_add_cart_en'] ?? 'ADD TO CLINICAL PROTOCOL');
-                    $clean[$key]['btn_add_cart_ar'] = trim($sec['btn_add_cart_ar'] ?? 'إضافة إلى السلة والبروتوكول');
-                    $clean[$key]['btn_buy_now_en'] = trim($sec['btn_buy_now_en'] ?? 'ORDER & INSTANT CHECKOUT');
-                    $clean[$key]['btn_buy_now_ar'] = trim($sec['btn_buy_now_ar'] ?? 'طلب المستحضر والشراء السريع');
-                    $clean[$key]['cta_subtext_en'] = trim($sec['cta_subtext_en'] ?? 'Clinically Verified Formulation • 100% Purity');
-                    $clean[$key]['cta_subtext_ar'] = trim($sec['cta_subtext_ar'] ?? 'تركيبة سريرية موثقة • نقاء دوائي 100%');
-                    $clean[$key]['guarantee_days'] = max(0, (int) ($sec['guarantee_days'] ?? 30));
-                    $clean[$key]['guarantee_text_en'] = trim($sec['guarantee_text_en'] ?? '30-Day Clinical Refund');
-                    $clean[$key]['guarantee_text_ar'] = trim($sec['guarantee_text_ar'] ?? '30 يوماً استرداد كامل');
-                    $clean[$key]['guarantee_title_en'] = trim($sec['guarantee_title_en'] ?? 'Satisfaction Guarantee:');
-                    $clean[$key]['guarantee_title_ar'] = trim($sec['guarantee_title_ar'] ?? 'ضمان الرضا الطبي:');
+                    $clean[$key]['stock_status_en'] = trim($sec['stock_status_en'] ?? ($existSec['stock_status_en'] ?? 'In Stock • Cold-Chain Ready'));
+                    $clean[$key]['stock_status_ar'] = trim($sec['stock_status_ar'] ?? ($existSec['stock_status_ar'] ?? 'متوفر في المستودع • جاهز للشحن المبرد'));
+                    $clean[$key]['save_badge_en'] = trim($sec['save_badge_en'] ?? ($existSec['save_badge_en'] ?? 'SAVE 15% TODAY'));
+                    $clean[$key]['save_badge_ar'] = trim($sec['save_badge_ar'] ?? ($existSec['save_badge_ar'] ?? 'وفّر 15% اليوم'));
+                    $clean[$key]['btn_add_cart_en'] = trim($sec['btn_add_cart_en'] ?? ($existSec['btn_add_cart_en'] ?? 'ADD TO CLINICAL PROTOCOL'));
+                    $clean[$key]['btn_add_cart_ar'] = trim($sec['btn_add_cart_ar'] ?? ($existSec['btn_add_cart_ar'] ?? 'إضافة إلى السلة والبروتوكول'));
+                    $clean[$key]['btn_buy_now_en'] = trim($sec['btn_buy_now_en'] ?? ($existSec['btn_buy_now_en'] ?? 'ORDER & INSTANT CHECKOUT'));
+                    $clean[$key]['btn_buy_now_ar'] = trim($sec['btn_buy_now_ar'] ?? ($existSec['btn_buy_now_ar'] ?? 'طلب المستحضر والشراء السريع'));
+                    $clean[$key]['cta_subtext_en'] = trim($sec['cta_subtext_en'] ?? ($existSec['cta_subtext_en'] ?? 'Clinically Verified Formulation • 100% Purity'));
+                    $clean[$key]['cta_subtext_ar'] = trim($sec['cta_subtext_ar'] ?? ($existSec['cta_subtext_ar'] ?? 'تركيبة سريرية موثقة • نقاء دوائي 100%'));
+                    $clean[$key]['guarantee_days'] = max(0, (int) ($sec['guarantee_days'] ?? ($existSec['guarantee_days'] ?? 30)));
+                    $clean[$key]['guarantee_text_en'] = trim($sec['guarantee_text_en'] ?? ($existSec['guarantee_text_en'] ?? '30-Day Clinical Refund'));
+                    $clean[$key]['guarantee_text_ar'] = trim($sec['guarantee_text_ar'] ?? ($existSec['guarantee_text_ar'] ?? '30 يوماً استرداد كامل'));
+                    $clean[$key]['guarantee_title_en'] = trim($sec['guarantee_title_en'] ?? ($existSec['guarantee_title_en'] ?? 'Satisfaction Guarantee:'));
+                    $clean[$key]['guarantee_title_ar'] = trim($sec['guarantee_title_ar'] ?? ($existSec['guarantee_title_ar'] ?? 'ضمان الرضا الطبي:'));
 
                     if (isset($sec['trust_badges']) && is_array($sec['trust_badges'])) {
                         $clean[$key]['trust_badges'] = array_values(array_filter($sec['trust_badges'], function ($tb) {
                             return is_array($tb) && (!empty($tb['text_en']) || !empty($tb['text_ar']));
                         }));
+                    } elseif (isset($existSec['trust_badges'])) {
+                        $clean[$key]['trust_badges'] = $existSec['trust_badges'];
                     }
                 }
 
                 // Related products bundle
-                if ($key === 'related' && isset($sec['bundle'])) {
-                    $bRaw = $sec['bundle'];
-                    $bDiscType = $bRaw['discount_type'] ?? 'percentage';
-                    $clean[$key]['bundle'] = [
-                        'enabled' => !empty($bRaw['enabled']),
-                        'discount_type' => in_array($bDiscType, ['percentage', 'fixed'], true) ? $bDiscType : 'percentage',
-                        'discount_value' => (float) ($bRaw['discount_value'] ?? 15.0),
-                        'badge_en' => trim($bRaw['badge_en'] ?? 'Optimal Synergistic Protocol'),
-                        'badge_ar' => trim($bRaw['badge_ar'] ?? 'البروتوكول التكاملي الموصى به'),
-                        'product_ids' => array_values(array_filter(array_map('intval', (array) ($bRaw['product_ids'] ?? [])))),
-                    ];
+                if ($key === 'related') {
+                    if (isset($sec['bundle']) && is_array($sec['bundle'])) {
+                        $bRaw = $sec['bundle'];
+                        $bDiscType = $bRaw['discount_type'] ?? 'percentage';
+                        $clean[$key]['bundle'] = [
+                            'enabled' => !empty($bRaw['enabled']),
+                            'discount_type' => in_array($bDiscType, ['percentage', 'fixed'], true) ? $bDiscType : 'percentage',
+                            'discount_value' => (float) ($bRaw['discount_value'] ?? 15.0),
+                            'badge_en' => trim($bRaw['badge_en'] ?? 'Optimal Synergistic Protocol'),
+                            'badge_ar' => trim($bRaw['badge_ar'] ?? 'البروتوكول التكاملي الموصى به'),
+                            'product_ids' => array_values(array_filter(array_map('intval', (array) ($bRaw['product_ids'] ?? [])))),
+                        ];
+                    } elseif (isset($existSec['bundle'])) {
+                        $clean[$key]['bundle'] = $existSec['bundle'];
+                    }
                 }
             }
 
             // 2. Process Hero Media & Image Overlays
             if (isset($raw['hero_overlays']) && is_array($raw['hero_overlays'])) {
                 $hoRaw = $raw['hero_overlays'];
+                $hoExist = $clean['hero_overlays'] ?? [];
                 $clean['hero_overlays'] = [
-                    'enabled_desktop' => !isset($hoRaw['enabled_desktop']) || (bool) $hoRaw['enabled_desktop'],
-                    'enabled_mobile' => !isset($hoRaw['enabled_mobile']) || (bool) $hoRaw['enabled_mobile'],
-                    'watermark_enabled' => !isset($hoRaw['watermark_enabled']) || (bool) $hoRaw['watermark_enabled'],
-                    'watermark_en' => trim($hoRaw['watermark_en'] ?? 'A Sharper You'),
-                    'watermark_ar' => trim($hoRaw['watermark_ar'] ?? 'نسخة أكثر صفاءً وتركيزاً'),
+                    'enabled_desktop' => isset($hoRaw['enabled_desktop']) ? (bool) $hoRaw['enabled_desktop'] : ($hoExist['enabled_desktop'] ?? true),
+                    'enabled_mobile' => isset($hoRaw['enabled_mobile']) ? (bool) $hoRaw['enabled_mobile'] : ($hoExist['enabled_mobile'] ?? true),
+                    'watermark_enabled' => isset($hoRaw['watermark_enabled']) ? (bool) $hoRaw['watermark_enabled'] : ($hoExist['watermark_enabled'] ?? true),
+                    'watermark_en' => trim($hoRaw['watermark_en'] ?? ($hoExist['watermark_en'] ?? 'A Sharper You')),
+                    'watermark_ar' => trim($hoRaw['watermark_ar'] ?? ($hoExist['watermark_ar'] ?? 'نسخة أكثر صفاءً وتركيزاً')),
                     'badges' => [],
                 ];
 
@@ -972,27 +1013,30 @@ class ProductController extends Controller
                             $style = $b['style'] ?? 'pill';
                             $clean['hero_overlays']['badges'][] = [
                                 'id' => $b['id'] ?? ('b_' . uniqid()),
-                                'position' => in_array($pos, ['top_right', 'top_left', 'bottom_left', 'bottom_right'], true) ? $pos : 'top_right',
+                                'position' => in_array($pos, ['top_right', 'top_left', 'bottom_left', 'bottom_right', 'highlights_rail'], true) ? $pos : 'top_right',
                                 'icon' => trim($b['icon'] ?? 'fa-circle-check'),
                                 'text_en' => trim($b['text_en'] ?? ''),
                                 'text_ar' => trim($b['text_ar'] ?? ''),
-                                'style' => in_array($style, ['pill', 'pulse_dot', 'solid'], true) ? $style : 'pill',
+                                'style' => in_array($style, ['pill', 'pulse_dot', 'solid', 'glass'], true) ? $style : 'pill',
                             ];
                         }
                     }
+                } elseif (isset($hoExist['badges'])) {
+                    $clean['hero_overlays']['badges'] = $hoExist['badges'];
                 }
             }
 
             // 3. Process Protocol Duration Tiers
             if (isset($raw['protocol_durations']) && is_array($raw['protocol_durations'])) {
                 $pdRaw = $raw['protocol_durations'];
+                $pdExist = $clean['protocol_durations'] ?? [];
                 $clean['protocol_durations'] = [
-                    'enabled_desktop' => !isset($pdRaw['enabled_desktop']) || (bool) $pdRaw['enabled_desktop'],
-                    'enabled_mobile' => !isset($pdRaw['enabled_mobile']) || (bool) $pdRaw['enabled_mobile'],
-                    'heading_en' => trim($pdRaw['heading_en'] ?? 'SELECT PROTOCOL DURATION:'),
-                    'heading_ar' => trim($pdRaw['heading_ar'] ?? 'اختر خطة البروتوكول العلاجي:'),
-                    'subheading_en' => trim($pdRaw['subheading_en'] ?? 'Controlled Protocol Pricing'),
-                    'subheading_ar' => trim($pdRaw['subheading_ar'] ?? 'تسعير بروتوكولي مدروس'),
+                    'enabled_desktop' => isset($pdRaw['enabled_desktop']) ? (bool) $pdRaw['enabled_desktop'] : ($pdExist['enabled_desktop'] ?? true),
+                    'enabled_mobile' => isset($pdRaw['enabled_mobile']) ? (bool) $pdRaw['enabled_mobile'] : ($pdExist['enabled_mobile'] ?? true),
+                    'heading_en' => trim($pdRaw['heading_en'] ?? ($pdExist['heading_en'] ?? 'SELECT PROTOCOL DURATION:')),
+                    'heading_ar' => trim($pdRaw['heading_ar'] ?? ($pdExist['heading_ar'] ?? 'اختر خطة البروتوكول العلاجي:')),
+                    'subheading_en' => trim($pdRaw['subheading_en'] ?? ($pdExist['subheading_en'] ?? 'Controlled Protocol Pricing')),
+                    'subheading_ar' => trim($pdRaw['subheading_ar'] ?? ($pdExist['subheading_ar'] ?? 'تسعير بروتوكولي مدروس')),
                     'tiers' => [],
                 ];
 
@@ -1015,6 +1059,8 @@ class ProductController extends Controller
                             ];
                         }
                     }
+                } elseif (isset($pdExist['tiers'])) {
+                    $clean['protocol_durations']['tiers'] = $pdExist['tiers'];
                 }
             }
 
@@ -1043,6 +1089,10 @@ class ProductController extends Controller
             if (isset($raw['section_order']) && is_array($raw['section_order'])) {
                 $clean['section_order'] = array_values(array_intersect($raw['section_order'], $allKeys));
             }
+
+            $data['section_settings'] = $clean;
+        }
+    }
 
             $data['section_settings'] = $clean;
         }
@@ -1516,7 +1566,7 @@ class ProductController extends Controller
                 case 6:
                     // Page & Sections Customizer & Synergistic Bundle
                     $secData = [];
-                    $this->formatSectionSettings($secData, $request);
+                    $this->formatSectionSettings($secData, $request, $product->section_settings ?? []);
                     if (isset($secData['section_settings'])) {
                         $product->section_settings = $secData['section_settings'];
                     }

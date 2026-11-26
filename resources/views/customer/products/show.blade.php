@@ -359,29 +359,30 @@
               <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10 rounded-3xl"></div>
               
               <!-- Category Badge -->
-              <span class="absolute top-5 left-5 rtl:left-auto rtl:right-5 z-10 text-xs font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-[#031827]/95 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-md border border-white/40 dark:border-[#2A8FC2]/40">
+              <span class="absolute top-4 left-4 rtl:left-auto rtl:right-4 z-20 text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-white/95 dark:bg-[#031827]/95 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md shadow-md border border-white/40 dark:border-[#2A8FC2]/40">
                 {{ $pCategory }}
               </span>
 
-              <!-- Dynamic Floating Badges & Overlays -->
+              <!-- Dynamic Floating Badges & Overlays (Refined Glassmorphic Margins) -->
               @if(!empty($heroOverlays['badges']))
                 @php
                   $groupedBadges = collect($heroOverlays['badges'])->groupBy('position');
                 @endphp
 
-                <!-- Top Right Badges (Stack) -->
+                <!-- Top Right Badges (Constrained Stack in Outer Corner, Never Obstructing Bottle) -->
                 @if(!empty($groupedBadges['top_right']))
-                  <div class="absolute top-5 right-5 rtl:right-auto rtl:left-5 z-10 flex flex-col items-end rtl:items-start gap-2">
+                  <div class="absolute top-4 right-4 rtl:right-auto rtl:left-4 z-20 flex flex-col items-end rtl:items-start gap-1.5 max-w-[48%] pointer-events-auto">
                     @foreach($groupedBadges['top_right'] as $bdg)
                       @php
                         $bText = $isRtl && !empty($bdg['text_ar']) ? $bdg['text_ar'] : ($bdg['text_en'] ?? '');
+                        $bFull = $isRtl && !empty($bdg['full_ar']) ? $bdg['full_ar'] : ($bdg['full_en'] ?? $bText);
                       @endphp
                       @if(!empty($bText))
-                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#031827]/85 backdrop-blur-md border border-white/15 text-[10px] sm:text-[11px] text-white font-mono shadow-md hover:scale-105 transition-transform">
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#031827]/80 dark:bg-[#031827]/90 backdrop-blur-md border border-white/20 text-[10px] text-white font-mono shadow-md hover:bg-[#031827]/95 transition-all max-w-full" title="{{ $bFull }}">
                           @if(!empty($bdg['icon']))
-                            <i class="fa-solid {{ $bdg['icon'] }} text-[#67B34A]"></i>
+                            <i class="fa-solid {{ $bdg['icon'] }} text-[#67B34A] text-xs shrink-0"></i>
                           @endif
-                          <span>{{ $bText }}</span>
+                          <span class="truncate max-w-[150px] sm:max-w-[200px]">{{ $bText }}</span>
                         </div>
                       @endif
                     @endforeach
@@ -390,19 +391,20 @@
 
                 <!-- Bottom Left Badges (e.g. HPLC TRIPLE-ASSAYED) -->
                 @if(!empty($groupedBadges['bottom_left']))
-                  <div class="absolute bottom-5 left-5 rtl:left-auto rtl:right-5 z-10 flex flex-col items-start rtl:items-end gap-2">
+                  <div class="absolute bottom-4 left-4 rtl:left-auto rtl:right-4 z-20 flex flex-col items-start rtl:items-end gap-1.5 max-w-[48%] pointer-events-auto">
                     @foreach($groupedBadges['bottom_left'] as $bdg)
                       @php
                         $bText = $isRtl && !empty($bdg['text_ar']) ? $bdg['text_ar'] : ($bdg['text_en'] ?? '');
+                        $bFull = $isRtl && !empty($bdg['full_ar']) ? $bdg['full_ar'] : ($bdg['full_en'] ?? $bText);
                       @endphp
                       @if(!empty($bText))
-                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#031827]/85 backdrop-blur-md border border-white/15 text-[11px] text-white font-mono shadow-md">
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#031827]/85 backdrop-blur-md border border-white/20 text-[10px] sm:text-[11px] text-white font-mono shadow-md" title="{{ $bFull }}">
                           @if(($bdg['style'] ?? 'pill') === 'pulse_dot')
-                            <span class="w-2 h-2 rounded-full bg-[#67B34A] bz-pulse-dot"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#67B34A] bz-pulse-dot shrink-0"></span>
                           @elseif(!empty($bdg['icon']))
-                            <i class="fa-solid {{ $bdg['icon'] }} text-[#67B34A]"></i>
+                            <i class="fa-solid {{ $bdg['icon'] }} text-[#67B34A] shrink-0"></i>
                           @endif
-                          <span>{{ $bText }}</span>
+                          <span class="truncate">{{ $bText }}</span>
                         </div>
                       @endif
                     @endforeach
@@ -411,18 +413,36 @@
 
                 <!-- Bottom Right Watermark -->
                 @if(!empty($heroOverlays['watermark_enabled']) && !empty($heroOverlays['watermark']))
-                  <div class="absolute bottom-5 right-5 rtl:right-auto rtl:left-5 z-10 text-[11px] font-bold text-white/50 tracking-widest font-mono pointer-events-none uppercase">
+                  <div class="absolute bottom-4 right-4 rtl:right-auto rtl:left-4 z-10 text-[10px] sm:text-[11px] font-bold text-white/40 tracking-widest font-mono pointer-events-none uppercase">
                     {{ $heroOverlays['watermark'] }}
                   </div>
                 @endif
               @else
                 <!-- Fallback Live Verification Pill -->
-                <div class="absolute bottom-5 left-5 rtl:left-auto rtl:right-5 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#031827]/85 backdrop-blur-md border border-white/15 text-[11px] text-white font-mono">
+                <div class="absolute bottom-4 left-4 rtl:left-auto rtl:right-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#031827]/85 backdrop-blur-md border border-white/20 text-[10px] sm:text-[11px] text-white font-mono">
                   <span class="w-2 h-2 rounded-full bg-[#67B34A] bz-pulse-dot"></span>
                   <span>HPLC TRIPLE-ASSAYED</span>
                 </div>
               @endif
             </div>
+
+            <!-- Clinical Highlights Rail Beneath Primary Image -->
+            @if(!empty($heroOverlays['badges']))
+              <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none pt-1">
+                @foreach($heroOverlays['badges'] as $bdg)
+                  @php
+                    $bText = $isRtl && !empty($bdg['text_ar']) ? $bdg['text_ar'] : ($bdg['text_en'] ?? '');
+                    $bFull = $isRtl && !empty($bdg['full_ar']) ? $bdg['full_ar'] : ($bdg['full_en'] ?? $bText);
+                  @endphp
+                  @if(!empty($bText))
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#062B49] border border-slate-200/90 dark:border-[#0A4F78]/30 text-xs font-bold text-[#031827] dark:text-white shrink-0 shadow-xs hover:border-[#67B34A] transition-colors" title="{{ $bFull }}">
+                      <i class="fa-solid {{ $bdg['icon'] ?? 'fa-circle-check' }} text-[#67B34A] text-xs"></i>
+                      <span class="truncate max-w-[240px]">{{ $bText }}</span>
+                    </div>
+                  @endif
+                @endforeach
+              </div>
+            @endif
 
             <!-- Thumbnail Carousel if Multiple Images -->
             @if(count($pImages) > 1)
@@ -1320,26 +1340,6 @@
                         <span class="font-bold text-[#67B34A]">{{ $guaranteeText }}</span>
                       </div>
                     </div>
-                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'رمز المنتج SKU:' : 'Product SKU:' }}</span>
-                        <span class="font-bold text-[#0A4F78] dark:text-[#2A8FC2] font-mono">{{ $pSku }}</span>
-                      </div>
-                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'جهة التصنيع المعتمدة:' : 'Facility Standards:' }}</span>
-                        <span class="font-bold text-[#67B34A]">cGMP & FDA Registered</span>
-                      </div>
-                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'صيغة الكبسولة:' : 'Delivery Matrix:' }}</span>
-                        <span class="font-bold text-[#031827] dark:text-white">{{ $isRtl ? 'كبسولات نباتية معوية' : 'Enteric Veg Capsule' }}</span>
-                      </div>
-                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $isRtl ? 'العمر التخزيني:' : 'Shelf Life Stability:' }}</span>
-                        <span class="font-bold text-[#031827] dark:text-white">24 Months Unopened</span>
-                      </div>
-                      <div class="p-3.5 rounded-xl bg-[#F6F5EF] dark:bg-[#031827] border border-[#0A4F78]/15 flex justify-between items-center">
-                        <span class="text-[#031827]/70 dark:text-[#F6F5EF]/70">{{ $guaranteeTitle }}</span>
-                        <span class="font-bold text-[#67B34A]">{{ $guaranteeText }}</span>
-                      </div>
-                    </div>
                   @endif
                 </div>
               </div>
@@ -1743,36 +1743,53 @@
                           : 'LONGEVITY')
                       : ($isRtl && !empty($relProduct['category_ar']) ? $relProduct['category_ar'] : ($relProduct['category_en'] ?? 'LONGEVITY'));
                 @endphp
-                <div class="rounded-3xl bg-white dark:bg-[#062B49] border border-[#0A4F78]/15 overflow-hidden shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group">
+                <div class="rounded-3xl bg-white dark:bg-[#062B49] border border-slate-200/90 dark:border-[#0A4F78]/30 overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between group hover:border-[#67B34A]/50">
                   <div>
-                    <a href="{{ route('customer.product.show', $relSlug) }}" class="block aspect-square relative overflow-hidden bg-[#031827]">
+                    <!-- Product Image Container (Object-Contain with Subtle Fluent Frame) -->
+                    <a href="{{ route('customer.product.show', $relSlug) }}" class="block aspect-[4/3] sm:aspect-square relative overflow-hidden bg-slate-50/80 dark:bg-[#02131F]/90 p-5 sm:p-6 flex items-center justify-center">
                       <img src="{{ $relImg }}" alt="{{ $relName }}" 
                         width="400"
                         height="400"
                         loading="lazy"
                         decoding="async"
                         onerror="this.onerror=null; this.src='{{ asset('assets/products/blue-cell.webp') }}';"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <span class="absolute top-4 left-4 rtl:left-auto rtl:right-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/90 dark:bg-[#031827]/90 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md">
+                        class="w-full h-full object-contain group-hover:scale-108 transition-transform duration-500 drop-shadow-md" />
+                      <span class="absolute top-4 left-4 rtl:left-auto rtl:right-4 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full bg-white/95 dark:bg-[#031827]/95 text-[#0A4F78] dark:text-[#2A8FC2] backdrop-blur-md border border-slate-200/60 dark:border-white/10 shadow-sm">
                         {{ $relCategory }}
                       </span>
                     </a>
 
-                    <div class="p-6 space-y-2">
-                      <h4 class="text-lg font-black text-[#031827] dark:text-[#F6F5EF]">
-                        <a href="{{ route('customer.product.show', $relSlug) }}" class="hover:text-primary transition-colors">
+                    <div class="p-5 sm:p-6 space-y-3">
+                      <div class="flex items-center gap-1 text-amber-400 text-xs">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                        <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 ml-1 rtl:mr-1">4.9</span>
+                      </div>
+
+                      <h4 class="text-base sm:text-lg font-black text-[#031827] dark:text-[#F6F5EF] leading-snug line-clamp-2">
+                        <a href="{{ route('customer.product.show', $relSlug) }}" class="hover:text-[#67B34A] transition-colors">
                           {{ $relName }}
                         </a>
                       </h4>
-                      <div class="text-xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
-                        @currency($relPrice)
+
+                      <div class="flex items-baseline gap-2">
+                        <span class="text-xl sm:text-2xl font-black text-[#0A4F78] dark:text-[#2A8FC2]">
+                          @currency($relPrice)
+                        </span>
+                        <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                          {{ $isRtl ? 'نقاء سريري' : 'Clinical Grade' }}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div class="p-6 pt-0">
-                    <a href="{{ route('customer.product.show', $relSlug) }}" class="block w-full py-3 text-center text-xs font-extrabold uppercase tracking-wider rounded-xl border border-[#0A4F78]/30 dark:border-white/30 text-[#031827] dark:text-white hover:bg-[#0A4F78] hover:text-white hover:border-[#0A4F78] transition-all">
-                      {{ $isRtl ? 'عرض ملف المستحضر' : 'VIEW CLINICAL FILE' }}
+                  <div class="p-5 sm:p-6 pt-0 space-y-2">
+                    <a href="{{ route('customer.product.show', $relSlug) }}" class="block w-full py-3 text-center text-xs font-black uppercase tracking-wider rounded-xl bg-slate-100 dark:bg-[#031827] hover:bg-[#0A4F78] dark:hover:bg-[#67B34A] text-[#0A4F78] dark:text-white hover:text-white dark:hover:text-[#031827] border border-slate-200 dark:border-[#0A4F78]/40 transition-all shadow-xs flex items-center justify-center gap-2">
+                      <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                      <span>{{ $isRtl ? 'عرض ملف المستحضر' : 'VIEW CLINICAL FILE' }}</span>
                     </a>
                   </div>
                 </div>

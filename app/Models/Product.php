@@ -766,13 +766,30 @@ class Product extends Model implements HasMedia
                 foreach ($rawBenefitsEn as $i => $benEn) {
                     if ($count >= 3) break;
                     $benAr = $rawBenefitsAr[$i] ?? $benEn;
+
+                    $cleanEn = trim((string)$benEn);
+                    if (preg_match('/^([^:\.\(\–\-]{3,38})/u', $cleanEn, $matches)) {
+                        $shortEn = trim($matches[1]);
+                    } else {
+                        $shortEn = \Illuminate\Support\Str::limit($cleanEn, 35, '');
+                    }
+
+                    $cleanAr = trim((string)$benAr);
+                    if (preg_match('/^([^:\.\(\–\-]{3,38})/u', $cleanAr, $mAr)) {
+                        $shortAr = trim($mAr[1]);
+                    } else {
+                        $shortAr = \Illuminate\Support\Str::limit($cleanAr, 35, '');
+                    }
+
                     $defaultBadges[] = [
                         'id' => 'b_' . ($count + 1),
                         'position' => 'top_right',
                         'icon' => $icons[$count % count($icons)],
-                        'text_en' => strtoupper(trim((string)$benEn)),
-                        'text_ar' => trim((string)$benAr),
-                        'style' => 'pill',
+                        'text_en' => strtoupper($shortEn),
+                        'text_ar' => $shortAr,
+                        'full_en' => $cleanEn,
+                        'full_ar' => $cleanAr,
+                        'style' => 'glass',
                     ];
                     $count++;
                 }
