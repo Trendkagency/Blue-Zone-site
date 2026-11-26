@@ -930,7 +930,15 @@
                                     @php
                                         $isUnread = is_null($notif->read_at);
                                         $nData = $notif->data ?? [];
-                                        $nIcon = $nData['icon'] ?? 'fa-solid fa-bell text-sky-500';
+                                        $nTitle = $nData['title'] ?? 'Notification';
+                                        $isStockAlert = str_contains(strtolower($nTitle), 'stock') || str_contains(strtolower($nTitle), 'critical');
+                                        $isOrderAlert = str_contains(strtolower($nTitle), 'order') || str_contains(strtolower($nTitle), 'invoice') || str_contains(strtolower($nTitle), 'quotation');
+                                        
+                                        $iconWrapBg = $isStockAlert 
+                                            ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400' 
+                                            : ($isOrderAlert ? 'bg-sky-100 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300');
+                                        $nIcon = $nData['icon'] ?? ($isStockAlert ? 'fa-solid fa-triangle-exclamation' : ($isOrderAlert ? 'fa-solid fa-receipt' : 'fa-solid fa-bell'));
+                                        
                                         $rawUrl = $nData['action_url'] ?? null;
                                         if ($rawUrl && (str_starts_with($rawUrl, 'http://') || str_starts_with($rawUrl, 'https://'))) {
                                             $parsed = parse_url($rawUrl);
@@ -940,15 +948,16 @@
                                     @endphp
                                     <a href="{{ $nUrl ?? 'javascript:void(0)' }}"
                                         onclick="handleNotificationClick('{{ $notif->id }}', '{{ $nUrl }}', event)"
-                                        class="notification-item-row {{ $isUnread ? 'is-unread' : '' }}"
+                                        class="notification-item-row {{ $isUnread ? 'is-unread' : '' }} hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                                        style="border-bottom: 1px solid var(--color-border-subtle, #F1F5F9); display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.875rem 1.25rem; text-decoration: none;"
                                         data-notif-id="{{ $notif->id }}">
                                         <div
-                                            class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            class="w-8 h-8 rounded-lg {{ $iconWrapBg }} flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
                                             <i class="{{ $nIcon }} text-sm"></i>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <div class="text-xs font-bold text-slate-800 dark:text-white truncate">
-                                                {{ $nData['title'] ?? 'Notification' }}
+                                            <div class="text-xs font-bold {{ $isStockAlert ? 'text-rose-700 dark:text-rose-300' : 'text-slate-800 dark:text-white' }} truncate">
+                                                {{ $nTitle }}
                                             </div>
                                             <div
                                                 class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5 leading-snug">
@@ -1356,10 +1365,14 @@
 
             // Close notification dropdown if open
             const notifDropdown = document.getElementById('adminNotificationDropdown');
-            if (notifDropdown) notifDropdown.classList.remove('show');
+            if (notifDropdown) {
+                notifDropdown.classList.remove('show');
+                notifDropdown.style.display = 'none';
+            }
 
             if (dropdown) {
                 const isShown = dropdown.classList.toggle('show');
+                dropdown.style.display = isShown ? 'block' : 'none';
                 if (toggleBtn) {
                     toggleBtn.setAttribute('aria-expanded', isShown ? 'true' : 'false');
                 }
@@ -1381,12 +1394,14 @@
 
             if (profileDropdown && profileDropdown.classList.contains('show')) {
                 profileDropdown.classList.remove('show');
+                profileDropdown.style.display = 'none';
                 if (profileBtn) profileBtn.setAttribute('aria-expanded', 'false');
                 if (profileChevron) profileChevron.style.transform = '';
             }
 
             if (notifDropdown) {
-                notifDropdown.classList.toggle('show');
+                const isShown = notifDropdown.classList.toggle('show');
+                notifDropdown.style.display = isShown ? 'block' : 'none';
             }
         }
 
@@ -1485,6 +1500,7 @@
             if (dropdown && dropdown.classList.contains('show')) {
                 if (wrapper && !wrapper.contains(event.target)) {
                     dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
                     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
                     if (chevron) chevron.style.transform = '';
                 }
@@ -1495,6 +1511,7 @@
             if (notifDropdown && notifDropdown.classList.contains('show')) {
                 if (notifWrapper && !notifWrapper.contains(event.target)) {
                     notifDropdown.classList.remove('show');
+                    notifDropdown.style.display = 'none';
                 }
             }
         });
@@ -1506,6 +1523,7 @@
                 const toggleBtn = document.getElementById('adminProfileDropdownToggle');
                 if (dropdown && dropdown.classList.contains('show')) {
                     dropdown.classList.remove('show');
+                    dropdown.style.display = 'none';
                     if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
                     if (chevron) chevron.style.transform = '';
                 }
@@ -1513,6 +1531,7 @@
                 const notifDropdown = document.getElementById('adminNotificationDropdown');
                 if (notifDropdown && notifDropdown.classList.contains('show')) {
                     notifDropdown.classList.remove('show');
+                    notifDropdown.style.display = 'none';
                 }
 
                 const sidebar = document.getElementById('adminSidebar');

@@ -2,7 +2,6 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'لوحة قيادة المبيعات التجارية والشركات (B2B CRM)' : 'Commercial B2B Sales & Corporate CRM'" 
     :pageSubtitle="app()->getLocale() === 'ar' ? 'متابعة صفقات التوزيع، طلبيات سلاسل الصيدليات، وأرصدة المنتجات الطبية' : 'Wholesale client accounts, pharmacy distribution orders, and corporate sales pipeline.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
         (app()->getLocale() === 'ar' ? 'المبيعات التجارية' : 'Commercial Sales') => route('admin.dashboard', ['view' => 'commercial'])
     ]"
 >

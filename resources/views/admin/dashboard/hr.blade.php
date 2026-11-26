@@ -2,7 +2,6 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'لوحة قيادة الموارد البشرية وشؤون الموظفين' : 'HR & People Operations Command'" 
     :pageSubtitle="app()->getLocale() === 'ar' ? 'متابعة سجلات الحضور اليومي، دوام الموظفين، وحركة القوى العاملة' : 'Workforce attendance tracking, shift monitoring, and personnel operations.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
         (app()->getLocale() === 'ar' ? 'الموارد البشرية' : 'HR & Staff') => route('admin.dashboard', ['view' => 'hr'])
     ]"
 >

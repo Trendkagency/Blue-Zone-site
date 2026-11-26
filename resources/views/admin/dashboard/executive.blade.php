@@ -2,7 +2,6 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'لوحة القيادة التنفيذية الشاملة' : 'Executive Enterprise Command Dashboard'" 
     :pageSubtitle="app()->getLocale() === 'ar' ? 'متابعة شاملة لكافة قطاعات المؤسسة: المبيعات، العمليات، المناديب الميدانيين، والموارد البشرية' : 'Comprehensive oversight across all organizational units: sales, logistics, field medical reps, and human resources.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
         (app()->getLocale() === 'ar' ? 'النظرة التنفيذية' : 'Executive Overview') => route('admin.dashboard', ['view' => 'executive'])
     ]"
 >
@@ -170,24 +169,31 @@
         </div>
 
         <!-- 4. Staff Attendance Rate Today -->
-        <div class="card p-5 rounded-2xl border border-slate-200/80 dark:border-[#15456E] bg-white dark:bg-[#062B49] shadow-xs relative overflow-hidden transition-all hover:shadow-md hover:border-purple-400">
+        @php
+            $attIsZero = ($attendanceRate <= 0);
+            $attIsLow = ($attendanceRate > 0 && $attendanceRate < 70);
+            $attColorClass = $attIsZero ? 'text-rose-600 dark:text-rose-400' : ($attIsLow ? 'text-amber-600 dark:text-amber-400' : 'text-purple-600 dark:text-purple-400');
+            $attIconBg = $attIsZero ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400' : ($attIsLow ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' : 'bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400');
+            $attHoverBorder = $attIsZero ? 'hover:border-rose-400' : ($attIsLow ? 'hover:border-amber-400' : 'hover:border-purple-400');
+        @endphp
+        <div class="card p-5 rounded-2xl border {{ $attIsZero ? 'border-rose-300/80 dark:border-rose-900/50' : 'border-slate-200/80 dark:border-[#15456E]' }} bg-white dark:bg-[#062B49] shadow-xs relative overflow-hidden transition-all hover:shadow-md {{ $attHoverBorder }}">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
                     {{ app()->getLocale() === 'ar' ? 'نسبة انضباط دوام الموظفين' : 'Workforce Attendance' }}
                 </span>
-                <span class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm shadow-inner">
+                <span class="w-10 h-10 rounded-xl {{ $attIconBg }} flex items-center justify-center text-sm shadow-inner">
                     <i class="fa-solid fa-user-check"></i>
                 </span>
             </div>
             <div class="flex items-baseline gap-2">
-                <span class="text-3xl font-black text-purple-600 dark:text-purple-400">{{ $attendanceRate }}%</span>
+                <span class="text-3xl font-black {{ $attColorClass }}">{{ $attendanceRate }}%</span>
                 <span class="text-xs font-bold text-slate-500">
                     ({{ $presentStaffCount }}/{{ $totalStaffCount }} {{ app()->getLocale() === 'ar' ? 'حاضر' : 'in' }})
                 </span>
             </div>
             <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-[#15456E]/60 text-slate-500">
                 <span>{{ app()->getLocale() === 'ar' ? 'تأخير مسجل اليوم:' : 'Late today:' }} <strong>{{ $lateStaffCount }}</strong></span>
-                <a href="{{ route('admin.dashboard', ['view' => 'hr']) }}" class="text-purple-600 dark:text-purple-400 font-bold hover:underline">
+                <a href="{{ route('admin.dashboard', ['view' => 'hr']) }}" class="{{ $attColorClass }} font-bold hover:underline">
                     {{ app()->getLocale() === 'ar' ? 'الموارد ↗' : 'HR ↗' }}
                 </a>
             </div>

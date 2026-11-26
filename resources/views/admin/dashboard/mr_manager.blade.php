@@ -2,7 +2,6 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'مركز قيادة وإشراف العمليات الميدانية للمناديب' : 'Field MR Supervision & Operations Command'" 
     :pageSubtitle="app()->getLocale() === 'ar' ? 'إشراف فريق المناديب، متابعة تغطية الأطباء، ومؤشرات الالتزام الجغرافي المباشر' : 'Team supervision, doctor territory coverage, and real-time field route telemetry.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
         (app()->getLocale() === 'ar' ? 'إشراف المناديب' : 'MR Supervision') => route('admin.dashboard', ['view' => 'mr_manager'])
     ]"
 >

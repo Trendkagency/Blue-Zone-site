@@ -2,7 +2,6 @@
     :pageTitle="app()->getLocale() === 'ar' ? 'مركز قيادة العمليات والمخزون والتوزيع' : 'Operations, Warehouse & Logistics Command'" 
     :pageSubtitle="app()->getLocale() === 'ar' ? 'متابعة تدفق الطلبات، مستويات المخزون الحرج، وحركات المستودعات المباشرة' : 'Real-time order fulfillment pipelines, critical stock alerts, and warehouse movements.'"
     :breadcrumbs="[
-        (app()->getLocale() === 'ar' ? 'لوحة التحكم' : 'Dashboard') => route('admin.dashboard'),
         (app()->getLocale() === 'ar' ? 'العمليات والمخزون' : 'Operations & Logistics') => route('admin.dashboard', ['view' => 'operations'])
     ]"
 >
