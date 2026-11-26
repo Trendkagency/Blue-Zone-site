@@ -65,6 +65,22 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Database\Eloquent\Model::preventLazyLoading(! app()->isProduction());
 
+        // Prevent Vite Hot Module Reloading (HMR) on remote domains or production environments
+        // A stray public/hot file deployed to a remote server causes ERR_CONNECTION_REFUSED
+        if (!$this->app->runningInConsole()) {
+            $host = request()->getHost();
+            $isLocalHost = in_array($host, ['localhost', '127.0.0.1', '::1', 'blue-zone.test', 'blue_zone_site.test'])
+                || str_ends_with($host, '.local')
+                || str_ends_with($host, '.test');
+
+            if (!app()->environment('local', 'testing') || !$isLocalHost) {
+                if (file_exists(public_path('hot'))) {
+                    @unlink(public_path('hot'));
+                }
+                \Illuminate\Support\Facades\Vite::useHotFile(storage_path('framework/disabled_vite.hot'));
+            }
+        }
+
         //  Share Localization ISRtl or IsLtr
         Blade::if('isRtl', function () {
             return app()->getLocale() === 'ar';

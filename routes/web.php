@@ -116,6 +116,9 @@ Route::get('/migrate-database', function () {
 // Cache & Optimization Clearing Utility Endpoint
 Route::get('/clear-cache', function () {
     try {
+        if (file_exists(public_path('hot'))) {
+            @unlink(public_path('hot'));
+        }
         Artisan::call('optimize:clear');
         Artisan::call('route:clear');
         Artisan::call('config:clear');

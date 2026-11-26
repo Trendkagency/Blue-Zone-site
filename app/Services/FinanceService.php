@@ -28,7 +28,19 @@ class FinanceService
     public function recordCustomerPayment(Order $order, float $amount, FinancialAccount $account, array $data = []): FinancialTransaction
     {
         return DB::transaction(function () use ($order, $amount, $account, $data) {
-            $account->increment('current_balance', $amount);
+            // Pessimistic row lock to serialize concurrent payment recordings
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->first() ?? $order;
+            $alreadyCollected = (float) $lockedOrder->financialPayments()->where('direction', 'credit')->sum('amount');
+            $remainingDue = max(0, round((float) $lockedOrder->total - $alreadyCollected, 2));
+
+            if ($remainingDue <= 0) {
+                throw new \DomainException("Order #{$lockedOrder->order_number} is already paid in full.");
+            }
+
+            // Cap the payment to remaining due to prevent invoice overpayment & bank distortion
+            $amountToApply = min($amount, $remainingDue);
+
+            $account->increment('current_balance', $amountToApply);
             $account->refresh();
 
             $txCount = FinancialTransaction::count() + 1;
@@ -40,29 +52,39 @@ class FinanceService
                 'type' => 'customer_payment',
                 'direction' => 'credit',
                 'financial_account_id' => $account->id,
-                'order_id' => $order->id,
-                'customer_id' => $order->customer_id,
-                'amount' => $amount,
+                'order_id' => $lockedOrder->id,
+                'customer_id' => $lockedOrder->customer_id,
+                'amount' => $amountToApply,
                 'balance_after' => $account->current_balance,
                 'payment_method' => $data['payment_method'] ?? 'bank_transfer',
                 'transaction_date' => $data['payment_date'] ?? now()->toDateString(),
                 'reference_number' => $data['reference_number'] ?? null,
                 'receipt_voucher_number' => $rcpNum,
-                'notes' => $data['notes'] ?? ('Customer payment for Order #' . $order->order_number),
+                'notes' => $data['notes'] ?? ('Customer payment for Order #' . $lockedOrder->order_number),
                 'created_by' => auth()->id(),
             ]);
 
-            // Update Order Payment Status
-            $totalCollected = (float) $order->financialPayments()->where('direction', 'credit')->sum('amount');
-            if ($totalCollected >= (float) $order->total) {
-                $order->update(['payment_status' => 'Paid']);
+            // Update Order Payment Status & Balances
+            $totalCollected = (float) $lockedOrder->financialPayments()->where('direction', 'credit')->sum('amount');
+            $newDueBalance = max(0, round((float) $lockedOrder->total - $totalCollected, 2));
+
+            if ($totalCollected >= (float) $lockedOrder->total) {
+                $lockedOrder->update([
+                    'payment_status' => 'Paid',
+                    'paid_amount' => $totalCollected,
+                    'due_balance' => 0.00,
+                ]);
                 try {
-                    app(\App\Services\CollectionService::class)->syncOrder($order);
+                    app(\App\Services\CollectionService::class)->syncOrder($lockedOrder);
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::warning('Collection auto-sync failed: ' . $e->getMessage());
                 }
             } elseif ($totalCollected > 0) {
-                $order->update(['payment_status' => 'Partially Paid']);
+                $lockedOrder->update([
+                    'payment_status' => 'Partially Paid',
+                    'paid_amount' => $totalCollected,
+                    'due_balance' => $newDueBalance,
+                ]);
             }
 
             return $transaction;
@@ -76,8 +98,21 @@ class FinanceService
     public function recordSupplierPayment(PurchaseInvoice $invoice, float $amount, FinancialAccount $account, array $data = []): FinancialTransaction
     {
         return DB::transaction(function () use ($invoice, $amount, $account, $data) {
-            $account->decrement('current_balance', $amount);
-            $account->refresh();
+            $lockedInvoice = PurchaseInvoice::where('id', $invoice->id)->lockForUpdate()->first() ?? $invoice;
+            $lockedAccount = FinancialAccount::where('id', $account->id)->lockForUpdate()->first() ?? $account;
+
+            $remainingDue = max(0, round((float) $lockedInvoice->grand_total - (float) $lockedInvoice->paid_amount, 2));
+            if ($remainingDue <= 0) {
+                throw new \DomainException("Purchase Invoice #{$lockedInvoice->invoice_number} is already paid in full.");
+            }
+
+            $amountToPay = min($amount, $remainingDue);
+            if ((float) $lockedAccount->current_balance < $amountToPay) {
+                throw new \DomainException("Insufficient funds in account [{$lockedAccount->name_en}]. Available: {$lockedAccount->current_balance}, Required: {$amountToPay}.");
+            }
+
+            $lockedAccount->decrement('current_balance', $amountToPay);
+            $lockedAccount->refresh();
 
             $txCount = FinancialTransaction::count() + 1;
             $txNum = 'TXN-' . date('Y') . '-' . str_pad((string) $txCount, 5, '0', STR_PAD_LEFT);
@@ -87,29 +122,29 @@ class FinanceService
                 'transaction_number' => $txNum,
                 'type' => 'supplier_payment',
                 'direction' => 'debit',
-                'financial_account_id' => $account->id,
-                'purchase_invoice_id' => $invoice->id,
-                'supplier_id' => $invoice->supplier_id,
-                'amount' => $amount,
-                'balance_after' => $account->current_balance,
+                'financial_account_id' => $lockedAccount->id,
+                'purchase_invoice_id' => $lockedInvoice->id,
+                'supplier_id' => $lockedInvoice->supplier_id,
+                'amount' => $amountToPay,
+                'balance_after' => $lockedAccount->current_balance,
                 'payment_method' => $data['payment_method'] ?? 'bank_transfer',
                 'transaction_date' => $data['payment_date'] ?? now()->toDateString(),
                 'reference_number' => $data['reference_number'] ?? null,
                 'receipt_voucher_number' => $vchNum,
-                'notes' => $data['notes'] ?? ('Supplier payment for Bill #' . $invoice->invoice_number),
+                'notes' => $data['notes'] ?? ('Supplier payment for Bill #' . $lockedInvoice->invoice_number),
                 'created_by' => auth()->id(),
             ]);
 
             // Update Purchase Invoice Paid Balance & Payment Status
-            $newPaid = (float) $invoice->paid_amount + $amount;
+            $newPaid = round((float) $lockedInvoice->paid_amount + $amountToPay, 2);
             $paymentStatus = 'partially_paid';
-            if ($newPaid >= (float) $invoice->grand_total) {
+            if ($newPaid >= (float) $lockedInvoice->grand_total) {
                 $paymentStatus = 'paid';
             } elseif ($newPaid <= 0) {
                 $paymentStatus = 'unpaid';
             }
 
-            $invoice->update([
+            $lockedInvoice->update([
                 'paid_amount' => $newPaid,
                 'payment_status' => $paymentStatus,
             ]);

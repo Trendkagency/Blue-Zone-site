@@ -24,7 +24,11 @@ return new class extends Migration
             $table->decimal('vat_rate', 5, 2)->default(15.00);
             $table->decimal('vat_amount', 15, 2)->default(0);
             $table->decimal('gross_amount', 15, 2)->default(0);
-            $table->foreignId('financial_account_id')->nullable()->constrained('financial_accounts')->nullOnDelete();
+            if (Schema::hasTable('financial_accounts')) {
+                $table->foreignId('financial_account_id')->nullable()->constrained('financial_accounts')->nullOnDelete();
+            } else {
+                $table->unsignedBigInteger('financial_account_id')->nullable()->index();
+            }
             $table->string('payment_method', 50)->default('bank_transfer'); // bank 1, bank 2, cash, cheque, online_gateway
             $table->string('cheque_number', 100)->nullable();
             $table->string('cheque_bank', 100)->nullable();

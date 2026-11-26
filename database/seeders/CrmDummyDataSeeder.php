@@ -13,7 +13,14 @@ use App\Models\CrmPipeline;
 use App\Models\CrmPipelineStage;
 use App\Models\CrmTag;
 use App\Models\Customer;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\ProductBatch;
+use App\Models\Quotation;
+use App\Models\QuotationItem;
 use App\Models\User;
+use App\Services\FifoAllocationEngine;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
@@ -581,5 +588,100 @@ class CrmDummyDataSeeder extends Seeder
 
         // 9. Re-calculate dynamic segments with seeded records
         app(\App\Services\CrmSegmentService::class)->refreshSegmentCounts();
+
+        // 10. Seed B2B Commercial Quotations (Draft, Sent, Approved, & Converted to Sales Order w/ FEFO)
+        $pJoint = Product::where('sku', 'BZ-JNT-001')->first();
+        $pMind = Product::where('sku', 'BZ-MND-001')->first();
+        $pPea = Product::where('sku', 'BZ-PEA-001')->first();
+        $pShield = Product::where('sku', 'BZ-SHD-001')->first();
+
+        if ($pJoint && $pMind && $pPea && $pShield) {
+            $quotesSeed = [
+                [
+                    'quotation_number' => 'QT-2026-0001',
+                    'customer' => $c2,
+                    'company_name' => $companies[0]->name ?? 'Al-Nukhba Clinic',
+                    'status' => 'Approved',
+                    'discount' => 250.00,
+                    'notes' => 'B2B quarterly longevity & neuro-protocol replenishment.',
+                    'lines' => [
+                        ['product' => $pMind, 'qty' => 25, 'unit_price' => 62.00],
+                        ['product' => $pPea,  'qty' => 20, 'unit_price' => 66.00],
+                    ],
+                ],
+                [
+                    'quotation_number' => 'QT-2026-0002',
+                    'customer' => $c1,
+                    'company_name' => $companies[1]->name ?? 'Dar Al-Hikma Pharmacy Network',
+                    'status' => 'Sent',
+                    'discount' => 180.00,
+                    'notes' => 'Retail shelf launch bundle proposal — pending pharmacy committee sign-off.',
+                    'lines' => [
+                        ['product' => $pJoint,  'qty' => 30, 'unit_price' => 58.00],
+                        ['product' => $pShield, 'qty' => 30, 'unit_price' => 52.00],
+                    ],
+                ],
+                [
+                    'quotation_number' => 'QT-2026-0003',
+                    'customer' => $c3,
+                    'company_name' => $companies[2]->name ?? 'BioAge Cellular Institute',
+                    'status' => 'Draft',
+                    'discount' => 0.00,
+                    'notes' => 'Draft customized orthopedic & nerve recovery package.',
+                    'lines' => [
+                        ['product' => $pJoint, 'qty' => 15, 'unit_price' => 60.00],
+                        ['product' => $pPea,   'qty' => 15, 'unit_price' => 68.00],
+                    ],
+                ],
+            ];
+
+            foreach ($quotesSeed as $qs) {
+                $sub = 0.0;
+                foreach ($qs['lines'] as $l) {
+                    $sub += round($l['qty'] * $l['unit_price'], 2);
+                }
+                $net = max(0, $sub - $qs['discount']);
+                $vat = round($net * 0.15, 2);
+                $tot = round($net + $vat, 2);
+
+                $qModel = Quotation::updateOrCreate(
+                    ['quotation_number' => $qs['quotation_number']],
+                    [
+                        'customer_id' => $qs['customer']->id,
+                        'customer_name' => $qs['customer']->name,
+                        'customer_email' => $qs['customer']->email,
+                        'customer_phone' => $qs['customer']->phone,
+                        'company_name' => $qs['company_name'],
+                        'date' => now()->subDays(4)->toDateString(),
+                        'valid_until' => now()->addDays(26)->toDateString(),
+                        'status' => $qs['status'],
+                        'subtotal' => $sub,
+                        'discount' => $qs['discount'],
+                        'tax' => $vat,
+                        'total' => $tot,
+                        'currency' => $currency,
+                        'terms_conditions' => 'Net 30 Days • Cold-chain temperature-controlled courier delivery • FEFO batch guarantee (>12m expiry).',
+                        'notes' => $qs['notes'],
+                        'created_by' => $owner->id,
+                    ]
+                );
+
+                $qModel->items()->delete();
+                foreach ($qs['lines'] as $l) {
+                    QuotationItem::create([
+                        'quotation_id' => $qModel->id,
+                        'product_id' => $l['product']->id,
+                        'item_type' => 'product',
+                        'item_name' => $l['product']->name_en,
+                        'sku' => $l['product']->sku,
+                        'quantity' => $l['qty'],
+                        'unit_price' => $l['unit_price'],
+                        'discount' => 0,
+                        'tax_rate' => 15.00,
+                        'total' => round($l['qty'] * $l['unit_price'], 2),
+                    ]);
+                }
+            }
+        }
     }
 }

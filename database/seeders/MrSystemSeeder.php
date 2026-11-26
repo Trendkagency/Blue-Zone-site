@@ -8,6 +8,8 @@ use App\Models\Mr\Contact;
 use App\Models\Mr\ContactAssignment;
 use App\Models\Mr\ContactClassification;
 use App\Models\Mr\ContactSpecialty;
+use App\Models\Mr\ScheduledVisit;
+use App\Models\Mr\Visit;
 use App\Models\Mr\VisitCycle;
 use App\Models\Role;
 use App\Models\User;
@@ -79,9 +81,11 @@ class MrSystemSeeder extends Seeder
             ]
         );
 
-        // 5. Seed Sample Doctor Contacts
-        $cairo = City::first();
-        $country = Country::first();
+        // 5. Seed Sample Doctor Contacts (with guaranteed Cairo / Giza Geography)
+        $country = Country::where('iso2', 'EG')->first() ?? Country::first();
+        $cairo = $country
+            ? City::firstOrCreate(['name_en' => 'Cairo', 'country_id' => $country->id], ['name_ar' => 'القاهرة', 'is_active' => true])
+            : City::first();
         $specialties = ContactSpecialty::all();
         $classA_plus = ContactClassification::where('code', 'A+')->first();
         $classA = ContactClassification::where('code', 'A')->first();
@@ -144,6 +148,7 @@ class MrSystemSeeder extends Seeder
         ];
 
         $assignmentService = app(CrmAssignmentService::class);
+        $seededDocs = [];
 
         foreach ($doctors as $docData) {
             $doc = Contact::updateOrCreate(
@@ -157,6 +162,46 @@ class MrSystemSeeder extends Seeder
 
             // Assign to demo MR
             $assignmentService->assignContact($cycle->id, $mrUser->id, $doc->id);
+            $seededDocs[] = $doc;
+        }
+
+        // 6. Seed Completed GPS-Verified Visit & Scheduled Follow-up Visit
+        if (isset($seededDocs[0])) {
+            $sched1 = ScheduledVisit::updateOrCreate([
+                'mr_id' => $mrUser->id,
+                'contact_id' => $seededDocs[0]->id,
+                'scheduled_at' => now()->subDays(2)->setTime(10, 0),
+            ], [
+                'cycle_id' => $cycle->id,
+                'status' => 'completed',
+                'notes' => 'Scientific detailing on Blue Mind & Blue PEA B Complex clinical evidence.',
+            ]);
+
+            Visit::updateOrCreate(['scheduled_visit_id' => $sched1->id], [
+                'mr_id' => $mrUser->id,
+                'contact_id' => $seededDocs[0]->id,
+                'cycle_id' => $cycle->id,
+                'checkin_at' => now()->subDays(2)->setTime(9, 58),
+                'checkout_at' => now()->subDays(2)->setTime(10, 26),
+                'checkin_lat' => 30.044420,
+                'checkin_lng' => 31.235712,
+                'gps_verified' => true,
+                'duration_minutes' => 28,
+                'outcome' => 'positive',
+                'notes' => 'Physician reviewed Blue PEA B Complex trial data and requested clinic starter packs.',
+            ]);
+        }
+
+        if (isset($seededDocs[1])) {
+            ScheduledVisit::updateOrCreate([
+                'mr_id' => $mrUser->id,
+                'contact_id' => $seededDocs[1]->id,
+                'scheduled_at' => now()->addDay()->setTime(11, 30),
+            ], [
+                'cycle_id' => $cycle->id,
+                'status' => 'planned',
+                'notes' => 'Follow-up detailing on Blue Shield Vitamin D3+K2 metabolic cofactor synergy.',
+            ]);
         }
     }
 }

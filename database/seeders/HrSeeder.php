@@ -209,5 +209,25 @@ class HrSeeder extends Seeder
         foreach (User::all() as $systemUser) {
             $userObserver->syncEmployeeProfile($systemUser);
         }
+
+        // 8. Seed Recent Attendance Logs across active employees
+        $employees = Employee::where('employment_status', 'active')->get();
+        for ($daysAgo = 1; $daysAgo <= 4; $daysAgo++) {
+            $attDate = now()->subDays($daysAgo)->toDateString();
+            foreach ($employees as $idx => $emp) {
+                $isLate = ($idx % 4 === 1 && $daysAgo === 2);
+                \App\Models\AttendanceRecord::updateOrCreate(
+                    ['employee_id' => $emp->id, 'attendance_date' => $attDate],
+                    [
+                        'check_in' => $isLate ? '09:32:00' : '08:52:00',
+                        'check_out' => '17:08:00',
+                        'worked_minutes' => $isLate ? 456 : 496,
+                        'late_minutes' => $isLate ? 32 : 0,
+                        'status' => $isLate ? 'late' : 'present',
+                        'source' => 'web',
+                    ]
+                );
+            }
+        }
     }
 }

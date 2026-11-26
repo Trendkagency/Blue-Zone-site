@@ -132,6 +132,17 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        // Attach deferred FK on collection_entries if it was created earlier in migration sequence
+        if (Schema::hasTable('collection_entries')) {
+            try {
+                Schema::table('collection_entries', function (Blueprint $table) {
+                    $table->foreign('financial_account_id')->references('id')->on('financial_accounts')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {
+                // Constraint already exists or driver does not support late FK modification
+            }
+        }
     }
 
     /**
