@@ -83,6 +83,20 @@
                                 <span class="text-[11px] text-[#031827]/60 dark:text-[#F6F5EF]/60">
                                     Qty: {{ $item->quantity }} × @currency($item->unit_price)
                                 </span>
+                                @if($item->batch_number || $item->expiry_date)
+                                    <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                        @if($item->batch_number)
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-[#0A4F78]/10 text-[#0A4F78] dark:text-[#2A8FC2]">
+                                                Batch: {{ $item->batch_number }}
+                                            </span>
+                                        @endif
+                                        @if($item->expiry_date)
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300">
+                                                Exp: {{ $item->expiry_date instanceof \Carbon\Carbon ? $item->expiry_date->format('Y-m-d') : substr((string) $item->expiry_date, 0, 10) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         </div>
 

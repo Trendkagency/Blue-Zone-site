@@ -329,16 +329,20 @@ class ProductBatch extends Model
                 $batch->quarantine_qty = $batch->current_qty;
             }
 
+            $relProduct = $batch->relationLoaded('product')
+                ? $batch->product
+                : ($batch->product_id ? Product::find($batch->product_id) : null);
+
             if (is_null($batch->unit_cost)) {
-                $batch->unit_cost = $batch->product?->cost_price ?? 0.0000;
+                $batch->unit_cost = $relProduct?->cost_price ?? 0.0000;
             }
 
             if (is_null($batch->manufacture_date)) {
                 $batch->manufacture_date = now()->startOfDay();
             }
 
-            if ($batch->expiry_date === null && $batch->product) {
-                $batch->expiry_date = $batch->product->calculateDefaultExpiryDate($batch->manufacture_date);
+            if ($batch->expiry_date === null && $relProduct) {
+                $batch->expiry_date = $relProduct->calculateDefaultExpiryDate($batch->manufacture_date);
             }
         });
     }

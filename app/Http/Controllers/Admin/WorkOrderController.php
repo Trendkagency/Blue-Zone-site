@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\DispenseMaterialRequest;
 use App\Http\Requests\Admin\WorkOrderRequest;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\RawMaterialBatch;
 use App\Models\WorkOrder;
 use App\Services\RawMaterial\RawMaterialManager;
@@ -191,7 +192,9 @@ class WorkOrderController extends Controller
             $batches = $batchesQuery->get();
         }
 
-        return view('admin.supply_chain.work_orders.show', compact('workOrder', 'batches'));
+        $finishedBatches = ProductBatch::where('work_order_id', $workOrder->id)->get();
+
+        return view('admin.supply_chain.work_orders.show', compact('workOrder', 'batches', 'finishedBatches'));
     }
 
     public function schedule(WorkOrder $workOrder): RedirectResponse
@@ -307,6 +310,8 @@ class WorkOrderController extends Controller
         $validated = $request->validate([
             'produced_qty' => ['required', 'integer', 'min:1'],
             'rejected_qty' => ['nullable', 'integer', 'min:0'],
+            'manufacture_date' => ['nullable', 'date'],
+            'expiry_date' => ['nullable', 'date', 'after:manufacture_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'landed_costs' => ['nullable', 'array'],
             'landed_costs.*.category' => ['nullable', 'string'],
@@ -320,6 +325,12 @@ class WorkOrderController extends Controller
 
             $workOrder->produced_qty = (int) $validated['produced_qty'];
             $workOrder->rejected_qty = (int) ($validated['rejected_qty'] ?? 0);
+            if (! empty($validated['manufacture_date'])) {
+                $workOrder->setAttribute('manufacture_date', $validated['manufacture_date']);
+            }
+            if (! empty($validated['expiry_date'])) {
+                $workOrder->setAttribute('expiry_date', $validated['expiry_date']);
+            }
             if (! empty($validated['notes'])) {
                 $workOrder->notes = trim(($workOrder->notes ? $workOrder->notes . "\n" : '') . $validated['notes']);
             }

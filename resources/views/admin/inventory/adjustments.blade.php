@@ -408,6 +408,22 @@
                     </div>
                 </div>
 
+                <!-- Optional Batch # & Expiry Date for Stock In Adjustments -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            {{ app()->getLocale() === 'ar' ? 'رقم التشغيلة (اختياري للإدخال)' : 'Batch # (Optional for Stock In)' }}
+                        </label>
+                        <input type="text" name="batch_number" placeholder="LOT-FG-{{ date('Ym') }}-XXXX" class="form-control text-sm w-full bg-slate-50 dark:bg-[#041E34] border-slate-200 dark:border-[#0E4A7A] text-slate-900 dark:text-white rounded-xl font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                            {{ app()->getLocale() === 'ar' ? 'تاريخ انتهاء الصلاحية (للإدخال)' : 'Expiry Date (Stock In)' }}
+                        </label>
+                        <input type="date" name="expiry_date" class="form-control text-sm w-full bg-slate-50 dark:bg-[#041E34] border-slate-200 dark:border-[#0E4A7A] text-slate-900 dark:text-white rounded-xl font-mono">
+                    </div>
+                </div>
+
                 <!-- Justification Reason -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">

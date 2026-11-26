@@ -112,6 +112,8 @@
                                         $iQty = is_array($item) ? $item['quantity'] : $item->quantity;
                                         $iTotal = is_array($item) ? $item['total'] : $item->total;
                                         $iImg = is_array($item) ? ($item['image'] ?? 'assets/products/blue-mind.webp') : ($item->image ?? 'assets/products/blue-mind.webp');
+                                        $iBatch = is_array($item) ? ($item['batch_number'] ?? null) : ($item->batch_number ?? $item->productBatch?->batch_number ?? null);
+                                        $iExpiry = is_array($item) ? ($item['expiry_date'] ?? null) : ($item->expiry_date ?? $item->productBatch?->expiry_date ?? null);
                                     @endphp
                                     <tr>
                                         <td>
@@ -120,6 +122,16 @@
                                                 <div>
                                                     <div class="font-bold text-sm">{{ $iName }}</div>
                                                     <div class="text-xs text-muted">{{ $iVar }}</div>
+                                                    @if($iBatch || $iExpiry)
+                                                        <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                                            @if($iBatch)
+                                                                <span class="badge badge-neutral text-[10px] font-mono">{{ $iBatch }}</span>
+                                                            @endif
+                                                            @if($iExpiry)
+                                                                <span class="badge badge-success text-[10px] font-mono">Exp: {{ $iExpiry instanceof \Carbon\Carbon ? $iExpiry->format('Y-m-d') : substr((string) $iExpiry, 0, 10) }}</span>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </td>

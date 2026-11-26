@@ -1123,6 +1123,8 @@ class InventoryController extends Controller
             'movement_type' => 'nullable|string|in:Stock In,Stock Out,Return,Damaged,Expired,Manual Adjustment',
             'reason' => 'nullable|string|max:255',
             'reference_number' => 'nullable|string|max:100',
+            'batch_number' => 'nullable|string|max:64',
+            'expiry_date' => 'nullable|date',
         ]);
 
         $product = Product::findOrFail($validated['product_id']);
@@ -1147,7 +1149,12 @@ class InventoryController extends Controller
                 quantityDelta: $delta,
                 movementType: $movementType,
                 reason: $reason,
-                userName: auth()->user()?->name ?? 'Admin Controller'
+                userName: auth()->user()?->name ?? 'Admin Controller',
+                syncBatch: true,
+                batchMeta: [
+                    'batch_number' => $validated['batch_number'] ?? null,
+                    'expiry_date' => $validated['expiry_date'] ?? null,
+                ]
             );
 
             $product->refresh();

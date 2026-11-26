@@ -140,13 +140,25 @@
 
                     <form method="POST" action="{{ route('admin.work-orders.complete', $workOrder) }}" class="space-y-4">
                         @csrf
-                        <div>
-                            <label class="form-label font-bold text-xs">{{ __('production.actual_quantity') }} ({{ app()->getLocale() === 'ar' ? 'العبوات التامة المطابقة' : 'Finished Goods Units' }}) <span class="text-rose-500">*</span></label>
-                            <input type="number" name="actual_quantity" value="{{ $workOrder->planned_qty ?? $workOrder->target_quantity }}" min="1" required class="form-control text-sm font-mono font-bold">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label font-bold text-xs">{{ __('production.actual_quantity') }} ({{ app()->getLocale() === 'ar' ? 'العبوات التامة' : 'Finished Units' }}) <span class="text-rose-500">*</span></label>
+                                <input type="number" name="actual_quantity" value="{{ $workOrder->planned_qty ?? $workOrder->target_quantity }}" min="1" required class="form-control text-sm font-mono font-bold">
+                            </div>
+                            <div>
+                                <label class="form-label font-bold text-xs">{{ __('production.scrap_quantity') }} ({{ app()->getLocale() === 'ar' ? 'التالف' : 'Scrap Units' }})</label>
+                                <input type="number" name="scrap_quantity" value="0" min="0" class="form-control text-sm font-mono">
+                            </div>
                         </div>
-                        <div>
-                            <label class="form-label font-bold text-xs">{{ __('production.scrap_quantity') }} ({{ app()->getLocale() === 'ar' ? 'العبوات التالفة' : 'Scrap Units' }})</label>
-                            <input type="number" name="scrap_quantity" value="0" min="0" class="form-control text-sm font-mono">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="form-label font-bold text-xs">{{ app()->getLocale() === 'ar' ? 'تاريخ التصنيع (Mfg)' : 'Manufacture Date' }}</label>
+                                <input type="date" name="manufacture_date" value="{{ now()->toDateString() }}" class="form-control text-sm font-mono">
+                            </div>
+                            <div>
+                                <label class="form-label font-bold text-xs">{{ app()->getLocale() === 'ar' ? 'تاريخ انتهاء الصلاحية (Expiry)' : 'Expiry Date' }}</label>
+                                <input type="date" name="expiry_date" value="{{ $workOrder->product ? $workOrder->product->calculateDefaultExpiryDate(now())->format('Y-m-d') : now()->addMonths(24)->toDateString() }}" class="form-control text-sm font-mono font-bold">
+                            </div>
                         </div>
                         <div>
                             <label class="form-label font-bold text-xs">{{ __('production.notes') }}</label>
@@ -269,6 +281,39 @@
             @endforeach
         </div>
     </div>
+
+    @if(isset($finishedBatches) && $finishedBatches->isNotEmpty())
+        <!-- Finished Product Batch & Expiry Output Card -->
+        <div class="card p-5 mb-6 border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-sm">
+            <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+                <h4 class="text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    {{ app()->getLocale() === 'ar' ? 'تشغيلة المنتج التام وتاريخ الصلاحية المعتمد' : 'Released Finished Product Batch & Expiry Date' }}
+                </h4>
+                <a href="{{ route('admin.product-batches.index', ['product_id' => $workOrder->product_id]) }}" class="btn btn-xs btn-secondary font-bold">
+                    {{ app()->getLocale() === 'ar' ? 'إدارة تشغيلات المنتجات' : 'Manage Product Batches' }}
+                </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                @foreach($finishedBatches as $fb)
+                    <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800 flex flex-col gap-1 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono font-black text-slate-900 dark:text-white">{{ $fb->batch_number }}</span>
+                            <span class="badge badge-emerald">{{ ucfirst($fb->status) }}</span>
+                        </div>
+                        <div class="text-gray-500">
+                            {{ app()->getLocale() === 'ar' ? 'الإنتاج:' : 'Mfg:' }} <strong class="font-mono">{{ $fb->manufacture_date?->format('Y-m-d') ?? '—' }}</strong>
+                            &nbsp;|&nbsp;
+                            {{ app()->getLocale() === 'ar' ? 'الانتهاء:' : 'Exp:' }} <strong class="font-mono text-emerald-700 dark:text-emerald-400">{{ $fb->expiry_date?->format('Y-m-d') ?? '—' }}</strong>
+                        </div>
+                        <div class="text-gray-500">
+                            {{ app()->getLocale() === 'ar' ? 'المتاح / المبدئي:' : 'Available / Initial:' }} <strong class="font-mono">{{ $fb->available_qty }} / {{ $fb->initial_qty }}</strong>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <!-- Product & Formulation Recipe (BOM) Requirements Section -->
     <div class="card p-5 mb-6 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">

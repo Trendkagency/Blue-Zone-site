@@ -177,7 +177,9 @@ class InvoiceController extends Controller
             $order->update(array_filter($validated, fn($val) => $val !== null));
 
             if ($request->has('discount')) {
-                $order->total = max(0, (float)$order->subtotal - (float)$order->discount + (float)$order->tax);
+                $netBeforeVat = max(0, (float) $order->subtotal - (float) $order->discount);
+                $order->tax = round($netBeforeVat * 0.15, 2);
+                $order->total = round($netBeforeVat + (float) $order->tax + (float) ($order->shipping ?? 0), 2);
                 $order->save();
             }
         }

@@ -80,6 +80,7 @@ use App\Http\Controllers\Admin\RawMaterialController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\GoodsReceiptController;
 use App\Http\Controllers\Admin\RawMaterialBatchController;
+use App\Http\Controllers\Admin\ProductBatchController;
 use App\Http\Controllers\Admin\QcInspectionController;
 use App\Http\Controllers\Admin\WorkOrderController;
 use App\Http\Controllers\Admin\SupplyChainReportController;
@@ -873,6 +874,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/{batch}', [RawMaterialBatchController::class, 'show'])->middleware('permission:batches.view')->name('show');
             Route::post('/{batch}/transfer', [RawMaterialBatchController::class, 'transfer'])->middleware('permission:batches.transfer')->name('transfer');
             Route::post('/{batch}/adjust', [RawMaterialBatchController::class, 'adjust'])->middleware('permission:batches.adjust')->name('adjust');
+        });
+
+        // Finished Product Batches & Expiry Registry (FEFO)
+        Route::prefix('product-batches')->name('product-batches.')->group(function () {
+            Route::get('/', [ProductBatchController::class, 'index'])->name('index');
+            Route::post('/', [ProductBatchController::class, 'store'])->name('store');
+            Route::patch('/{productBatch}', [ProductBatchController::class, 'update'])->name('update');
         });
 
         // Quality Control & Inspections

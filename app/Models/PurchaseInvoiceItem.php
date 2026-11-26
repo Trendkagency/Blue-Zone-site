@@ -35,7 +35,8 @@ class PurchaseInvoiceItem extends Model
         'tax_rate' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
-        'expiry_date' => 'date',
+        // Note: expiry_date is intentionally NOT cast to 'date' because legacy rows may have
+        // non-date strings stored. Use getRawOriginal('expiry_date') in views for safe access.
     ];
 
     public function purchaseInvoice(): BelongsTo

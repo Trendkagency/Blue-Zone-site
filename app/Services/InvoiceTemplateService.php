@@ -67,7 +67,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'اسم الصنف',
                     'label_en' => 'Item Description',
-                    'width' => '22%',
+                    'width' => '19%',
                     'align' => 'start',
                 ],
                 'quantity' => [
@@ -83,7 +83,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'تاريخ الصلاحية / التشغيلة',
                     'label_en' => 'Expiry Date / Batch No.',
-                    'width' => '14%',
+                    'width' => '16%',
                     'align' => 'center',
                 ],
                 'unit_price' => [
@@ -99,7 +99,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'نسبة الخصم 1',
                     'label_en' => 'Disc. 1',
-                    'width' => '4.5%',
+                    'width' => '5%',
                     'align' => 'center',
                 ],
                 'disc_2' => [
@@ -107,7 +107,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'نسبة الخصم 2',
                     'label_en' => 'Disc. 2',
-                    'width' => '4.5%',
+                    'width' => '5%',
                     'align' => 'center',
                 ],
                 'total_exc_vat' => [
@@ -123,7 +123,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'الضريبة',
                     'label_en' => 'VAT',
-                    'width' => '8.5%',
+                    'width' => '9%',
                     'align' => 'center',
                 ],
                 'total_inc_vat' => [
@@ -131,7 +131,7 @@ class InvoiceTemplateService
                     'visible' => true,
                     'label_ar' => 'شامل الضريبة',
                     'label_en' => 'Total Inc. VAT',
-                    'width' => '12.5%',
+                    'width' => '12%',
                     'align' => 'center',
                 ],
             ],

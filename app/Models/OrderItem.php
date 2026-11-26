@@ -34,7 +34,8 @@ class OrderItem extends Model
         return [
             'unit_price' => 'decimal:2',
             'total' => 'decimal:2',
-            'expiry_date' => 'date',
+            // expiry_date intentionally NOT cast to 'date': legacy rows may have non-date strings.
+            // Use $item->getRawOriginal('expiry_date') in views for safe raw access.
         ];
     }
 

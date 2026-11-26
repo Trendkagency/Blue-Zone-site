@@ -148,6 +148,15 @@
                                     $iImg = is_array($item) ? ($item['image'] ?? 'image.jpg') : ($item->image ?? 'image.jpg');
                                     $batchNum = is_array($item) ? ($item['batch_number'] ?? null) : ($item->batch_number ?? $item->productBatch?->batch_number ?? null);
                                     $expDate = is_array($item) ? ($item['expiry_date'] ?? null) : ($item->expiry_date ?? $item->productBatch?->expiry_date ?? null);
+                                    if (!is_array($item) && (!empty($item->product_id)) && (!$batchNum || !$expDate)) {
+                                        $fallbackBatch = \App\Models\ProductBatch::where('product_id', $item->product_id)
+                                            ->where('status', 'approved')
+                                            ->orderByRaw('CASE WHEN available_qty > 0 THEN 0 ELSE 1 END')
+                                            ->orderBy('expiry_date', 'asc')
+                                            ->first();
+                                        $batchNum = $batchNum ?: $fallbackBatch?->batch_number;
+                                        $expDate = $expDate ?: $fallbackBatch?->expiry_date;
+                                    }
                                 @endphp
                                 <tr class="hover:bg-sky-50/40 dark:hover:bg-slate-800/40 transition-colors">
                                     <td class="py-4 px-4">

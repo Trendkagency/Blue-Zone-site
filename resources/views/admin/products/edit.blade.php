@@ -1136,9 +1136,17 @@
                                     {{ app()->getLocale() === 'ar' ? 'نظام الصرف الذكي يعتمد ترتيب الصلاحية (الأقرب انتهاءً يصرف أولاً) مع حظر التشغيلات المنتهية تلقائياً' : 'Automated FEFO prioritizes oldest unexpired batches for checkout & sales orders' }}
                                 </p>
                             </div>
-                            <span class="badge badge-primary font-mono text-xs">
-                                {{ $batches->count() }} {{ app()->getLocale() === 'ar' ? 'تشغيلة مسجلة' : 'Batches Total' }}
-                            </span>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span class="badge badge-primary font-mono text-xs">
+                                    {{ $batches->count() }} {{ app()->getLocale() === 'ar' ? 'تشغيلة مسجلة' : 'Batches Total' }}
+                                </span>
+                                <button type="button" class="btn btn-xs btn-primary font-bold" onclick="openProductStockInModal('online')" style="padding: 0.25rem 0.65rem;">
+                                    + {{ app()->getLocale() === 'ar' ? 'تسجيل تشغيلة بصلاحية' : 'Register Batch / Expiry' }}
+                                </button>
+                                <a href="{{ route('admin.product-batches.index', ['product_id' => $product['id']]) }}" class="btn btn-xs btn-outline font-bold" style="padding: 0.25rem 0.65rem;">
+                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                </a>
+                            </div>
                         </div>
 
                         @if($batches->isNotEmpty())
@@ -1154,6 +1162,7 @@
                                             <th class="text-center">Available / Initial</th>
                                             <th class="text-right">Unit Cost</th>
                                             <th class="text-center">Status</th>
+                                            <th class="text-center">Edit</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
@@ -1185,7 +1194,7 @@
                                                     {{ $b->manufacture_date?->format('Y-m-d') ?? '—' }}
                                                 </td>
                                                 <td class="text-center">
-                                                    <span class="font-bold {{ $badge['color'] === 'rose' ? 'text-rose-600' : ($badge['color'] === 'orange' ? 'text-orange-600' : ($badge['color'] === 'amber' ? 'text-amber-600' : 'text-emerald-600')) }}">
+                                                    <span id="batchExpDisplay_{{ $b->id }}" class="font-bold {{ $badge['color'] === 'rose' ? 'text-rose-600' : ($badge['color'] === 'orange' ? 'text-orange-600' : ($badge['color'] === 'amber' ? 'text-amber-600' : 'text-emerald-600')) }}">
                                                         {{ $b->expiry_date?->format('Y-m-d') }}
                                                     </span>
                                                     <span class="text-[10px] text-muted block">{{ $badge['label_' . (app()->getLocale() === 'ar' ? 'ar' : 'en')] }}</span>
@@ -1195,12 +1204,29 @@
                                                     <span class="text-slate-400 text-[11px]">/ {{ $b->initial_qty }}</span>
                                                 </td>
                                                 <td class="text-right text-slate-700 dark:text-slate-300">
-                                                    {{ number_format($b->unit_cost, 2) }} SAR
+                                                    @currency($b->unit_cost)
                                                 </td>
                                                 <td class="text-center">
                                                     <span class="badge badge-{{ $b->status === 'approved' ? 'emerald' : ($b->status === 'quarantine' ? 'amber' : 'rose') }} text-[11px]">
                                                         {{ ucfirst($b->status) }}
                                                     </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @php
+                                                        $batchPayload = [
+                                                            'id' => $b->id,
+                                                            'batch_number' => $b->batch_number,
+                                                            'manufacture_date' => $b->manufacture_date?->format('Y-m-d'),
+                                                            'expiry_date' => $b->expiry_date?->format('Y-m-d'),
+                                                            'status' => $b->status,
+                                                        ];
+                                                    @endphp
+                                                    <button type="button"
+                                                        onclick='openBatchExpiryEditor(@json($batchPayload))'
+                                                        class="btn btn-xs btn-ghost text-sky-600 font-bold"
+                                                        title="{{ app()->getLocale() === 'ar' ? 'تعديل تاريخ الصلاحية' : 'Edit Expiry Date' }}">
+                                                        <i class="fa-solid fa-calendar-pen"></i>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -1977,6 +2003,8 @@
             const movementType = document.getElementById('stockInType').value;
             const quantity = parseInt(document.getElementById('stockInQuantity').value);
             const referenceNumber = document.getElementById('stockInReference').value;
+            const batchNumber = document.getElementById('stockInBatchNumber')?.value || '';
+            const expiryDate = document.getElementById('stockInExpiryDate')?.value || '';
             const reason = document.getElementById('stockInReason').value;
 
             if (!quantity || quantity <= 0) {
@@ -2008,6 +2036,8 @@
                         movement_type: movementType,
                         quantity: quantity,
                         reference_number: referenceNumber,
+                        batch_number: batchNumber || null,
+                        expiry_date: expiryDate || null,
                         reason: reason
                     })
                 });
@@ -2499,9 +2529,27 @@
                 <div>
                     <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
                         <i class="fa-solid fa-receipt text-primary" style="margin-inline-end: 0.3rem;"></i>
-                        {{ app()->getLocale() === 'ar' ? 'رقم أمر الشراء / الفاتورة / التشغيلة (اختياري)' : 'PO / Batch Reference (Optional)' }}
+                        {{ app()->getLocale() === 'ar' ? 'رقم أمر الشراء / الفاتورة / المرجع (اختياري)' : 'PO / Reference # (Optional)' }}
                     </label>
-                    <input type="text" id="stockInReference" class="form-control text-xs" placeholder="e.g. PO-2026-09-001 / BATCH-A4" style="width: 100%;">
+                    <input type="text" id="stockInReference" class="form-control text-xs" placeholder="e.g. PO-2026-09-001" style="width: 100%;">
+                </div>
+
+                <!-- Batch & Expiry Tracking -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div>
+                        <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                            <i class="fa-solid fa-barcode text-primary" style="margin-inline-end: 0.3rem;"></i>
+                            {{ app()->getLocale() === 'ar' ? 'رقم التشغيلة (تلقائي لو فارغ)' : 'Batch # (auto if blank)' }}
+                        </label>
+                        <input type="text" id="stockInBatchNumber" class="form-control text-xs font-mono" placeholder="LOT-FG-{{ date('Ym') }}-XXXX" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label class="font-bold text-xs" style="display: block; margin-bottom: 0.35rem;">
+                            <i class="fa-solid fa-calendar-xmark text-primary" style="margin-inline-end: 0.3rem;"></i>
+                            {{ app()->getLocale() === 'ar' ? 'تاريخ انتهاء الصلاحية *' : 'Expiry Date' }}
+                        </label>
+                        <input type="date" id="stockInExpiryDate" class="form-control text-xs font-mono" value="{{ $productModel ? \Carbon\Carbon::parse($productModel->calculateDefaultExpiryDate(now()))->format('Y-m-d') : now()->addMonths((int)($product['shelf_life_months'] ?? 24))->format('Y-m-d') }}" style="width: 100%;">
+                    </div>
                 </div>
 
                 <!-- Note / Reason -->
@@ -2620,6 +2668,85 @@
             </div>
         </div>
     </div>
+
+    <!-- Batch Expiry Quick-Edit Modal -->
+    <div id="batchExpiryEditorModal" class="pos-modal-backdrop" style="display: none; z-index: 10010; position: fixed; inset: 0; background: rgba(10, 17, 40, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="card" style="max-width: 440px; width: 95%; padding: 1.5rem; border-radius: var(--radius-lg); background: var(--color-surface, #fff); color: var(--color-text-main, #0f172a); border: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                <h4 style="margin: 0; font-size: 1rem; font-weight: 800;">
+                    <i class="fa-solid fa-calendar-pen text-sky-500"></i>
+                    <span id="batchEditTitle">Edit Batch Expiry</span>
+                </h4>
+                <button type="button" class="btn btn-sm btn-ghost" onclick="document.getElementById('batchExpiryEditorModal').style.display='none'">✕</button>
+            </div>
+            <input type="hidden" id="editBatchId">
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'تاريخ التصنيع' : 'Manufacture Date' }}</label>
+                    <input type="date" id="editBatchMfgDate" class="form-control text-xs font-mono" style="width: 100%;">
+                </div>
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'تاريخ الصلاحية *' : 'Expiry Date *' }}</label>
+                    <input type="date" id="editBatchExpDate" class="form-control text-xs font-mono" style="width: 100%;" required>
+                </div>
+                <div>
+                    <label class="font-bold text-xs" style="display: block; margin-bottom: 0.25rem;">{{ app()->getLocale() === 'ar' ? 'الحالة' : 'Status' }}</label>
+                    <select id="editBatchStatus" class="form-control text-xs" style="width: 100%;">
+                        <option value="approved">Approved</option>
+                        <option value="quarantine">Quarantine</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem; border-top: 1px solid var(--color-border); padding-top: 0.85rem;">
+                <button type="button" class="btn btn-sm btn-ghost" onclick="document.getElementById('batchExpiryEditorModal').style.display='none'">{{ app()->getLocale() === 'ar' ? 'إلغاء' : 'Cancel' }}</button>
+                <button type="button" id="btnSaveBatchExpiry" onclick="submitBatchExpiryEdit()" class="btn btn-sm btn-primary font-bold">{{ app()->getLocale() === 'ar' ? 'حفظ التعديل' : 'Save Expiry' }}</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.openBatchExpiryEditor = function(b) {
+            document.getElementById('editBatchId').value = b.id;
+            document.getElementById('batchEditTitle').innerText = b.batch_number;
+            document.getElementById('editBatchMfgDate').value = b.manufacture_date || '';
+            document.getElementById('editBatchExpDate').value = b.expiry_date || '';
+            document.getElementById('editBatchStatus').value = b.status || 'approved';
+            document.getElementById('batchExpiryEditorModal').style.display = 'flex';
+        };
+        window.submitBatchExpiryEdit = async function() {
+            const id = document.getElementById('editBatchId').value;
+            const mfg = document.getElementById('editBatchMfgDate').value;
+            const exp = document.getElementById('editBatchExpDate').value;
+            const status = document.getElementById('editBatchStatus').value;
+            if (!exp) return;
+            const btn = document.getElementById('btnSaveBatchExpiry');
+            btn.disabled = true;
+            try {
+                const res = await fetch('/admin/product-batches/' + id, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ manufacture_date: mfg || null, expiry_date: exp, status: status })
+                });
+                const json = await res.json();
+                if (res.ok && json.success) {
+                    const disp = document.getElementById('batchExpDisplay_' + id);
+                    if (disp) disp.innerText = json.batch.expiry_date;
+                    document.getElementById('batchExpiryEditorModal').style.display = 'none';
+                    if (typeof showStockInToast === 'function') showStockInToast(json.message);
+                } else {
+                    alert(json.message || 'Error updating batch expiry');
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        };
+    </script>
 
     <!-- Product Image Specification Studio / Lightbox -->
     <x-products.image-lightbox />

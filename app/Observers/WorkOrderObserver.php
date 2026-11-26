@@ -8,6 +8,7 @@ use App\Models\InventoryMovement;
 use App\Models\ProductBatch;
 use App\Models\WorkOrder;
 use App\Services\InventoryService;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -26,9 +27,15 @@ class WorkOrderObserver
 
     public function updating(WorkOrder $order): void
     {
+        // Extract optional non-persisted completion batch date overrides before SQL update runs
+        $customMfgDate = $order->getAttribute('manufacture_date');
+        $customExpiryDate = $order->getAttribute('expiry_date');
+        $order->offsetUnset('manufacture_date');
+        $order->offsetUnset('expiry_date');
+
         // When transitioning to Completed, credit finished goods into inventory_items
         if ($order->isDirty('status') && $order->status === WorkOrderStatus::Completed) {
-            DB::transaction(function () use ($order) {
+            DB::transaction(function () use ($order, $customMfgDate, $customExpiryDate) {
                 // Ensure required relations are loaded to prevent lazy-loading exceptions
                 $order->loadMissing(['consumptions.batch', 'product']);
 
@@ -76,8 +83,12 @@ class WorkOrderObserver
                     InventoryService::syncProductModelStock($product);
 
                     // 3. Create or update finished goods ProductBatch
-                    $mfgDate = $order->completed_at ? $order->completed_at->toDateString() : now()->toDateString();
-                    $expDate = $product->calculateDefaultExpiryDate($mfgDate);
+                    $mfgDate = $customMfgDate
+                        ? Carbon::parse($customMfgDate)->toDateString()
+                        : ($order->completed_at ? $order->completed_at->toDateString() : now()->toDateString());
+                    $expDate = $customExpiryDate
+                        ? Carbon::parse($customExpiryDate)->toDateString()
+                        : $product->calculateDefaultExpiryDate($mfgDate);
 
                     ProductBatch::create([
                         'product_id' => $product->id,

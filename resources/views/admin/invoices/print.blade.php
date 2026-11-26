@@ -384,21 +384,21 @@
         }
         .th-ar {
             display: block;
-            font-size: 0.70rem;
+            font-size: 0.65rem;
             font-weight: 800;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            overflow-wrap: break-word;
+            line-height: 1.25;
         }
         .th-en {
             display: block;
-            font-size: 0.58rem;
+            font-size: 0.54rem;
             font-weight: 700;
             color: #334155;
             direction: ltr;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
+            overflow-wrap: break-word;
+            line-height: 1.2;
         }
         .sheet-table tbody tr {
             min-height: 22px;
@@ -844,16 +844,43 @@
                             if ($isItemObj && !$linkedBatch && !empty($item->product_id) && (empty($item->batch_number) || empty($item->expiry_date))) {
                                 $linkedBatch = \App\Models\ProductBatch::where('product_id', $item->product_id)
                                     ->where('status', 'approved')
-                                    ->whereDate('expiry_date', '>', now()->toDateString())
+                                    ->where(function ($q) {
+                                        $q->whereNull('expiry_date')
+                                          ->orWhereDate('expiry_date', '>', now()->toDateString());
+                                    })
                                     ->orderByRaw('CASE WHEN available_qty > 0 THEN 0 ELSE 1 END')
                                     ->orderBy('expiry_date', 'asc')
                                     ->first();
                             }
 
-                            $batch = $isItemObj ? ($item->batch_number ?: ($linkedBatch?->batch_number ?? '—')) : ($item['batch_number'] ?? '—');
-                            $expiry = $isItemObj ? ($item->expiry_date ?? ($linkedBatch?->expiry_date ?? '—')) : ($item['expiry_date'] ?? '—');
+                            // Safe date resolver: accepts Carbon or valid date string, rejects garbage
+                            $safeDate = function ($val) {
+                                if ($val instanceof \Carbon\Carbon) return $val->format('Y-m-d');
+                                if (is_string($val) && preg_match('/^\d{4}-\d{2}-\d{2}/', $val)) return substr($val, 0, 10);
+                                return null;
+                            };
+
+                            // Safe batch number resolver: must look like a real batch code
+                            $isRealBatch = function ($v) {
+                                return is_string($v) && (bool) preg_match('/^[A-Z0-9\-\/]{3,}$/i', $v);
+                            };
+
+                            $rawBatchNum = $isItemObj ? ($item->batch_number ?? '') : ($item['batch_number'] ?? '');
+                            $batch = $isRealBatch($rawBatchNum) ? $rawBatchNum
+                                : ($linkedBatch?->batch_number ?? '—');
+
+                            $rawExpiry = $isItemObj ? ($item->getRawOriginal('expiry_date') ?? '') : ($item['expiry_date'] ?? '');
+                            $expiry = $safeDate($rawExpiry)
+                                ?? $safeDate($linkedBatch?->getRawOriginal('expiry_date'))
+                                ?? '—';
+                            $expColor = '#0f172a';
                             if ($expiry instanceof \Carbon\Carbon) {
+                                $daysRem = (int) now()->startOfDay()->diffInDays($expiry->copy()->startOfDay(), false);
+                                $expColor = $daysRem <= 0 ? '#be123c' : ($daysRem <= 90 ? '#b45309' : '#065f46');
                                 $expiry = $expiry->format('Y-m-d');
+                            } elseif (is_string($expiry) && preg_match('/^\d{4}-\d{2}-\d{2}/', $expiry)) {
+                                $daysRem = (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($expiry)->startOfDay(), false);
+                                $expColor = $daysRem <= 0 ? '#be123c' : ($daysRem <= 90 ? '#b45309' : '#065f46');
                             }
                             $batchExpiryText = ($batch !== '—' || $expiry !== '—') ? ('Exp: ' . $expiry . ' / ' . $batch) : '—';
 
@@ -882,7 +909,7 @@
                                 <td class="text-center font-mono font-bold cell-num">{{ $qty }}</td>
                             @endif
                             @if($isColVisible('batch_expiry'))
-                                <td class="text-center font-mono" style="font-size: 0.67rem; line-height: 1.2;">{{ $batchExpiryText }}</td>
+                                <td class="text-center font-mono" style="font-size: 0.66rem; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; font-weight: 700; color: {{ $expColor }};">{{ $batchExpiryText }}</td>
                             @endif
                             @if($isColVisible('unit_price'))
                                 <td class="text-center font-mono cell-num">{{ number_format($unitPrice, 2) }}</td>
@@ -932,9 +959,17 @@
         </div>
 
         @php
+            $shipping = (float) ($isModel ? ($order->shipping ?? 0) : ($order['shipping'] ?? 0));
             $finalSubtotal = $calcSubtotal > 0 ? $calcSubtotal : $subtotal;
-            $finalTax = $calcTax > 0 ? $calcTax : $tax;
-            $finalTotal = $calcTotal > 0 ? $calcTotal : $total;
+            $netBeforeVat = max(0, $finalSubtotal - $discount);
+            if ($calcSubtotal > 0) {
+                $finalTax = $discount > 0.0001 ? round($netBeforeVat * 0.15, 2) : round($calcTax, 2);
+                $finalTotal = $discount > 0.0001 ? round($netBeforeVat + $finalTax + $shipping, 2) : round($calcTotal + $shipping, 2);
+            } else {
+                $finalTax = $tax;
+                $finalTotal = $total > 0 ? $total : max(0, $netBeforeVat + $finalTax + $shipping);
+            }
+            $extraDiscPct = ($finalSubtotal > 0 && $discount > 0) ? round(($discount / $finalSubtotal) * 100, 1) : 0;
             $finalDue = max(0, $finalTotal - $paidAmount);
 
             $isCash = in_array($payMethod, ['cash', 'نقداً'], true);
@@ -961,7 +996,7 @@
                         </tr>
                         <tr>
                             <td>{{ $tpl['totals_box']['label_extra_disc_pct_ar'] }}</td>
-                            <td class="text-center font-mono">0%</td>
+                            <td class="text-center font-mono">{{ $extraDiscPct > 0 ? $extraDiscPct . '%' : '0%' }}</td>
                         </tr>
                         <tr>
                             <td>{{ $tpl['totals_box']['label_extra_disc_val_ar'] }}</td>

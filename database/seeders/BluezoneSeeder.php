@@ -32,8 +32,8 @@ class BluezoneSeeder extends Seeder
         $this->seedCategories();
         $this->seedProducts();
         $this->seedCustomers();
-        $this->seedOrders();
         $this->seedInventory();
+        $this->seedOrders();
     }
 
     /* ================================================================== */

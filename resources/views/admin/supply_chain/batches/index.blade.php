@@ -4,6 +4,10 @@
     :breadcrumbs="[__('batches.title') => route('admin.batches.index')]"
 >
     <x-slot name="actions">
+        <a href="{{ route('admin.product-batches.index') }}" class="btn btn-primary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تشغيلات المنتجات التامة والصلاحية' : 'Finished Product Batches' }}</span>
+        </a>
         <a href="{{ route('admin.raw-materials.index') }}" class="btn btn-secondary font-bold text-xs shadow-sm inline-flex items-center gap-1.5 px-3 py-2">
             <i class="fa-solid fa-flask text-emerald-500"></i>
             <span>{{ app()->getLocale() === 'ar' ? 'كتالوج المواد الخام' : 'Raw Materials' }}</span>

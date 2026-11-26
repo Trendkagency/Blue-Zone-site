@@ -49,7 +49,7 @@ class FifoAllocationEngine
         }
 
         return DB::transaction(function () use ($product, $requiredQty, $locationId, $specificBatchId) {
-            $query = ProductBatch::query()
+            $query = ProductBatch::with('product')
                 ->where('product_id', $product->id)
                 ->where('location_id', $locationId)
                 ->where('status', 'approved')
@@ -214,6 +214,7 @@ class FifoAllocationEngine
                 $batch->deductQuantity($qty, $reason);
 
                 // Update location inventory items as well (batch already deducted above)
+                $batch->loadMissing('product');
                 $product = $batch->product;
                 if ($product) {
                     InventoryService::adjustStock(

@@ -14,6 +14,7 @@ use App\Models\Country;
 use App\Models\GoodsReceipt;
 use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\ProductRecipeItem;
 use App\Models\PurchaseOrder;
 use App\Models\QcInspection;
@@ -488,6 +489,23 @@ class SupplyChainSeeder extends Seeder
                 'operator_id' => $admin->id,
                 'scanned_barcode' => $batchApprovedNmn->batch_number,
                 'created_at' => now()->subDays(15),
+            ]);
+
+            ProductBatch::updateOrCreate([
+                'batch_number' => $workOrder->target_finished_lot,
+            ], [
+                'product_id' => $product->id,
+                'work_order_id' => $workOrder->id,
+                'location_id' => $location->id,
+                'initial_qty' => (int) ($workOrder->produced_qty ?? 1000),
+                'current_qty' => (int) ($workOrder->produced_qty ?? 1000),
+                'available_qty' => (int) ($workOrder->produced_qty ?? 1000),
+                'reserved_qty' => 0,
+                'quarantine_qty' => 0,
+                'unit_cost' => (float) ($workOrder->unit_cost ?? 4.2000),
+                'manufacture_date' => now()->subDays(14)->toDateString(),
+                'expiry_date' => $product->calculateDefaultExpiryDate(now()->subDays(14)),
+                'status' => 'approved',
             ]);
         }
     }

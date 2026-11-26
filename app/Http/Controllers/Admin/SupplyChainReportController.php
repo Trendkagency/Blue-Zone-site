@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GoodsReceipt;
 use App\Models\Location;
 use App\Models\Order;
+use App\Models\ProductBatch;
 use App\Models\PurchaseOrder;
 use App\Models\QcInspection;
 use App\Models\RawMaterial;
@@ -77,62 +78,109 @@ class SupplyChainReportController extends Controller
     {
         $this->authorize('viewAny', RawMaterialBatch::class);
 
-        $query = RawMaterialBatch::with(['rawMaterial', 'supplier', 'location'])
+        $todayStart = now()->startOfDay();
+        $rmQuery = RawMaterialBatch::with(['rawMaterial', 'supplier', 'location'])
+            ->where('current_qty', '>', 0);
+        $fgQuery = ProductBatch::with(['product', 'location'])
             ->where('current_qty', '>', 0);
 
         if ($locationId = $request->query('location_id')) {
-            $query->where('location_id', $locationId);
+            $rmQuery->where('location_id', $locationId);
+            $fgQuery->where('location_id', $locationId);
         }
 
         if ($status = $request->query('status')) {
-            $query->where('status', $status);
+            $rmQuery->where('status', $status);
+            $fgQuery->where('status', $status);
         }
 
-        $batches = $query->orderBy('expiry_date', 'asc')->get()->map(function ($batch) {
-            $daysLeft = now()->diffInDays($batch->expiry_date, false);
-            $totalVal = round((float) $batch->current_qty * (float) $batch->unit_cost, 2);
-
-            $risk = 'Safe';
-            if ($daysLeft < 0) {
-                $risk = 'Expired';
-            } elseif ($daysLeft <= 30) {
-                $risk = 'Critical (<= 30d)';
-            } elseif ($daysLeft <= 60) {
-                $risk = 'Warning (<= 60d)';
-            } elseif ($daysLeft <= 90) {
-                $risk = 'Notice (<= 90d)';
+        $classifyRisk = function (?int $daysLeft): string {
+            if ($daysLeft === null) {
+                return 'Safe';
             }
+            if ($daysLeft <= 0) {
+                return 'Expired';
+            }
+            if ($daysLeft <= 30) {
+                return 'Critical (<= 30d)';
+            }
+            if ($daysLeft <= 60) {
+                return 'Warning (<= 60d)';
+            }
+            if ($daysLeft <= 90) {
+                return 'Notice (<= 90d)';
+            }
+            return 'Safe';
+        };
+
+        $rmRows = $rmQuery->orderBy('expiry_date', 'asc')->get()->map(function ($batch) use ($todayStart, $classifyRisk) {
+            $daysLeft = $batch->expiry_date ? (int) $todayStart->diffInDays($batch->expiry_date->copy()->startOfDay(), false) : null;
+            $unitCost = (float) ($batch->unit_cost ?: ($batch->rawMaterial?->standard_cost ?? 0));
+            $totalVal = round((float) $batch->current_qty * $unitCost, 2);
 
             return [
+                'batch_type' => 'Raw Material',
                 'batch_number' => $batch->batch_number,
                 'supplier_lot' => $batch->supplier_lot,
-                'material_code' => $batch->rawMaterial->code,
-                'material_name' => $batch->rawMaterial->name_en,
+                'material_code' => $batch->rawMaterial?->code ?? ($batch->rawMaterial?->sku ?? '—'),
+                'material_name' => $batch->rawMaterial?->name_en ?? 'Raw Material',
                 'location' => $batch->location->name_en ?? $batch->location_id,
                 'storage_bin' => $batch->storage_bin ?? 'N/A',
-                'current_qty' => $batch->current_qty,
-                'uom' => $batch->rawMaterial->unit_of_measure->value,
-                'unit_cost' => $batch->unit_cost,
+                'current_qty' => (float) $batch->current_qty,
+                'uom' => $batch->rawMaterial?->unit_of_measure?->value ?? 'unit',
+                'unit_cost' => $unitCost,
                 'total_value' => $totalVal,
-                'expiry_date' => $batch->expiry_date->toDateString(),
-                'days_left' => $daysLeft,
+                'expiry_date' => $batch->expiry_date?->toDateString() ?? '—',
+                'days_left' => $daysLeft ?? 9999,
                 'status' => $batch->status->value,
-                'risk_status' => $risk,
+                'risk_status' => $classifyRisk($daysLeft),
+                'show_url' => route('admin.batches.show', $batch),
             ];
         });
 
+        $fgRows = $fgQuery->orderBy('expiry_date', 'asc')->get()->map(function ($fgBatch) use ($todayStart, $classifyRisk) {
+            $daysLeft = $fgBatch->expiry_date ? (int) $todayStart->diffInDays($fgBatch->expiry_date->copy()->startOfDay(), false) : null;
+            $unitCost = (float) ($fgBatch->unit_cost ?: ($fgBatch->product?->cost_price ?? 0));
+            $totalVal = round((float) $fgBatch->current_qty * $unitCost, 2);
+
+            return [
+                'batch_type' => 'Finished Good',
+                'batch_number' => $fgBatch->batch_number,
+                'supplier_lot' => $fgBatch->supplier_lot ?? '—',
+                'material_code' => $fgBatch->product?->sku ?? '—',
+                'material_name' => $fgBatch->product?->name_en ?? "Product #{$fgBatch->product_id}",
+                'location' => $fgBatch->location?->name_en ?? $fgBatch->location_id,
+                'storage_bin' => $fgBatch->storage_bin ?? 'N/A',
+                'current_qty' => (int) $fgBatch->current_qty,
+                'uom' => 'units',
+                'unit_cost' => $unitCost,
+                'total_value' => $totalVal,
+                'expiry_date' => $fgBatch->expiry_date?->toDateString() ?? '—',
+                'days_left' => $daysLeft ?? 9999,
+                'status' => (string) $fgBatch->status,
+                'risk_status' => $classifyRisk($daysLeft),
+                'show_url' => route('admin.product-batches.index', ['search' => $fgBatch->batch_number]),
+            ];
+        });
+
+        $batches = $rmRows->concat($fgRows)->sortBy('days_left')->values();
+
         // Summary KPIs
         $totalCapital = $batches->sum('total_value');
-        $risk30 = $batches->where('days_left', '<=', 30)->where('days_left', '>=', 0)->sum('total_value');
+        $risk30 = $batches->where('days_left', '<=', 30)->where('days_left', '>', 0)->sum('total_value');
         $risk60 = $batches->where('days_left', '<=', 60)->where('days_left', '>', 30)->sum('total_value');
         $risk90 = $batches->where('days_left', '<=', 90)->where('days_left', '>', 60)->sum('total_value');
-        $expiredVal = $batches->where('days_left', '<', 0)->sum('total_value');
+        $expiredVal = $batches->where('days_left', '<=', 0)->sum('total_value');
 
         if ($request->query('export') === 'xlsx') {
             return $this->exportSpreadsheet(
-                'raw_material_valuation_expiry',
-                ['Batch #', 'Supplier Lot', 'Material Code', 'Material Name', 'Location', 'Bin', 'Qty', 'UOM', 'Unit Cost', 'Total Value (AED)', 'Expiry Date', 'Days Left', 'Status', 'Risk Level'],
-                $batches->map(fn ($b) => array_values($b))->toArray()
+                'inventory_valuation_expiry',
+                ['Type', 'Batch #', 'Supplier Lot', 'Code / SKU', 'Item Name', 'Location', 'Bin', 'Qty', 'UOM', 'Unit Cost', 'Total Value', 'Expiry Date', 'Days Left', 'Status', 'Risk Level'],
+                $batches->map(function ($b) {
+                    $row = $b;
+                    unset($row['show_url']);
+                    return array_values($row);
+                })->toArray()
             );
         }
 

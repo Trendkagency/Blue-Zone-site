@@ -249,10 +249,25 @@
                                     $itSubtotal = (float) $item->subtotal;
                                     $itTax = (float) $item->tax_amount;
                                     $itTotal = (float) $item->total;
-                                    $batchNo = $item->batch_number ?: ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number);
-                                    $expDate = $item->expiry_date ?? $item->rawMaterialBatch?->expiry_date ?? $item->productBatch?->expiry_date;
-                                    $expStr = $expDate ? $expDate->format('Y-m-d') : null;
-                                    $daysLeft = $expDate ? (int) now()->startOfDay()->diffInDays($expDate->copy()->startOfDay(), false) : null;
+                                    // Safe date resolver: accepts Carbon or valid YYYY-MM-DD string; rejects garbage
+                                    $safeDate = function ($val) {
+                                        if ($val instanceof \Carbon\Carbon) return $val->format('Y-m-d');
+                                        if (is_string($val) && preg_match('/^\d{4}-\d{2}-\d{2}/', $val)) return substr($val, 0, 10);
+                                        return null;
+                                    };
+                                    $isRealBatch = fn($v) => is_string($v) && (bool) preg_match('/^[A-Z0-9\-\/]{3,}$/i', $v);
+
+                                    $rawBatch = $item->batch_number ?? '';
+                                    $batchNo = $isRealBatch($rawBatch) ? $rawBatch
+                                        : ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number ?? null);
+
+                                    $rawExp = $item->getRawOriginal('expiry_date') ?? '';
+                                    $expStr = $safeDate($rawExp)
+                                        ?? $safeDate($item->rawMaterialBatch?->getRawOriginal('expiry_date'))
+                                        ?? $safeDate($item->productBatch?->getRawOriginal('expiry_date'))
+                                        ?? null;
+
+                                    $daysLeft = $expStr ? (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($expStr)->startOfDay(), false) : null;
                                     if ($daysLeft === null) {
                                         $expBadgeClass = 'bg-slate-100 text-slate-600 border-slate-300';
                                         $expBadgeLabel = 'Missing';

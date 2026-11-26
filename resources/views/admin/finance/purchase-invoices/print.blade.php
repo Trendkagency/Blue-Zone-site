@@ -690,12 +690,25 @@
                             $itTax = (float) ($isModel ? $item->tax_amount : ($item['tax_amount'] ?? ($item['tax'] ?? round($itSubtotal * 0.05, 2))));
                             $itTotal = (float) ($isModel ? $item->total : ($item['total'] ?? ($itSubtotal + $itTax)));
 
-                            $batchNo = $isModel
-                                ? ($item->batch_number ?: ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number))
-                                : ($item['batch_number'] ?? null);
-                            $expDate = $isModel
-                                ? ($item->expiry_date?->format('Y-m-d') ?? $item->rawMaterialBatch?->expiry_date?->format('Y-m-d') ?? $item->productBatch?->expiry_date?->format('Y-m-d'))
-                                : ($item['expiry_date'] ?? null);
+                            // ── Batch & Expiry: validate value is a real date, not a test string ──
+                            $rawBatch = $isModel ? ($item->batch_number ?? '') : ($item['batch_number'] ?? '');
+                            $isRealBatch = (bool) preg_match('/^[A-Z0-9\-\/]{3,}$/i', (string) $rawBatch);
+
+                            $batchNo = $isRealBatch ? $rawBatch
+                                : ($item->rawMaterialBatch?->batch_number ?? $item->productBatch?->batch_number ?? null);
+
+                            // Safe date resolver: accepts Carbon, valid date string; rejects garbage strings
+                            $safeDate = function ($val) {
+                                if ($val instanceof \Carbon\Carbon) return $val->format('Y-m-d');
+                                if (is_string($val) && preg_match('/^\d{4}-\d{2}-\d{2}/', $val)) return substr($val, 0, 10);
+                                return null;
+                            };
+
+                            $rawExp = $isModel ? ($item->getRawOriginal('expiry_date') ?? '') : ($item['expiry_date'] ?? '');
+                            $expDate = $safeDate($rawExp)
+                                ?? $safeDate($item->rawMaterialBatch?->getRawOriginal('expiry_date'))
+                                ?? $safeDate($item->productBatch?->getRawOriginal('expiry_date'))
+                                ?? null;
                         @endphp
                         <tr>
                             @if($isColVisible('row_number'))
