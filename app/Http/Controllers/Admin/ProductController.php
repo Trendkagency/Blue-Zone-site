@@ -1094,10 +1094,6 @@ class ProductController extends Controller
         }
     }
 
-            $data['section_settings'] = $clean;
-        }
-    }
-
     /**
      * Update global landing page products showcase section settings.
      */
