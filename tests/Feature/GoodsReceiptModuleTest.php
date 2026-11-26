@@ -61,6 +61,7 @@ class GoodsReceiptModuleTest extends TestCase
             'status' => PurchaseOrderStatus::Confirmed,
             'order_date' => now()->toDateString(),
             'destination_location_id' => $this->location->id,
+            'created_by' => $this->admin->id,
         ]);
 
         $grn = GoodsReceipt::create([
@@ -90,6 +91,7 @@ class GoodsReceiptModuleTest extends TestCase
             'status' => PurchaseOrderStatus::Confirmed,
             'order_date' => now()->toDateString(),
             'destination_location_id' => $this->location->id,
+            'created_by' => $this->admin->id,
         ]);
 
         $grn = GoodsReceipt::create([

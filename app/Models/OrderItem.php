@@ -34,9 +34,22 @@ class OrderItem extends Model
         return [
             'unit_price' => 'decimal:2',
             'total' => 'decimal:2',
-            // expiry_date intentionally NOT cast to 'date': legacy rows may have non-date strings.
-            // Use $item->getRawOriginal('expiry_date') in views for safe raw access.
         ];
+    }
+
+    public function getExpiryDateAttribute($value): ?\Illuminate\Support\Carbon
+    {
+        if (empty($value)) {
+            return null;
+        }
+        if ($value instanceof \Illuminate\Support\Carbon) {
+            return $value;
+        }
+        try {
+            return \Illuminate\Support\Carbon::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function order(): BelongsTo

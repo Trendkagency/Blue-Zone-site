@@ -45,61 +45,173 @@ class ProductSeeder extends Seeder
      */
     public function seedProducts(): void
     {
+        $seededModels = [];
+
         foreach ($this->getDefaultProductsData() as $p) {
             $category = Category::where('name_en', $p['category_en'] ?? '')
                 ->orWhere('slug', $p['category_slug'] ?? '')
                 ->first();
 
-            Product::updateOrCreate(
+            $tierQtyLabelEn = str_contains(strtolower($p['package_size_en'] ?? ''), 'tablet') ? 'Tablets' : 'Capsules';
+            $tierQtyLabelAr = str_contains($p['package_size_ar'] ?? '', 'قرص') ? 'أقراص' : 'كبسولات';
+
+            $defaultSectionSettings = [
+                'protocol_durations' => [
+                    'enabled_desktop' => true,
+                    'enabled_mobile' => true,
+                    'heading_en' => 'SELECT PROTOCOL DURATION:',
+                    'heading_ar' => 'اختر خطة البروتوكول العلاجي:',
+                    'subheading_en' => 'Controlled Protocol Pricing',
+                    'subheading_ar' => 'تسعير بروتوكولي مدروس',
+                    'tiers' => [
+                        [
+                            'id' => 'tier_' . strtolower($p['sku']) . '_1x',
+                            'title_en' => '30-Day Starter',
+                            'title_ar' => 'خطة 30 يوماً الأساسية',
+                            'multiplier' => 1,
+                            'discount_type' => 'percentage',
+                            'discount_value' => 0,
+                            'badge_en' => '1X',
+                            'badge_ar' => '1X',
+                            'serving_en' => "1 Bottle • {$p['package_size_en']}",
+                            'serving_ar' => "عبوة واحدة • {$p['package_size_ar']}",
+                            'is_recommended' => false,
+                        ],
+                        [
+                            'id' => 'tier_' . strtolower($p['sku']) . '_3x',
+                            'title_en' => '90-Day Cellular',
+                            'title_ar' => 'بروتوكول 90 يوماً العلاجي',
+                            'multiplier' => 3,
+                            'discount_type' => 'percentage',
+                            'discount_value' => 15,
+                            'badge_en' => 'SAVE 15%',
+                            'badge_ar' => 'وفّر 15%',
+                            'serving_en' => "3 Complete Bottles ({$tierQtyLabelEn}) — Recommended",
+                            'serving_ar' => "3 عبوات كاملة ({$tierQtyLabelAr}) — موصى به",
+                            'is_recommended' => true,
+                        ],
+                        [
+                            'id' => 'tier_' . strtolower($p['sku']) . '_6x',
+                            'title_en' => '180-Day Transformation',
+                            'title_ar' => 'بروتوكول 180 يوماً المتكامل',
+                            'multiplier' => 6,
+                            'discount_type' => 'percentage',
+                            'discount_value' => 22,
+                            'badge_en' => 'SAVE 22%',
+                            'badge_ar' => 'وفّر 22%',
+                            'serving_en' => '6 Clinical Bottles — Maximum Value & Cold-Chain Free',
+                            'serving_ar' => '6 عبوات سريرية — أقصى توفير وشحن مبرد مجاني',
+                            'is_recommended' => false,
+                        ],
+                    ],
+                ],
+                'buy_box' => [
+                    'enabled_desktop' => true,
+                    'enabled_mobile' => true,
+                    'stock_status_en' => 'In Stock • Cold-Chain Ready',
+                    'stock_status_ar' => 'متوفر بالمستودع • جاهز للشحن المبرد',
+                    'save_badge_en' => 'SAVE UP TO 22% ON PROTOCOL',
+                    'save_badge_ar' => 'وفّر حتى 22% مع البروتوكول',
+                    'btn_add_cart_en' => 'ADD TO CLINICAL PROTOCOL',
+                    'btn_add_cart_ar' => 'إضافة إلى السلة والبروتوكول',
+                    'cta_subtext_en' => 'Clinically Verified Formulation • cGMP Purity Tested',
+                    'cta_subtext_ar' => 'تركيبة سريرية موثقة • مفحوصة مخبرياً cGMP',
+                ],
+            ];
+
+            $product = Product::updateOrCreate(
                 ['slug' => $p['slug']],
                 [
-                    'slug'                 => $p['slug'],
-                    'sku'                  => $p['sku'],
-                    'barcode'              => $p['barcode'] ?? null,
-                    'name_en'              => $p['name_en'],
-                    'name_ar'              => $p['name_ar'],
-                    'tagline_en'           => $p['tagline_en'] ?? null,
-                    'tagline_ar'           => $p['tagline_ar'] ?? null,
-                    'category_id'          => $category?->id,
-                    'subcategory_en'       => $p['subcategory_en'] ?? null,
-                    'subcategory_ar'       => $p['subcategory_ar'] ?? null,
-                    'brand'                => $p['brand'] ?? 'Blue Zone Bioceuticals',
-                    'price'                => $p['price'],
-                    'sale_price'           => $p['sale_price'] ?? null,
-                    'cost_price'           => $p['cost_price'] ?? null,
-                    'is_featured'          => $p['is_featured'] ?? false,
-                    'is_best_seller'       => $p['is_best_seller'] ?? false,
-                    'is_new'               => $p['is_new'] ?? false,
-                    'is_active'            => true,
-                    'status'               => $p['status'] ?? 'active',
-                    'rating'               => $p['rating'] ?? 4.9,
-                    'reviews_count'        => $p['reviews_count'] ?? 120,
-                    'image'                => $p['image'] ?? null,
-                    'images'               => $p['images'] ?? null,
-                    'stock_online'         => $p['stock_online'] ?? 100,
-                    'low_stock_threshold'  => $p['low_stock_threshold'] ?? 15,
-                    'short_description_en' => $p['short_description_en'] ?? null,
-                    'short_description_ar' => $p['short_description_ar'] ?? null,
-                    'description_en'       => $p['description_en'] ?? null,
-                    'description_ar'       => $p['description_ar'] ?? null,
-                    'usage_en'             => $p['usage_en'] ?? null,
-                    'usage_ar'             => $p['usage_ar'] ?? null,
-                    'science_en'           => $p['science_en'] ?? null,
-                    'science_ar'           => $p['science_ar'] ?? null,
-                    'benefits_en'          => $p['benefits_en'] ?? null,
-                    'benefits_ar'          => $p['benefits_ar'] ?? null,
-                    'ingredients'          => $p['ingredients'] ?? null,
-                    'clinical_mechanism'   => $p['professional_info']['clinical_mechanism'] ?? null,
-                    'formula_details'      => $p['professional_info']['formula_details'] ?? null,
-                    'contraindications'    => $p['professional_info']['contraindications'] ?? null,
-                    'warnings'             => $p['professional_info']['warnings'] ?? null,
-                    'target_gender'        => $p['gender'] ?? 'Unisex',
-                    'age_group'            => $p['age_group'] ?? '18+',
-                    'product_size'         => $p['package_size_en'] ?? null,
-                    'sort_order'           => $p['sort_order'] ?? 0,
-                    'enable_backorders'    => false,
+                    'slug'                    => $p['slug'],
+                    'sku'                     => $p['sku'],
+                    'barcode'                 => $p['barcode'] ?? null,
+                    'name_en'                 => $p['name_en'],
+                    'name_ar'                 => $p['name_ar'],
+                    'tagline_en'              => $p['tagline_en'] ?? null,
+                    'tagline_ar'              => $p['tagline_ar'] ?? null,
+                    'category_id'             => $category?->id,
+                    'subcategory_en'          => $p['subcategory_en'] ?? null,
+                    'subcategory_ar'          => $p['subcategory_ar'] ?? null,
+                    'brand'                   => $p['brand'] ?? 'Blue Zone Bioceuticals',
+                    'price'                   => $p['price'],
+                    'sale_price'              => $p['sale_price'] ?? null,
+                    'cost_price'              => $p['cost_price'] ?? null,
+                    'is_featured'             => $p['is_featured'] ?? false,
+                    'show_on_landing'         => true,
+                    'landing_order'           => $p['sort_order'] ?? 0,
+                    'is_best_seller'          => $p['is_best_seller'] ?? false,
+                    'is_new'                  => $p['is_new'] ?? false,
+                    'is_active'               => true,
+                    'status'                  => $p['status'] ?? 'active',
+                    'rating'                  => $p['rating'] ?? 4.9,
+                    'reviews_count'           => $p['reviews_count'] ?? 120,
+                    'image'                   => $p['image'] ?? null,
+                    'images'                  => $p['images'] ?? null,
+                    'stock_online'            => $p['stock_online'] ?? 100,
+                    'low_stock_threshold'     => $p['low_stock_threshold'] ?? 15,
+                    'shelf_life_months'       => $p['shelf_life_months'] ?? ($p['sku'] === 'BZ-SHD-001' ? 36 : 24),
+                    'cost_calculation_mode'   => 'auto_bom',
+                    'packaging_overhead_cost' => 1.8500,
+                    'labor_overhead_cost'     => 1.2500,
+                    'short_description_en'    => $p['short_description_en'] ?? null,
+                    'short_description_ar'    => $p['short_description_ar'] ?? null,
+                    'description_en'          => $p['description_en'] ?? null,
+                    'description_ar'          => $p['description_ar'] ?? null,
+                    'usage_en'                => $p['usage_en'] ?? null,
+                    'usage_ar'                => $p['usage_ar'] ?? null,
+                    'science_en'              => $p['science_en'] ?? null,
+                    'science_ar'              => $p['science_ar'] ?? null,
+                    'benefits_en'             => $p['benefits_en'] ?? null,
+                    'benefits_ar'             => $p['benefits_ar'] ?? null,
+                    'ingredients'             => $p['ingredients'] ?? null,
+                    'clinical_mechanism'      => $p['professional_info']['clinical_mechanism'] ?? null,
+                    'formula_details'         => $p['professional_info']['formula_details'] ?? null,
+                    'contraindications'       => $p['professional_info']['contraindications'] ?? null,
+                    'warnings'                => $p['professional_info']['warnings'] ?? null,
+                    'target_gender'           => $p['gender'] ?? 'Unisex',
+                    'age_group'               => $p['age_group'] ?? '18+',
+                    'product_size'            => $p['package_size_en'] ?? null,
+                    'sort_order'              => $p['sort_order'] ?? 0,
+                    'enable_backorders'       => false,
+                    'section_settings'        => $defaultSectionSettings,
                 ]
             );
+
+            $seededModels[$p['slug']] = $product;
+        }
+
+        // Cross-link synergistic complementary bundle recommendations across the 4 products
+        foreach ($seededModels as $slug => $prod) {
+            $bundleIds = collect($seededModels)
+                ->reject(fn ($other, $oSlug) => $oSlug === $slug)
+                ->take(2)
+                ->pluck('id')
+                ->values()
+                ->all();
+
+            $settings = $prod->section_settings ?? [];
+            $settings['related'] = [
+                'enabled_desktop' => true,
+                'enabled_mobile' => true,
+                'bundle' => [
+                    'enabled' => true,
+                    'discount_type' => 'percentage',
+                    'discount_value' => 15.0,
+                    'badge_en' => 'Optimal Synergistic Protocol (-15%)',
+                    'badge_ar' => 'البروتوكول التكاملي الموصى به (-15%)',
+                    'product_ids' => $bundleIds,
+                ],
+            ];
+            $prod->section_settings = $settings;
+            $prod->save();
+
+            // Sync hero_slides referencing this product slug
+            if (\Illuminate\Support\Facades\Schema::hasTable('hero_slides')) {
+                \Illuminate\Support\Facades\DB::table('hero_slides')
+                    ->where('card_link', 'like', "%{$slug}%")
+                    ->orWhere('primary_cta_link', 'like', "%{$slug}%")
+                    ->update(['product_id' => $prod->id]);
+            }
         }
     }
 

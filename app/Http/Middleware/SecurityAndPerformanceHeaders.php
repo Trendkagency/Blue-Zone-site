@@ -46,8 +46,8 @@ class SecurityAndPerformanceHeaders
         // Content Security Policy (Report-Only safe baseline)
         if (!$response->headers->has('Content-Security-Policy') && !$response->headers->has('Content-Security-Policy-Report-Only')) {
             $isLocalDev = app()->environment('local', 'testing');
-            $viteHttp = $isLocalDev ? ' http://localhost:* http://127.0.0.1:* http://[::1]:*' : '';
-            $viteWs = $isLocalDev ? ' ws://localhost:* ws://127.0.0.1:* ws://[::1]:*' : '';
+            $viteHttp = $isLocalDev ? ' http: http://localhost:* http://127.0.0.1:*' : '';
+            $viteWs = $isLocalDev ? ' ws: ws://localhost:* ws://127.0.0.1:*' : '';
 
             $csp = [
                 "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'",

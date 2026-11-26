@@ -250,7 +250,7 @@ class ExpiryWorkflowEndToEndTest extends TestCase
         $orderItem = OrderItem::where('order_id', $quotation->converted_order_id)->firstOrFail();
         $this->assertEquals($b1->id, $orderItem->product_batch_id);
         $this->assertEquals('LOT-QT-FEFO-1', $orderItem->batch_number);
-        $this->assertEquals($earlierExp, $orderItem->expiry_date->toDateString());
+        $this->assertEquals($earlierExp, substr((string) $orderItem->expiry_date, 0, 10));
 
         $b1->refresh();
         $this->assertEquals(2, $b1->available_qty);

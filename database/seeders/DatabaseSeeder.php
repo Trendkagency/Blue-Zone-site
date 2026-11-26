@@ -2,24 +2,29 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Seed the complete BZ-OS enterprise database in strict domain dependency order.
      */
     public function run(): void
     {
         $this->call([
+            WorldCountriesSeeder::class,
             BluezoneSeeder::class,
-            ProductSeeder::class,
-            NotificationSeeder::class,
-            CrmSeeder::class,
+            SupplyChainRoleSeeder::class,
+            SupplyChainSeeder::class,
+            FinanceSeeder::class,
+            CrmDummyDataSeeder::class,
             HrSeeder::class,
+            MrSystemSeeder::class,
+            NotificationSeeder::class,
         ]);
+
+        // Final integrity reconciliation & backfill across Raw Material & Finished Product Batches
+        Artisan::call('bz:reconcile-batches', ['--backfill' => true]);
     }
 }

@@ -119,13 +119,20 @@ class CollectionService
         }
 
         // Determine default online payment or bank account
-        $account = FinancialAccount::where('is_active', true)
-            ->where(function ($q) {
-                $q->where('type', 'bank')
-                  ->orWhere('name_en', 'like', '%online%')
-                  ->orWhere('name_en', 'like', '%gateway%');
-            })
-            ->first() ?? FinancialAccount::where('is_active', true)->first();
+        // If order already has direct financial payment transactions recorded in FinanceService,
+        // do not double-credit the bank account ledger balance!
+        $alreadyCreditedInFinance = $order->financialPayments()->where('direction', 'credit')->exists();
+
+        $account = null;
+        if (!$alreadyCreditedInFinance) {
+            $account = FinancialAccount::where('is_active', true)
+                ->where(function ($q) {
+                    $q->where('type', 'bank')
+                      ->orWhere('name_en', 'like', '%online%')
+                      ->orWhere('name_en', 'like', '%gateway%');
+                })
+                ->first() ?? FinancialAccount::where('is_active', true)->first();
+        }
 
         $subtotal = (float) $order->subtotal;
         $tax = (float) $order->tax;

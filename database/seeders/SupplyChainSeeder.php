@@ -20,64 +20,77 @@ use App\Models\PurchaseOrder;
 use App\Models\QcInspection;
 use App\Models\RawMaterial;
 use App\Models\RawMaterialBatch;
+use App\Models\Setting;
 use App\Models\Supplier;
 use App\Models\SupplierMaterialPrice;
+use App\Models\SupplierQuotation;
 use App\Models\User;
 use App\Models\WorkOrder;
 use App\Models\WorkOrderMaterialConsumption;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class SupplyChainSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Get or create testing users
-        $admin = User::first() ?? User::factory()->create([
-            'name' => 'Dr. Zaid Al-Nuaimi',
-            'email' => 'zaid@bluezone.com',
-            'status' => 'active',
-        ]);
+        $sysCurrency = Setting::get('currency', 'EGP');
 
-        $qaDirector = User::where('email', 'qa@bluezone.com')->first() ?? User::factory()->create([
+        // 1. Supply Chain Specialists (preserving Super Admin Role IDs)
+        $admin = User::where('email', 'admin@bluezone.com')->first()
+            ?? User::first()
+            ?? User::factory()->create([
+                'name' => 'Dr. Zaid Al-Nuaimi',
+                'email' => 'zaid@bluezone.com',
+                'password' => bcrypt('password'),
+                'status' => 'active',
+            ]);
+
+        $qaDirector = User::updateOrCreate(['email' => 'qa@bluezone.com'], [
             'name' => 'Dr. Sarah Al-Mansouri (QA Director)',
-            'email' => 'qa@bluezone.com',
+            'password' => bcrypt('password'),
             'status' => 'active',
         ]);
 
-        $procurementHead = User::where('email', 'procurement@bluezone.com')->first() ?? User::factory()->create([
+        $procurementHead = User::updateOrCreate(['email' => 'procurement@bluezone.com'], [
             'name' => 'Eng. Tariq Al-Hashimi (Procurement)',
-            'email' => 'procurement@bluezone.com',
+            'password' => bcrypt('password'),
             'status' => 'active',
         ]);
 
-        $chemist = User::where('email', 'chemist@bluezone.com')->first() ?? User::factory()->create([
+        $chemist = User::updateOrCreate(['email' => 'chemist@bluezone.com'], [
             'name' => 'Analyst Karim Mahmoud (Chemist)',
-            'email' => 'chemist@bluezone.com',
+            'password' => bcrypt('password'),
             'status' => 'active',
         ]);
 
-        $country = Country::first() ?? Country::create([
-            'code' => 'AE',
-            'name_en' => 'United Arab Emirates',
-            'name_ar' => 'الإمارات العربية المتحدة',
-            'phone_code' => '+971',
-            'currency_code' => 'AED',
-            'is_active' => true,
-        ]);
+        // Call SupplyChainRoleSeeder again to bind dedicated roles to these created users
+        (new SupplyChainRoleSeeder())->run();
+
+        $country = Country::where('iso2', 'EG')->first()
+            ?? Country::where('iso2', 'SA')->first()
+            ?? Country::first()
+            ?? Country::create([
+                'iso2' => 'EG',
+                'name_en' => 'Egypt',
+                'name_ar' => 'مصر',
+                'phone_code' => '+20',
+                'currency_code' => 'EGP',
+                'currency_symbol_en' => 'EGP',
+                'currency_symbol_ar' => 'ج.م',
+                'is_active' => true,
+            ]);
 
         $location = Location::where('id', 'central_wh')->first() ?? Location::create([
             'id' => 'central_wh',
-            'name_en' => 'Central Logistics Warehouse',
-            'name_ar' => 'المستودع اللوجستي المركزي',
-            'code' => 'LOC-CENTRAL',
+            'name_en' => 'Central Logistics & Quarantine Warehouse',
+            'name_ar' => 'المستودع المركزي الرئيسي',
+            'code' => 'LOC-CWH',
             'type' => 'warehouse',
             'is_active' => true,
         ]);
 
-        // 2. Seed Suppliers
-        $chromadex = Supplier::create([
-            'code' => 'SUP-CHROMA-01',
+        // 2. Seed Dual-Approved Suppliers + Pending Review Vendor
+        $chromadex = Supplier::updateOrCreate(['code' => 'SUP-CHROMA-01'], [
             'type' => SupplierType::IngredientSupplier,
             'name_en' => 'ChromaDex Bioceuticals Inc.',
             'name_ar' => 'شركة كروما دكس للمواد الحيوية',
@@ -92,7 +105,7 @@ class SupplyChainSeeder extends Seeder
             'iso_certified' => true,
             'audit_expiry' => now()->addMonths(14)->toDateString(),
             'payment_terms' => 'NET30',
-            'currency' => 'AED',
+            'currency' => $sysCurrency,
             'lead_time_days' => 12,
             'is_active' => true,
             'qa_approved_by' => $qaDirector->id,
@@ -101,8 +114,7 @@ class SupplyChainSeeder extends Seeder
             'procurement_approved_at' => now()->subMonths(3),
         ]);
 
-        $biovita = Supplier::create([
-            'code' => 'SUP-BIOVIT-02',
+        $biovita = Supplier::updateOrCreate(['code' => 'SUP-BIOVIT-02'], [
             'type' => SupplierType::IngredientSupplier,
             'name_en' => 'Biovita Nutriceuticals GmbH',
             'name_ar' => 'بيوفيتا نوتريسوتيكالز الألمانية',
@@ -117,7 +129,7 @@ class SupplyChainSeeder extends Seeder
             'iso_certified' => true,
             'audit_expiry' => now()->addMonths(8)->toDateString(),
             'payment_terms' => 'NET30',
-            'currency' => 'AED',
+            'currency' => $sysCurrency,
             'lead_time_days' => 16,
             'is_active' => true,
             'qa_approved_by' => $qaDirector->id,
@@ -126,8 +138,7 @@ class SupplyChainSeeder extends Seeder
             'procurement_approved_at' => now()->subMonths(2),
         ]);
 
-        $eastpack = Supplier::create([
-            'code' => 'SUP-EASTPK-03',
+        $eastpack = Supplier::updateOrCreate(['code' => 'SUP-EASTPK-03'], [
             'type' => SupplierType::PackagingVendor,
             'name_en' => 'EastPack Amber Glass Co.',
             'name_ar' => 'شركة إيست باك للزجاج والعبوات الدوائية',
@@ -135,15 +146,15 @@ class SupplyChainSeeder extends Seeder
             'email' => 'export@eastpack-glass.com',
             'phone' => '+862158880199',
             'country_id' => $country->id,
-            'city' => 'Shanghai',
-            'address' => 'Pudong New District, Industry Zone B',
-            'rating' => 4.15,
-            'gmp_certified' => false,
+            'city' => 'Cairo',
+            'address' => '10th of Ramadan Industrial Zone B',
+            'rating' => 4.45,
+            'gmp_certified' => true,
             'iso_certified' => true,
-            'audit_expiry' => now()->addMonths(5)->toDateString(),
+            'audit_expiry' => now()->addMonths(10)->toDateString(),
             'payment_terms' => 'NET60',
-            'currency' => 'AED',
-            'lead_time_days' => 28,
+            'currency' => $sysCurrency,
+            'lead_time_days' => 21,
             'is_active' => true,
             'qa_approved_by' => $qaDirector->id,
             'qa_approved_at' => now()->subMonths(1),
@@ -151,8 +162,7 @@ class SupplyChainSeeder extends Seeder
             'procurement_approved_at' => now()->subMonths(1),
         ]);
 
-        $pendingSupplier = Supplier::create([
-            'code' => 'SUP-NEWLAB-04',
+        Supplier::updateOrCreate(['code' => 'SUP-NEWLAB-04'], [
             'type' => SupplierType::IngredientSupplier,
             'name_en' => 'Sourcing Global Labs Ltd.',
             'name_ar' => 'مختبرات التوريد العالمية',
@@ -167,45 +177,41 @@ class SupplyChainSeeder extends Seeder
             'iso_certified' => false,
             'audit_expiry' => now()->addMonths(2)->toDateString(),
             'payment_terms' => 'Advance',
-            'currency' => 'AED',
+            'currency' => $sysCurrency,
             'lead_time_days' => 20,
-            'is_active' => false, // Under review (only 1 approval)
+            'is_active' => false,
             'qa_approved_by' => $qaDirector->id,
             'qa_approved_at' => now(),
-            'procurement_approved_by' => null,
-            'procurement_approved_at' => null,
         ]);
 
-        // 3. Seed Raw Materials
-        $nmn = RawMaterial::create([
-            'code' => 'RM-NMN-BIO',
-            'name_en' => 'Beta-Nicotinamide Mononucleotide (NMN 99.8%)',
-            'name_ar' => 'بيتا-نيكوتيناميد أحادي النوكليوتيد (NMN 99.8%)',
-            'inci_name' => 'Nicotinamide Mononucleotide',
-            'cas_number' => '1094-61-7',
+        // 3. Raw Materials covering all 4 Flagship Formulations
+        $glucosamine = RawMaterial::updateOrCreate(['code' => 'RM-GLUC-01'], [
+            'name_en' => 'Glucosamine HCl Pharmaceutical Grade 99%',
+            'name_ar' => 'جلوكوزامين هيدروكلوريد صيدلاني 99%',
+            'inci_name' => 'Glucosamine Hydrochloride',
+            'cas_number' => '66-84-2',
             'category' => RawMaterialCategory::ActiveIngredient,
             'unit_of_measure' => UnitOfMeasure::Kilogram,
-            'storage_condition' => StorageCondition::ColdRefrigerated,
-            'standard_cost' => 8500.0000,
-            'min_reorder_qty' => 10.0000,
-            'safety_stock' => 5.0000,
+            'storage_condition' => StorageCondition::Ambient,
+            'standard_cost' => 1450.0000,
+            'min_reorder_qty' => 20.0000,
+            'safety_stock' => 10.0000,
             'shelf_life_days' => 730,
             'requires_coa' => true,
             'default_supplier_id' => $chromadex->id,
             'is_active' => true,
         ]);
 
-        $resveratrol = RawMaterial::create([
-            'code' => 'RM-RESV-99',
-            'name_en' => 'Trans-Resveratrol 99% Pure Micronized',
-            'name_ar' => 'ترانس-ريزفيراترول نقي 99% ميكروني',
-            'inci_name' => 'Resveratrol',
-            'cas_number' => '501-36-0',
+        $boswellia = RawMaterial::updateOrCreate(['code' => 'RM-BOSW-02'], [
+            'name_en' => 'Boswellia Serrata Extract (65% Boswellic Acids)',
+            'name_ar' => 'مستخلص البوزويليا المنشاري (65% أحماض البوزويليك)',
+            'inci_name' => 'Boswellia Serrata Resin Extract',
+            'cas_number' => '97952-72-2',
             'category' => RawMaterialCategory::ActiveIngredient,
             'unit_of_measure' => UnitOfMeasure::Kilogram,
-            'storage_condition' => StorageCondition::ColdRefrigerated,
-            'standard_cost' => 4200.0000,
-            'min_reorder_qty' => 15.0000,
+            'storage_condition' => StorageCondition::Ambient,
+            'standard_cost' => 2200.0000,
+            'min_reorder_qty' => 10.0000,
             'safety_stock' => 5.0000,
             'shelf_life_days' => 730,
             'requires_coa' => true,
@@ -213,8 +219,58 @@ class SupplyChainSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $capsules = RawMaterial::create([
-            'code' => 'RM-CAPS-00',
+        $ginkgo = RawMaterial::updateOrCreate(['code' => 'RM-GINK-03'], [
+            'name_en' => 'Standardized Ginkgo Biloba Extract 24/6',
+            'name_ar' => 'مستخلص الجنكة بيلوبا الموحد 24/6',
+            'inci_name' => 'Ginkgo Biloba Leaf Extract',
+            'cas_number' => '90045-36-6',
+            'category' => RawMaterialCategory::ActiveIngredient,
+            'unit_of_measure' => UnitOfMeasure::Kilogram,
+            'storage_condition' => StorageCondition::ColdRefrigerated,
+            'standard_cost' => 3100.0000,
+            'min_reorder_qty' => 8.0000,
+            'safety_stock' => 4.0000,
+            'shelf_life_days' => 730,
+            'requires_coa' => true,
+            'default_supplier_id' => $biovita->id,
+            'is_active' => true,
+        ]);
+
+        $peaPowder = RawMaterial::updateOrCreate(['code' => 'RM-PEA-04'], [
+            'name_en' => 'Micronized Palmitoylethanolamide (PEA 99.5%)',
+            'name_ar' => 'بالميتويل إيثانولاميد ميكروني (PEA 99.5%)',
+            'inci_name' => 'Palmitoylethanolamide',
+            'cas_number' => '544-31-0',
+            'category' => RawMaterialCategory::ActiveIngredient,
+            'unit_of_measure' => UnitOfMeasure::Kilogram,
+            'storage_condition' => StorageCondition::ColdRefrigerated,
+            'standard_cost' => 6400.0000,
+            'min_reorder_qty' => 10.0000,
+            'safety_stock' => 4.0000,
+            'shelf_life_days' => 730,
+            'requires_coa' => true,
+            'default_supplier_id' => $chromadex->id,
+            'is_active' => true,
+        ]);
+
+        $vitD3K2 = RawMaterial::updateOrCreate(['code' => 'RM-VD3K2-05'], [
+            'name_en' => 'Vitamin D3 100k IU/g + MenaQ7 K2 MK-7 Premix',
+            'name_ar' => 'خليط فيتامين D3 + ميناكينون-7 K2 MK-7 النقي',
+            'inci_name' => 'Cholecalciferol & Menaquinone-7',
+            'cas_number' => '67-97-0',
+            'category' => RawMaterialCategory::ActiveIngredient,
+            'unit_of_measure' => UnitOfMeasure::Kilogram,
+            'storage_condition' => StorageCondition::ColdRefrigerated,
+            'standard_cost' => 4800.0000,
+            'min_reorder_qty' => 6.0000,
+            'safety_stock' => 3.0000,
+            'shelf_life_days' => 1095,
+            'requires_coa' => true,
+            'default_supplier_id' => $biovita->id,
+            'is_active' => true,
+        ]);
+
+        $capsules = RawMaterial::updateOrCreate(['code' => 'RM-CAPS-00'], [
             'name_en' => 'Plant Cellulose Vegan Capsules Size 00',
             'name_ar' => 'كبسولات نباتية سليلوزية قياس 00',
             'inci_name' => 'Hypromellose (HPMC)',
@@ -231,9 +287,8 @@ class SupplyChainSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $bottles = RawMaterial::create([
-            'code' => 'RM-BOTT-60',
-            'name_en' => 'Pharmaceutical Amber Glass Bottle 60ml + Childproof Cap',
+        $bottles = RawMaterial::updateOrCreate(['code' => 'RM-BOTT-60'], [
+            'name_en' => 'Pharmaceutical Amber Glass Bottle 60ml + Cap',
             'name_ar' => 'عبوة زجاجية كهرمانية صيدلانية 60 مل مع غطاء آمن',
             'inci_name' => 'Type III Amber Glass Container',
             'cas_number' => null,
@@ -249,56 +304,101 @@ class SupplyChainSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 4. Seed Supplier Material Prices
-        SupplierMaterialPrice::create([
+        // 4. Supplier Material Prices
+        foreach ([
+            [$chromadex->id, $glucosamine->id, 1420.00, 20.0, 12],
+            [$biovita->id, $boswellia->id, 2150.00, 10.0, 16],
+            [$biovita->id, $ginkgo->id, 3050.00, 8.0, 14],
+            [$chromadex->id, $peaPowder->id, 6350.00, 10.0, 12],
+            [$biovita->id, $vitD3K2->id, 4750.00, 5.0, 16],
+            [$eastpack->id, $capsules->id, 0.0750, 50000.0, 18],
+            [$eastpack->id, $bottles->id, 1.8000, 3000.0, 18],
+        ] as [$supId, $rmId, $price, $moq, $lead]) {
+            SupplierMaterialPrice::updateOrCreate(
+                ['supplier_id' => $supId, 'raw_material_id' => $rmId],
+                [
+                    'unit_price' => $price,
+                    'currency' => $sysCurrency,
+                    'min_order_qty' => $moq,
+                    'lead_time_days' => $lead,
+                    'is_preferred' => true,
+                ]
+            );
+        }
+
+        // 5. Supplier Quotation (RFQ -> Converted PO & Open Pending RFQ)
+        $sq1 = SupplierQuotation::updateOrCreate(['quote_number' => 'SQ-2026-0001'], [
             'supplier_id' => $chromadex->id,
-            'raw_material_id' => $nmn->id,
-            'unit_price' => 8400.0000,
-            'currency' => 'AED',
-            'min_order_qty' => 5.0000,
+            'rfq_reference' => 'RFQ-Q4-PEA-01',
+            'quote_date' => now()->subDays(48)->toDateString(),
+            'valid_until' => now()->subDays(18)->toDateString(),
+            'status' => 'converted',
+            'currency' => $sysCurrency,
+            'exchange_rate' => 1.0000,
+            'subtotal' => 127000.00,
+            'tax_amount' => 19050.00,
+            'estimated_freight' => 2500.00,
+            'estimated_customs' => 4500.00,
+            'grand_total' => 153050.00,
+            'payment_terms' => 'NET30',
             'lead_time_days' => 12,
-            'is_preferred' => true,
+            'notes' => 'Accepted RFQ for Q4 PEA micronized raw active batch.',
+            'created_by' => $procurementHead->id,
         ]);
 
-        SupplierMaterialPrice::create([
+        SupplierQuotation::updateOrCreate(['quote_number' => 'SQ-2026-0002'], [
             'supplier_id' => $biovita->id,
-            'raw_material_id' => $resveratrol->id,
-            'unit_price' => 4150.0000,
-            'currency' => 'AED',
-            'min_order_qty' => 10.0000,
-            'lead_time_days' => 16,
-            'is_preferred' => true,
+            'rfq_reference' => 'RFQ-2026-D3K2',
+            'quote_date' => now()->subDays(3)->toDateString(),
+            'valid_until' => now()->addDays(27)->toDateString(),
+            'status' => 'pending',
+            'currency' => $sysCurrency,
+            'exchange_rate' => 1.0000,
+            'subtotal' => 47500.00,
+            'tax_amount' => 7125.00,
+            'estimated_freight' => 1200.00,
+            'estimated_customs' => 1800.00,
+            'grand_total' => 57625.00,
+            'payment_terms' => 'NET30',
+            'lead_time_days' => 14,
+            'notes' => 'Under engineering & procurement price review.',
+            'created_by' => $procurementHead->id,
         ]);
 
-        // 5. Seed Purchase Orders & Goods Receipts
-        $po1 = PurchaseOrder::create([
-            'po_number' => 'PO-2026-0001',
+        // 6. Purchase Orders & Goods Receipts (PO-1 Received, PO-2 Confirmed / Pending Intake)
+        $po1 = PurchaseOrder::updateOrCreate(['po_number' => 'PO-2026-0001'], [
             'supplier_id' => $chromadex->id,
+            'supplier_quotation_id' => $sq1->id,
             'order_date' => now()->subDays(45)->toDateString(),
             'expected_date' => now()->subDays(30)->toDateString(),
             'destination_location_id' => $location->id,
             'status' => PurchaseOrderStatus::Received,
-            'subtotal' => 168000.00,
+            'subtotal' => 127000.00,
             'freight_cost' => 2500.00,
             'customs_duties' => 4500.00,
-            'tax_amount' => 8400.00,
-            'grand_total' => 183400.00,
-            'currency' => 'AED',
+            'tax_amount' => 19050.00,
+            'grand_total' => 153050.00,
+            'currency' => $sysCurrency,
             'created_by' => $procurementHead->id,
             'approved_by' => $admin->id,
             'approved_at' => now()->subDays(44),
         ]);
+        $sq1->update(['converted_po_id' => $po1->id]);
 
-        $po1Item = $po1->items()->create([
-            'raw_material_id' => $nmn->id,
-            'ordered_qty' => 20.0000,
-            'received_qty' => 20.0000,
-            'unit_price' => 8400.0000,
-            'total_price' => 168000.00,
-        ]);
+        $po1Item = $po1->items()->updateOrCreate(
+            ['purchase_order_id' => $po1->id, 'raw_material_id' => $peaPowder->id],
+            [
+                'item_type' => 'raw_material',
+                'ordered_qty' => 20.0000,
+                'received_qty' => 20.0000,
+                'unit_price' => 6350.0000,
+                'total_price' => 127000.00,
+                'allocated_landed_cost' => 7000.00,
+                'landed_unit_cost' => 6700.0000,
+            ]
+        );
 
-        $grn1 = GoodsReceipt::create([
-            'grn_number' => 'GRN-2026-0001',
+        $grn1 = GoodsReceipt::updateOrCreate(['grn_number' => 'GRN-2026-0001'], [
             'purchase_order_id' => $po1->id,
             'supplier_id' => $chromadex->id,
             'location_id' => $location->id,
@@ -313,67 +413,159 @@ class SupplyChainSeeder extends Seeder
             'status' => 'received',
         ]);
 
-        $grn1Item = $grn1->items()->create([
-            'purchase_order_item_id' => $po1Item->id,
-            'raw_material_id' => $nmn->id,
-            'ordered_qty' => 20.0000,
-            'received_qty' => 20.0000,
-            'supplier_lot' => 'LOT-CHROMA-NMN-884',
-            'manufacture_date' => now()->subMonths(2)->toDateString(),
-            'expiry_date' => now()->addMonths(22)->toDateString(),
-            'storage_condition' => StorageCondition::ColdRefrigerated,
-        ]);
+        $grn1->items()->updateOrCreate(
+            ['goods_receipt_id' => $grn1->id, 'raw_material_id' => $peaPowder->id],
+            [
+                'item_type' => 'raw_material',
+                'purchase_order_item_id' => $po1Item->id,
+                'ordered_qty' => 20.0000,
+                'received_qty' => 20.0000,
+                'supplier_lot' => 'LOT-CHROMA-PEA-884',
+                'manufacture_date' => now()->subMonths(2)->toDateString(),
+                'expiry_date' => now()->addMonths(22)->toDateString(),
+                'storage_condition' => StorageCondition::ColdRefrigerated,
+            ]
+        );
 
-        // 6. Seed Batches (Approved, Quarantine, Expired, Rejected)
-        // Batch 1: Approved NMN batch
-        $batchApprovedNmn = RawMaterialBatch::create([
-            'raw_material_id' => $nmn->id,
-            'batch_number' => 'LOT-RM-202608-0001',
-            'supplier_lot' => 'LOT-CHROMA-NMN-884',
+        // Open Confirmed Purchase Order waiting on warehouse dock
+        $po2 = PurchaseOrder::updateOrCreate(['po_number' => 'PO-2026-0002'], [
+            'supplier_id' => $biovita->id,
+            'order_date' => now()->subDays(5)->toDateString(),
+            'expected_date' => now()->addDays(4)->toDateString(),
+            'destination_location_id' => $location->id,
+            'status' => PurchaseOrderStatus::Confirmed,
+            'subtotal' => 42900.00,
+            'freight_cost' => 1100.00,
+            'customs_duties' => 1900.00,
+            'tax_amount' => 6435.00,
+            'grand_total' => 52335.00,
+            'currency' => $sysCurrency,
+            'created_by' => $procurementHead->id,
+            'approved_by' => $admin->id,
+            'approved_at' => now()->subDays(4),
+        ]);
+        $po2->items()->updateOrCreate(
+            ['purchase_order_id' => $po2->id, 'raw_material_id' => $boswellia->id],
+            [
+                'item_type' => 'raw_material',
+                'ordered_qty' => 20.0000,
+                'received_qty' => 0.0000,
+                'unit_price' => 2145.0000,
+                'total_price' => 42900.00,
+                'allocated_landed_cost' => 3000.00,
+                'landed_unit_cost' => 2295.0000,
+            ]
+        );
+
+        // 7. Seed Raw Material Batches (Approved, Quarantine, Near-Expiry, Rejected)
+        $batchApprovedPea = RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202609-0001'], [
+            'raw_material_id' => $peaPowder->id,
+            'supplier_lot' => 'LOT-CHROMA-PEA-884',
             'purchase_order_id' => $po1->id,
             'goods_receipt_id' => $grn1->id,
             'supplier_id' => $chromadex->id,
             'location_id' => $location->id,
             'storage_bin' => 'COLD-RACK-01',
             'initial_qty' => 20.0000,
-            'current_qty' => 18.5000,
-            'available_qty' => 18.5000,
+            'current_qty' => 18.0000,
+            'available_qty' => 18.0000,
             'reserved_qty' => 0.0000,
             'quarantine_qty' => 0.0000,
-            'unit_cost' => 8400.0000,
+            'unit_cost' => 6700.0000,
             'manufacture_date' => now()->subMonths(2)->toDateString(),
             'expiry_date' => now()->addMonths(22)->toDateString(),
             'status' => RawMaterialBatchStatus::Approved,
         ]);
 
-        // Passed QC inspection for Batch 1
-        $qc1 = QcInspection::create([
-            'inspection_code' => 'QC-2026-0001',
-            'raw_material_batch_id' => $batchApprovedNmn->id,
-            'sample_size' => 0.0500,
-            'sample_uom' => 'kg',
-            'inspector_id' => $chemist->id,
-            'verifier_id' => $qaDirector->id,
-            'verdict' => QcVerdict::Passed,
-            'tested_at' => now()->subDays(30),
-            'verified_at' => now()->subDays(29),
-            'notes' => 'Conforms to USP/EP monographs. Assay potency 99.85%. Heavy metals non-detectable.',
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202609-0002'], [
+            'raw_material_id' => $glucosamine->id,
+            'supplier_lot' => 'LOT-GLUC-551',
+            'supplier_id' => $chromadex->id,
+            'location_id' => $location->id,
+            'storage_bin' => 'AMBIENT-RACK-04',
+            'initial_qty' => 60.0000,
+            'current_qty' => 54.0000,
+            'available_qty' => 50.0000,
+            'reserved_qty' => 4.0000,
+            'quarantine_qty' => 0.0000,
+            'unit_cost' => 1450.0000,
+            'manufacture_date' => now()->subMonths(3)->toDateString(),
+            'expiry_date' => now()->addMonths(21)->toDateString(),
+            'status' => RawMaterialBatchStatus::Approved,
         ]);
 
-        $qc1->parameters()->createMany([
-            ['parameter_name' => 'Assay Potency (%)', 'specification' => '>= 99.0%', 'result_value' => '99.85%', 'status' => 'pass'],
-            ['parameter_name' => 'Moisture / Loss on Drying', 'specification' => '< 1.0%', 'result_value' => '0.24%', 'status' => 'pass'],
-            ['parameter_name' => 'Heavy Metals (Pb, Cd, As, Hg)', 'specification' => '< 0.5 ppm', 'result_value' => '< 0.05 ppm', 'status' => 'pass'],
-            ['parameter_name' => 'Total Microbial Count', 'specification' => '< 100 CFU/g', 'result_value' => '< 10 CFU/g', 'status' => 'pass'],
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202610-0003'], [
+            'raw_material_id' => $ginkgo->id,
+            'supplier_lot' => 'LOT-GINK-DE-302',
+            'supplier_id' => $biovita->id,
+            'location_id' => $location->id,
+            'storage_bin' => 'COLD-RACK-02',
+            'initial_qty' => 16.0000,
+            'current_qty' => 16.0000,
+            'available_qty' => 16.0000,
+            'reserved_qty' => 0.0000,
+            'quarantine_qty' => 0.0000,
+            'unit_cost' => 3100.0000,
+            'manufacture_date' => now()->subMonth()->toDateString(),
+            'expiry_date' => now()->addMonths(23)->toDateString(),
+            'status' => RawMaterialBatchStatus::Approved,
         ]);
 
-        // Batch 2: Resveratrol Batch in Quarantine
-        $batchQuarantineResv = RawMaterialBatch::create([
-            'raw_material_id' => $resveratrol->id,
-            'batch_number' => 'LOT-RM-202609-0002',
-            'supplier_lot' => 'LOT-BIOVIT-RES-912',
-            'purchase_order_id' => $po1->id,
-            'goods_receipt_id' => $grn1->id,
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202610-0004'], [
+            'raw_material_id' => $vitD3K2->id,
+            'supplier_lot' => 'LOT-VD3K2-DE-118',
+            'supplier_id' => $biovita->id,
+            'location_id' => $location->id,
+            'storage_bin' => 'COLD-RACK-03',
+            'initial_qty' => 12.0000,
+            'current_qty' => 12.0000,
+            'available_qty' => 12.0000,
+            'reserved_qty' => 0.0000,
+            'quarantine_qty' => 0.0000,
+            'unit_cost' => 4800.0000,
+            'manufacture_date' => now()->subMonths(2)->toDateString(),
+            'expiry_date' => now()->addMonths(34)->toDateString(),
+            'status' => RawMaterialBatchStatus::Approved,
+        ]);
+
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202610-0005'], [
+            'raw_material_id' => $capsules->id,
+            'supplier_lot' => 'LOT-CAPS-PK-901',
+            'supplier_id' => $eastpack->id,
+            'location_id' => $location->id,
+            'storage_bin' => 'PACK-ZONE-A',
+            'initial_qty' => 100000.0000,
+            'current_qty' => 88000.0000,
+            'available_qty' => 88000.0000,
+            'reserved_qty' => 0.0000,
+            'quarantine_qty' => 0.0000,
+            'unit_cost' => 0.0800,
+            'manufacture_date' => now()->subMonths(4)->toDateString(),
+            'expiry_date' => now()->addMonths(48)->toDateString(),
+            'status' => RawMaterialBatchStatus::Approved,
+        ]);
+
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202610-0006'], [
+            'raw_material_id' => $bottles->id,
+            'supplier_lot' => 'LOT-BTL-PK-401',
+            'supplier_id' => $eastpack->id,
+            'location_id' => $location->id,
+            'storage_bin' => 'PACK-ZONE-B',
+            'initial_qty' => 10000.0000,
+            'current_qty' => 9200.0000,
+            'available_qty' => 9200.0000,
+            'reserved_qty' => 0.0000,
+            'quarantine_qty' => 0.0000,
+            'unit_cost' => 1.8500,
+            'manufacture_date' => now()->subMonths(4)->toDateString(),
+            'expiry_date' => now()->addMonths(60)->toDateString(),
+            'status' => RawMaterialBatchStatus::Approved,
+        ]);
+
+        // Quarantine & Near-Expiry Batches
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202611-0007'], [
+            'raw_material_id' => $boswellia->id,
+            'supplier_lot' => 'LOT-BIOVIT-BSW-912',
             'supplier_id' => $biovita->id,
             'location_id' => $location->id,
             'storage_bin' => 'QUARANTINE-AREA-1',
@@ -382,130 +574,147 @@ class SupplyChainSeeder extends Seeder
             'available_qty' => 0.0000,
             'reserved_qty' => 0.0000,
             'quarantine_qty' => 15.0000,
-            'unit_cost' => 4150.0000,
+            'unit_cost' => 2200.0000,
             'manufacture_date' => now()->subDays(10)->toDateString(),
             'expiry_date' => now()->addMonths(24)->toDateString(),
             'status' => RawMaterialBatchStatus::Quarantine,
         ]);
 
-        // Batch 3: Near-Expiry Resveratrol (for testing 45-day expiry report)
-        $batchExpiringResv = RawMaterialBatch::create([
-            'raw_material_id' => $resveratrol->id,
-            'batch_number' => 'LOT-RM-202410-0099',
-            'supplier_lot' => 'LOT-OLD-RES-110',
-            'purchase_order_id' => null,
-            'goods_receipt_id' => null,
+        RawMaterialBatch::updateOrCreate(['batch_number' => 'LOT-RM-202411-0099'], [
+            'raw_material_id' => $boswellia->id,
+            'supplier_lot' => 'LOT-OLD-BSW-110',
             'supplier_id' => $biovita->id,
             'location_id' => $location->id,
-            'storage_bin' => 'COLD-RACK-03',
+            'storage_bin' => 'FEFO-ALERT-01',
             'initial_qty' => 10.0000,
             'current_qty' => 5.2500,
             'available_qty' => 5.2500,
             'reserved_qty' => 0.0000,
             'quarantine_qty' => 0.0000,
-            'unit_cost' => 4200.0000,
-            'manufacture_date' => now()->subYears(2)->toDateString(),
-            'expiry_date' => now()->addDays(40)->toDateString(), // Expiring in 40 days!
+            'unit_cost' => 2100.0000,
+            'manufacture_date' => now()->subMonths(23)->toDateString(),
+            'expiry_date' => now()->addDays(38)->toDateString(),
             'status' => RawMaterialBatchStatus::Approved,
         ]);
 
-        // Batch 4: Rejected Batch (Failed QC)
-        $batchRejected = RawMaterialBatch::create([
-            'raw_material_id' => $resveratrol->id,
-            'batch_number' => 'LOT-RM-202607-0044',
-            'supplier_lot' => 'LOT-FAILED-RES-001',
-            'purchase_order_id' => null,
-            'goods_receipt_id' => null,
-            'supplier_id' => $biovita->id,
-            'location_id' => $location->id,
-            'storage_bin' => 'REJECTED-LOCKER',
-            'initial_qty' => 8.0000,
-            'current_qty' => 8.0000,
-            'available_qty' => 0.0000,
-            'reserved_qty' => 0.0000,
-            'quarantine_qty' => 8.0000,
-            'unit_cost' => 4150.0000,
-            'manufacture_date' => now()->subMonths(3)->toDateString(),
-            'expiry_date' => now()->addMonths(20)->toDateString(),
-            'status' => RawMaterialBatchStatus::Rejected,
+        // QC Inspections
+        $qc1 = QcInspection::updateOrCreate(['inspection_code' => 'QC-2026-0001'], [
+            'raw_material_batch_id' => $batchApprovedPea->id,
+            'sample_size' => 0.0500,
+            'sample_uom' => 'kg',
+            'inspector_id' => $chemist->id,
+            'verifier_id' => $qaDirector->id,
+            'verdict' => QcVerdict::Passed,
+            'tested_at' => now()->subDays(30),
+            'verified_at' => now()->subDays(29),
+            'notes' => 'Conforms to USP/EP monographs. Assay potency 99.7%. Heavy metals non-detectable.',
         ]);
-
-        // 7. Seed BOM Recipe for Finished Product
-        $product = Product::first();
-        if ($product) {
-            ProductRecipeItem::updateOrCreate([
-                'product_id' => $product->id,
-                'raw_material_id' => $nmn->id,
-            ], [
-                'quantity_per_unit' => 0.000500, // 500mg per unit
-                'loss_percentage' => 1.50,
-                'is_critical' => true,
-                'instructions' => 'Weigh in clean-room glovebox under dry nitrogen atmosphere.',
+        if ($qc1->parameters()->doesntExist()) {
+            $qc1->parameters()->createMany([
+                ['parameter_name' => 'Assay Potency (%)', 'specification' => '>= 99.0%', 'result_value' => '99.70%', 'status' => 'pass'],
+                ['parameter_name' => 'Moisture / Loss on Drying', 'specification' => '< 1.0%', 'result_value' => '0.24%', 'status' => 'pass'],
+                ['parameter_name' => 'Heavy Metals (Pb, Cd, As, Hg)', 'specification' => '< 0.5 ppm', 'result_value' => '< 0.05 ppm', 'status' => 'pass'],
             ]);
+        }
 
-            ProductRecipeItem::updateOrCreate([
-                'product_id' => $product->id,
-                'raw_material_id' => $capsules->id,
-            ], [
-                'quantity_per_unit' => 60.000000, // 60 capsules per bottle
-                'loss_percentage' => 2.00,
-                'is_critical' => true,
-                'instructions' => 'Load into semi-automatic encapsulation hopper.',
-            ]);
+        // 8. BOM Recipes for ALL 4 Authoritative Products
+        $pJoint = Product::where('sku', 'BZ-JNT-001')->first();
+        $pMind = Product::where('sku', 'BZ-MND-001')->first();
+        $pPea = Product::where('sku', 'BZ-PEA-001')->first();
+        $pShield = Product::where('sku', 'BZ-SHD-001')->first();
 
-            ProductRecipeItem::updateOrCreate([
-                'product_id' => $product->id,
-                'raw_material_id' => $bottles->id,
-            ], [
-                'quantity_per_unit' => 1.000000,
-                'loss_percentage' => 0.50,
-                'is_critical' => true,
-                'instructions' => 'In-line visual inspection before automated fill.',
-            ]);
+        $bomMap = [
+            [$pJoint, [[$glucosamine->id, 0.001000, 1.5, 'Weigh active glucosamine in dry booth'], [$boswellia->id, 0.000330, 1.5, 'Blend standardized boswellia'], [$capsules->id, 60.0, 2.0, '60 tablets/caps count'], [$bottles->id, 1.0, 0.5, 'Seal container']]],
+            [$pMind, [[$ginkgo->id, 0.000120, 1.5, 'Sift standardized Ginkgo biloba 24/6'], [$capsules->id, 30.0, 2.0, '30 count blister/bottle'], [$bottles->id, 1.0, 0.5, 'Seal container']]],
+            [$pPea, [[$peaPowder->id, 0.000800, 1.5, 'Micronized PEA 800mg cleanroom dosing'], [$capsules->id, 60.0, 2.0, 'Vegetable HPMC capsule fill'], [$bottles->id, 1.0, 0.5, 'Amber bottle + childproof cap']]],
+            [$pShield, [[$vitD3K2->id, 0.000200, 1.0, 'Blend D3+K2 under nitrogen shield'], [$capsules->id, 60.0, 2.0, 'Vegetable capsule fill'], [$bottles->id, 1.0, 0.5, 'Amber bottle + cap']]],
+        ];
 
-            // 8. Seed Work Order & Consumptions for Genealogy Traceability
-            $workOrder = WorkOrder::create([
-                'order_number' => 'WO-2026-0001',
-                'product_id' => $product->id,
-                'target_finished_lot' => 'LOT-FG-202609-0001',
-                'planned_qty' => 1000,
-                'produced_qty' => 1000,
-                'rejected_qty' => 5,
+        foreach ($bomMap as [$prod, $ingredients]) {
+            if (!$prod) {
+                continue;
+            }
+            foreach ($ingredients as [$rmId, $qtyPerUnit, $lossPct, $instr]) {
+                ProductRecipeItem::updateOrCreate(
+                    ['product_id' => $prod->id, 'raw_material_id' => $rmId],
+                    ['quantity_per_unit' => $qtyPerUnit, 'loss_percentage' => $lossPct, 'is_critical' => true, 'instructions' => $instr]
+                );
+            }
+        }
+
+        // 9. Work Orders: Completed + In Production + Scheduled
+        if ($pPea) {
+            $woCompleted = WorkOrder::updateOrCreate(['order_number' => 'WO-2026-0001'], [
+                'product_id' => $pPea->id,
+                'target_finished_lot' => 'LOT-FG-202610-0001',
+                'planned_qty' => 500,
+                'produced_qty' => 500,
+                'rejected_qty' => 4,
                 'status' => WorkOrderStatus::Completed,
                 'location_id' => $location->id,
-                'scheduled_start' => now()->subDays(15),
-                'started_at' => now()->subDays(15)->addHours(2),
+                'scheduled_start' => now()->subDays(16),
+                'started_at' => now()->subDays(15),
                 'completed_at' => now()->subDays(14),
-                'total_material_cost' => 4200.0000,
-                'unit_cost' => 4.2000,
+                'total_material_cost' => 3600.0000,
+                'landed_costs' => [
+                    ['category' => 'Cleanroom Direct Labor', 'amount' => 450.00, 'note' => 'Shift A cleanroom encapsulation crew'],
+                    ['category' => 'Third-Party Lab HPLC Assay', 'amount' => 300.00, 'note' => 'Release stability verification'],
+                ],
+                'total_landed_cost' => 750.0000,
+                'unit_cost' => 8.7000,
                 'created_by' => $admin->id,
-                'notes' => 'Validation master batch executed cleanly.',
+                'notes' => 'Master cleanroom validation batch executed with full genealogy & landed overhead.',
             ]);
 
-            WorkOrderMaterialConsumption::create([
-                'work_order_id' => $workOrder->id,
-                'raw_material_batch_id' => $batchApprovedNmn->id,
-                'quantity' => 0.5075, // 500mg * 1000 + scrap
-                'operator_id' => $admin->id,
-                'scanned_barcode' => $batchApprovedNmn->batch_number,
-                'created_at' => now()->subDays(15),
-            ]);
+            WorkOrderMaterialConsumption::updateOrCreate(
+                ['work_order_id' => $woCompleted->id, 'raw_material_batch_id' => $batchApprovedPea->id],
+                ['quantity' => 0.4060, 'operator_id' => $chemist->id, 'scanned_barcode' => $batchApprovedPea->batch_number]
+            );
 
-            ProductBatch::updateOrCreate([
-                'batch_number' => $workOrder->target_finished_lot,
-            ], [
-                'product_id' => $product->id,
-                'work_order_id' => $workOrder->id,
+            ProductBatch::updateOrCreate(
+                ['batch_number' => $woCompleted->target_finished_lot],
+                [
+                    'product_id' => $pPea->id,
+                    'work_order_id' => $woCompleted->id,
+                    'location_id' => $location->id,
+                    'storage_bin' => 'CWH-RELEASED-01',
+                    'initial_qty' => 500,
+                    'current_qty' => 500,
+                    'available_qty' => 500,
+                    'reserved_qty' => 0,
+                    'quarantine_qty' => 0,
+                    'unit_cost' => 8.7000,
+                    'manufacture_date' => now()->subDays(14)->toDateString(),
+                    'expiry_date' => $pPea->calculateDefaultExpiryDate(now()->subDays(14)),
+                    'status' => 'approved',
+                ]
+            );
+        }
+
+        if ($pJoint) {
+            WorkOrder::updateOrCreate(['order_number' => 'WO-2026-0002'], [
+                'product_id' => $pJoint->id,
+                'target_finished_lot' => 'LOT-FG-202611-0002',
+                'planned_qty' => 300,
+                'status' => WorkOrderStatus::InProduction,
                 'location_id' => $location->id,
-                'initial_qty' => (int) ($workOrder->produced_qty ?? 1000),
-                'current_qty' => (int) ($workOrder->produced_qty ?? 1000),
-                'available_qty' => (int) ($workOrder->produced_qty ?? 1000),
-                'reserved_qty' => 0,
-                'quarantine_qty' => 0,
-                'unit_cost' => (float) ($workOrder->unit_cost ?? 4.2000),
-                'manufacture_date' => now()->subDays(14)->toDateString(),
-                'expiry_date' => $product->calculateDefaultExpiryDate(now()->subDays(14)),
-                'status' => 'approved',
+                'scheduled_start' => now()->subDays(1),
+                'started_at' => now()->subHours(6),
+                'created_by' => $admin->id,
+                'notes' => 'Active tableting line #2 batch for Q4 Blue Joint replenishment.',
+            ]);
+        }
+
+        if ($pShield) {
+            WorkOrder::updateOrCreate(['order_number' => 'WO-2026-0003'], [
+                'product_id' => $pShield->id,
+                'target_finished_lot' => 'LOT-FG-202611-0003',
+                'planned_qty' => 400,
+                'status' => WorkOrderStatus::Scheduled,
+                'location_id' => $location->id,
+                'scheduled_start' => now()->addDays(2),
+                'created_by' => $admin->id,
+                'notes' => 'Scheduled Vitamin D3+K2 cofactor blend run.',
             ]);
         }
     }

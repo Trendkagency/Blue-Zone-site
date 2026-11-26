@@ -168,7 +168,7 @@ class PurchaseInvoiceExpiryWorkflowTest extends TestCase
         $this->assertDatabaseHas('purchase_invoice_items', [
             'purchase_invoice_id' => $invoice->id,
             'batch_number' => 'abc123',
-            'expiry_date' => $realExpiry . ' 00:00:00',
+            'expiry_date' => $realExpiry,
         ]);
 
         $this->assertDatabaseHas('product_batches', [
@@ -334,7 +334,7 @@ class PurchaseInvoiceExpiryWorkflowTest extends TestCase
             'purchase_invoice_id' => $invoice->id,
             'raw_material_batch_id' => $grnBatch->id,
             'batch_number' => 'SUP-LOT-GRN-1',
-            'expiry_date' => $realExpiry . ' 00:00:00',
+            'expiry_date' => $realExpiry,
         ]);
     }
 }

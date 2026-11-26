@@ -6,19 +6,20 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
+use App\Models\Location;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\Role;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\InventoryService;
 use App\View\ViewModels\CategoryViewModel;
-use App\View\ViewModels\CustomerViewModel;
 use App\View\ViewModels\InventoryViewModel;
-use App\View\ViewModels\OrderViewModel;
-use App\View\ViewModels\RoleViewModel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class BluezoneSeeder extends Seeder
 {
@@ -50,9 +51,9 @@ class BluezoneSeeder extends Seeder
             ['key' => 'default_language',            'value' => 'en',                                        'group' => 'general',       'type' => 'string'],
             ['key' => 'default_locale',              'value' => 'en',                                        'group' => 'general',       'type' => 'string'],
             ['key' => 'supported_locales',           'value' => json_encode(['en' => 'English (LTR)', 'ar' => 'العربية (RTL)']), 'group' => 'general', 'type' => 'json'],
-            ['key' => 'currency',                    'value' => 'USD',                                       'group' => 'general',       'type' => 'string'],
-            ['key' => 'default_currency',            'value' => 'USD',                                       'group' => 'general',       'type' => 'string'],
-            ['key' => 'timezone',                    'value' => 'Asia/Riyadh',                               'group' => 'general',       'type' => 'string'],
+            ['key' => 'currency',                    'value' => 'EGP',                                       'group' => 'general',       'type' => 'string'],
+            ['key' => 'default_currency',            'value' => 'EGP',                                       'group' => 'general',       'type' => 'string'],
+            ['key' => 'timezone',                    'value' => 'Africa/Cairo',                              'group' => 'general',       'type' => 'string'],
             ['key' => 'contact_email',               'value' => 'care@bluezone.com',                         'group' => 'general',       'type' => 'string'],
             ['key' => 'support_email',               'value' => 'care@bluezone.com',                         'group' => 'general',       'type' => 'string'],
             ['key' => 'contact_phone',               'value' => '+966 800 123 4567',                         'group' => 'general',       'type' => 'string'],
@@ -342,457 +343,50 @@ class BluezoneSeeder extends Seeder
     private function seedOrders(): void
     {
         $orders = [
-            // Order 1: Recent Online (Delivered)
-            [
-                'order_number' => 'BZ-10492',
-                'invoice_number' => 'INV-2026-0841',
-                'channel' => 'online',
-                'customer_email' => 'zaid.harbi@example.com',
-                'customer_name' => 'Dr. Zaid Al-Harbi',
-                'date' => '2026-09-04',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 142.00,
-                'discount' => 15.00,
-                'coupon_code' => 'WELCOME15',
-                'shipping' => 0.00,
-                'tax' => 19.05,
-                'total' => 146.05,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-CEL-002', 'qty' => 1, 'unit_price' => 74.00],
-                ],
-            ],
-            // Order 2: Recent Online (Processing)
-            [
-                'order_number' => 'BZ-10491',
-                'invoice_number' => 'INV-2026-0840',
-                'channel' => 'online',
-                'customer_email' => 'sarah.m@example.com',
-                'customer_name' => 'Sarah Al-Mansoor',
-                'date' => '2026-09-05',
-                'status' => 'processing',
-                'payment_method' => 'Apple Pay',
-                'payment_status' => 'Paid',
-                'subtotal' => 205.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 30.75,
-                'total' => 235.75,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-MET-004', 'qty' => 1, 'unit_price' => 57.00],
-                ],
-            ],
-            // Order 3: Recent POS Sale (Paid/Delivered)
-            [
-                'order_number' => 'POS-4081',
-                'invoice_number' => 'INV-POS-4081',
-                'channel' => 'offline',
-                'customer_email' => 'tariq.otaibi@example.com',
-                'customer_name' => 'Eng. Tariq Al-Otaibi',
-                'date' => '2026-09-06',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 106.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 15.90,
-                'total' => 121.90,
-                'items' => [
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 4: POS Sale (Paid/Delivered)
-            [
-                'order_number' => 'POS-4080',
-                'invoice_number' => 'INV-POS-4080',
-                'channel' => 'offline',
-                'customer_email' => 'nora.sudairy@example.com',
-                'customer_name' => 'Dr. Nora Al-Sudairy',
-                'date' => '2026-09-03',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 190.00,
-                'discount' => 19.00,
-                'coupon_code' => 'VIP10',
-                'shipping' => 0.00,
-                'tax' => 25.65,
-                'total' => 196.65,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-CEL-002', 'qty' => 1, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                ],
-            ],
-            // Order 5: Online Order (Shipped)
-            [
-                'order_number' => 'BZ-10488',
-                'invoice_number' => 'INV-2026-0835',
-                'channel' => 'online',
-                'customer_email' => 'faisal.ghamdi@example.com',
-                'customer_name' => 'Faisal Al-Ghamdi',
-                'date' => '2026-08-28',
-                'status' => 'shipped',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 116.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 15.00,
-                'tax' => 17.40,
-                'total' => 148.40,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                ],
-            ],
-            // Order 6: Repeat Customer Online (Delivered)
-            [
-                'order_number' => 'BZ-10480',
-                'invoice_number' => 'INV-2026-0820',
-                'channel' => 'online',
-                'customer_email' => 'zaid.harbi@example.com',
-                'customer_name' => 'Dr. Zaid Al-Harbi',
-                'date' => '2026-08-15',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 222.00,
-                'discount' => 20.00,
-                'coupon_code' => 'LOYAL20',
-                'shipping' => 0.00,
-                'tax' => 30.30,
-                'total' => 232.30,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 3, 'unit_price' => 74.00],
-                ],
-            ],
-            // Order 7: Online (Delivered)
-            [
-                'order_number' => 'BZ-10475',
-                'invoice_number' => 'INV-2026-0810',
-                'channel' => 'online',
-                'customer_email' => 'lama.h@example.com',
-                'customer_name' => 'Lama Al-Husseini',
-                'date' => '2026-08-08',
-                'status' => 'delivered',
-                'payment_method' => 'Apple Pay',
-                'payment_status' => 'Paid',
-                'subtotal' => 109.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 16.35,
-                'total' => 125.35,
-                'items' => [
-                    ['sku' => 'BZ-MET-004', 'qty' => 1, 'unit_price' => 57.00],
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                ],
-            ],
-            // Order 8: POS Sale (Delivered/Paid)
-            [
-                'order_number' => 'POS-4072',
-                'invoice_number' => 'INV-POS-4072',
-                'channel' => 'offline',
-                'customer_email' => 'khalid.d@example.com',
-                'customer_name' => 'Khalid Al-Dossary',
-                'date' => '2026-08-02',
-                'status' => 'delivered',
-                'payment_method' => 'Cash',
-                'payment_status' => 'Paid',
-                'subtotal' => 122.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 18.30,
-                'total' => 140.30,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 9: July Online Order (Delivered)
-            [
-                'order_number' => 'BZ-10450',
-                'invoice_number' => 'INV-2026-0750',
-                'channel' => 'online',
-                'customer_email' => 'rayan.amri@example.com',
-                'customer_name' => 'Dr. Rayan Al-Amri',
-                'date' => '2026-07-24',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 310.00,
-                'discount' => 35.00,
-                'coupon_code' => 'SUMMER35',
-                'shipping' => 0.00,
-                'tax' => 41.25,
-                'total' => 316.25,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 2, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                ],
-            ],
-            // Order 10: July POS Boutique Sale
-            [
-                'order_number' => 'POS-4060',
-                'invoice_number' => 'INV-POS-4060',
-                'channel' => 'offline',
-                'customer_email' => 'sarah.m@example.com',
-                'customer_name' => 'Sarah Al-Mansoor',
-                'date' => '2026-07-15',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 153.00,
-                'discount' => 15.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 20.70,
-                'total' => 158.70,
-                'items' => [
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 11: June Online Order
-            [
-                'order_number' => 'BZ-10410',
-                'invoice_number' => 'INV-2026-0610',
-                'channel' => 'online',
-                'customer_email' => 'nora.sudairy@example.com',
-                'customer_name' => 'Dr. Nora Al-Sudairy',
-                'date' => '2026-06-28',
-                'status' => 'delivered',
-                'payment_method' => 'Apple Pay',
-                'payment_status' => 'Paid',
-                'subtotal' => 216.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 32.40,
-                'total' => 248.40,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                ],
-            ],
-            // Order 12: June POS Boutique
-            [
-                'order_number' => 'POS-4045',
-                'invoice_number' => 'INV-POS-4045',
-                'channel' => 'offline',
-                'customer_email' => 'tariq.otaibi@example.com',
-                'customer_name' => 'Eng. Tariq Al-Otaibi',
-                'date' => '2026-06-12',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 180.00,
-                'discount' => 18.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 24.30,
-                'total' => 186.30,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-MET-004', 'qty' => 1, 'unit_price' => 57.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 13: May Online
-            [
-                'order_number' => 'BZ-10380',
-                'invoice_number' => 'INV-2026-0580',
-                'channel' => 'online',
-                'customer_email' => 'faisal.ghamdi@example.com',
-                'customer_name' => 'Faisal Al-Ghamdi',
-                'date' => '2026-05-22',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 268.00,
-                'discount' => 25.00,
-                'coupon_code' => 'MAYPROMO',
-                'shipping' => 0.00,
-                'tax' => 36.45,
-                'total' => 279.45,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 14: May POS
-            [
-                'order_number' => 'POS-4030',
-                'invoice_number' => 'INV-POS-4030',
-                'channel' => 'offline',
-                'customer_email' => 'lama.h@example.com',
-                'customer_name' => 'Lama Al-Husseini',
-                'date' => '2026-05-10',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 110.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 16.50,
-                'total' => 126.50,
-                'items' => [
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                    ['sku' => 'BZ-MET-004', 'qty' => 1, 'unit_price' => 57.00],
-                ],
-            ],
-            // Order 15: April Online
-            [
-                'order_number' => 'BZ-10320',
-                'invoice_number' => 'INV-2026-0420',
-                'channel' => 'online',
-                'customer_email' => 'zaid.harbi@example.com',
-                'customer_name' => 'Dr. Zaid Al-Harbi',
-                'date' => '2026-04-18',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 196.00,
-                'discount' => 20.00,
-                'coupon_code' => 'LONGEVITY20',
-                'shipping' => 0.00,
-                'tax' => 26.40,
-                'total' => 202.40,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                ],
-            ],
-            // Order 16: April POS
-            [
-                'order_number' => 'POS-4015',
-                'invoice_number' => 'INV-POS-4015',
-                'channel' => 'offline',
-                'customer_email' => 'khalid.d@example.com',
-                'customer_name' => 'Khalid Al-Dossary',
-                'date' => '2026-04-05',
-                'status' => 'delivered',
-                'payment_method' => 'Cash',
-                'payment_status' => 'Paid',
-                'subtotal' => 122.00,
-                'discount' => 10.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 16.80,
-                'total' => 128.80,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 17: March Online
-            [
-                'order_number' => 'BZ-10250',
-                'invoice_number' => 'INV-2026-0350',
-                'channel' => 'online',
-                'customer_email' => 'sarah.m@example.com',
-                'customer_name' => 'Sarah Al-Mansoor',
-                'date' => '2026-03-22',
-                'status' => 'delivered',
-                'payment_method' => 'Apple Pay',
-                'payment_status' => 'Paid',
-                'subtotal' => 270.00,
-                'discount' => 25.00,
-                'coupon_code' => 'MARCH25',
-                'shipping' => 0.00,
-                'tax' => 36.75,
-                'total' => 281.75,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                ],
-            ],
-            // Order 18: March POS
-            [
-                'order_number' => 'POS-4008',
-                'invoice_number' => 'INV-POS-4008',
-                'channel' => 'offline',
-                'customer_email' => 'rayan.amri@example.com',
-                'customer_name' => 'Dr. Rayan Al-Amri',
-                'date' => '2026-03-10',
-                'status' => 'delivered',
-                'payment_method' => 'POS Terminal (Mada)',
-                'payment_status' => 'Paid',
-                'subtotal' => 180.00,
-                'discount' => 0.00,
-                'coupon_code' => null,
-                'shipping' => 0.00,
-                'tax' => 27.00,
-                'total' => 207.00,
-                'items' => [
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                    ['sku' => 'BZ-MET-004', 'qty' => 1, 'unit_price' => 57.00],
-                    ['sku' => 'BZ-VIT-006', 'qty' => 1, 'unit_price' => 54.00],
-                ],
-            ],
-            // Order 19: February Online
-            [
-                'order_number' => 'BZ-10180',
-                'invoice_number' => 'INV-2026-0280',
-                'channel' => 'online',
-                'customer_email' => 'tariq.otaibi@example.com',
-                'customer_name' => 'Eng. Tariq Al-Otaibi',
-                'date' => '2026-02-18',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 174.00,
-                'discount' => 15.00,
-                'coupon_code' => 'FEB15',
-                'shipping' => 0.00,
-                'tax' => 23.85,
-                'total' => 182.85,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 1, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-SLP-005', 'qty' => 1, 'unit_price' => 48.00],
-                    ['sku' => 'BZ-DEF-003', 'qty' => 1, 'unit_price' => 52.00],
-                ],
-            ],
-            // Order 20: January Online
-            [
-                'order_number' => 'BZ-10100',
-                'invoice_number' => 'INV-2026-0100',
-                'channel' => 'online',
-                'customer_email' => 'zaid.harbi@example.com',
-                'customer_name' => 'Dr. Zaid Al-Harbi',
-                'date' => '2026-01-20',
-                'status' => 'delivered',
-                'payment_method' => 'Credit Card (Stripe)',
-                'payment_status' => 'Paid',
-                'subtotal' => 216.00,
-                'discount' => 20.00,
-                'coupon_code' => 'LAUNCH20',
-                'shipping' => 0.00,
-                'tax' => 29.40,
-                'total' => 225.40,
-                'items' => [
-                    ['sku' => 'BZ-CEL-002', 'qty' => 2, 'unit_price' => 74.00],
-                    ['sku' => 'BZ-MND-001', 'qty' => 1, 'unit_price' => 68.00],
-                ],
-            ],
+            ['order_number' => 'BZ-10492', 'invoice_number' => 'INV-2026-0841', 'channel' => 'online',    'customer_email' => 'zaid.harbi@example.com',   'customer_name' => 'Dr. Zaid Al-Harbi',     'date' => now()->subDays(2)->toDateString(),  'status' => 'delivered',  'payment_method' => 'Credit Card (Stripe)', 'payment_status' => 'Paid', 'discount' => 15.00, 'coupon_code' => 'WELCOME15',   'shipping' => 0.00,  'items' => [['sku' => 'BZ-JNT-001', 'qty' => 2], ['sku' => 'BZ-MND-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10491', 'invoice_number' => 'INV-2026-0840', 'channel' => 'online',    'customer_email' => 'sarah.m@example.com',      'customer_name' => 'Sarah Al-Mansoor',      'date' => now()->subDays(4)->toDateString(),  'status' => 'processing', 'payment_method' => 'Apple Pay',            'payment_status' => 'Paid', 'discount' => 0.00,  'coupon_code' => null,          'shipping' => 0.00,  'items' => [['sku' => 'BZ-PEA-001', 'qty' => 2], ['sku' => 'BZ-SHD-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10490', 'invoice_number' => 'INV-2026-0839', 'channel' => 'quotation', 'customer_email' => 'tariq.otaibi@example.com', 'customer_name' => 'Eng. Tariq Al-Otaibi',  'date' => now()->subDays(6)->toDateString(),  'status' => 'delivered',  'payment_method' => 'Bank Transfer',        'payment_status' => 'Paid', 'discount' => 30.00, 'coupon_code' => 'B2B30',       'shipping' => 0.00,  'items' => [['sku' => 'BZ-MND-001', 'qty' => 3], ['sku' => 'BZ-SHD-001', 'qty' => 2]]],
+            ['order_number' => 'BZ-10489', 'invoice_number' => 'INV-2026-0838', 'channel' => 'online',    'customer_email' => 'nora.sudairy@example.com', 'customer_name' => 'Dr. Nora Al-Sudairy',   'date' => now()->subDays(8)->toDateString(),  'status' => 'delivered',  'payment_method' => 'Bank Transfer',        'payment_status' => 'Paid', 'discount' => 20.00, 'coupon_code' => 'VIP20',       'shipping' => 0.00,  'items' => [['sku' => 'BZ-JNT-001', 'qty' => 1], ['sku' => 'BZ-PEA-001', 'qty' => 1], ['sku' => 'BZ-SHD-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10488', 'invoice_number' => 'INV-2026-0835', 'channel' => 'online',    'customer_email' => 'faisal.ghamdi@example.com','customer_name' => 'Faisal Al-Ghamdi',      'date' => now()->subDays(12)->toDateString(), 'status' => 'shipped',    'payment_method' => 'Credit Card (Stripe)', 'payment_status' => 'Paid', 'discount' => 0.00,  'coupon_code' => null,          'shipping' => 15.00, 'items' => [['sku' => 'BZ-MND-001', 'qty' => 1], ['sku' => 'BZ-PEA-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10480', 'invoice_number' => 'INV-2026-0820', 'channel' => 'online',    'customer_email' => 'zaid.harbi@example.com',   'customer_name' => 'Dr. Zaid Al-Harbi',     'date' => now()->subDays(18)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Credit Card (Stripe)', 'payment_status' => 'Paid', 'discount' => 25.00, 'coupon_code' => 'LOYAL25',     'shipping' => 0.00,  'items' => [['sku' => 'BZ-JNT-001', 'qty' => 3]]],
+            ['order_number' => 'BZ-10475', 'invoice_number' => 'INV-2026-0810', 'channel' => 'online',    'customer_email' => 'lama.h@example.com',       'customer_name' => 'Lama Al-Husseini',      'date' => now()->subDays(22)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Apple Pay',            'payment_status' => 'Paid', 'discount' => 0.00,  'coupon_code' => null,          'shipping' => 0.00,  'items' => [['sku' => 'BZ-SHD-001', 'qty' => 2], ['sku' => 'BZ-MND-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10472', 'invoice_number' => 'INV-2026-0805', 'channel' => 'direct',    'customer_email' => 'khalid.d@example.com',     'customer_name' => 'Khalid Al-Dossary',     'date' => now()->subDays(27)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Cash',                 'payment_status' => 'Paid', 'discount' => 0.00,  'coupon_code' => null,          'shipping' => 0.00,  'items' => [['sku' => 'BZ-JNT-001', 'qty' => 1], ['sku' => 'BZ-SHD-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10450', 'invoice_number' => 'INV-2026-0750', 'channel' => 'online',    'customer_email' => 'rayan.amri@example.com',   'customer_name' => 'Dr. Rayan Al-Amri',     'date' => now()->subDays(34)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Credit Card (Stripe)', 'payment_status' => 'Paid', 'discount' => 35.00, 'coupon_code' => 'LONGEVITY35', 'shipping' => 0.00,  'items' => [['sku' => 'BZ-MND-001', 'qty' => 2], ['sku' => 'BZ-PEA-001', 'qty' => 2]]],
+            ['order_number' => 'BZ-10410', 'invoice_number' => 'INV-2026-0610', 'channel' => 'online',    'customer_email' => 'nora.sudairy@example.com', 'customer_name' => 'Dr. Nora Al-Sudairy',   'date' => now()->subDays(45)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Apple Pay',            'payment_status' => 'Paid', 'discount' => 0.00,  'coupon_code' => null,          'shipping' => 0.00,  'items' => [['sku' => 'BZ-PEA-001', 'qty' => 2], ['sku' => 'BZ-JNT-001', 'qty' => 1]]],
+            ['order_number' => 'BZ-10380', 'invoice_number' => 'INV-2026-0580', 'channel' => 'online',    'customer_email' => 'faisal.ghamdi@example.com','customer_name' => 'Faisal Al-Ghamdi',      'date' => now()->subDays(60)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Credit Card (Stripe)', 'payment_status' => 'Paid', 'discount' => 25.00, 'coupon_code' => 'PROTOCOL25',  'shipping' => 0.00,  'items' => [['sku' => 'BZ-MND-001', 'qty' => 2], ['sku' => 'BZ-SHD-001', 'qty' => 2]]],
+            ['order_number' => 'BZ-10100', 'invoice_number' => 'INV-2026-0100', 'channel' => 'online',    'customer_email' => 'zaid.harbi@example.com',   'customer_name' => 'Dr. Zaid Al-Harbi',     'date' => now()->subDays(75)->toDateString(), 'status' => 'delivered',  'payment_method' => 'Bank Transfer',        'payment_status' => 'Paid', 'discount' => 20.00, 'coupon_code' => 'LAUNCH20',    'shipping' => 0.00,  'items' => [['sku' => 'BZ-MND-001', 'qty' => 2], ['sku' => 'BZ-JNT-001', 'qty' => 1], ['sku' => 'BZ-SHD-001', 'qty' => 1]]],
         ];
+
+        $productsBySku = Product::all()->keyBy('sku');
 
         foreach ($orders as $o) {
             $customer = Customer::where('email', $o['customer_email'] ?? '')->first();
+
+            // Calculate exact financials dynamically from actual catalog items
+            $subtotal = 0.0;
+            $resolvedLines = [];
+            foreach ($o['items'] as $itemData) {
+                $product = $productsBySku[$itemData['sku']] ?? null;
+                if (!$product) {
+                    continue;
+                }
+                $qty = (int) $itemData['qty'];
+                $unitPrice = (float) ($itemData['unit_price'] ?? $product->price);
+                $lineTotal = round($unitPrice * $qty, 2);
+                $subtotal += $lineTotal;
+                $resolvedLines[] = [
+                    'product' => $product,
+                    'qty' => $qty,
+                    'unit_price' => $unitPrice,
+                    'line_total' => $lineTotal,
+                ];
+            }
+
+            $discount = (float) ($o['discount'] ?? 0.0);
+            $shipping = (float) ($o['shipping'] ?? 0.0);
+            $netBeforeVat = max(0.0, $subtotal - $discount);
+            $tax = round($netBeforeVat * 0.15, 2);
+            $total = round($netBeforeVat + $tax + $shipping, 2);
 
             $order = Order::updateOrCreate(
                 ['order_number' => $o['order_number']],
@@ -801,51 +395,56 @@ class BluezoneSeeder extends Seeder
                     'channel'          => $o['channel'],
                     'customer_name'    => $o['customer_name'],
                     'customer_email'   => $o['customer_email'] ?? ($customer?->email),
-                    'customer_phone'   => $customer?->phone ?? '+966 50 123 4567',
+                    'customer_phone'   => $customer?->phone ?? '+20 100 123 4567',
                     'customer_id'      => $customer?->id,
                     'date'             => $o['date'],
                     'status'           => $o['status'],
                     'payment_method'   => $o['payment_method'],
                     'payment_status'   => $o['payment_status'],
-                    'subtotal'         => $o['subtotal'],
-                    'discount'         => $o['discount'],
+                    'payment_transaction_id' => 'WIRE-' . strtoupper(substr(md5($o['invoice_number']), 0, 8)),
+                    'subtotal'         => $subtotal,
+                    'discount'         => $discount,
                     'coupon_code'      => $o['coupon_code'],
-                    'shipping'         => $o['shipping'],
-                    'tax'              => $o['tax'],
-                    'total'            => $o['total'],
+                    'shipping'         => $shipping,
+                    'tax'              => $tax,
+                    'total'            => $total,
                     'shipping_address' => [
                         'recipient' => $o['customer_name'],
-                        'street'    => $customer?->address ?? 'King Fahd Road',
+                        'street'    => $customer?->address ?? 'King Fahd Road, Al Olaya',
                         'city'      => $customer?->city ?? 'Riyadh',
-                        'country'   => 'Saudi Arabia',
+                        'country'   => $customer?->country ?? 'Saudi Arabia',
                     ],
                 ]
             );
 
-            // Clean existing items if any
             $order->items()->delete();
 
-            foreach ($o['items'] as $itemData) {
-                $product = Product::where('sku', $itemData['sku'])->first();
-                if (! $product) {
-                    continue;
-                }
-
-                $qty = $itemData['qty'];
-                $unitPrice = $itemData['unit_price'];
+            foreach ($resolvedLines as $line) {
+                /** @var Product $product */
+                $product = $line['product'];
+                $fefoBatch = ProductBatch::where('product_id', $product->id)
+                    ->where('status', 'approved')
+                    ->whereDate('expiry_date', '>', now()->toDateString())
+                    ->orderBy('expiry_date', 'asc')
+                    ->orderBy('id', 'asc')
+                    ->first();
 
                 OrderItem::create([
-                    'order_id'        => $order->id,
-                    'product_id'      => $product->id,
-                    'product_name_en' => $product->name_en,
-                    'product_name_ar' => $product->name_ar,
-                    'variant_en'      => 'Standard 30-Day Protocol (60 Capsules)',
-                    'variant_ar'      => 'بروتوكول 30 يوماً القياسي (60 كبسولة)',
-                    'sku'             => $product->sku,
-                    'unit_price'      => $unitPrice,
-                    'quantity'        => $qty,
-                    'total'           => $unitPrice * $qty,
-                    'image'           => $product->image,
+                    'order_id'         => $order->id,
+                    'item_type'        => 'product',
+                    'product_id'       => $product->id,
+                    'product_batch_id' => $fefoBatch?->id,
+                    'batch_number'     => $fefoBatch?->batch_number,
+                    'expiry_date'      => $fefoBatch?->expiry_date,
+                    'product_name_en'  => $product->name_en,
+                    'product_name_ar'  => $product->name_ar,
+                    'variant_en'       => $product->product_size ?? 'Standard Clinical Pack',
+                    'variant_ar'       => 'العبوة السريرية القياسية',
+                    'sku'              => $product->sku,
+                    'unit_price'       => $line['unit_price'],
+                    'quantity'         => $line['qty'],
+                    'total'            => $line['line_total'],
+                    'image'            => $product->image,
                 ]);
             }
         }
@@ -861,16 +460,36 @@ class BluezoneSeeder extends Seeder
     }
 
     /* ================================================================== */
-    /* INVENTORY                                                            */
+    /* INVENTORY & MULTI-LOT FEFO BATCHES                                 */
     /* ================================================================== */
 
     private function seedInventory(): void
     {
+        // Ensure active two-hub locations are enabled and legacy offline hub is disabled
+        Location::updateOrCreate(['id' => 'online'], [
+            'name_en' => 'Online Fulfillment Hub',
+            'name_ar' => 'مستودع الطلبات الإلكترونية',
+            'code' => 'LOC-ONL',
+            'type' => 'online',
+            'is_active' => true,
+        ]);
+        Location::updateOrCreate(['id' => 'central_wh'], [
+            'name_en' => 'Central Logistics & Quarantine Warehouse',
+            'name_ar' => 'المستودع المركزي الرئيسي',
+            'code' => 'LOC-CWH',
+            'type' => 'warehouse',
+            'is_active' => true,
+        ]);
+        Location::where('id', 'offline')->update(['is_active' => false]);
+
         foreach (InventoryViewModel::stockItems() as $si) {
             $product = Product::where('sku', $si['sku'] ?? '')->first();
+            if (!$product) {
+                continue;
+            }
 
             InventoryItem::updateOrCreate(
-                ['product_id' => $product?->id ?? 1, 'location_id' => $si['location_id']],
+                ['product_id' => $product->id, 'location_id' => $si['location_id']],
                 [
                     'location_name_en'    => $si['location_name_en'],
                     'location_name_ar'    => $si['location_name_ar'] ?? null,
@@ -881,10 +500,82 @@ class BluezoneSeeder extends Seeder
                     'reserved_stock'      => $si['reserved_stock'] ?? 0,
                     'low_stock_threshold' => $si['low_stock_threshold'] ?? 15,
                     'status'              => $si['status'] ?? 'in_stock',
-                    'unit_cost'           => $si['unit_cost'] ?? null,
-                    'retail_price'        => $si['retail_price'] ?? null,
+                    'unit_cost'           => $si['unit_cost'] ?? $product->cost_price,
+                    'retail_price'        => $si['retail_price'] ?? $product->price,
                 ]
             );
+        }
+
+        // Seed multi-lot FEFO ProductBatches (an earlier-expiry lot + a fresh primary lot per product)
+        $products = Product::all();
+        foreach ($products as $idx => $product) {
+            $onlineStock = (int) InventoryItem::where('product_id', $product->id)->where('location_id', 'online')->value('current_stock');
+            $centralStock = (int) InventoryItem::where('product_id', $product->id)->where('location_id', 'central_wh')->value('current_stock');
+
+            // Split online stock into 2 batches so FEFO ordering & Expiry alerts show realistic multi-lot queues
+            $earlyOnline = $onlineStock >= 30 ? 30 : $onlineStock;
+            $freshOnline = max(0, $onlineStock - $earlyOnline);
+
+            if ($earlyOnline > 0) {
+                $earlyExpDays = 75 + ($idx * 12); // Near expiry watch window (75-111 days)
+                ProductBatch::updateOrCreate(
+                    ['batch_number' => sprintf('LOT-FG-202506-00%02d', $product->id)],
+                    [
+                        'product_id' => $product->id,
+                        'location_id' => 'online',
+                        'storage_bin' => 'ONL-FEFO-A' . $product->id,
+                        'initial_qty' => $earlyOnline + 15,
+                        'current_qty' => $earlyOnline,
+                        'available_qty' => $earlyOnline,
+                        'reserved_qty' => 0,
+                        'quarantine_qty' => 0,
+                        'unit_cost' => (float) ($product->cost_price ?? 25.00),
+                        'manufacture_date' => now()->subMonths(18)->toDateString(),
+                        'expiry_date' => now()->addDays($earlyExpDays)->toDateString(),
+                        'status' => 'approved',
+                    ]
+                );
+            }
+
+            if ($freshOnline > 0) {
+                ProductBatch::updateOrCreate(
+                    ['batch_number' => sprintf('LOT-FG-202610-01%02d', $product->id)],
+                    [
+                        'product_id' => $product->id,
+                        'location_id' => 'online',
+                        'storage_bin' => 'ONL-RACK-B' . $product->id,
+                        'initial_qty' => $freshOnline,
+                        'current_qty' => $freshOnline,
+                        'available_qty' => $freshOnline,
+                        'reserved_qty' => 0,
+                        'quarantine_qty' => 0,
+                        'unit_cost' => (float) ($product->cost_price ?? 25.00),
+                        'manufacture_date' => now()->subMonth()->toDateString(),
+                        'expiry_date' => $product->calculateDefaultExpiryDate(now()->subMonth()),
+                        'status' => 'approved',
+                    ]
+                );
+            }
+
+            if ($centralStock > 0) {
+                ProductBatch::updateOrCreate(
+                    ['batch_number' => sprintf('LOT-FG-202610-02%02d', $product->id)],
+                    [
+                        'product_id' => $product->id,
+                        'location_id' => 'central_wh',
+                        'storage_bin' => 'CWH-PALLET-' . $product->id,
+                        'initial_qty' => $centralStock,
+                        'current_qty' => $centralStock,
+                        'available_qty' => $centralStock,
+                        'reserved_qty' => 0,
+                        'quarantine_qty' => 0,
+                        'unit_cost' => (float) ($product->cost_price ?? 25.00),
+                        'manufacture_date' => now()->subWeeks(3)->toDateString(),
+                        'expiry_date' => $product->calculateDefaultExpiryDate(now()->subWeeks(3)),
+                        'status' => 'approved',
+                    ]
+                );
+            }
         }
 
         foreach (InventoryViewModel::movements() as $m) {
@@ -909,18 +600,12 @@ class BluezoneSeeder extends Seeder
         }
 
         try {
-            \App\Services\InventoryService::syncAllProductsInventory();
+            InventoryService::syncAllProductsInventory();
         } catch (\Throwable $e) {
-            $this->command->warn('InventoryService sync skipped: ' . $e->getMessage());
+            $this->command?->warn('InventoryService sync skipped: ' . $e->getMessage());
         }
     }
-
-    /* ================================================================== */
-    /* PRODUCT DEFINITIONS                                                  */
-    /* ================================================================== */
-
-    private function getProductsData(): array
-    {
+}
         return [
 
             /* ---------------------------------------------------------- */
