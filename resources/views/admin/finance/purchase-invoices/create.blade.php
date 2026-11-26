@@ -329,9 +329,23 @@
         </form>
     </div>
 
+    @php
+        $rawMaterialsJson = $rawMaterials->map(fn($r) => [
+            'id' => $r->id,
+            'name' => $r->name_en . ' (' . $r->material_code . ')',
+            'cost' => (float) $r->standard_cost,
+            'shelf_life' => (int) ($r->shelf_life_days ?? 730),
+        ])->values();
+        $productsJson = $products->map(fn($p) => [
+            'id' => $p->id,
+            'name' => $p->name_en . ' (' . $p->sku . ')',
+            'cost' => (float) $p->cost_price,
+            'shelf_life' => (int) (($p->shelf_life_months ?? 24) * 30),
+        ])->values();
+    @endphp
     <script>
-        const rawMaterialsList = @json($rawMaterials->map(fn($r) => ['id' => $r->id, 'name' => $r->name_en . ' (' . $r->material_code . ')', 'cost' => (float)$r->standard_cost, 'shelf_life' => (int)($r->shelf_life_days ?? 730)]));
-        const productsList = @json($products->map(fn($p) => ['id' => $p->id, 'name' => $p->name_en . ' (' . $p->sku . ')', 'cost' => (float)$p->cost_price, 'shelf_life' => (int)(($p->shelf_life_months ?? 24) * 30)]));
+        const rawMaterialsList = @json($rawMaterialsJson);
+        const productsList = @json($productsJson);
 
         let rowCount = {{ $po && $po->items->isNotEmpty() ? $po->items->count() : 1 }};
 

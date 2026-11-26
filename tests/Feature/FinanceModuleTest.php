@@ -168,6 +168,7 @@ class FinanceModuleTest extends TestCase
             'items' => [
                 [
                     'item_name' => 'Cellular Growth Medium 500ml',
+                    'expiry_date' => now()->addYear()->toDateString(),
                     'quantity' => 10,
                     'unit_price' => 200.00,
                     'tax_rate' => 15.00,

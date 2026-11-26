@@ -246,19 +246,51 @@ class QuotationController extends Controller
                 $total = (float) $qItem->total;
                 $image = $product?->primary_image_url ?? $product?->image ?? 'assets/products/blue-mind.jpg';
 
+                $qty = (int) $qItem->quantity;
+                $allocations = [];
+                $allocatedBatchId = null;
+                $allocatedBatchNumber = null;
+                $allocatedExpiryDate = null;
+
+                if ($product) {
+                    try {
+                        $allocations = \App\Services\Product\FifoAllocationEngine::getInstance()->allocateProduct($product, $qty, 'central_wh');
+                        if (!empty($allocations)) {
+                            $primaryAlloc = $allocations[0];
+                            $allocatedBatchId = $primaryAlloc['batch_id'] ?? null;
+                            $allocatedBatchNumber = $primaryAlloc['batch_number'] ?? null;
+                            $allocatedExpiryDate = $primaryAlloc['expiry_date'] ?? null;
+                        }
+                    } catch (\Throwable $e) {
+                        \Log::warning("Quotation->Order FEFO allocation skipped: " . $e->getMessage());
+                    }
+                }
+
                 OrderItem::create([
                     'order_id' => $order->id,
+                    'item_type' => 'product',
                     'product_id' => $product?->id,
+                    'product_batch_id' => $allocatedBatchId,
+                    'batch_number' => $allocatedBatchNumber,
+                    'expiry_date' => $allocatedExpiryDate,
                     'product_name_en' => $nameEn,
                     'product_name_ar' => $nameAr,
                     'variant_en' => 'Standard Pack',
                     'variant_ar' => 'العبوة القياسية',
                     'sku' => $sku,
                     'unit_price' => $unitPrice,
-                    'quantity' => (int) $qItem->quantity,
+                    'quantity' => $qty,
                     'total' => $total,
                     'image' => $image,
                 ]);
+
+                if (!empty($allocations)) {
+                    \App\Services\Product\FifoAllocationEngine::getInstance()->commitProductDeduction(
+                        $allocations,
+                        "Sales Order #{$order->order_number}",
+                        auth()->user()?->name ?? 'System'
+                    );
+                }
             }
 
             $quotation->status = 'Converted';

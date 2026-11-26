@@ -109,6 +109,27 @@ class OrderItem extends Model
                     ?? 'assets/products/blue-mind.jpg';
             }
 
+            // Auto-resolve FEFO batch & expiry if not explicitly provided
+            if (!empty($item->product_batch_id) && (empty($item->batch_number) || empty($item->expiry_date))) {
+                $linkedBatch = ProductBatch::find($item->product_batch_id);
+                if ($linkedBatch) {
+                    $item->batch_number = $item->batch_number ?: $linkedBatch->batch_number;
+                    $item->expiry_date = $item->expiry_date ?: $linkedBatch->expiry_date;
+                }
+            } elseif (empty($item->product_batch_id) && !empty($item->product_id) && (empty($item->batch_number) || empty($item->expiry_date))) {
+                $fefoBatch = ProductBatch::where('product_id', $item->product_id)
+                    ->where('status', 'approved')
+                    ->whereDate('expiry_date', '>', now()->toDateString())
+                    ->orderByRaw('CASE WHEN available_qty > 0 THEN 0 ELSE 1 END')
+                    ->orderBy('expiry_date', 'asc')
+                    ->first();
+                if ($fefoBatch) {
+                    $item->product_batch_id = $fefoBatch->id;
+                    $item->batch_number = $item->batch_number ?: $fefoBatch->batch_number;
+                    $item->expiry_date = $item->expiry_date ?: $fefoBatch->expiry_date;
+                }
+            }
+
             // Remove non-schema virtual attributes if present
             unset($item->attributes['product_name'], $item->attributes['price']);
         });

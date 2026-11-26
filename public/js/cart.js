@@ -609,6 +609,13 @@
     }
   });
 
+  function formatCurrency(amount) {
+    if (window.BLUEZONE_CURRENCY && typeof window.BLUEZONE_CURRENCY.format === 'function') {
+      return window.BLUEZONE_CURRENCY.format(amount);
+    }
+    return parseFloat(amount || 0).toFixed(2) + ' EGP';
+  }
+
   const previousQueue = (window.BLUEZONE_CART && window.BLUEZONE_CART._queue) ? window.BLUEZONE_CART._queue : [];
 
   window.BLUEZONE_CART = {
@@ -624,7 +631,8 @@
     close: closeCartDrawer,
     render: renderCartDrawer,
     updateBadge: updateCartBadge,
-    sync: syncWithServer
+    sync: syncWithServer,
+    formatCurrency: formatCurrency
   };
 
   // Drain any queued calls before script load

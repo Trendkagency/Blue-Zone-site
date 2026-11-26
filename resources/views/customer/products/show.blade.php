@@ -489,22 +489,26 @@
               </p>
             </div>
 
+            @php
+              $firstTier = (!empty($protocolDurations['tiers'])) ? $protocolDurations['tiers'][0] : null;
+              $initialShowDiscount = $hasSale || (!empty($firstTier) && $firstTier['discount_amount'] > 0);
+              $initialOriginalPrice = $hasSale ? $pPrice : ($firstTier['raw_total'] ?? $displayPrice);
+              $initialBadgeText = $saveBadgeText ?: (!empty($firstTier['display_badge']) ? $firstTier['display_badge'] : '');
+            @endphp
             <!-- Price & Stock Status -->
             <div class="flex items-center gap-3.5 flex-wrap">
               <div class="text-3xl sm:text-4xl font-black text-[#0A4F78] dark:text-[#2A8FC2]" id="detail-display-price">
                 @currency($displayPrice)
               </div>
-              @if($hasSale)
-                <div class="text-xl line-through text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono" id="detail-strikethrough-price">
-                  @currency($pPrice)
-                </div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white border border-emerald-500/30 shadow-md">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span class="font-mono text-emerald-400 dark:text-[#B8D98A] font-black text-xs tracking-tight">
-                    {{ $saveBadgeText }}
-                  </span>
+              <div class="text-xl line-through text-[#031827]/40 dark:text-[#F6F5EF]/40 font-mono {{ $initialShowDiscount ? '' : 'hidden' }}" id="detail-strikethrough-price">
+                @currency($initialOriginalPrice)
+              </div>
+              <span id="detail-savings-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#02131F]/90 dark:bg-[#062B49]/95 text-white border border-emerald-500/30 shadow-md {{ $initialShowDiscount ? '' : 'hidden' }}">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="detail-savings-badge-text" class="font-mono text-emerald-400 dark:text-[#B8D98A] font-black text-xs tracking-tight">
+                  {{ $initialBadgeText }}
                 </span>
-              @endif
+              </span>
               <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full {{ $pStock > 10 ? 'bg-[#67B34A]/15 text-[#67B34A]' : 'bg-amber-500/15 text-amber-600 dark:text-amber-400' }}">
                 <span class="w-2 h-2 rounded-full {{ $pStock > 10 ? 'bg-[#67B34A]' : 'bg-amber-500' }}"></span>
                 <span>{{ $stockStatusText }}</span>
@@ -533,10 +537,12 @@
                     $isFirst = ($tIdx === 0);
                   @endphp
                   <button type="button" 
-                    onclick="selectProtocolTier('{{ $tier['id'] }}', {{ $tier['multiplier'] }}, {{ $tier['final_price'] }}, '{{ addslashes($tier['display_title']) }}', this)" 
+                    onclick="selectProtocolTier({{ json_encode($tier) }}, this)" 
                     data-tier-id="{{ $tier['id'] }}"
                     data-tier-multiplier="{{ $tier['multiplier'] }}"
                     data-tier-price="{{ $tier['final_price'] }}"
+                    data-tier-regular="{{ $tier['raw_total'] }}"
+                    data-tier-savings="{{ $tier['total_savings'] }}"
                     data-tier-title-en="{{ $tier['title_en'] }}"
                     data-tier-title-ar="{{ $tier['title_ar'] }}"
                     class="protocol-variant-btn p-3.5 rounded-2xl border-2 text-left rtl:text-right transition-all cursor-pointer relative overflow-hidden shadow-sm {{ $isFirst ? 'border-[#67B34A] bg-[#67B34A]/5' : 'border-[#0A4F78]/20 bg-white/50 dark:bg-white/5 hover:border-[#2A8FC2]' }}">
@@ -1802,15 +1808,64 @@
       </div>
     </div>
 
-    <!-- Product Detail Script with Smooth Collapsible Controller -->
+    <!-- Product Detail Script with Real-Time Protocol Duration Pricing Sync -->
     <script>
       let currentDetailQty = 1;
       let selectedProtocolTier = @json(!empty($protocolDurations['tiers']) ? $protocolDurations['tiers'][0] : null);
+
+      function syncBuyBoxPrices() {
+        const baseUnitPrice = selectedProtocolTier ? parseFloat(selectedProtocolTier.final_price) : parseFloat({{ (float) $displayPrice }});
+        const baseRawPrice = selectedProtocolTier ? parseFloat(selectedProtocolTier.raw_total) : parseFloat({{ (float) $pPrice }});
+        
+        const totalFinalPrice = baseUnitPrice * currentDetailQty;
+        const totalRawPrice = baseRawPrice * currentDetailQty;
+        const totalSavings = Math.max(0, totalRawPrice - totalFinalPrice);
+
+        const priceEl = document.getElementById('detail-display-price');
+        const strikethroughEl = document.getElementById('detail-strikethrough-price');
+        const badgeEl = document.getElementById('detail-savings-badge');
+        const badgeTextEl = document.getElementById('detail-savings-badge-text');
+
+        const formatter = (window.BLUEZONE_CART && typeof window.BLUEZONE_CART.formatCurrency === 'function')
+          ? window.BLUEZONE_CART.formatCurrency
+          : (window.BLUEZONE_CURRENCY && typeof window.BLUEZONE_CURRENCY.format === 'function')
+            ? window.BLUEZONE_CURRENCY.format
+            : (val => parseFloat(val || 0).toFixed(2) + ' EGP');
+
+        if (priceEl) {
+          priceEl.textContent = formatter(totalFinalPrice);
+        }
+
+        if (totalSavings > 0.009) {
+          if (strikethroughEl) {
+            strikethroughEl.textContent = formatter(totalRawPrice);
+            strikethroughEl.classList.remove('hidden');
+          }
+          if (badgeEl) {
+            badgeEl.classList.remove('hidden');
+          }
+          if (badgeTextEl) {
+            if (selectedProtocolTier && selectedProtocolTier.display_badge) {
+              badgeTextEl.textContent = selectedProtocolTier.display_badge;
+            } else {
+              const pct = Math.round((totalSavings / totalRawPrice) * 100);
+              const isAr = {{ $isRtl ? 'true' : 'false' }};
+              badgeTextEl.textContent = isAr 
+                ? `وفر ${formatter(totalSavings)} (${pct}% خصم)`
+                : `SAVE ${pct}% (${formatter(totalSavings)} OFF)`;
+            }
+          }
+        } else {
+          if (strikethroughEl) strikethroughEl.classList.add('hidden');
+          if (badgeEl) badgeEl.classList.add('hidden');
+        }
+      }
 
       function updateQty(delta) {
         currentDetailQty = Math.max(1, currentDetailQty + delta);
         const qtyEl = document.getElementById('detail-qty-val');
         if (qtyEl) qtyEl.textContent = currentDetailQty;
+        syncBuyBoxPrices();
       }
 
       function switchMainImage(src, btn) {
@@ -1830,7 +1885,7 @@
         }
       }
 
-      function selectProtocolTier(tierId, multiplier, finalPrice, title, btn) {
+      function selectProtocolTier(tier, btn) {
         document.querySelectorAll('.protocol-variant-btn').forEach(b => {
           b.classList.remove('border-[#67B34A]', 'bg-[#67B34A]/5');
           b.classList.add('border-[#0A4F78]/20');
@@ -1840,18 +1895,8 @@
           btn.classList.add('border-[#67B34A]', 'bg-[#67B34A]/5');
         }
 
-        selectedProtocolTier = {
-          tier_id: tierId,
-          multiplier: multiplier,
-          price: finalPrice,
-          title: title
-        };
-
-        // Live update price display
-        const priceEl = document.getElementById('detail-display-price');
-        if (priceEl && typeof BLUEZONE_CART !== 'undefined' && BLUEZONE_CART.formatCurrency) {
-          priceEl.textContent = BLUEZONE_CART.formatCurrency(finalPrice);
-        }
+        selectedProtocolTier = tier;
+        syncBuyBoxPrices();
       }
 
       function addSelectedProtocolToCart() {
@@ -1859,20 +1904,32 @@
         const isAr = {{ $isRtl ? 'true' : 'false' }};
         const tier = selectedProtocolTier;
 
+        const baseUnitPrice = tier ? parseFloat(tier.final_price) : parseFloat({{ (float) $displayPrice }});
+        const baseRawPrice = tier ? parseFloat(tier.raw_total) : parseFloat({{ (float) $pPrice }});
+        const unitSavings = Math.max(0, baseRawPrice - baseUnitPrice);
+
         const payload = {
           quantity: currentDetailQty,
-          tier_id: tier ? tier.tier_id : null,
-          tier_multiplier: tier ? tier.multiplier : 1,
-          price: tier ? tier.price : {{ $displayPrice }},
-          tier_title_en: tier ? (tier.title_en || tier.title) : null,
-          tier_title_ar: tier ? (tier.title_ar || tier.title) : null,
+          tier_id: tier ? tier.id : null,
+          tier_multiplier: tier ? (tier.multiplier || 1) : 1,
+          price: baseUnitPrice,
+          original_price: baseRawPrice,
+          savings: unitSavings,
+          tier_badge: tier ? (tier.display_badge || '') : '{{ $saveBadgeText }}',
+          tier_title_en: tier ? (tier.title_en || tier.display_title || '') : null,
+          tier_title_ar: tier ? (tier.title_ar || tier.display_title || '') : null,
         };
 
         BLUEZONE_CART.add(pSlug, currentDetailQty, payload);
         if (window.toast) {
-          window.toast.success(isAr ? 'تمت إضافة المستحضر إلى السلة والبروتوكول بنجاح' : 'Added to Clinical Protocol Cart successfully');
+          window.toast.success(isAr ? 'تمت إضافة باقة البروتوكول إلى السلة بنجاح' : 'Added Protocol Pack to Cart successfully');
         }
       }
+
+      // Initial Buy Box sync on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        syncBuyBoxPrices();
+      });
 
       // ==========================================
       // ACCORDION COLLAPSE CONTROLLER

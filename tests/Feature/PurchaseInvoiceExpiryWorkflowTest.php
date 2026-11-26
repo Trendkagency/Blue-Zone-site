@@ -50,14 +50,15 @@ class PurchaseInvoiceExpiryWorkflowTest extends TestCase
         );
 
         $this->supplier = Supplier::create([
-            'supplier_code' => 'SUP-TEST-01',
+            'code' => 'SUP-TEST-01',
             'name_en' => 'Test Pharma Supplier',
             'name_ar' => 'مورد اختبار',
+            'email' => 'supplier@bluezone.test',
             'is_active' => true,
         ]);
 
         $this->rawMaterial = RawMaterial::create([
-            'material_code' => 'RM-TEST-001',
+            'code' => 'RM-TEST-001',
             'name_en' => 'Sponge 6CM',
             'name_ar' => 'اسفنج 6 سم',
             'unit_of_measure' => 'pcs',
@@ -259,6 +260,7 @@ class PurchaseInvoiceExpiryWorkflowTest extends TestCase
             'po_number' => 'PO-TEST-001',
             'supplier_id' => $this->supplier->id,
             'destination_location_id' => 'central_wh',
+            'created_by' => $this->admin->id,
             'status' => PurchaseOrderStatus::Received,
             'order_date' => now()->toDateString(),
             'subtotal' => 110,
@@ -322,7 +324,7 @@ class PurchaseInvoiceExpiryWorkflowTest extends TestCase
             'status' => RawMaterialBatchStatus::Quarantine,
         ]);
 
-        $response = $this->actingAs($this->admin)->post(route('admin.goods-receipts.convert-to-bill', $grn));
+        $response = $this->actingAs($this->admin)->post(route('admin.goods-receipts.generate-bill', $grn));
 
         $invoice = PurchaseInvoice::latest('id')->firstOrFail();
         $response->assertRedirect(route('admin.finance.purchase-invoices.show', $invoice));

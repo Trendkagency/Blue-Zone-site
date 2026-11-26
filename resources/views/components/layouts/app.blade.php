@@ -115,8 +115,17 @@
         };
     </script>
 
-    <!-- Early Global Cart Interface Stub -->
+    <!-- Early Global Cart Interface Stub & Currency Provider -->
     <script>
+        window.BLUEZONE_CURRENCY_CONFIG = @json(\App\Services\CurrencyService::jsConfig());
+        window.BLUEZONE_CURRENCY = {
+            config: window.BLUEZONE_CURRENCY_CONFIG,
+            format: function(amount) {
+                var num = parseFloat(amount || 0).toFixed(this.config.decimals || 2);
+                return this.config.position === 'before' ? (this.config.symbol + ' ' + num) : (num + ' ' + this.config.symbol);
+            }
+        };
+
         window.BLUEZONE_CART = window.BLUEZONE_CART || {
             _queue: [],
             add: function() { this._queue.push(['add', Array.from(arguments)]); },

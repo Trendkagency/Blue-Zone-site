@@ -46,9 +46,10 @@ class InvoiceController extends Controller
      */
     public function show(string $id): View
     {
+        $relations = ['items.productBatch', 'items.rawMaterialBatch', 'items.product', 'items.rawMaterial', 'customer'];
         $order = is_numeric($id) 
-            ? Order::with(['items', 'customer'])->find($id) 
-            : Order::with(['items', 'customer'])->where('order_number', $id)->orWhere('invoice_number', $id)->first();
+            ? Order::with($relations)->find($id) 
+            : Order::with($relations)->where('order_number', $id)->orWhere('invoice_number', $id)->first();
 
         if (!$order) {
             $fallback = OrderViewModel::find($id);
@@ -84,9 +85,10 @@ class InvoiceController extends Controller
      */
     public function print(string $id): View
     {
+        $relations = ['items.productBatch', 'items.rawMaterialBatch', 'items.product', 'items.rawMaterial', 'customer'];
         $order = is_numeric($id) 
-            ? Order::with(['items', 'customer'])->find($id) 
-            : Order::with(['items', 'customer'])->where('order_number', $id)->orWhere('invoice_number', $id)->first();
+            ? Order::with($relations)->find($id) 
+            : Order::with($relations)->where('order_number', $id)->orWhere('invoice_number', $id)->first();
 
         if (!$order) {
             $fallback = OrderViewModel::find($id);

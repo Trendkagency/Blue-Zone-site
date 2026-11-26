@@ -1606,6 +1606,8 @@
             }
         }
 
+        const systemCurrencySymbol = "{{ \App\Services\CurrencyService::symbol() }}";
+
         function setDiscountMode(mode) {
             discountMode = mode;
             const btnPct = document.getElementById('btnDiscountModePct');
@@ -1626,8 +1628,8 @@
                 btnFixed.style.color = '#fff';
                 btnPct.style.background = 'transparent';
                 btnPct.style.color = 'var(--color-text-muted)';
-                label.textContent = isAr ? 'مبلغ الخصم المالي المباشر ($)' : 'Discount Amount ($)';
-                symbol.textContent = '$';
+                label.textContent = isAr ? `مبلغ الخصم المالي المباشر (${systemCurrencySymbol})` : `Discount Amount (${systemCurrencySymbol})`;
+                symbol.textContent = systemCurrencySymbol;
             }
 
             syncDiscountRateFromSalePrice();
@@ -1706,8 +1708,8 @@
                 }
                 if (text) {
                     text.textContent = isAr 
-                        ? `يوفر العميل $${savings.toFixed(2)} (${pct}% خصم ترويجي)`
-                        : `Customer saves $${savings.toFixed(2)} (${pct}% promotional discount)`;
+                        ? `يوفر العميل ${savings.toFixed(2)} ${systemCurrencySymbol} (${pct}% خصم ترويجي)`
+                        : `Customer saves ${systemCurrencySymbol} ${savings.toFixed(2)} (${pct}% promotional discount)`;
                 }
             } else {
                 if (bar) bar.style.display = 'none';
