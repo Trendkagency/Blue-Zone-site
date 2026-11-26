@@ -7,13 +7,29 @@
     ]"
 >
     <x-slot name="actions">
-        <div class="flex items-center gap-2.5 flex-wrap">
-            <button type="button" @click="$dispatch('open-expense-modal')" class="btn btn-primary font-bold shadow-lg shadow-blue-500/20 px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02]">
+        <div class="flex items-center gap-2.5 flex-wrap" x-data>
+            <button 
+                type="button" 
+                onclick="window.openExpenseModal && window.openExpenseModal()" 
+                @click="$dispatch('open-expense-modal')" 
+                class="btn btn-primary font-bold shadow-lg shadow-blue-500/20 px-5 py-2.5 rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+            >
                 <i class="fa-solid fa-plus-circle text-base"></i>
                 <span>{{ __('finance.create_expense') }}</span>
             </button>
         </div>
     </x-slot>
+
+    <!-- Global Trigger Script -->
+    <script>
+        window.openExpenseModal = function() {
+            window.dispatchEvent(new CustomEvent('open-expense-modal'));
+            const root = document.getElementById('expensePageRoot');
+            if (root && root._x_dataStack && root._x_dataStack[0]) {
+                root._x_dataStack[0].openModal();
+            }
+        };
+    </script>
 
     @if(session('status'))
         <div class="p-4 mb-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-sm flex items-center gap-3 shadow-xs">
@@ -22,7 +38,7 @@
         </div>
     @endif
 
-    <div class="space-y-6" x-data="expensePageManager()">
+    <div class="space-y-6" id="expensePageRoot" x-data="expensePageManager()" @open-expense-modal.window="openModal()">
 
         <!-- Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -234,9 +250,10 @@
         <!-- PROFESSIONAL DRAGGABLE MODAL: Record New Expense (Light & Dark Mode)      -->
         <!-- ========================================================================= -->
         <div 
+            id="expenseDraggableModalWrapper"
             x-show="isOpen" 
             x-cloak
-            class="fixed inset-0 z-[9999] pointer-events-none"
+            class="fixed inset-0 z-[99999]"
             style="display: none;"
         >
             <!-- Semi-transparent backdrop to view underlying figures while positioning -->
@@ -572,9 +589,9 @@
                 },
                 get modalStyle() {
                     if (this.posX === null || this.posY === null) {
-                        return 'top: 50%; left: 50%; transform: translate(-50%, -50%);';
+                        return 'top: 50%; left: 50%; transform: translate(-50%, -50%); position: fixed; z-index: 100000;';
                     }
-                    return `top: ${this.posY}px; left: ${this.posX}px; transform: none;`;
+                    return `top: ${this.posY}px; left: ${this.posX}px; transform: none; position: fixed; z-index: 100000;`;
                 },
                 init() {
                     window.addEventListener('open-expense-modal', () => {
@@ -583,11 +600,11 @@
                 },
                 openModal() {
                     this.isOpen = true;
-                    if (this.posX === null || this.posY === null) {
-                        this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        if (this.posX === null || this.posY === null) {
                             this.centerModal();
-                        });
-                    }
+                        }
+                    });
                 },
                 closeModal() {
                     this.isOpen = false;
@@ -600,7 +617,7 @@
                     this.posY = Math.max(20, Math.floor((window.innerHeight - h) / 2));
                 },
                 startDrag(e) {
-                    if (e.button !== 0) return; // Primary click only
+                    if (e.button !== 0 || e.target.closest('button, a, input, select, textarea')) return;
                     this.isDragging = true;
                     this.startX = e.clientX;
                     this.startY = e.clientY;
@@ -637,7 +654,7 @@
                     window.addEventListener('mouseup', onMouseUp);
                 },
                 startTouchDrag(e) {
-                    if (e.touches.length !== 1) return;
+                    if (e.touches.length !== 1 || e.target.closest('button, a, input, select, textarea')) return;
                     this.isDragging = true;
                     const touch = e.touches[0];
                     this.startX = touch.clientX;
